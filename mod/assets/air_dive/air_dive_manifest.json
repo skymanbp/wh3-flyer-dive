@@ -1,0 +1,3287 @@
+{
+ "generator": "tools/pipelines/air_dive.py",
+ "rule": {
+  "min_clip_drop_m": 1.0,
+  "slot_104": "removed from every renamed table",
+  "slot_484": "CA's own where the vanilla table has one; otherwise added from the table's 489 jump attack, else its 454 ATTACK_1 (CA's own clips, AIR-DIVE-RELEASE-W1)",
+  "slot_489": "removed where the table has a 484 moving attack (every table since AIR-DIVE-RELEASE-W1); no plough clip (AIR-DIVE-MP-DIVE-W1 ground handoff)",
+  "jump_attack_chance": "0 on every flyer (air_dive_rules)",
+  "copies": "one renamed copy per plough speed among a table's flying riders; the plough clip peaks at that speed (AIR-DIVE-W12); plough speed = charge speed x body-size multiplier, cap 20 (AIR-DIVE-W13)",
+  "slot_103": "unchanged (no vanilla clip carries descent there)"
+ },
+ "flight_tables": 74,
+ "slot_103_census": {
+  "clips": 44,
+  "max_abs_animroot_drop_m": 0.095,
+  "not_measured": [
+   "animations/battle/bird01b/locomotion/bi1b_fly_charge_01.anim"
+  ]
+ },
+ "tables_renamed": [
+  {
+   "source": "bc2_deathclaw",
+   "renamed": "bc2_deathclaw_ld_dive_v135",
+   "skeleton": "bigcat02",
+   "bin": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v135.bin",
+   "entities": [
+    "wh3_dlc24_cth_mon_celestial_lion",
+    "wh3_dlc27_cth_mon_celestial_lion_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2_deathclaw.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_dlc24_cth_mon_celestial_lion": "very_large",
+    "wh3_dlc27_cth_mon_celestial_lion_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02/transitions/bc2_fly_charge_land_01.{1imbqqf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anim",
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02/attacks/bc2_jump_attack_01.{umbiwc}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2_deathclaw",
+   "renamed": "bc2_deathclaw_ld_dive_v148",
+   "skeleton": "bigcat02",
+   "bin": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v148.bin",
+   "entities": [
+    "wh_main_flying_griffon_legendary_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2_deathclaw.bin",
+   "speed": 14.8,
+   "body_sizes": {
+    "wh_main_flying_griffon_legendary_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02/transitions/bc2_fly_charge_land_01.{1imbqqf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anim",
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02/attacks/bc2_jump_attack_01.{umbiwc}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2_griffon",
+   "renamed": "bc2_griffon_ld_dive_v144",
+   "skeleton": "bigcat02",
+   "bin": "animations/database/battle/bin/bc2_griffon_ld_dive_v144.bin",
+   "entities": [
+    "ld_emp_griffon_blood",
+    "wh_main_flying_griffon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2_griffon.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "ld_emp_griffon_blood": "very_large",
+    "wh_main_flying_griffon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02/transitions/bc2_fly_charge_land_01.{1imbqqf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anim",
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02/attacks/bc2_jump_attack_01.{umbiwc}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2_griffon",
+   "renamed": "bc2_griffon_ld_dive_v148",
+   "skeleton": "bigcat02",
+   "bin": "animations/database/battle/bin/bc2_griffon_ld_dive_v148.bin",
+   "entities": [
+    "wh_main_flying_griffon_legendary_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2_griffon.bin",
+   "speed": 14.8,
+   "body_sizes": {
+    "wh_main_flying_griffon_legendary_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02/transitions/bc2_fly_charge_land_01.{1imbqqf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anim",
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02/attacks/bc2_jump_attack_01.{umbiwc}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2_griffon_draught",
+   "renamed": "bc2_griffon_draught_ld_dive",
+   "skeleton": "bigcat02",
+   "bin": "animations/database/battle/bin/bc2_griffon_draught_ld_dive.bin",
+   "entities": [
+    "wh_main_flying_griffon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2_griffon_draught.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh_main_flying_griffon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+     "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02/transitions/bc2_fly_charge_land_01.{1imbqqf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anim",
+     "animations/battle/bigcat02/attacks/bc2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02/attacks/bc2_jump_attack_01.{umbiwc}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2b_hippogryph",
+   "renamed": "bc2b_hippogryph_ld_dive_v144",
+   "skeleton": "bigcat02b",
+   "bin": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v144.bin",
+   "entities": [
+    "ld_black_grail_hippo"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2b_hippogryph.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "ld_black_grail_hippo": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anim",
+     "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.{1fjgbaf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anim",
+     "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02b/attacks/bc2b_jump_attack_01.{qcjnrq}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anim",
+      "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anm.meta",
+      "animations/audio/battle/bigcat02b/attacks/bc2b_jump_attack_01.{qcjnrq}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2b_hippogryph",
+   "renamed": "bc2b_hippogryph_ld_dive_v153",
+   "skeleton": "bigcat02b",
+   "bin": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v153.bin",
+   "entities": [
+    "wh_dlc07_brt_mnt_hippogryph_blood",
+    "wh_main_brt_mnt_hippogryph_hero_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2b_hippogryph.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh_dlc07_brt_mnt_hippogryph_blood": "large",
+    "wh_main_brt_mnt_hippogryph_hero_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anim",
+     "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.{1fjgbaf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anim",
+     "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02b/attacks/bc2b_jump_attack_01.{qcjnrq}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anim",
+      "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anm.meta",
+      "animations/audio/battle/bigcat02b/attacks/bc2b_jump_attack_01.{qcjnrq}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2b_hippogryph",
+   "renamed": "bc2b_hippogryph_ld_dive_v158",
+   "skeleton": "bigcat02b",
+   "bin": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v158.bin",
+   "entities": [
+    "wh_main_brt_mnt_hippogryph_beaquis_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2b_hippogryph.bin",
+   "speed": 15.8,
+   "body_sizes": {
+    "wh_main_brt_mnt_hippogryph_beaquis_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anim",
+     "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.{1fjgbaf}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anim",
+     "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02b/attacks/bc2b_jump_attack_01.{qcjnrq}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anim",
+      "animations/battle/bigcat02b/attacks/bc2b_jump_attack_01.anm.meta",
+      "animations/audio/battle/bigcat02b/attacks/bc2b_jump_attack_01.{qcjnrq}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2c_dlc23_lammasu_feral",
+   "renamed": "bc2c_dlc23_lammasu_feral_ld_dive",
+   "skeleton": "bigcat02c",
+   "bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral_ld_dive.bin",
+   "entities": [
+    "wh3_dlc23_chd_mon_lammasu",
+    "wh3_dlc27_chd_mon_lammasu_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "wh3_dlc23_chd_mon_lammasu": "very_large",
+    "wh3_dlc27_chd_mon_lammasu_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.anim",
+     "animations/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.{1wkvbyg}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02c/attacks/bc2c_jump_attack_01.anim",
+     "animations/battle/bigcat02c/attacks/bc2c_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02c/attacks/bc2c_jump_attack_01.{ostplu}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc2c_dlc23_lammasu_mount",
+   "renamed": "bc2c_dlc23_lammasu_mount_ld_dive",
+   "skeleton": "bigcat02c",
+   "bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount_ld_dive.bin",
+   "entities": [
+    "wh3_dlc23_chd_mnt_lammasu"
+   ],
+   "source_bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "wh3_dlc23_chd_mnt_lammasu": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.anim",
+     "animations/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.{1wkvbyg}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat02c/attacks/bc2c_jump_attack_01.anim",
+     "animations/battle/bigcat02c/attacks/bc2c_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat02c/attacks/bc2c_jump_attack_01.{ostplu}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc3_manticore",
+   "renamed": "bc3_manticore_ld_dive",
+   "skeleton": "bigcat03",
+   "bin": "animations/database/battle/bin/bc3_manticore_ld_dive.bin",
+   "entities": [
+    "wh3_dlc27_chs_feral_manticore_boss",
+    "wh3_main_flying_manticore_blood",
+    "wh_dlc01_flying_manticore_blood",
+    "wh_dlc01_mnt_flying_manticore_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bc3_manticore.bin",
+   "speed": 15.8,
+   "body_sizes": {
+    "wh3_dlc27_chs_feral_manticore_boss": "large",
+    "wh3_main_flying_manticore_blood": "large",
+    "wh_dlc01_flying_manticore_blood": "large",
+    "wh_dlc01_mnt_flying_manticore_blood": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat03/transitions/bc3_fly_charge_land_01.anim",
+     "animations/battle/bigcat03/transitions/bc3_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat03/transitions/bc3_fly_charge_land_01.{jctabu}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat03/attacks/bc3_jump_attack_01.anim",
+     "animations/battle/bigcat03/attacks/bc3_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat03/attacks/bc3_jump_attack_01.{au4v1v}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bigcat03/attacks/bc3_jump_attack_01.anim",
+      "animations/battle/bigcat03/attacks/bc3_jump_attack_01.anm.meta",
+      "animations/audio/battle/bigcat03/attacks/bc3_jump_attack_01.{au4v1v}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc3b_dlc27_chimera",
+   "renamed": "bc3b_dlc27_chimera_ld_dive",
+   "skeleton": "bigcat03b",
+   "bin": "animations/database/battle/bin/bc3b_dlc27_chimera_ld_dive.bin",
+   "entities": [
+    "wh3_dlc27_nor_mon_chimera",
+    "wh3_dlc27_nor_mon_chimera_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/bc3b_dlc27_chimera.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_dlc27_nor_mon_chimera": "large",
+    "wh3_dlc27_nor_mon_chimera_boss": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat03b/transitions/bc3b_chimera_fly_charge_land_01.anim",
+     "animations/battle/bigcat03b/transitions/bc3b_chimera_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat03b/transitions/bc3b_chimera_fly_charge_land_01.{8x9285}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat03b/attacks/bc3b_chimera_jump_attack_01.anim",
+     "animations/battle/bigcat03b/attacks/bc3b_chimera_jump_attack_01.anm.meta",
+     "animations/audio/battle/bigcat03b/attacks/bc3b_chimera_jump_attack_01.{15qd3ls}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bigcat03b/attacks/bc3b_chimera_jump_attack_01.anim",
+      "animations/battle/bigcat03b/attacks/bc3b_chimera_jump_attack_01.anm.meta",
+      "animations/audio/battle/bigcat03b/attacks/bc3b_chimera_jump_attack_01.{15qd3ls}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bc3ca_dlc29_mnt_dread_abyssal",
+   "renamed": "bc3ca_dlc29_mnt_dread_abyssal_ld_dive",
+   "skeleton": "bigcat03ca",
+   "bin": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal_ld_dive.bin",
+   "entities": [
+    "wh3_dlc29_vmp_mnt_dread_abyssal_arkhan",
+    "wh3_dlc29_vmp_mnt_dread_abyssal_mannfred",
+    "wh3_dlc29_vmp_mnt_dread_abyssal_neferata"
+   ],
+   "source_bin": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "wh3_dlc29_vmp_mnt_dread_abyssal_arkhan": "large",
+    "wh3_dlc29_vmp_mnt_dread_abyssal_mannfred": "large",
+    "wh3_dlc29_vmp_mnt_dread_abyssal_neferata": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_charge_land_01.anim",
+     "animations/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_charge_land_01.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bigcat03ca/subset/dread_abyssal/attacks/bc3ca_dreadabyssal_jumping_attack_01.anim",
+     "animations/battle/bigcat03ca/subset/dread_abyssal/attacks/bc3ca_dreadabyssal_jumping_attack_01.anm.meta",
+     "animations/audio/battle/bigcat03ca/subset/dread_abyssal/attacks/bc3ca_dreadabyssal_jumping_attack_01.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bigcat03ca/subset/dread_abyssal/attacks/bc3ca_dreadabyssal_jumping_attack_01.anim",
+      "animations/battle/bigcat03ca/subset/dread_abyssal/attacks/bc3ca_dreadabyssal_jumping_attack_01.anm.meta",
+      "animations/audio/battle/bigcat03ca/subset/dread_abyssal/attacks/bc3ca_dreadabyssal_jumping_attack_01.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_dlc15_phoenix",
+   "renamed": "bi1_dlc15_phoenix_ld_dive",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_dlc15_phoenix_ld_dive.bin",
+   "entities": [
+    "wh2_dlc15_hef_mon_arcane_phoenix_0",
+    "wh3_dlc27_hef_mnt_ashtari"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_dlc15_phoenix.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh2_dlc15_hef_mon_arcane_phoenix_0": "large",
+    "wh3_dlc27_hef_mnt_ashtari": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_dlc24_moon_bird",
+   "renamed": "bi1_dlc24_moon_bird_ld_dive",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_dlc24_moon_bird_ld_dive.bin",
+   "entities": [
+    "wh3_dlc24_cth_mon_great_moon_bird"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_dlc24_moon_bird.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_dlc24_cth_mon_great_moon_bird": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_eagle",
+   "renamed": "bi1_eagle_ld_dive_v135",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_eagle_ld_dive_v135.bin",
+   "entities": [
+    "wh2_main_hef_mon_phoenix_frostheart"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_eagle.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh2_main_hef_mon_phoenix_frostheart": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_eagle",
+   "renamed": "bi1_eagle_ld_dive_v153",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_eagle_ld_dive_v153.bin",
+   "entities": [
+    "wh2_dlc15_hef_mon_arcane_phoenix_0",
+    "wh2_main_hef_mon_phoenix"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_eagle.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh2_dlc15_hef_mon_arcane_phoenix_0": "large",
+    "wh2_main_hef_mon_phoenix": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_eagle",
+   "renamed": "bi1_eagle_ld_dive_v171",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_eagle_ld_dive_v171.bin",
+   "entities": [
+    "wh_dlc05_wef_mon_great_eagle_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_eagle.bin",
+   "speed": 17.1,
+   "body_sizes": {
+    "wh_dlc05_wef_mon_great_eagle_blood": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_eagle_boss",
+   "renamed": "bi1_eagle_boss_ld_dive",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_eagle_boss_ld_dive.bin",
+   "entities": [
+    "wh2_dlc10_hef_mon_phoenix_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_eagle_boss.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh2_dlc10_hef_mon_phoenix_boss": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1_eagle_sisters_of_twilight",
+   "renamed": "bi1_eagle_sisters_of_twilight_ld_dive",
+   "skeleton": "bird01",
+   "bin": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight_ld_dive.bin",
+   "entities": [
+    "wh_dlc05_wef_mon_great_eagle_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight.bin",
+   "speed": 17.1,
+   "body_sizes": {
+    "wh_dlc05_wef_mon_great_eagle_blood": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+     "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01/transitions/bi1_fly_charge_land_01.{14kq7nw}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+     "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anim",
+      "animations/battle/bird01/attacks/bi1_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01/attacks/bi1_jump_attack_01.{p83qjy}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1b_carrion",
+   "renamed": "bi1b_carrion_ld_dive_v135",
+   "skeleton": "bird01b",
+   "bin": "animations/database/battle/bin/bi1b_carrion_ld_dive_v135.bin",
+   "entities": [
+    "wh2_dlc09_tmb_flying_carrion",
+    "wh3_dlc26_ogr_blood_vultures"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1b_carrion.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh2_dlc09_tmb_flying_carrion": "small",
+    "wh3_dlc26_ogr_blood_vultures": "small"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anim",
+     "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01b/transitions/bi1b_fly_charge_land_01.{18wt3e8}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anim",
+     "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01b/attacks/bi1b_jump_attack_01.{8rd9zd}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anim",
+      "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01b/attacks/bi1b_jump_attack_01.{8rd9zd}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1b_carrion",
+   "renamed": "bi1b_carrion_ld_dive_v144",
+   "skeleton": "bird01b",
+   "bin": "animations/database/battle/bin/bi1b_carrion_ld_dive_v144.bin",
+   "entities": [
+    "wh2_dlc09_tmb_flying_carrion_ror"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1b_carrion.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh2_dlc09_tmb_flying_carrion_ror": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anim",
+     "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01b/transitions/bi1b_fly_charge_land_01.{18wt3e8}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anim",
+     "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01b/attacks/bi1b_jump_attack_01.{8rd9zd}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anim",
+      "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01b/attacks/bi1b_jump_attack_01.{8rd9zd}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi1b_carrion",
+   "renamed": "bi1b_carrion_ld_dive_v153",
+   "skeleton": "bird01b",
+   "bin": "animations/database/battle/bin/bi1b_carrion_ld_dive_v153.bin",
+   "entities": [
+    "wh3_dlc27_tmb_mon_carrion_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/bi1b_carrion.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_dlc27_tmb_mon_carrion_boss": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anim",
+     "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird01b/transitions/bi1b_fly_charge_land_01.{18wt3e8}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anim",
+     "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird01b/attacks/bi1b_jump_attack_01.{8rd9zd}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anim",
+      "animations/battle/bird01b/attacks/bi1b_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird01b/attacks/bi1b_jump_attack_01.{8rd9zd}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi2_dlc27_preyton",
+   "renamed": "bi2_dlc27_preyton_ld_dive",
+   "skeleton": "bird02",
+   "bin": "animations/database/battle/bin/bi2_dlc27_preyton_ld_dive.bin",
+   "entities": [
+    "wh3_dlc27_sla_mon_preyton",
+    "wh3_dlc27_sla_mon_preyton_boss",
+    "wh3_dlc27_sla_mon_preyton_ror"
+   ],
+   "source_bin": "animations/database/battle/bin/bi2_dlc27_preyton.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_dlc27_sla_mon_preyton": "very_large",
+    "wh3_dlc27_sla_mon_preyton_boss": "very_large",
+    "wh3_dlc27_sla_mon_preyton_ror": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+     "animations/battle/bird02/transitions/bi2_preyton_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird02/transitions/bi2_preyton_fly_charge_land_01.{stqq6e}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+     "animations/battle/bird02/attacks/bi2_preyton_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird02/attacks/bi2_preyton_jump_attack_01.{ztgxqn}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+      "animations/battle/bird02/attacks/bi2_preyton_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird02/attacks/bi2_preyton_jump_attack_01.{ztgxqn}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi2_terrorgheist",
+   "renamed": "bi2_terrorgheist_ld_dive",
+   "skeleton": "bird02",
+   "bin": "animations/database/battle/bin/bi2_terrorgheist_ld_dive.bin",
+   "entities": [
+    "wh2_dlc11_cst_terrorgheist_blood",
+    "wh_main_flying_terrorgheist_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bi2_terrorgheist.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh2_dlc11_cst_terrorgheist_blood": "very_large",
+    "wh_main_flying_terrorgheist_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird02/transitions/bi2_fly_charge_land_01.{stqq6e}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi2_terrorgheist_boss",
+   "renamed": "bi2_terrorgheist_boss_ld_dive",
+   "skeleton": "bird02",
+   "bin": "animations/database/battle/bin/bi2_terrorgheist_boss_ld_dive.bin",
+   "entities": [
+    "wh_dlc08_vmp_mon_terrorgheist_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/bi2_terrorgheist_boss.bin",
+   "speed": 18.0,
+   "body_sizes": {
+    "wh_dlc08_vmp_mon_terrorgheist_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird02/transitions/bi2_fly_charge_land_01.{stqq6e}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi2_wyvern",
+   "renamed": "bi2_wyvern_ld_dive_v126",
+   "skeleton": "bird02",
+   "bin": "animations/database/battle/bin/bi2_wyvern_ld_dive_v126.bin",
+   "entities": [
+    "ld_bm_wf_obsidian_great_wyrm"
+   ],
+   "source_bin": "animations/database/battle/bin/bi2_wyvern.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "ld_bm_wf_obsidian_great_wyrm": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird02/transitions/bi2_fly_charge_land_01.{stqq6e}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "bi2_wyvern",
+   "renamed": "bi2_wyvern_ld_dive_v144",
+   "skeleton": "bird02",
+   "bin": "animations/database/battle/bin/bi2_wyvern_ld_dive_v144.bin",
+   "entities": [
+    "wh_main_flying_wyvern_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/bi2_wyvern.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh_main_flying_wyvern_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+     "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/bird02/transitions/bi2_fly_charge_land_01.{stqq6e}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+     "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+     "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anim",
+      "animations/battle/bird02/attacks/bi2_jump_attack_01.anm.meta",
+      "animations/audio/battle/bird02/attacks/bi2_jump_attack_01.{ztgxqn}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "co1_dlc22_cockatrice",
+   "renamed": "co1_dlc22_cockatrice_ld_dive",
+   "skeleton": "cockatrice01",
+   "bin": "animations/database/battle/bin/co1_dlc22_cockatrice_ld_dive.bin",
+   "entities": [
+    "wh3_dlc22_tze_mon_cockatrice",
+    "wh3_dlc27_tze_mon_cockatrice_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/co1_dlc22_cockatrice.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_dlc22_tze_mon_cockatrice": "very_large",
+    "wh3_dlc27_tze_mon_cockatrice_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/cockatrice01/transitions/co1_fly_charge_land_01.anim",
+     "animations/battle/cockatrice01/transitions/co1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/cockatrice01/transitions/co1_fly_charge_land_01.{1wviy5x}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/cockatrice01/attacks/co1_jumping_attack_01.anim",
+     "animations/battle/cockatrice01/attacks/co1_jumping_attack_01.anm.meta",
+     "animations/audio/battle/cockatrice01/attacks/co1_jumping_attack_01.{a5to4t}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr04_dlc24_dragon_jade",
+   "renamed": "dr04_dlc24_dragon_jade_ld_dive",
+   "skeleton": "dragon04",
+   "bin": "animations/database/battle/bin/dr04_dlc24_dragon_jade_ld_dive.bin",
+   "entities": [
+    "wh3_dlc24_cth_cha_yuan_bo_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr04_dlc24_dragon_jade.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_dlc24_cth_cha_yuan_bo_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anim",
+     "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.{1essr1i}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon04/subset/dragon04_jade/attacks/dr04_jade_jumping_attack_01.anim",
+     "animations/battle/dragon04/subset/dragon04_jade/attacks/dr04_jade_jumping_attack_01.anm.meta",
+     "animations/audio/battle/dragon04/subset/dragon04_jade/attacks/dr04_jade_jumping_attack_01.{1o1glfk}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/dragon04/subset/dragon04_jade/attacks/dr04_jade_jumping_attack_01.anim",
+      "animations/battle/dragon04/subset/dragon04_jade/attacks/dr04_jade_jumping_attack_01.anm.meta",
+      "animations/audio/battle/dragon04/subset/dragon04_jade/attacks/dr04_jade_jumping_attack_01.{1o1glfk}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr04_dragon_iron",
+   "renamed": "dr04_dragon_iron_ld_dive",
+   "skeleton": "dragon04",
+   "bin": "animations/database/battle/bin/dr04_dragon_iron_ld_dive.bin",
+   "entities": [
+    "wh3_main_cth_mon_iron_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr04_dragon_iron.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_main_cth_mon_iron_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anim",
+     "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.{1essr1i}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon04/attacks/dr4_iron_jumping_attack_01.anim",
+     "animations/battle/dragon04/attacks/dr4_iron_jumping_attack_01.anm.meta",
+     "animations/audio/battle/dragon04/attacks/dr4_iron_jumping_attack_01.{aq7zck}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/dragon04/attacks/dr4_iron_jumping_attack_01.anim",
+      "animations/battle/dragon04/attacks/dr4_iron_jumping_attack_01.anm.meta",
+      "animations/audio/battle/dragon04/attacks/dr4_iron_jumping_attack_01.{aq7zck}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr04_dragon_storm",
+   "renamed": "dr04_dragon_storm_ld_dive",
+   "skeleton": "dragon04",
+   "bin": "animations/database/battle/bin/dr04_dragon_storm_ld_dive.bin",
+   "entities": [
+    "wh3_main_cth_mon_storm_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr04_dragon_storm.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_main_cth_mon_storm_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anim",
+     "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.{1essr1i}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon04/attacks/dr4_iron_jumping_attack_01.anim",
+     "animations/battle/dragon04/attacks/dr4_storm_jumping_attack_01.anm.meta",
+     "animations/audio/battle/dragon04/attacks/dr4_iron_jumping_attack_01.{aq7zck}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/dragon04/attacks/dr4_iron_jumping_attack_01.anim",
+      "animations/battle/dragon04/attacks/dr4_storm_jumping_attack_01.anm.meta",
+      "animations/audio/battle/dragon04/attacks/dr4_iron_jumping_attack_01.{aq7zck}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon",
+   "renamed": "dr1_dragon_ld_dive_v135",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_ld_dive_v135.bin",
+   "entities": [
+    "wh2_main_hef_mon_star_dragon",
+    "wh3_dlc27_def_mon_black_dragon_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh2_main_hef_mon_star_dragon": "very_large",
+    "wh3_dlc27_def_mon_black_dragon_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon",
+   "renamed": "dr1_dragon_ld_dive_v144",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_ld_dive_v144.bin",
+   "entities": [
+    "ld_hef_mnt_dragon",
+    "wh2_dlc11_def_black_dragon_lokhir_blood",
+    "wh2_dlc16_flying_dragon_blood_360",
+    "wh2_main_def_black_dragon_blood",
+    "wh2_main_hef_mon_moon_dragon_blood",
+    "wh_main_flying_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "ld_hef_mnt_dragon": "very_large",
+    "wh2_dlc11_def_black_dragon_lokhir_blood": "very_large",
+    "wh2_dlc16_flying_dragon_blood_360": "very_large",
+    "wh2_main_def_black_dragon_blood": "very_large",
+    "wh2_main_hef_mon_moon_dragon_blood": "very_large",
+    "wh_main_flying_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon",
+   "renamed": "dr1_dragon_ld_dive_v153",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_ld_dive_v153.bin",
+   "entities": [
+    "wh2_main_hef_mon_sun_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh2_main_hef_mon_sun_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon_boss",
+   "renamed": "dr1_dragon_boss_ld_dive",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_boss_ld_dive.bin",
+   "entities": [
+    "wh2_main_hef_mon_star_dragon",
+    "wh_main_flying_dragon_blood_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon_boss.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh2_main_hef_mon_star_dragon": "very_large",
+    "wh_main_flying_dragon_blood_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon_carmine",
+   "renamed": "dr1_dragon_carmine_ld_dive",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_carmine_ld_dive.bin",
+   "entities": [
+    "wh3_dlc25_emp_mnt_carmine_dragon"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon_carmine.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_dlc25_emp_mnt_carmine_dragon": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon_zombie",
+   "renamed": "dr1_dragon_zombie_ld_dive_v126",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v126.bin",
+   "entities": [
+    "wh3_dlc29_flying_zombie_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon_zombie.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "wh3_dlc29_flying_zombie_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1_dragon_zombie",
+   "renamed": "dr1_dragon_zombie_ld_dive_v144",
+   "skeleton": "dragon01",
+   "bin": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v144.bin",
+   "entities": [
+    "wh_main_flying_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1_dragon_zombie.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh_main_flying_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+     "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01/transitions/dr1_fly_charge_land_01.{18e7j8f}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anim",
+     "animations/battle/dragon01/attacks/dr1_jump_attack_01.anm.meta",
+     "animations/audio/battle/dragon01/attacks/dr1_jump_attack_01.{gfehp1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1b_chaos_dragon",
+   "renamed": "dr1b_chaos_dragon_ld_dive_v135",
+   "skeleton": "dragon01b",
+   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v135.bin",
+   "entities": [
+    "ld_chr_galrauch",
+    "wh_dlc08_flying_chaos_frost_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1b_chaos_dragon.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "ld_chr_galrauch": "very_large",
+    "wh_dlc08_flying_chaos_frost_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anim",
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01b/transitions/dr1b_fly_charge_land_01.{9s81qr}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [],
+   "slot_484_added": {
+    "from_slot": 454,
+    "refs": [
+     [
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anim",
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anm.meta",
+      "animations/audio/battle/dragon01b/attacks/dr1b_attack_01.{12cz6rg}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1b_chaos_dragon",
+   "renamed": "dr1b_chaos_dragon_ld_dive_v144",
+   "skeleton": "dragon01b",
+   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v144.bin",
+   "entities": [
+    "wh_main_flying_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1b_chaos_dragon.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh_main_flying_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anim",
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01b/transitions/dr1b_fly_charge_land_01.{9s81qr}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [],
+   "slot_484_added": {
+    "from_slot": 454,
+    "refs": [
+     [
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anim",
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anm.meta",
+      "animations/audio/battle/dragon01b/attacks/dr1b_attack_01.{12cz6rg}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1b_chaos_dragon_boss",
+   "renamed": "dr1b_chaos_dragon_boss_ld_dive",
+   "skeleton": "dragon01b",
+   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_boss_ld_dive.bin",
+   "entities": [
+    "wh_main_flying_dragon_blood_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1b_chaos_dragon_boss.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh_main_flying_dragon_blood_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anim",
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01b/transitions/dr1b_fly_charge_land_01.{9s81qr}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [],
+   "slot_484_added": {
+    "from_slot": 454,
+    "refs": [
+     [
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anim",
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anm.meta",
+      "animations/audio/battle/dragon01b/attacks/dr1b_attack_01.{12cz6rg}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "dr1b_wyrm_dragon",
+   "renamed": "dr1b_wyrm_dragon_ld_dive",
+   "skeleton": "dragon01b",
+   "bin": "animations/database/battle/bin/dr1b_wyrm_dragon_ld_dive.bin",
+   "entities": [
+    "wh_dlc08_flying_chaos_frost_dragon_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/dr1b_wyrm_dragon.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh_dlc08_flying_chaos_frost_dragon_blood": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anim",
+     "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/dragon01b/transitions/dr1b_fly_charge_land_01.{9s81qr}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [],
+   "slot_484_added": {
+    "from_slot": 454,
+    "refs": [
+     [
+      "animations/battle/dragon01b/attacks/dr1b_attack_01.anim",
+      "animations/battle/dragon01b/attacks/dr1b_attack_01_frost.anm.meta",
+      "animations/audio/battle/dragon01b/attacks/dr1b_attack_01.{179ozkj}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hr1_pegasus",
+   "renamed": "hr1_pegasus_ld_dive_v153",
+   "skeleton": "horse01",
+   "bin": "animations/database/battle/bin/hr1_pegasus_ld_dive_v153.bin",
+   "entities": [
+    "ld_dread_flying_pegasus_hero",
+    "wh_main_vmp_cavalry_flying_hellsteed_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/hr1_pegasus.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "ld_dread_flying_pegasus_hero": "medium",
+    "wh_main_vmp_cavalry_flying_hellsteed_blood": "medium"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anim",
+     "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/horse01/transitions/hr1_fly_charge_land_01.{1jw9sgu}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/horse01/attacks/hr1_jumping_attack_01.anim",
+     "animations/battle/horse01/attacks/hr1_jumping_attack_01.anm.meta",
+     "animations/audio/battle/horse01/attacks/hr1_jumping_attack_01.{1hgt0ke}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/horse01/attacks/hr1_jumping_attack_01.anim",
+      "animations/battle/horse01/attacks/hr1_jumping_attack_01.anm.meta",
+      "animations/audio/battle/horse01/attacks/hr1_jumping_attack_01.{1hgt0ke}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hr1_pegasus",
+   "renamed": "hr1_pegasus_ld_dive_v162",
+   "skeleton": "horse01",
+   "bin": "animations/database/battle/bin/hr1_pegasus_ld_dive_v162.bin",
+   "entities": [
+    "wh2_main_def_mnt_dark_pegasus",
+    "wh2_main_def_mnt_dark_pegasus_sulephet",
+    "wh_main_flying_pegasus_blood",
+    "wh_main_flying_pegasus_hero_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/hr1_pegasus.bin",
+   "speed": 16.2,
+   "body_sizes": {
+    "wh2_main_def_mnt_dark_pegasus": "medium",
+    "wh2_main_def_mnt_dark_pegasus_sulephet": "medium",
+    "wh_main_flying_pegasus_blood": "medium",
+    "wh_main_flying_pegasus_hero_blood": "medium"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anim",
+     "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/horse01/transitions/hr1_fly_charge_land_01.{1jw9sgu}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/horse01/attacks/hr1_jumping_attack_01.anim",
+     "animations/battle/horse01/attacks/hr1_jumping_attack_01.anm.meta",
+     "animations/audio/battle/horse01/attacks/hr1_jumping_attack_01.{1hgt0ke}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/horse01/attacks/hr1_jumping_attack_01.anim",
+      "animations/battle/horse01/attacks/hr1_jumping_attack_01.anm.meta",
+      "animations/audio/battle/horse01/attacks/hr1_jumping_attack_01.{1hgt0ke}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hr1_wh3_longma",
+   "renamed": "hr1_wh3_longma_ld_dive",
+   "skeleton": "horse01",
+   "bin": "animations/database/battle/bin/hr1_wh3_longma_ld_dive.bin",
+   "entities": [
+    "wh3_main_flying_jade_longma_blood",
+    "wh_main_flying_pegasus_hero_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/hr1_wh3_longma.bin",
+   "speed": 16.2,
+   "body_sizes": {
+    "wh3_main_flying_jade_longma_blood": "medium",
+    "wh_main_flying_pegasus_hero_blood": "medium"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anim",
+     "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/horse01/transitions/hr1_fly_charge_land_01.{1jw9sgu}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/horse01/attacks/hr1_jumping_attack_01.anim",
+     "animations/battle/horse01/attacks/hr1_jumping_attack_01.anm.meta",
+     "animations/audio/battle/horse01/attacks/hr1_jumping_attack_01.{1hgt0ke}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/horse01/attacks/hr1_jumping_attack_01.anim",
+      "animations/battle/horse01/attacks/hr1_jumping_attack_01.anm.meta",
+      "animations/audio/battle/horse01/attacks/hr1_jumping_attack_01.{1hgt0ke}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10_dlc29_morghast_archai_halberd",
+   "renamed": "hu10_dlc29_morghast_archai_halberd_ld_dive",
+   "skeleton": "humanoid10",
+   "bin": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
+   "entities": [
+    "wh3_dlc29_vmp_mon_morghast",
+    "wh3_dlc29_vmp_mon_morghast_ror"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "wh3_dlc29_vmp_mon_morghast": "large",
+    "wh3_dlc29_vmp_mon_morghast_ror": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10/subset/morghast_archai/transitions/hu10_morghast_hb_fly_charge_land_01.anim",
+     "animations/battle/humanoid10/subset/morghast_archai/transitions/hu10_morghast_hb_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid10/subset/morghast_archai/transitions/hu10_morghast_hb_fly_charge_land_01.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10/subset/morghast_archai/attack/hu10_morghast_hb_jump_attack_01.anim",
+     "animations/battle/humanoid10/subset/morghast_archai/attack/hu10_morghast_hb_jump_attack_01.anm.meta",
+     "animations/audio/battle/humanoid10/subset/morghast_archai/attack/hu10_morghast_hb_jump_attack_01.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10/subset/morghast_archai/attack/hu10_morghast_hb_jump_attack_01.anim",
+      "animations/battle/humanoid10/subset/morghast_archai/attack/hu10_morghast_hb_jump_attack_01.anm.meta",
+      "animations/audio/battle/humanoid10/subset/morghast_archai/attack/hu10_morghast_hb_jump_attack_01.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10_dlc29_morghast_harbingers_dual_swords",
+   "renamed": "hu10_dlc29_morghast_harbingers_dual_swords_ld_dive",
+   "skeleton": "humanoid10",
+   "bin": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords_ld_dive.bin",
+   "entities": [
+    "wh3_dlc29_vmp_mon_morghast"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords.bin",
+   "speed": 12.6,
+   "body_sizes": {
+    "wh3_dlc29_vmp_mon_morghast": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10/subset/morghast_harbringer/transitions/hu10_morghast_ds_fly_charge_land_01.anim",
+     "animations/battle/humanoid10/subset/morghast_harbringer/transitions/hu10_morghast_ds_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid10/subset/morghast_harbringer/transitions/hu10_morghast_ds_fly_charge_land_01.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10/subset/morghast_harbringer/attacks/hu10_morghast_ds_jumping_attack_01.anim",
+     "animations/battle/humanoid10/subset/morghast_harbringer/attacks/hu10_morghast_ds_jumping_attack_01.anm.meta",
+     "animations/audio/battle/humanoid10/subset/morghast_harbringer/attacks/hu10_morghast_ds_jumping_attack_01.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10/subset/morghast_harbringer/attacks/hu10_morghast_ds_jumping_attack_01.anim",
+      "animations/battle/humanoid10/subset/morghast_harbringer/attacks/hu10_morghast_ds_jumping_attack_01.anm.meta",
+      "animations/audio/battle/humanoid10/subset/morghast_harbringer/attacks/hu10_morghast_ds_jumping_attack_01.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10_wh3_bloodthirster_axe_and_whip",
+   "renamed": "hu10_wh3_bloodthirster_axe_and_whip_ld_dive",
+   "skeleton": "humanoid10",
+   "bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip_ld_dive.bin",
+   "entities": [
+    "ld_chr_kabandha",
+    "wh3_main_kho_cha_exalted_bloodthirster"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "ld_chr_kabandha": "very_large",
+    "wh3_main_kho_cha_exalted_bloodthirster": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10/transitions/hu10_fly_charge_land_01.anim",
+     "animations/battle/humanoid10/transitions/hu10_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid10/transitions/hu10_fly_charge_land_01.{komknk}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10/attacks/hu10_jump_attack_01.anim",
+     "animations/battle/humanoid10/attacks/hu10_jump_attack_01.anm.meta",
+     "animations/audio/battle/humanoid10/attacks/hu10_jump_attack_01.{1u3hf50}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10/attacks/hu10_jump_attack_01.anim",
+      "animations/battle/humanoid10/attacks/hu10_jump_attack_01.anm.meta",
+      "animations/audio/battle/humanoid10/attacks/hu10_jump_attack_01.{1u3hf50}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10_wh3_bloodthirster_great_axe",
+   "renamed": "hu10_wh3_bloodthirster_great_axe_ld_dive",
+   "skeleton": "humanoid10",
+   "bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe_ld_dive.bin",
+   "entities": [
+    "wh3_main_kho_cha_exalted_bloodthirster",
+    "wh3_main_kho_mon_bloodthirster",
+    "wh3_twa08_kho_mon_bloodthirster_ror"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_main_kho_cha_exalted_bloodthirster": "very_large",
+    "wh3_main_kho_mon_bloodthirster": "very_large",
+    "wh3_twa08_kho_mon_bloodthirster_ror": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10/2handed_axe/transitions/hu10_2ha_fly_charge_land_01.anim",
+     "animations/battle/humanoid10/2handed_axe/transitions/hu10_2ha_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid10/2handed_axe/transitions/hu10_2ha_fly_charge_land_01.{1dzxf2o}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10/2handed_axe/attacks/hu10_2ha_jump_attack_01.anim",
+     "animations/battle/humanoid10/2handed_axe/attacks/hu10_2ha_jump_attack_01.anm.meta",
+     "animations/audio/battle/humanoid10/2handed_axe/attacks/hu10_2ha_jump_attack_01.{1xztvu1}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10/2handed_axe/attacks/hu10_2ha_jump_attack_01.anim",
+      "animations/battle/humanoid10/2handed_axe/attacks/hu10_2ha_jump_attack_01.anm.meta",
+      "animations/audio/battle/humanoid10/2handed_axe/attacks/hu10_2ha_jump_attack_01.{1xztvu1}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "renamed": "hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144",
+   "skeleton": "humanoid10e",
+   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144.bin",
+   "entities": [
+    "wh3_dlc20_chs_cha_daemon_prince",
+    "wh3_dlc20_chs_cha_daemon_prince_mkho",
+    "wh3_dlc20_chs_cha_daemon_prince_mtze",
+    "wh3_pro10_tze_cha_daemon_prince_of_tzeentch"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_dlc20_chs_cha_daemon_prince": "very_large",
+    "wh3_dlc20_chs_cha_daemon_prince_mkho": "very_large",
+    "wh3_dlc20_chs_cha_daemon_prince_mtze": "very_large",
+    "wh3_pro10_tze_cha_daemon_prince_of_tzeentch": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.anim",
+     "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01_noarmoury.anm.meta",
+     "animations/audio/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.{1y5ag1q}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anim",
+     "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01_noarmoury.anm.meta",
+     "animations/audio/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.{1pw3ysg}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anim",
+      "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01_noarmoury.anm.meta",
+      "animations/audio/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.{1pw3ysg}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "renamed": "hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153",
+   "skeleton": "humanoid10e",
+   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153.bin",
+   "entities": [
+    "wh3_dlc20_chs_cha_daemon_prince_msla"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_dlc20_chs_cha_daemon_prince_msla": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.anim",
+     "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01_noarmoury.anm.meta",
+     "animations/audio/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.{1y5ag1q}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anim",
+     "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01_noarmoury.anm.meta",
+     "animations/audio/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.{1pw3ysg}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anim",
+      "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01_noarmoury.anm.meta",
+      "animations/audio/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.{1pw3ysg}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10e_dlc20_daemon_prince_2h_noarmoury",
+   "renamed": "hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive",
+   "skeleton": "humanoid10e",
+   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive.bin",
+   "entities": [
+    "wh3_dlc20_chs_cha_daemon_prince_mkho",
+    "wh3_dlc20_chs_cha_daemon_prince_mnur"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_dlc20_chs_cha_daemon_prince_mkho": "very_large",
+    "wh3_dlc20_chs_cha_daemon_prince_mnur": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.anim",
+     "animations/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01_noarmoury.anm.meta",
+     "animations/audio/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.{1t6y9jl}u.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.anim",
+     "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01_noarmoury.anm.meta",
+     "animations/audio/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.{1wu6ayw}u.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.anim",
+      "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01_noarmoury.anm.meta",
+      "animations/audio/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.{1wu6ayw}u.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10e_wh3_daemon_prince_1h",
+   "renamed": "hu10e_wh3_daemon_prince_1h_ld_dive",
+   "skeleton": "humanoid10e",
+   "bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h_ld_dive.bin",
+   "entities": [
+    "wh3_main_dae_cha_daemon_prince",
+    "wh3_main_dae_cha_daemon_prince_generic"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_main_dae_cha_daemon_prince": "very_large",
+    "wh3_main_dae_cha_daemon_prince_generic": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.anim",
+     "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.{1y5ag1q}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anim",
+     "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anm.meta",
+     "animations/audio/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.{1pw3ysg}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anim",
+      "animations/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.anm.meta",
+      "animations/audio/battle/humanoid10e/1handed/attacks/hu10e_1h_jumping_attack_01.{1pw3ysg}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu10e_wh3_daemon_prince_2h",
+   "renamed": "hu10e_wh3_daemon_prince_2h_ld_dive",
+   "skeleton": "humanoid10e",
+   "bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_ld_dive.bin",
+   "entities": [
+    "wh3_main_dae_cha_daemon_prince_generic"
+   ],
+   "source_bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh3_main_dae_cha_daemon_prince_generic": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.anim",
+     "animations/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.{1t6y9jl}u.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.anim",
+     "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.anm.meta",
+     "animations/audio/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.{1wu6ayw}u.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.anim",
+      "animations/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.anm.meta",
+      "animations/audio/battle/humanoid10e/2handed/attack/hu10e_prince_2h_jump_attack_01.{1wu6ayw}u.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu14_t1_dlc21_blue_scribes",
+   "renamed": "hu14_t1_dlc21_blue_scribes_ld_dive",
+   "skeleton": "hu14_team01",
+   "bin": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes_ld_dive.bin",
+   "entities": [
+    "wh3_dlc24_tze_cha_blue_scribes_rider_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes.bin",
+   "speed": 11.7,
+   "body_sizes": {
+    "wh3_dlc24_tze_cha_blue_scribes_rider_blood": "medium"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/hu14_team01/transition/hu14_team01_blue_landing_01.anim",
+     "animations/battle/hu14_team01/transition/hu14_team01_blue_landing_01.anm.meta",
+     "animations/audio/battle/hu14_team01/transition/hu14_team01_blue_landing_01.{yfz4p4}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book",
+   "renamed": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive",
+   "skeleton": "humanoid14",
+   "bin": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive.bin",
+   "entities": [
+    "wh3_main_tze_herald_disc_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book.bin",
+   "speed": 11.7,
+   "body_sizes": {
+    "wh3_main_tze_herald_disc_blood": "medium"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_landed_01.anim",
+     "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_landed_01.anm.meta",
+     "animations/audio/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_landed_01.{oy5o81}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_01.anim",
+     "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_01.anm.meta",
+     "animations/audio/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_01.{91lwo4}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu16c_wh3_dlc20_valkia_spear_shield",
+   "renamed": "hu16c_wh3_dlc20_valkia_spear_shield_ld_dive",
+   "skeleton": "humanoid16c",
+   "bin": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield_ld_dive.bin",
+   "entities": [
+    "wh3_dlc20_kho_cha_valkia"
+   ],
+   "source_bin": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield.bin",
+   "speed": 16.2,
+   "body_sizes": {
+    "wh3_dlc20_kho_cha_valkia": "small"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid16c/transitions/hu16c_sps_fly_charge_land_01.anim",
+     "animations/battle/humanoid16c/transitions/hu16c_sps_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid16c/transitions/hu16c_sps_fly_charge_land_01.{8qiasq}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid16c/attacks/hu16c_sps_jumping_attack_01.anim",
+     "animations/battle/humanoid16c/attacks/hu16c_sps_jumping_attack_01.anm.meta",
+     "animations/audio/battle/humanoid16c/attacks/hu16c_sps_jumping_attack_01.{16jvtpw}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu6g_wh3_dlc20_azazel_sword",
+   "renamed": "hu6g_wh3_dlc20_azazel_sword_ld_dive",
+   "skeleton": "humanoid06g",
+   "bin": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword_ld_dive.bin",
+   "entities": [
+    "wh3_dlc20_sla_cha_azazel"
+   ],
+   "source_bin": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_dlc20_sla_cha_azazel": "small"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_charge_landed_01.anim",
+     "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_charge_landed_01.anm.meta",
+     "animations/audio/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_charge_landed_01.{hcq41v}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid06g/azazel/attacks/hu06g_azazel_jumping_attack_01.anim",
+     "animations/battle/humanoid06g/azazel/attacks/hu06g_azazel_jumping_attack_01.anm.meta",
+     "animations/audio/battle/humanoid06g/azazel/attacks/hu06g_azazel_jumping_attack_01.{feidpl}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "hu8b_vargheist",
+   "renamed": "hu8b_vargheist_ld_dive",
+   "skeleton": "humanoid08b",
+   "bin": "animations/database/battle/bin/hu8b_vargheist_ld_dive.bin",
+   "entities": [
+    "wh_main_flying_vargheists_blood"
+   ],
+   "source_bin": "animations/database/battle/bin/hu8b_vargheist.bin",
+   "speed": 14.4,
+   "body_sizes": {
+    "wh_main_flying_vargheists_blood": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/humanoid08b/transitions/hu8b_fly_charge_land_01.anim",
+     "animations/battle/humanoid08b/transitions/hu8b_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/humanoid08b/transitions/hu8b_fly_charge_land_01.{eq3uft}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/humanoid08b/attacks/hu8b_jumping_attack_01.anim",
+     "animations/battle/humanoid08b/attacks/hu8b_jumping_attack_01.anm.meta",
+     "animations/audio/battle/humanoid08b/attacks/hu8b_jumping_attack_01.{qkzf28}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/humanoid08b/attacks/hu8b_jumping_attack_01.anim",
+      "animations/battle/humanoid08b/attacks/hu8b_jumping_attack_01.anm.meta",
+      "animations/audio/battle/humanoid08b/attacks/hu8b_jumping_attack_01.{qkzf28}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "mt1_wh3_screamers",
+   "renamed": "mt1_wh3_screamers_ld_dive",
+   "skeleton": "mantaray01",
+   "bin": "animations/database/battle/bin/mt1_wh3_screamers_ld_dive.bin",
+   "entities": [
+    "wh3_dlc24_tze_mon_flying_screamer_ror",
+    "wh3_main_tze_flying_screamer"
+   ],
+   "source_bin": "animations/database/battle/bin/mt1_wh3_screamers.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_dlc24_tze_mon_flying_screamer_ror": "medium",
+    "wh3_main_tze_flying_screamer": "medium"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/mantaray01/transition/mt1_fly_charge_land_01.anim",
+     "animations/battle/mantaray01/transition/mt1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/mantaray01/transition/mt1_fly_charge_land_01.{xmtgew}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/mantaray01/attacks/mt01_attack_01.anim",
+     "animations/battle/mantaray01/attacks/mt01_attack_01.anm.meta",
+     "animations/audio/battle/mantaray01/attacks/mt01_attack_01.{7n8c20}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/mantaray01/attacks/mt01_attack_01.anim",
+      "animations/battle/mantaray01/attacks/mt01_attack_01.anm.meta",
+      "animations/audio/battle/mantaray01/attacks/mt01_attack_01.{7n8c20}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "ox1_dlc23_taurus_cages",
+   "renamed": "ox1_dlc23_taurus_cages_ld_dive",
+   "skeleton": "oxen01",
+   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_cages_ld_dive.bin",
+   "entities": [
+    "wh3_dlc23_chd_mnt_bale_taurus_cinderbreath"
+   ],
+   "source_bin": "animations/database/battle/bin/ox1_dlc23_taurus_cages.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_dlc23_chd_mnt_bale_taurus_cinderbreath": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anim",
+     "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anm.meta",
+     "animations/audio/battle/oxen01/locomotion/ox1_greattaurus_landing_01.{yal00b}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anim",
+     "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anm.meta",
+     "animations/audio/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.{bv0fzi}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anim",
+      "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anm.meta",
+      "animations/audio/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.{bv0fzi}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "ox1_dlc23_taurus_feral",
+   "renamed": "ox1_dlc23_taurus_feral_ld_dive",
+   "skeleton": "oxen01",
+   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_feral_ld_dive.bin",
+   "entities": [
+    "wh3_dlc23_chd_mon_bale_taurus",
+    "wh3_dlc23_chd_mon_great_taurus",
+    "wh3_dlc27_chd_mon_bale_taurus_boss"
+   ],
+   "source_bin": "animations/database/battle/bin/ox1_dlc23_taurus_feral.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_dlc23_chd_mon_bale_taurus": "very_large",
+    "wh3_dlc23_chd_mon_great_taurus": "very_large",
+    "wh3_dlc27_chd_mon_bale_taurus_boss": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anim",
+     "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anm.meta",
+     "animations/audio/battle/oxen01/locomotion/ox1_greattaurus_landing_01.{yal00b}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anim",
+     "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anm.meta",
+     "animations/audio/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.{bv0fzi}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anim",
+      "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anm.meta",
+      "animations/audio/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.{bv0fzi}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "ox1_dlc23_taurus_mount",
+   "renamed": "ox1_dlc23_taurus_mount_ld_dive",
+   "skeleton": "oxen01",
+   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_mount_ld_dive.bin",
+   "entities": [
+    "wh3_dlc23_chd_mnt_bale_taurus",
+    "wh3_dlc23_chd_mnt_great_taurus"
+   ],
+   "source_bin": "animations/database/battle/bin/ox1_dlc23_taurus_mount.bin",
+   "speed": 13.5,
+   "body_sizes": {
+    "wh3_dlc23_chd_mnt_bale_taurus": "very_large",
+    "wh3_dlc23_chd_mnt_great_taurus": "very_large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anim",
+     "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anm.meta",
+     "animations/audio/battle/oxen01/locomotion/ox1_greattaurus_landing_01.{yal00b}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anim",
+     "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anm.meta",
+     "animations/audio/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.{bv0fzi}.snd.meta"
+    ]
+   ],
+   "slot_484_added": {
+    "from_slot": 489,
+    "refs": [
+     [
+      "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anim",
+      "animations/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.anm.meta",
+      "animations/audio/battle/oxen01/attacks/ox1_greattaurus_jumpingattack_01.{bv0fzi}.snd.meta"
+     ]
+    ]
+   },
+   "plough_slots": [],
+   "slot_489_added": false
+  },
+  {
+   "source": "sky1_dlc27_skycutter01",
+   "renamed": "sky1_dlc27_skycutter01_ld_dive",
+   "skeleton": "skycutter01",
+   "bin": "animations/database/battle/bin/sky1_dlc27_skycutter01_ld_dive.bin",
+   "entities": [
+    "wh3_dlc27_hef_mnt_skycutter",
+    "wh3_dlc27_hef_mnt_skycutter_bolt",
+    "wh3_dlc27_hef_mnt_skycutter_lords"
+   ],
+   "source_bin": "animations/database/battle/bin/sky1_dlc27_skycutter01.bin",
+   "speed": 15.3,
+   "body_sizes": {
+    "wh3_dlc27_hef_mnt_skycutter": "large",
+    "wh3_dlc27_hef_mnt_skycutter_bolt": "large",
+    "wh3_dlc27_hef_mnt_skycutter_lords": "large"
+   },
+   "slot_104_removed": [
+    [
+     "animations/battle/skycutter01/locomotion/skc1_fly_charge_land_01.anim",
+     "animations/battle/skycutter01/locomotion/skc1_fly_charge_land_01.anm.meta",
+     "animations/audio/battle/skycutter01/locomotion/skc1_fly_charge_land_01.{ikv665}.snd.meta"
+    ]
+   ],
+   "slot_489_removed": [
+    [
+     "animations/battle/skycutter01/attacks/skc1_fly_ground_jump_attack_01.anim",
+     "animations/battle/skycutter01/attacks/skc1_fly_ground_jump_attack_01.anm.meta",
+     "animations/audio/battle/skycutter01/attacks/skc1_fly_ground_jump_attack_01.{1txe6iz}.snd.meta"
+    ]
+   ],
+   "slot_484_added": null,
+   "plough_slots": [],
+   "slot_489_added": false
+  }
+ ],
+ "unridden_tables": [
+  "dr04_dragon_jade",
+  "hu10e_wh3_daemon_prince_2h_sword",
+  "hu8b_varghulf"
+ ],
+ "grounded_riders": {
+  "bi2_terrorgheist": [
+   "ld_chr_ushoran_throne_of_ghoul"
+  ]
+ },
+ "plough_clips": [],
+ "land_clips": [
+  {
+   "clip": "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+   "skeleton": "bigcat02",
+   "tables": [
+    "animations/database/battle/bin/bc2_deathclaw.bin",
+    "animations/database/battle/bin/bc2_griffon.bin",
+    "animations/database/battle/bin/bc2_griffon_draught.bin"
+   ],
+   "animroot_drop_m": 3.99
+  },
+  {
+   "clip": "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anim",
+   "skeleton": "bigcat02b",
+   "tables": [
+    "animations/database/battle/bin/bc2b_hippogryph.bin"
+   ],
+   "animroot_drop_m": 3.604
+  },
+  {
+   "clip": "animations/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.anim",
+   "skeleton": "bigcat02c",
+   "tables": [
+    "animations/database/battle/bin/bc2c_dlc23_lammasu_feral.bin",
+    "animations/database/battle/bin/bc2c_dlc23_lammasu_mount.bin"
+   ],
+   "animroot_drop_m": 3.99
+  },
+  {
+   "clip": "animations/battle/bigcat03/transitions/bc3_fly_charge_land_01.anim",
+   "skeleton": "bigcat03",
+   "tables": [
+    "animations/database/battle/bin/bc3_manticore.bin"
+   ],
+   "animroot_drop_m": 6.12
+  },
+  {
+   "clip": "animations/battle/bigcat03b/transitions/bc3b_chimera_fly_charge_land_01.anim",
+   "skeleton": "bigcat03b",
+   "tables": [
+    "animations/database/battle/bin/bc3b_dlc27_chimera.bin"
+   ],
+   "animroot_drop_m": 6.12
+  },
+  {
+   "clip": "animations/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_charge_land_01.anim",
+   "skeleton": "bigcat03ca",
+   "tables": [
+    "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal.bin"
+   ],
+   "animroot_drop_m": 6.12
+  },
+  {
+   "clip": "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+   "skeleton": "bird01",
+   "tables": [
+    "animations/database/battle/bin/bi1_dlc15_phoenix.bin",
+    "animations/database/battle/bin/bi1_dlc24_moon_bird.bin",
+    "animations/database/battle/bin/bi1_eagle.bin",
+    "animations/database/battle/bin/bi1_eagle_boss.bin",
+    "animations/database/battle/bin/bi1_eagle_sisters_of_twilight.bin"
+   ],
+   "animroot_drop_m": 4.946
+  },
+  {
+   "clip": "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anim",
+   "skeleton": "bird01b",
+   "tables": [
+    "animations/database/battle/bin/bi1b_carrion.bin"
+   ],
+   "animroot_drop_m": 4.909
+  },
+  {
+   "clip": "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+   "skeleton": "bird02",
+   "tables": [
+    "animations/database/battle/bin/bi2_dlc27_preyton.bin",
+    "animations/database/battle/bin/bi2_terrorgheist.bin",
+    "animations/database/battle/bin/bi2_terrorgheist_boss.bin",
+    "animations/database/battle/bin/bi2_wyvern.bin"
+   ],
+   "animroot_drop_m": 7.186
+  },
+  {
+   "clip": "animations/battle/cockatrice01/transitions/co1_fly_charge_land_01.anim",
+   "skeleton": "cockatrice01",
+   "tables": [
+    "animations/database/battle/bin/co1_dlc22_cockatrice.bin"
+   ],
+   "animroot_drop_m": 9.311
+  },
+  {
+   "clip": "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+   "skeleton": "dragon01",
+   "tables": [
+    "animations/database/battle/bin/dr1_dragon.bin",
+    "animations/database/battle/bin/dr1_dragon_boss.bin",
+    "animations/database/battle/bin/dr1_dragon_carmine.bin",
+    "animations/database/battle/bin/dr1_dragon_zombie.bin"
+   ],
+   "animroot_drop_m": 5.47
+  },
+  {
+   "clip": "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anim",
+   "skeleton": "dragon01b",
+   "tables": [
+    "animations/database/battle/bin/dr1b_chaos_dragon.bin",
+    "animations/database/battle/bin/dr1b_chaos_dragon_boss.bin",
+    "animations/database/battle/bin/dr1b_wyrm_dragon.bin"
+   ],
+   "animroot_drop_m": 5.47
+  },
+  {
+   "clip": "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anim",
+   "skeleton": "dragon04",
+   "tables": [
+    "animations/database/battle/bin/dr04_dlc24_dragon_jade.bin",
+    "animations/database/battle/bin/dr04_dragon_iron.bin",
+    "animations/database/battle/bin/dr04_dragon_jade.bin",
+    "animations/database/battle/bin/dr04_dragon_storm.bin"
+   ],
+   "animroot_drop_m": 7.113
+  },
+  {
+   "clip": "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anim",
+   "skeleton": "horse01",
+   "tables": [
+    "animations/database/battle/bin/hr1_pegasus.bin",
+    "animations/database/battle/bin/hr1_wh3_longma.bin"
+   ],
+   "animroot_drop_m": 2.456
+  },
+  {
+   "clip": "animations/battle/hu14_team01/transition/hu14_team01_blue_landing_01.anim",
+   "skeleton": "hu14_team01",
+   "tables": [
+    "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes.bin"
+   ],
+   "animroot_drop_m": 5.78
+  },
+  {
+   "clip": "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_charge_landed_01.anim",
+   "skeleton": "humanoid06g",
+   "tables": [
+    "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword.bin"
+   ],
+   "animroot_drop_m": 2.941
+  },
+  {
+   "clip": "animations/battle/humanoid08b/transitions/hu8b_fly_charge_land_01.anim",
+   "skeleton": "humanoid08b",
+   "tables": [
+    "animations/database/battle/bin/hu8b_vargheist.bin",
+    "animations/database/battle/bin/hu8b_varghulf.bin"
+   ],
+   "animroot_drop_m": 4.184
+  },
+  {
+   "clip": "animations/battle/humanoid10/2handed_axe/transitions/hu10_2ha_fly_charge_land_01.anim",
+   "skeleton": "humanoid10",
+   "tables": [
+    "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe.bin"
+   ],
+   "animroot_drop_m": 5.0
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_archai/transitions/hu10_morghast_hb_fly_charge_land_01.anim",
+   "skeleton": "humanoid10",
+   "tables": [
+    "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd.bin"
+   ],
+   "animroot_drop_m": 5.0
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_harbringer/transitions/hu10_morghast_ds_fly_charge_land_01.anim",
+   "skeleton": "humanoid10",
+   "tables": [
+    "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords.bin"
+   ],
+   "animroot_drop_m": 5.0
+  },
+  {
+   "clip": "animations/battle/humanoid10/transitions/hu10_fly_charge_land_01.anim",
+   "skeleton": "humanoid10",
+   "tables": [
+    "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip.bin"
+   ],
+   "animroot_drop_m": 5.0
+  },
+  {
+   "clip": "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.anim",
+   "skeleton": "humanoid10e",
+   "tables": [
+    "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury.bin",
+    "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h.bin"
+   ],
+   "animroot_drop_m": 5.015
+  },
+  {
+   "clip": "animations/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.anim",
+   "skeleton": "humanoid10e",
+   "tables": [
+    "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury.bin",
+    "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h.bin",
+    "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_sword.bin"
+   ],
+   "animroot_drop_m": 5.015
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_landed_01.anim",
+   "skeleton": "humanoid14",
+   "tables": [
+    "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book.bin"
+   ],
+   "animroot_drop_m": 4.198
+  },
+  {
+   "clip": "animations/battle/humanoid16c/transitions/hu16c_sps_fly_charge_land_01.anim",
+   "skeleton": "humanoid16c",
+   "tables": [
+    "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield.bin"
+   ],
+   "animroot_drop_m": 3.312
+  },
+  {
+   "clip": "animations/battle/mantaray01/transition/mt1_fly_charge_land_01.anim",
+   "skeleton": "mantaray01",
+   "tables": [
+    "animations/database/battle/bin/mt1_wh3_screamers.bin"
+   ],
+   "animroot_drop_m": 7.421
+  },
+  {
+   "clip": "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anim",
+   "skeleton": "oxen01",
+   "tables": [
+    "animations/database/battle/bin/ox1_dlc23_taurus_cages.bin",
+    "animations/database/battle/bin/ox1_dlc23_taurus_feral.bin",
+    "animations/database/battle/bin/ox1_dlc23_taurus_mount.bin"
+   ],
+   "animroot_drop_m": 11.382
+  },
+  {
+   "clip": "animations/battle/skycutter01/locomotion/skc1_fly_charge_land_01.anim",
+   "skeleton": "skycutter01",
+   "tables": [
+    "animations/database/battle/bin/sky1_dlc27_skycutter01.bin"
+   ],
+   "animroot_drop_m": 4.946
+  }
+ ],
+ "skipped": [
+  {
+   "clip": "animations/battle/bird01/transitions/bi1_hawk_fly_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/bi1_hawk.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/bird03/transitions/bi3_fly_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/bi3_ripperdactyl.bin",
+    "animations/database/battle/bin/bi3_terradon.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/bird04/transitions/bi04_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/bi4_dlc17_coatl.bin"
+   ],
+   "reason": "bone 1 cancels the animroot descent: the clip moves the entity under a still mesh"
+  },
+  {
+   "clip": "animations/battle/engine/burningchariot01/transitions/wh3_wm_burning_chariot_fly_charge_land.anim",
+   "tables": [
+    "animations/database/battle/bin/wm_wh3_burning_chariot01.bin"
+   ],
+   "reason": "bone 1 cancels the animroot descent: the clip moves the entity under a still mesh"
+  },
+  {
+   "clip": "animations/battle/ghost03/changebringers/locomotion/gh3_dlc24_flamer_wm_disc01_changebringer_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/gh3_dlc24_flamer_wm_disc01_changebringer.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid01c/knight_disc_lance_and_shield/locomotion/hu01c_knight_disc_lance_and_shield_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu1c_dlc24_chaos_lord_tzeentch_wm_disc01_halberd_and_shield.bin",
+    "animations/database/battle/bin/hu1c_wh3_chaos_wm_disc01_lance_and_shield.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid01c/sorcerer_disc_staff_sword/locomotion/hu1c_tzeentch_sorcerer_disc_staff_sword_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu1c_wh3_dlc20_tzeentch_sorcerer_wm_disc01_staff_sword.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid01e/rider/eagle/locomotion/hu1e_dlc24_bi1_eagle_mage_hero_astromancer_walk_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu1e_dlc24_bi1_eagle_mage_hero.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid01m/halberd_disc/locomotion/hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd.bin"
+   ],
+   "reason": "animroot drop -0.09 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid06/flight_staff_and_sword/locomotion/hu6_flight_sfsw_fly_charge_landed_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu6_malagor_flight_staff_and_sword.bin"
+   ],
+   "reason": "bone 1 cancels the animroot descent: the clip moves the entity under a still mesh"
+  },
+  {
+   "clip": "animations/battle/humanoid10/belakor_fly/transitions/hu10_belakor_fly_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu10_belakor.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid10b/locomotion/hu10b_fly_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu10b_harpy.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid10c/staff/locomotion/hu10c_staff_fly_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu10c_exalted_lord_of_change_staff.bin",
+    "animations/database/battle/bin/hu10c_lord_of_change_staff.bin",
+    "animations/database/battle/bin/hu10c_lord_of_change_staff_sarthorael.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid10d/fury/locomotion/hu10d_fury_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu10d_wh3_furies.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid10f/hu10f_wh3_fate_weaver_staff/locomotion/hu10f_wh3_fate_weaver_staff_fly_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu10f_wh3_fate_weaver_staff.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu14_wh3_iridescent_horror_wm_disc01_staff.bin"
+   ],
+   "reason": "animroot drop -0.00 m < 1.0 m: the descent is not clip-driven"
+  },
+  {
+   "clip": "animations/battle/humanoid22/onyx_crowmen/transitions/hu22_onyx_crowmen_charge_land_01.anim",
+   "tables": [
+    "animations/database/battle/bin/hu22_dlc24_onyx_crowmen.bin"
+   ],
+   "reason": "bone 1 cancels the animroot descent: the clip moves the entity under a still mesh"
+  }
+ ],
+ "files": [
+  {
+   "staged": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_deathclaw_ld_dive_v135.bin",
+   "sha256": "e375cf914f5ce5e4dc083f1f30614058a579185e264da864f96ea96735fd485f",
+   "bytes": 13657
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v148.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_deathclaw_ld_dive_v148.bin",
+   "sha256": "692c315605f264ef3e629ec56c496ee0cbd7b1e9ba68e6af84ece43ba86e1344",
+   "bytes": 13657
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2_griffon_draught_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_draught_ld_dive.bin",
+   "sha256": "a771bffb49ec40878d20f0e1c00f972aa0595a9f0dfaf93165c148661508aa88",
+   "bytes": 13630
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2_griffon_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_ld_dive_v144.bin",
+   "sha256": "9fa7906697797fb304271649b3732cca316101fe6b8d54ce7a0708d50830d48f",
+   "bytes": 13507
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2_griffon_ld_dive_v148.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_ld_dive_v148.bin",
+   "sha256": "9caaecc06314f8bac4a47711bc9c57a7ea31621b4e1e4f71ff5c5a7d2c2767e0",
+   "bytes": 13507
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_ld_dive_v144.bin",
+   "sha256": "059abf3964ba2223fedef9c3892378965f38cbae1199de0b61b3f2806eb5595c",
+   "bytes": 13428
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_ld_dive_v153.bin",
+   "sha256": "573b96f093de235d4128531528f10ce6b7dc215d8c647d416950daa9996be336",
+   "bytes": 13428
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v158.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_ld_dive_v158.bin",
+   "sha256": "b2b1bbdae9e366be2b93604f0c3b01c2a8d141ec8f3aed2ea677378bc930703c",
+   "bytes": 13428
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2c_dlc23_lammasu_feral_ld_dive.bin",
+   "sha256": "59c9b5be1ab2bad5a3017b1443ead0ffdec20a0f3caa305e537a2b91da5ba2ca",
+   "bytes": 15912
+  },
+  {
+   "staged": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2c_dlc23_lammasu_mount_ld_dive.bin",
+   "sha256": "5f89df0c508d8e61dbbb6bec18df2dce7acd70205bb8fb5c40492c1e65f07284",
+   "bytes": 15659
+  },
+  {
+   "staged": "animations/database/battle/bin/bc3_manticore_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc3_manticore_ld_dive.bin",
+   "sha256": "166f063ec6f559337c99a4d1a5defd0b3c3cba24e461f94b6cbb4d634fad838b",
+   "bytes": 11844
+  },
+  {
+   "staged": "animations/database/battle/bin/bc3b_dlc27_chimera_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc3b_dlc27_chimera_ld_dive.bin",
+   "sha256": "e37254213c24f07d687eed39898d8d9eb139c2f0c6e7f2650d89e658ca3d0109",
+   "bytes": 19884
+  },
+  {
+   "staged": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc3ca_dlc29_mnt_dread_abyssal_ld_dive.bin",
+   "sha256": "392bcca3d3baf56ecd95209d3f03f48ec41817be46987094af44d2e396b6329d",
+   "bytes": 27061
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_dlc15_phoenix_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_dlc15_phoenix_ld_dive.bin",
+   "sha256": "e9676f3760451ded35d184e753df8402ba8678c3fffa30d3103ba5e06c2bb416",
+   "bytes": 13867
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_dlc24_moon_bird_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_dlc24_moon_bird_ld_dive.bin",
+   "sha256": "5e88811ef7490f316476d29eaecfb7486303ba5968c4c2a5ef25e11543d2f919",
+   "bytes": 13653
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_eagle_boss_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_boss_ld_dive.bin",
+   "sha256": "ee5deb26a38a2395d4d3d0461818a586c84a4d409a0af5d47ddeae848f328d02",
+   "bytes": 13628
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_eagle_ld_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_ld_dive_v135.bin",
+   "sha256": "c0cd117a0c72e9030082a30db92274696bdc7932cc18dea4286ee7a1bfb01dfb",
+   "bytes": 13848
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_eagle_ld_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_ld_dive_v153.bin",
+   "sha256": "393d8a77020e6d8cb357015db30b80ab8d551a108fd21f64cfe14231a032bcd9",
+   "bytes": 13848
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_eagle_ld_dive_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_ld_dive_v171.bin",
+   "sha256": "8cf5937f723896e27fd784edd52370663d558e08d6e4914f97d2e347cbcbab0e",
+   "bytes": 13848
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_sisters_of_twilight_ld_dive.bin",
+   "sha256": "8818e55e103d3e9fbc67758d9712c2eb15fafe8aff7f2591d8b100e52d5f8f7d",
+   "bytes": 13048
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1b_carrion_ld_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_ld_dive_v135.bin",
+   "sha256": "79c41366cbeb940d463f08a43e94ffff1fc0451eda1927e9b933e712cd5e52f0",
+   "bytes": 9147
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1b_carrion_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_ld_dive_v144.bin",
+   "sha256": "8faf616f1c1a2988b922a5bd0a4ac2088494096f24cccd4beabc5ede1a161b97",
+   "bytes": 9147
+  },
+  {
+   "staged": "animations/database/battle/bin/bi1b_carrion_ld_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_ld_dive_v153.bin",
+   "sha256": "59e222f762782a7afb28b58e66584096407cb327127769cc62d829c9f4c7c9cc",
+   "bytes": 9147
+  },
+  {
+   "staged": "animations/database/battle/bin/bi2_dlc27_preyton_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_dlc27_preyton_ld_dive.bin",
+   "sha256": "c8d215906eb9ab99d563ec50894faa2e6f36e5b5563080637571219ddabe0226",
+   "bytes": 18709
+  },
+  {
+   "staged": "animations/database/battle/bin/bi2_terrorgheist_boss_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_terrorgheist_boss_ld_dive.bin",
+   "sha256": "00661a7eb316e712904eb4cfded40d2e4544d38083a313914bc649b7b94e1ebb",
+   "bytes": 15407
+  },
+  {
+   "staged": "animations/database/battle/bin/bi2_terrorgheist_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_terrorgheist_ld_dive.bin",
+   "sha256": "5d99a1d294dfcc09ebe997ad655ccdb025c71f66c510987e4f1206f5af2dc128",
+   "bytes": 15163
+  },
+  {
+   "staged": "animations/database/battle/bin/bi2_wyvern_ld_dive_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_wyvern_ld_dive_v126.bin",
+   "sha256": "69f2ddd83687f310c05722117b7a3710edca5da32b210df81560db3b38c88e8f",
+   "bytes": 15142
+  },
+  {
+   "staged": "animations/database/battle/bin/bi2_wyvern_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_wyvern_ld_dive_v144.bin",
+   "sha256": "ac49ed3a90bc2f5abb13b28120448bd4471da0bd65cc5005d6f0d0527f4b00b9",
+   "bytes": 15142
+  },
+  {
+   "staged": "animations/database/battle/bin/co1_dlc22_cockatrice_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\co1_dlc22_cockatrice_ld_dive.bin",
+   "sha256": "e2f56f2fef34081af0ebdea92ebfd64ad65ee019dd3618ab3f2ef051bafb86ed",
+   "bytes": 16847
+  },
+  {
+   "staged": "animations/database/battle/bin/dr04_dlc24_dragon_jade_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr04_dlc24_dragon_jade_ld_dive.bin",
+   "sha256": "d725cb680f4c5f0ed88f50f3988d482201b3c4e98484ee2a30cc0be8ce5871dd",
+   "bytes": 20716
+  },
+  {
+   "staged": "animations/database/battle/bin/dr04_dragon_iron_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr04_dragon_iron_ld_dive.bin",
+   "sha256": "caf0029f5ae1dd2a8d9db9cc285f000c70703e4758b2f1ff455f1d163c307c04",
+   "bytes": 18663
+  },
+  {
+   "staged": "animations/database/battle/bin/dr04_dragon_storm_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr04_dragon_storm_ld_dive.bin",
+   "sha256": "678114f89ec3d212347394a35d6f580757fb0899209a9f87a5eaf454380d0c24",
+   "bytes": 18904
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_boss_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_boss_ld_dive.bin",
+   "sha256": "76e9ea36b27fabe7fe51fcb8fbd8ba051e2ed4ceb09a1203acaeebd3173a7c27",
+   "bytes": 17789
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_carmine_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_carmine_ld_dive.bin",
+   "sha256": "e9c06b651d9733e7e07de0fd81bcf2253300a15805ec63103d2e6d81f76aab7e",
+   "bytes": 18425
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_ld_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_ld_dive_v135.bin",
+   "sha256": "b95baec6f74d2a9887b34e2702b3166cff24aac43f3418e464974ca9f2ed72ff",
+   "bytes": 20869
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_ld_dive_v144.bin",
+   "sha256": "dddfd0c6bd7c1ab4a316a86614d08d7205bdd0c28294bca3c114bfdef90dd5d3",
+   "bytes": 20869
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_ld_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_ld_dive_v153.bin",
+   "sha256": "0a536373fddeab75978bba2ff8b274d01c75494cf38e0b885f6c1cb937b07f85",
+   "bytes": 20869
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_zombie_ld_dive_v126.bin",
+   "sha256": "7bd88d31f31b4e18a0d625c3dcb59926aaf48cb28e05042884ae8b5280161bb7",
+   "bytes": 20935
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_zombie_ld_dive_v144.bin",
+   "sha256": "21e9485f3306e13eda1f1b59f7ffefb0564d6d3020864527e11e155d14463b61",
+   "bytes": 20935
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_boss_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_boss_ld_dive.bin",
+   "sha256": "93ffa913af703a4df48b27352503819016cb3b1666f104cf99da3425dd400add",
+   "bytes": 13778
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_ld_dive_v135.bin",
+   "sha256": "3e0667f74d865b4ea2ba5a7d37508d2170ee40ff012ff86c1948346e093b299f",
+   "bytes": 14010
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_ld_dive_v144.bin",
+   "sha256": "be8aba9d8837584aeed5921dab0bf6f3c6f9c1f1f7afb4b0171b6063972fbb82",
+   "bytes": 14010
+  },
+  {
+   "staged": "animations/database/battle/bin/dr1b_wyrm_dragon_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_wyrm_dragon_ld_dive.bin",
+   "sha256": "2d3b1c6b1e5a4e885f73c29fc53107bb9207e2fee73493f0e6a53845c0bdbd68",
+   "bytes": 14032
+  },
+  {
+   "staged": "animations/database/battle/bin/hr1_pegasus_ld_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_ld_dive_v153.bin",
+   "sha256": "c48ebbbd750429f09ee6f6d0549b2f91729328bafdc43cf1fb3f514ac0e8094f",
+   "bytes": 13252
+  },
+  {
+   "staged": "animations/database/battle/bin/hr1_pegasus_ld_dive_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_ld_dive_v162.bin",
+   "sha256": "1bae283106bad66f4676e2522cffd04e42d8b885717f18d797453e17e14fe0c0",
+   "bytes": 13252
+  },
+  {
+   "staged": "animations/database/battle/bin/hr1_wh3_longma_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hr1_wh3_longma_ld_dive.bin",
+   "sha256": "308ddda6fe6d879292a5f998b710fcb69339fa4b24c76e9cd4972e880faa224f",
+   "bytes": 13526
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
+   "sha256": "725e998b5b0a5783d795b93408412e995ec38e121e1afbc1f9503372b4f5b775",
+   "bytes": 20437
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_dlc29_morghast_harbingers_dual_swords_ld_dive.bin",
+   "sha256": "459b03de2818ce401dc33d2d931f1c00f89d92dbed2e420a7694869f5794d304",
+   "bytes": 21400
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_wh3_bloodthirster_axe_and_whip_ld_dive.bin",
+   "sha256": "24f0ad3c318eb60936ff2f5bec2df3027f81e18f435da02d0c4258922df4c831",
+   "bytes": 16727
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_wh3_bloodthirster_great_axe_ld_dive.bin",
+   "sha256": "8d2ba8cf6aa3d2e5f6a462584c6cd5c845189ff25b3a6c23175033576d8e97fd",
+   "bytes": 16566
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144.bin",
+   "sha256": "d5dbe866170c70a900e626cfc15df168da2191883c95d9078d96195153e72c58",
+   "bytes": 22820
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153.bin",
+   "sha256": "f696b2e8afc8d5f89aaebc483c8c33536a706b7c4f50d7f267d864649179b824",
+   "bytes": 22820
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive.bin",
+   "sha256": "dd25b8b7c806f87f48af0a1adf658bde8fba58dd5250117a5f086af07c740988",
+   "bytes": 24033
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_wh3_daemon_prince_1h_ld_dive.bin",
+   "sha256": "71859208578fc95826715c4a6cd5b53288d1e1ccd01795c016821605159e2ddc",
+   "bytes": 24625
+  },
+  {
+   "staged": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_wh3_daemon_prince_2h_ld_dive.bin",
+   "sha256": "e46fc77f5a11d99ca0aeb8979a43f72ba55757b60ec19590b94207db673bc123",
+   "bytes": 24394
+  },
+  {
+   "staged": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu14_t1_dlc21_blue_scribes_ld_dive.bin",
+   "sha256": "8711955b850a020309c6d1ae93a4c6bc998e506c6157dc415b618da362ccaa61",
+   "bytes": 26893
+  },
+  {
+   "staged": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive.bin",
+   "sha256": "311bae6b49a8bd45e260f9d9447b41bfc3efe1bab26c63ce7dcd88240daf2f2d",
+   "bytes": 28160
+  },
+  {
+   "staged": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu16c_wh3_dlc20_valkia_spear_shield_ld_dive.bin",
+   "sha256": "484520f53db5210ccb9354a13a76b4ee7831fbe549cc4d3ec736ecee26478d99",
+   "bytes": 19109
+  },
+  {
+   "staged": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu6g_wh3_dlc20_azazel_sword_ld_dive.bin",
+   "sha256": "13204137ad6f3222a3fbdc8c952b269a514ade6219a9b19ee436cbb2102649d4",
+   "bytes": 31696
+  },
+  {
+   "staged": "animations/database/battle/bin/hu8b_vargheist_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu8b_vargheist_ld_dive.bin",
+   "sha256": "85f8b609cbb5596f2a9d8cd23c4380114443c9a3d141775812d8027aa003a93f",
+   "bytes": 22937
+  },
+  {
+   "staged": "animations/database/battle/bin/mt1_wh3_screamers_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\mt1_wh3_screamers_ld_dive.bin",
+   "sha256": "1f96a5cf31b31ceb2518453f2265b44766c524bbcc339405e5c26d26004a2f34",
+   "bytes": 20251
+  },
+  {
+   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_cages_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_cages_ld_dive.bin",
+   "sha256": "fe57e7d3e2fb108bb5d63033b935012fd77acd04a99508b00465925f3d491bea",
+   "bytes": 23942
+  },
+  {
+   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_feral_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_feral_ld_dive.bin",
+   "sha256": "e73f33b5070d2638b0b79bae605d34908212db225c23fcab811f2930b20edeee",
+   "bytes": 24167
+  },
+  {
+   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_mount_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_mount_ld_dive.bin",
+   "sha256": "65f7151a229813e132c2a60e1a1c99533417d08e605908316efea3deb466c1b3",
+   "bytes": 23938
+  },
+  {
+   "staged": "animations/database/battle/bin/sky1_dlc27_skycutter01_ld_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\sky1_dlc27_skycutter01_ld_dive.bin",
+   "sha256": "d09b224faa4ec389af3eee3ce3b408095adc201baa547062aa6c6324f857959b",
+   "bytes": 13414
+  },
+  {
+   "staged": "ld_air_dive_tables.animpack",
+   "pack_path": "animations\\database\\battle\\bin\\ld_air_dive_tables.animpack",
+   "sha256": "6706408cbf461ebb6ae54c36ed15930f200a6fb27642b748baddefd4eeb01419",
+   "bytes": 1145959
+  }
+ ]
+}

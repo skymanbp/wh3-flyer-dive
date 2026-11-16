@@ -1,0 +1,100 @@
+-- ld_flyer_dive.lua — campaign entry for the physics dive
+-- 物理俯冲的战役入口
+--
+-- [AIR-DIVE-MP-DIVE-W1 2026-11-12, user rulings CONTENT_LEDGER §C8-60 / §C8-61]
+-- Same shape as campaign/mod/ld_flyer_takeoff.lua: the cave sites are searched
+-- at load, and on the first tick memreader_plus's agreement step runs with
+-- those sites. In single player it applies at once; in multiplayer the caves go
+-- in only when every player's game agrees (feature mode "same"; the format is
+-- derived from the cave code, so a different version of the caves disagrees as
+-- "another version of the mod"), otherwise the dive is off for everyone and
+-- every game keeps the vanilla landing. The decision is left in the caves'
+-- buffer ("allowed") for the campaign's battles (battle/mod/ld_flyer_dive.lua).
+-- The dive itself: lib/ld_flyer_dive.lua.
+-- / 首帧经 memreader_plus 协商；单机直接生效，联机须各端一致，否则对所有人关闭。
+
+local function log(text)
+    if type(ModLog) == "function" then pcall(ModLog, text) end
+    if type(out) == "function" then pcall(out, text) end
+end
+
+local loaded, dive = pcall(require, "script/campaign/lore_disasters/lib/ld_flyer_dive")
+if not loaded or type(dive) ~= "table" then
+    log("[ld_flyer_dive] ERROR: module failed to load: " .. tostring(dive))
+    return
+end
+
+if not _G.memreader_plus then
+    local chunk = loadfile("/script/_lib/mod/memreader_plus")
+    if chunk then
+        setfenv(chunk, core:get_env())
+        pcall(chunk)
+    end
+end
+
+-- The sites are searched at load; their loader object is the agreement's
+-- `sites` (without sites the agreement turns every feature off, agree.lua
+-- feature_state). / 位点在加载时查找，作为协商的 sites。
+local prepared, prepare_why = dive.prepare(log)
+if not prepared then log("[ld_flyer_dive] sites not ready: " .. tostring(prepare_why)) end
+local FEATURE = dive.feature() or "dive"
+-- What an earlier campaign of this game session decided does not carry over:
+-- off until this campaign's agreement answers. / 上一个战役的结论不沿用。
+dive.forbid("waiting for this campaign's agreement", log)
+local agreed = false
+
+local function apply_on()
+    local buffer, why = dive.install(log)
+    if not buffer then return why or "not installed" end
+    dive.set_allowed(buffer, true)
+    log("[ld_flyer_dive] allowed for this campaign's battles")
+    return nil
+end
+
+local function agree()
+    if agreed then return end
+    agreed = true
+    if not prepared then
+        dive.forbid("sites not ready: " .. tostring(prepare_why), log)
+        return
+    end
+    local agree_fn = _G.memreader_plus_agree
+    if type(agree_fn) ~= "function" then
+        -- Without the agreement step a multiplayer game cannot be kept in step:
+        -- apply only in single player. / 无协商步骤时只在单机生效。
+        if cm:is_multiplayer() then
+            dive.forbid("memreader_plus agreement step missing (update memreader_plus)", log)
+        else
+            local why = apply_on()
+            if why then dive.forbid(why, log) end
+        end
+        return
+    end
+    local ok, done, problem = pcall(agree_fn, dive.owner(), {
+        features = { [FEATURE] = "same" },
+        sites = dive.sites(),
+        format = dive.format(),
+        title = "Lore Disasters flyer physics dive",
+        apply = function(_, on, why)
+            if not on[FEATURE] then
+                dive.forbid(("%s off: %s"):format(FEATURE, tostring(why and why[FEATURE])), log)
+                return { [FEATURE] = "off" }
+            end
+            local problem_here = apply_on()
+            if problem_here then
+                dive.forbid(problem_here, log)
+                return { [FEATURE] = problem_here }
+            end
+            return nil
+        end,
+    })
+    if not ok or not done then
+        dive.forbid("agreement did not start: " .. tostring(ok and problem or done), log)
+    end
+end
+
+-- First tick, with the first FactionTurnStart as a fallback (project memory:
+-- first tick is not always reliable). / 首帧，另以首个回合开始兜底。
+cm:add_first_tick_callback(function() agree() end)
+core:add_listener("ld_flyer_dive_first_turn", "FactionTurnStart", function() return not agreed end,
+    function() agree() end, false)

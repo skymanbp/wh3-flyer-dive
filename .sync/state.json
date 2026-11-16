@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "about": "blob of every shared path at the last sync (mod/tools/sync_flyer_repo.py); do not edit by hand",
- "last_sync_source": "lore-disasters@5161fc0d728b86ace96bc022c05282875225b4d9",
+ "last_sync_source": "lore-disasters@9b84691f24b37f617da5f20aa2cdc736b58a27db",
  "paths": {
   "mod/assets/air_dive/air_dive_manifest.json": "100644 551ea2c6d614c1690b0484a34f571aba14e01112",
   "mod/assets/air_dive/animations/database/battle/bin/bc2_deathclaw_ld_dive_v135.bin": "100644 4c76f3ad98ebac1c3d340b028914e775f358ba21",
@@ -86,16 +86,16 @@
   "mod/assets/vendored_scripts/memreader_plus/script/memreader_plus/releases/0_15_2.lua": "100644 4ffd1031e9c93fea547ef4135cfbfb840cd584e7",
   "mod/assets/vendored_scripts/memreader_plus/script/memreader_plus/third_party_licenses.txt": "100644 3e77cbe42649b69a3f77b82bafd481694a9902f9",
   "mod/script/battle/mod/ld_flyer_dive.lua": "100644 41a9de535458fab28686043a73a50854dde5e0d8",
-  "mod/script/battle/mod/ld_flyer_takeoff.lua": "100644 a5e6ff1fae04af5ed1dffbefeab2b0752c7c83d6",
+  "mod/script/battle/mod/ld_flyer_takeoff.lua": "100644 26b04b177177b1ca43bf93fe15ec68ebd4d11909",
   "mod/script/campaign/lore_disasters/data/ld_flyer_dive_site.lua": "100644 8766014c9bff7cecba72dcba38bc81f4579a2cf2",
-  "mod/script/campaign/lore_disasters/data/ld_flyer_takeoff_site.lua": "100644 2d2b777652493b40a7bf7eabbb101a05509459eb",
+  "mod/script/campaign/lore_disasters/data/ld_flyer_takeoff_site.lua": "100644 dbc5435ff7d9e74cc5d3509b432cfe930805ae86",
   "mod/script/campaign/lore_disasters/lib/ld_cave_common.lua": "100644 2b9cc5243604aea71beb48e3912b268da545f877",
   "mod/script/campaign/lore_disasters/lib/ld_flyer_dive.lua": "100644 f8e73ef34473784e2b5a2d93a530acd74f6d06cf",
-  "mod/script/campaign/lore_disasters/lib/ld_flyer_takeoff.lua": "100644 033957412ba6c412025928a38cacbaed3ab94575",
+  "mod/script/campaign/lore_disasters/lib/ld_flyer_takeoff.lua": "100644 5464d48e5f07d82faa38c286efb32efc1759439e",
   "mod/script/campaign/mod/ld_flyer_dive.lua": "100644 f25d78875f71c49fe64aac26147eb401bf4e61f6",
   "mod/script/campaign/mod/ld_flyer_takeoff.lua": "100644 e8a7b1ad550f1bd386baabf3eb83740a5862147a",
   "mod/tools/data/flyer_repo_manifest.json": "100644 ae7992cb3d962ff3ebb5f86e477f56aafbfcdb5d",
-  "mod/tools/lib/air_dive_rules.py": "100644 0a2af275d386fe1b8b2b418478a55e45323f47fc",
+  "mod/tools/lib/air_dive_rules.py": "100644 db08a3d8f27e726a77f3e63ab6debd09de9e7852",
   "mod/tools/lib/anim_codec.py": "100644 a90a5057af748c277f3ff04c9fbb85f0d6c4d754",
   "mod/tools/lib/anim_meta.py": "100644 bd737acdd69456d9b5f6a66b79034323011f9ac3",
   "mod/tools/lib/anim_table_bin.py": "100644 64778bf851777c81db88c17316d7c5e6b6cd1837",
@@ -112,7 +112,7 @@
   "mod/tools/pipelines/build_air_dive_minimod.py": "100644 7ffe65711d66a923b935e5cd4ded8a15a6c51642",
   "mod/tools/pipelines/build_pin_on_hit_probe.py": "100644 a9d0c93f1a0b38bd05b64e9547e9499ff35fc688",
   "mod/tools/pipelines/dive_cave_asm.py": "100644 b31fb61b0ef84bdbedce23adc453ff49f9bd0ee6",
-  "mod/tools/pipelines/pin_cave_asm.py": "100644 c7e8e4da99576fb079b0103d1ba7108e63b2146e",
+  "mod/tools/pipelines/pin_cave_asm.py": "100644 2cb5604b46d4b90783039f2901ee876aaeca7d02",
   "mod/tools/pipelines/pin_on_hit_probe.lua": "100644 3049948894cf9c17b867d43f9bae028c825333fc",
   "mod/tools/pipelines/takeoff_gate_report.py": "100644 f4c07aff0492520259e68b4e38af105f71e3b541",
   "mod/tools/rolepath.py": "100644 fefaeeda7c0dbccd5b8ac362f639e6f566e5b8a4",
@@ -123,6 +123,6 @@
   "mod/tools/tests/test_air_dive_charge_speeds.py": "100644 b13768e6702fe28d8c506faaecae9259c72b0c5b",
   "mod/tools/tests/test_anim_table_rename.py": "100644 6a3cdfcb6fd2d2e97905201989643519819b4988",
   "mod/tools/tests/test_flyer_dive_site.py": "100644 5ba5ed1db8d2605e7978b8f3226f41680f6fe326",
-  "mod/tools/tests/test_flyer_takeoff_site.py": "100644 8a44d1734158a12c64970494750e897d169ffead"
+  "mod/tools/tests/test_flyer_takeoff_site.py": "100644 d68d2c252f3a1fb5216a485dcbe172b3e8524094"
  }
 }

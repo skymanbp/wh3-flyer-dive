@@ -1,5 +1,5 @@
 -- ld_flyer_takeoff.lua — flyers are held on the ground only while struck (memreader_plus code caves)
--- 飞兽只在挨打时被按在地上：经 memreader_plus 装三个代码洞，全体飞行单位
+-- 飞兽只在挨打时被按在地上：经 memreader_plus 装两个代码洞，全体飞行单位
 --
 -- [AIR-DIVE-TAKEOFF-W1 2026-11-12, user rulings 2026-11-12, CONTENT_LEDGER
 -- §C8-57 and §C8-58] A flyer ordered away from melee is asked to take off,
@@ -7,13 +7,17 @@
 -- engaged check says the model is busy -- any contact, struck or not.
 -- THE RULE: a flying unit is held only while MORE THAN HALF of its living
 -- models were struck in melee within the last 1.5 s (15 battle ticks); a
--- single-model unit uses its one model. Every flying unit, both sides, AI
--- included. Two caves record a damaging melee hit on the flying entity it
--- lands on, one answers the timer in place of the engaged check (source,
--- emulator check and sites: tools/pipelines/pin_cave_asm.py; the site table
--- and buffer layout data/ld_flyer_takeoff_site.lua are generated from it).
--- / 过半存活模型在最近 1.5 秒内近战挨打才按住，否则 3 秒后离地。两个洞记命中，
---   一个洞代替原版的交战判定回答起飞计时。
+-- single-model unit (one living model) uses its one model, struck within the
+-- last 3.0 s (30 ticks; §C8-78, user ruling 2026-11-16). Every flying unit,
+-- both sides, AI included. One cave, at the engine's damage applier, records every damaging
+-- melee hit (the engine's own damage type 0: weapon hits, splash attacks,
+-- matched combat; not charges, impacts, ranged or abilities) on the flying
+-- entity it lands on [FLYER-TAKEOFF-HITS 2026-11-16]; one answers the timer
+-- in place of the engaged check (source, emulator check and sites:
+-- tools/pipelines/pin_cave_asm.py; the site table and buffer layout
+-- data/ld_flyer_takeoff_site.lua are generated from it).
+-- / 过半存活模型在最近 1.5 秒内近战挨打才按住（只剩一个存活模型时为 3 秒，§C8-78），否则 3 秒后离地。一个洞在扣血函数入口
+--   记全部近战命中（含横扫与对决动作），一个洞代替原版的交战判定回答起飞计时。
 --
 -- The caves stay in the game for the session (memreader Plus never removes a
 -- cave), so "off" is mode 0: nothing is recorded and the game's own engaged
@@ -152,9 +156,10 @@ end
 
 -- Start the rule for a battle: caves off while the table and the counters
 -- are cleared (the entries are this battle's entity pointers), then the
--- window, then the mode last. mode 1 = the rule; 2 = record hits only, the
--- game's own check still answers (tests). / 清表后开规则，模式最后写。
-function M.arm(buf, window, mode)
+-- windows (multi-model, then single-model §C8-78), then the mode last. mode 1
+-- = the rule; 2 = record hits only, the game's own check still answers
+-- (tests). / 清表后开规则，模式最后写。
+function M.arm(buf, window, mode, window_single)
     local mr, layout = mr_(), site.layout
     put_u32(buf, layout.mode_at, 0)
     local zeros = string.rep("\0", 1024)
@@ -166,6 +171,7 @@ function M.arm(buf, window, mode)
         put_u32(buf, at, 0)
     end
     put_u32(buf, layout.window_at, window or layout.window)
+    put_u32(buf, layout.window_single_at, window_single or layout.window_single)
     put_u32(buf, layout.mode_at, mode or 1)
 end
 

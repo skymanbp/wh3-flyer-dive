@@ -2,8 +2,9 @@
 rule's site table.
 
 The rule -- a flying unit is held in melee only while more than half of its
-living models were struck within the last 15 battle ticks -- is three code
-caves. Their source, emulator check, sites and field anchors live in
+living models were struck within the last 15 battle ticks -- is two code
+caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
+replaced the two inside the hit processor). Their source, emulator check, sites and field anchors live in
 ``pipelines/pin_cave_asm.py``; what ships is the generated data module
 ``data/ld_flyer_takeoff_site.lua``. These checks pin the join between the two:
 
@@ -15,7 +16,7 @@ caves. Their source, emulator check, sites and field anchors live in
   from the vendored loader; no wildcard first);
 * the installed game holds every cave site and every anchor exactly once.
 The installed exe is a required input (§A14.4): without it the last check
-refuses rather than passing. The emulator check itself (591 cases, 12 broken
+refuses rather than passing. The emulator check itself (506 cases, 19 broken
 caves each caught) needs keystone + unicorn and runs inside pin_cave_asm.py
 before it writes the table; it is not repeated here.
 """
@@ -58,7 +59,7 @@ class SiteTable(unittest.TestCase):
         want = ([(n, pin_cave_asm.FEATURE, "cave") for n in pin_cave_asm.CAVES]
                 + [(n, pin_cave_asm.FEATURE, "anchor") for n in pin_cave_asm.ANCHORS])
         self.assertEqual(named, want)
-        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (3, 6))
+        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (2, 7))
 
     def test_owner_feature_hold_and_window(self):
         # whole lines of the table's top level (an entry repeats the feature inline)
@@ -72,6 +73,10 @@ class SiteTable(unittest.TestCase):
         self.assertEqual(self.text.count(f" window = {air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS},"), 1)
         # the ruled window: 1.5 s at the engine's 10 battle ticks a second
         self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS, 15)
+        # [§C8-78] one living model: 3.0 s
+        self.assertEqual(self.text.count(
+            f" window_single = {air_dive_rules.TAKEOFF_PIN_WINDOW_SINGLE_TICKS},"), 1)
+        self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOW_SINGLE_TICKS, 30)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
 
     def test_every_cave_takes_the_buffer_and_only_the_hold_cave_resumes(self):

@@ -1364,8 +1364,10 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
 # THE RULE (§C8-58): a flying unit is held (the timer re-armed) only while
 # MORE THAN HALF of its living models were struck in melee within the last
 # TAKEOFF_PIN_WINDOW_TICKS battle ticks; a single-model unit uses its one
-# model. Three code caves do it (two record a melee hit on the flying entity
-# it lands on, one answers the timer in place of the engaged check); their
+# model. Two code caves do it (one records every damaging melee hit -- the
+# damage applier's own type 0: weapon hits, splash attacks, matched combat --
+# on the flying entity it lands on, one answers the timer in place of the
+# engaged check; FLYER-TAKEOFF-HITS 2026-11-16); their
 # source, emulator check, sites and the generated site table live in
 # pipelines/pin_cave_asm.py, installed at runtime through memreader Plus (the
 # site loader: every pattern exactly once, original bytes checked, owned).
@@ -1374,7 +1376,7 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
 # that let the timer always run, so a flyer left 3.0 s after the order
 # whatever was hitting it -- charge, leave, charge again).
 # / 近战中起飞：过半存活模型在最近 1.5 秒内近战挨打才按住，否则 3 秒后离地；
-#   三个代码洞（pipelines/pin_cave_asm.py），取代此前「一律放行」的字节补丁。
+#   两个代码洞（pipelines/pin_cave_asm.py），取代此前「一律放行」的字节补丁。
 TAKEOFF_OWNER = "ld_flyer_takeoff"
 TAKEOFF_FEATURE = "takeoff"                       # the agreement feature name
 TAKEOFF_BUILD = "6ae2a00b"                       # the build it was measured on
@@ -1384,3 +1386,9 @@ TAKEOFF_SITE_LUA_PATH = "script/campaign/lore_disasters/data/ld_flyer_takeoff_si
 # 3.0 s timer then has to run out, so a unit leaves at most 4.5 s after the
 # blows on more than half of it stop.
 TAKEOFF_PIN_WINDOW_TICKS = 15
+# [§C8-78, user ruling 2026-11-16] A unit with exactly one living model is held
+# while that model was struck within the last 3.0 s (30 ticks): one model has
+# no "more than half" to average over, and the blows of a lord, hero or
+# monster come seconds apart. Multi-model units keep the 1.5 s window.
+# / 单体（存活模型数 = 1）挨打窗口 3 秒，多模型仍 1.5 秒。
+TAKEOFF_PIN_WINDOW_SINGLE_TICKS = 30

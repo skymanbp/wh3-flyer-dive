@@ -82,8 +82,9 @@ if not ok then
     buffer, how = nil, "off (error: " .. tostring(problem) .. ")"
 end
 local window = buffer and takeoff.layout() and takeoff.layout().window
+local window_single = buffer and takeoff.layout() and takeoff.layout().window_single
 record(("BATTLE mp=%s campaign=%s %s%s"):format(tostring(mp), tostring(from_campaign), tostring(how),
-    window and (", window " .. tostring(window) .. " ticks") or ""))
+    window and (", window " .. tostring(window) .. " ticks (single model " .. tostring(window_single) .. ")") or ""))
 
 bm:register_phase_change_callback("Complete", function()
     if not buffer then return end

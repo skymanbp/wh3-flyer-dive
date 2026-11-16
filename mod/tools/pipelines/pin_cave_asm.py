@@ -5,33 +5,43 @@ generated site table.
 §C8-58] RULE: a flying unit is held on the ground (its models' take-off
 countdown re-armed) only while MORE THAN HALF of its living models were struck
 in melee within the last ``air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS`` battle
-ticks (15 = 1.5 s). A single-model unit: its one model. Contact without hits,
+ticks (15 = 1.5 s). A single-model unit (one living model): its one model,
+struck within the last ``TAKEOFF_PIN_WINDOW_SINGLE_TICKS`` (30 = 3.0 s; user
+ruling 2026-11-16, CONTENT_LEDGER §C8-78). Contact without hits,
 ranged and explosion hits, and a charge's collision damage do not hold it.
 Replaces the first take-off patch (the countdown always ran, so a flyer left
 3.0 s after the order whatever was hitting it).
 
-Three caves in Warhammer3.exe 9.0.5 (6ae2a00b), installed by memreader Plus
+Two caves in Warhammer3.exe 9.0.5 (6ae2a00b), installed by memreader Plus
 through the generated site table (``--write-site``):
 
-STAMP ``pin_stamp`` at 0x14326ce15, in the melee hit processor 0x14326cd24,
-which applies one attacker's queued melee hit (rsi = the hit block, rbx = the
-attacker, rdi = the victim model, loaded by the instruction before the site).
-STAMP ``pin_stamp_now`` at 0x14325b597, in its twin 0x14325b54c (the same
-hit block applied at once when the attacker's action state changes; rbx = the
-victim there). Each pending hit goes through exactly one of the two (both
-test and clear the pending flag [block+0x18]). In the hit block:
-  [rsi]        result type: 0 parried (no damage call), 1 hit, 3/4/5 hit with
-               a knock (all four call the damage applier 0x14325a9c4), 2 and
-               6+ do nothing (the switch 0x14326cf03 / 0x14325b681)
-  [rsi+4]      damage
-For a type 1/3/4/5 hit with damage > 0 the cave finds the flying entity the
-hit lands on -- the victim itself when it has a flight controller (entity
-+0x128), else the first one up its parent chain (+0x2e0, rider -> mount; at
-most CHAIN_MAX entities, the engine walks the same chain at 0x14325d45e) --
-and writes the battle tick into that entity's table entry (claimed with lock
-cmpxchg on first use). A victim that is no flyer costs the two reads. Stolen
-bytes: ``lea rcx,[rbp-0x50]`` + ``mov rdx,<victim>`` (7 bytes, no jump).
-Every register and the flags come back unchanged.
+STAMP ``pin_stamp`` at the entry of the damage applier 0x14325a9c4, which
+every kind of damage on a model goes through (25 call sites). Entry: rcx =
+damage context ([ctx+8] = the victim entity, the applier's own first read),
+r8d = damage, [rsp+0x30] = the damage type (6th argument; the applier keeps
+it in r15d and compares it with 2 and 4). The caller writes the type: 0 for
+melee -- the hit processor 0x14326cd24 and its immediate twin 0x14325b54c
+(single-target weapon hits), the splash attack 0x143087068 (a lord, hero or
+monster striking several models in its arc), the matched-combat steps
+0x142f72320 / 0x142f8e0f8 / 0x142f8cc94 (synced duel animations) -- 6 for a
+charge's collision attack 0x143060e44, 5 for an impact 0x143061144, 1..4
+for ranged / explosion 0x1430aaa88, 2 / 3 for abilities and the rest.
+For type 0 with damage > 0 the cave finds the flying entity the hit lands on
+-- the victim itself when it has a flight controller (entity +0x128), else
+the first one up its parent chain (+0x2e0, rider -> mount; at most CHAIN_MAX
+entities, the engine walks the same chain at 0x14325d45e) -- and writes the
+battle tick into that entity's table entry (claimed with lock cmpxchg on
+first use). A victim that is no flyer costs the two reads. Stolen bytes: the
+applier's first instructions ``mov [rsp+0x10],rbx; push rbp; push rsi;
+push rdi; push r12`` (10 bytes, no jump, nothing rip-relative). Every
+register and the flags come back unchanged.
+[FLYER-TAKEOFF-HITS 2026-11-16] Replaces two stamps inside the hit processor
+and its twin (0x14326ce15 / 0x14325b597), which saw only single-target
+weapon hits. A logger at the applier entry (custom battles, four flyers
+each) counted the damaging melee calls on flyers those two recorded:
+against swordsmen 126 of 129, against chosen 193 of 198, against a chaos
+lord (splash) 4 of 26, against a giant (splash + matched combat) 2 of 54 --
+a flyer fought by a lord, hero or monster was almost never held.
 
 HOLD ``pin_hold`` at 0x143053cfb, in the per-model flight update 0x143053bd4,
 where the stock code asks the engaged check ``call 0x143026588(rcx = FC)``
@@ -41,11 +51,12 @@ whether to re-arm the take-off countdown FC+0x44 (30 ticks). Stolen bytes:
 entities (the engine's own loop over them: 0x14305018b; the list shrinks when
 a model dies). Mode 1: the cave counts the living entities whose table entry
 is younger than the window, answers al = 1 (hold) when struck x 2 > living,
-else al = 0, and jumps to the instruction after the call (``test al,al``),
+else al = 0 -- when exactly one entity is living, its entry is judged against
+the single-model window (+40) instead [§C8-78], and jumps to the instruction after the call (``test al,al``),
 skipping the engaged check. Any other mode: the cave does nothing and the
 original check runs. The entity pointers are only compared, never followed.
 Registers a call may clobber change (rax rcx rdx r8-r11, flags); rbx rsi rdi
-rbp r12-r15 rsp come back unchanged.
+rbp r12-r15 rsp come back unchanged (rsi rdi r12 r13 are saved around the loop).
 
 Buffer (game_alloc, little endian), 64-byte header then the table:
   +0  u32 window in ticks        +4  u32 mode: 0 off, 1 the rule, 2 record
@@ -53,6 +64,7 @@ Buffer (game_alloc, little endian), 64-byte header then the table:
   +12 u32 allowed (Lua only: the campaign's agreement said yes)
   +16 8 bytes MAGIC              +24 u32 dropped (no free entry in reach)
   +32 u32 "hold" answers         +36 u32 "free" answers (mode 1)
+  +40 u32 single-model window in ticks (§C8-78)
   +64 TABLE_SLOTS x 16 bytes: u64 flying entity, u32 tick, u32 hits
 Entry of pointer p: slot ((p>>4) ^ (p>>17) ^ (p>>30)) & (TABLE_SLOTS-1), then
 linear probing, at most PROBES entries. Entries are never freed inside a
@@ -61,7 +73,9 @@ no entry in reach is dropped (counted), so a full table errs towards "free".
 
 The site table also carries ANCHORS: pieces of the engine's own code that use
 the same fields (the flight-entity list, the unit back-reference, the battle
-tick, the parent link, the result-type switch). The site loader needs every
+tick, the parent link) and the callers that pass a non-melee damage type
+(charge 6, impact 5, ranged 1..4); the stamp site's own pattern pins the
+applier's victim, damage and damage-type reads. The site loader needs every
 one exactly once, so a game update that moves a field turns the feature off
 instead of letting the caves read the wrong memory.
 
@@ -95,12 +109,13 @@ WINDOW_TICKS = air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS
 
 # --- buffer layout ----------------------------------------------------------
 WINDOW_AT, MODE_AT, STAMPS_AT, ALLOWED_AT, MAGIC_AT = 0, 4, 8, 12, 16
-DROPPED_AT, HELD_AT, FREE_AT = 24, 32, 36
+DROPPED_AT, HELD_AT, FREE_AT, WINDOW_SINGLE_AT = 24, 32, 36, 40
+WINDOW_SINGLE_TICKS = air_dive_rules.TAKEOFF_PIN_WINDOW_SINGLE_TICKS
 TABLE_AT, ENTRY_BYTES = 64, 16
 TABLE_SLOTS = 8192                  # power of two
 PROBES = 64
 BUFFER_BYTES = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
-MAGIC = b"LDFLYPN1"
+MAGIC = b"LDFLYPN2"                  # 2: +40 single-model window (§C8-78)
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -114,18 +129,23 @@ BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 LIST_COUNT_OFF, LIST_OFF = 0x184, 0x188   # unit: living flight entities
 
 # --- sites ------------------------------------------------------------------
-# name -> (pattern, at, expected original bytes, victim register / None)
+# name -> (pattern, at, expected original bytes, "stamp" / "hold")
 CAVES = {
-    "pin_stamp": ("48 8B 7E 10 48 8D 4D B0 48 8B D7 44 89 66 18 E8", 4,
-                  "48 8D 4D B0 48 8B D7", "rdi"),
-    "pin_stamp_now": ("48 8B 59 10 44 89 61 18 48 8B D3 48 8D 4D B0 E8", 8,
-                      "48 8B D3 48 8D 4D B0", "rbx"),
+    # 0x14325a9c4, the damage applier: the 7 pushes and lea rbp,[rsp-7] put the
+    # damage type at [rbp+0x6f] = entry [rsp+0x30]; mov rdx,[rcx+8] (victim);
+    # mov eax,r8d (damage); mov r15d,[rbp+0x6f]; cmp r15d,2
+    "pin_stamp": ("48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 F9 "
+                  "48 81 EC A0 00 00 00 0F 57 C0 48 8B DA 48 8B 51 08 4D 8B E1 48 8B F9 "
+                  "48 8B 42 58 4C 8B 90 40 04 00 00 41 8B C0 4D 8B 9A A8 00 00 00 "
+                  "F3 48 0F 2A C0 F3 41 0F 59 83 C0 02 00 00 E8 ?? ?? ?? ?? "
+                  "44 8B 7D 6F 44 8B F0 44 8A 6D 67 89 45 57 41 83 FF 02", 0,
+                  "48 89 5C 24 10 55 56 57 41 54", "stamp"),
     "pin_hold": ("48 8B CB E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 44 38 63 64 74", 0,
-                 "48 8B CB E8", None),
+                 "48 8B CB E8", "hold"),
 }
 HOLD_NAME, HOLD_RESUME_AT = "pin_hold", 8      # resume at `test al,al`
-_SWITCH = ("8B 0E 85 C9 0F 84 ?? ?? ?? ?? 83 E9 01 0F 84 ?? ?? ?? ?? 83 E9 02 0F 84 "
-           "?? ?? ?? ?? 83 E9 01 0F 84 ?? ?? ?? ?? 83 F9 01 0F 85 ?? ?? ?? ?? 44 8B 46 04")
+MELEE = 0                                      # the applier's damage type of a melee hit
+TYPE_ARG = 0x30                                # entry rsp offset of the damage type
 # name -> (pattern, what it pins)
 ANCHORS = {
     # 0x14305018b: cmp [rdx+0x184],r14d; jbe; mov rax,[rdx+0x188]; mov ecx,ebp;
@@ -143,10 +163,16 @@ ANCHORS = {
     "pin_layout_parent": ("48 8B 87 E0 02 00 00 EB ?? 48 8B F8 48 8B 80 E0 02 00 00 "
                           "48 85 C0 75 F1 48 8B 07",
                           "entity +0x2e0 parent chain"),
-    # 0x14326cf00 / 0x14325b67e: mov r14,<victim>; then the result-type switch
-    # (0 / 1 / 3 / 4 / 5) and the damage load mov r8d,[rsi+4]
-    "pin_layout_hit": ("4C 8B F7 " + _SWITCH, "hit block result types and damage, queued path"),
-    "pin_layout_hit_now": ("4C 8B F3 " + _SWITCH, "hit block result types and damage, immediate path"),
+    # the callers whose damage must not hold a flyer pass a non-melee type:
+    # 0x143061087 charge's collision attack: mov dword [rsp+0x28],6 before its applier call
+    "pin_kind_charge": ("C7 44 24 28 06 00 00 00 C6 44 24 20 01 F3 0F 11 45 0F 48 89 7D E7 E8",
+                        "damage type 6: a charge's collision attack"),
+    # 0x143061945 impact: mov dword [rsp+0x28],5
+    "pin_kind_impact": ("4C 8D 4C 24 70 C7 44 24 28 05 00 00 00 48 8D 95 90 00 00 00 49 8B CC "
+                        "C6 44 24 20 01 E8", "damage type 5: an impact"),
+    # 0x1430aab65 ranged / explosion: and r8d,3; inc r8d; mov [rsp+0x28],r8d (1..4)
+    "pin_kind_ranged": ("41 83 E0 03 41 FF C0 88 5C 24 30 44 89 44 24 28 44 8B C0 88 54 24 20 "
+                        "48 8B D7 E8", "damage type 1..4: ranged and explosions"),
 }
 
 
@@ -196,7 +222,10 @@ def _hash(key, out, scratch):
     """
 
 
-def stamp_source(victim, mutate=()):
+STAMP_PUSHES = 8                    # flags + 7 registers
+
+
+def stamp_source(mutate=()):
     return _mutated(f"""
         pushfq
         push rax
@@ -209,19 +238,13 @@ def stamp_source(victim, mutate=()):
         mov r10, {BUFFER_PLACEHOLDER:#x}
         cmp dword ptr [r10 + {MODE_AT}], 0
         je done
-        mov eax, dword ptr [rsi]
-        cmp eax, 1
-        je kind_ok
-        cmp eax, 3
-        jb done
-        cmp eax, 5
-        ja done
-    kind_ok:
-        cmp dword ptr [rsi + 4], 0
+        cmp dword ptr [rsp + {8 * STAMP_PUSHES + TYPE_ARG:#x}], {MELEE}
+        jne done
+        cmp r8d, 0
         jle done
-        test {victim}, {victim}
+        mov rcx, qword ptr [rcx + 8]
+        test rcx, rcx
         jz done
-        mov rcx, {victim}
         mov edx, {CHAIN_MAX}
     find_fc:
         cmp qword ptr [rcx + {FC_OFF:#x}], 0
@@ -233,7 +256,7 @@ def stamp_source(victim, mutate=()):
         jnz find_fc
         jmp done
     keyed:
-        {_tick(victim, "r8d", "done")}
+        {_tick("rcx", "r8d", "done")}
         lock inc dword ptr [r10 + {STAMPS_AT}]
         {_hash("rcx", "rax", "rdx")}
         mov r9d, eax
@@ -294,12 +317,17 @@ def hold_source(mutate=()):
         jz free
         push rsi
         push rdi
+        push r12
+        push r13
         xor r10d, r10d
+        xor r12d, r12d
+        xor r13d, r13d
     each:
         mov rsi, [rdx]
         test rsi, rsi
         jz skip
         dec r10d
+        inc r12d
         {_hash("rsi", "rax", "rdi")}
         mov r11d, {PROBES}
     look:
@@ -318,6 +346,10 @@ def hold_source(mutate=()):
     hit:
         mov eax, r8d
         sub eax, dword ptr [rdi + 8]
+        cmp eax, dword ptr [r9 + {WINDOW_SINGLE_AT}]
+        jae short_window
+        inc r13d
+    short_window:
         cmp eax, dword ptr [r9 + {WINDOW_AT}]
         jae skip
         add r10d, 2
@@ -325,6 +357,12 @@ def hold_source(mutate=()):
         add rdx, 8
         dec ecx
         jnz each
+        cmp r12d, 1
+        jne several
+        mov r10d, r13d
+    several:
+        pop r13
+        pop r12
         pop rdi
         pop rsi
         test r10d, r10d
@@ -343,8 +381,7 @@ def hold_source(mutate=()):
 
 
 def cave_source(name, mutate=()):
-    victim = CAVES[name][3]
-    return hold_source(mutate) if victim is None else stamp_source(victim, mutate)
+    return hold_source(mutate) if CAVES[name][3] == "hold" else stamp_source(mutate)
 
 
 def layout():
@@ -352,7 +389,8 @@ def layout():
             "stamps_at": STAMPS_AT, "allowed_at": ALLOWED_AT, "magic_at": MAGIC_AT,
             "magic": MAGIC.decode(), "dropped_at": DROPPED_AT, "held_at": HELD_AT,
             "free_at": FREE_AT, "table_at": TABLE_AT, "table_slots": TABLE_SLOTS,
-            "entry_bytes": ENTRY_BYTES, "window": WINDOW_TICKS}
+            "entry_bytes": ENTRY_BYTES, "window": WINDOW_TICKS,
+            "window_single_at": WINDOW_SINGLE_AT, "window_single": WINDOW_SINGLE_TICKS}
 
 
 def source_sha():
@@ -408,7 +446,7 @@ EDGE_MODEL = OBJ + 0x1FD70
 
 
 class Machine:
-    """The three caves and one battle's memory in Unicorn."""
+    """The caves and one battle's memory in Unicorn."""
 
     def __init__(self, mutate=()):
         from unicorn import Uc, UC_ARCH_X86, UC_MODE_64
@@ -439,9 +477,10 @@ class Machine:
         self.reset()
 
     # -- the battle's memory
-    def reset(self, window=WINDOW_TICKS, mode=1):
+    def reset(self, window=WINDOW_TICKS, mode=1, single=WINDOW_SINGLE_TICKS):
         self.uc.mem_write(BUF, bytes(BUFFER_BYTES))
         self.uc.mem_write(BUF, struct.pack("<II", window, mode))
+        self.uc.mem_write(BUF + WINDOW_SINGLE_AT, struct.pack("<I", single))
         self.uc.mem_write(BUF + MAGIC_AT, MAGIC)
         self.uc.mem_write(OBJ, bytes(0x40000))
         self.models = set()
@@ -509,13 +548,17 @@ class Machine:
         self.uc.reg_write(self.x.UC_X86_REG_EFLAGS, FLAGS)
 
     def stamp(self, kind, damage, victim, site="pin_stamp"):
-        """One hit through a stamp cave. ``victim`` = an entity address or 0."""
+        """One damage-applier call through the stamp cave: ``kind`` = the damage
+        type, ``victim`` = an entity address or 0 (in the context rcx points at)."""
         x, uc = self.x, self.uc
         begin, size = self.code[site]
         self._registers()
-        uc.mem_write(BLOCK, struct.pack("<II", kind, damage & 0xFFFFFFFF))
-        uc.reg_write(x.UC_X86_REG_RSI, BLOCK)
-        uc.reg_write(x.UC_X86_REG_RDI if CAVES[site][3] == "rdi" else x.UC_X86_REG_RBX, victim)
+        uc.mem_write(BLOCK, struct.pack("<QQ", model_at(0x3E), victim))   # +0: an entity without FC
+        uc.reg_write(x.UC_X86_REG_RCX, BLOCK)
+        uc.reg_write(x.UC_X86_REG_R8, 0xA5A5A5A500000000 | (damage & 0xFFFFFFFF))
+        sp = STACK + 0x8000
+        uc.mem_write(sp, struct.pack("<Q", 0x14326CF64) + bytes(TYPE_ARG - 8)
+                     + struct.pack("<I", kind & 0xFFFFFFFF) + b"\x77" * 12)
         before = {r: uc.reg_read(r) for r in self.all}
         uc.emu_start(begin, begin + size, count=100_000)
         return {"ran to the end": uc.reg_read(x.UC_X86_REG_RIP) == begin + size,
@@ -589,13 +632,15 @@ def check(mutate=()):
         for k in ("ran to the end", "registers", "rsp", "flags"):
             expect(f"{name}: {k}", r[k], True)
 
-    # ---- stamp caves, both sites ------------------------------------------
-    for site in ("pin_stamp", "pin_stamp_now"):
+    # ---- stamp cave (damage-applier entry) ---------------------------------
+    for site in ("pin_stamp",):
         tag = site + " "
-        # which result types record
-        for kind, dmg, want in ((0, 40, False), (1, 40, True), (2, 40, False), (3, 40, True),
-                                (4, 40, True), (5, 40, True), (6, 40, False), (7, 40, False),
-                                (1, 0, False), (1, -5, False), (1, 1, True)):
+        # which damage types record: melee (0) only -- not ranged (1..4), the
+        # rest (2 / 3), impact (5), a charge's collision attack (6) -- and only damage > 0
+        for kind, dmg, want in ((0, 40, True), (1, 40, False), (2, 40, False), (3, 40, False),
+                                (4, 40, False), (5, 40, False), (6, 40, False), (7, 40, False),
+                                (0x100, 40, False), (-1, 40, False),
+                                (0, 0, False), (0, -5, False), (0, 1, True)):
             m.reset()
             m.now(1000)
             flyer = m.model(1)
@@ -606,30 +651,30 @@ def check(mutate=()):
             expect(f"{tag}kind={kind} dmg={dmg} entries used", m.used(), 1 if want else 0)
         # who is keyed
         m.reset(); m.now(500)
-        clean(tag + "null victim", m.stamp(1, 40, 0, site))
+        clean(tag + "null victim", m.stamp(MELEE, 40, 0, site))
         expect(tag + "null victim: nothing written", (m.used(), m.head(STAMPS_AT)), (0, 0))
         m.reset(); m.now(500)
         walker = m.model(1, fc=False)
-        clean(tag + "victim without FC or parent", m.stamp(1, 40, walker, site))
+        clean(tag + "victim without FC or parent", m.stamp(MELEE, 40, walker, site))
         expect(tag + "victim without FC or parent: nothing written",
                (m.used(), m.head(STAMPS_AT)), (0, 0))
         m.reset(); m.now(500)
         mount = m.model(2)
         rider = m.model(1, fc=False, parent=2)
-        clean(tag + "rider on a flying mount", m.stamp(1, 40, rider, site))
+        clean(tag + "rider on a flying mount", m.stamp(MELEE, 40, rider, site))
         expect(tag + "rider on a flying mount: the mount is stamped", m.find(mount),
                [(slot_of(mount), 500, 1)])
         expect(tag + "rider on a flying mount: the rider is not", m.find(rider), [])
         m.reset(); m.now(500)
         m.model(2, fc=False)
         m.model(1, fc=False, parent=2)
-        clean(tag + "rider on a ground mount", m.stamp(1, 40, model_at(1), site))
+        clean(tag + "rider on a ground mount", m.stamp(MELEE, 40, model_at(1), site))
         expect(tag + "rider on a ground mount: nothing written", (m.used(), m.head(STAMPS_AT)), (0, 0))
         for depth, want in ((CHAIN_MAX - 1, True), (CHAIN_MAX, False)):
             m.reset(); m.now(500)
             for i in range(depth + 1):                      # model 1 rides 2 rides 3 ...
                 m.model(1 + i, fc=(i == depth), parent=(2 + i) if i < depth else None)
-            clean(f"{tag}flyer {depth} links up", m.stamp(1, 40, model_at(1), site))
+            clean(f"{tag}flyer {depth} links up", m.stamp(MELEE, 40, model_at(1), site))
             expect(f"{tag}flyer {depth} links up: stamped", m.find(model_at(1 + depth)),
                    [(slot_of(model_at(1 + depth)), 500, 1)] if want else [])
         # null battle links
@@ -637,13 +682,13 @@ def check(mutate=()):
             m.reset()
             flyer = m.model(1)
             m.now(500, **kw)
-            clean(tag + name, m.stamp(1, 40, flyer, site))
+            clean(tag + name, m.stamp(MELEE, 40, flyer, site))
             expect(tag + name + ": nothing written", (m.used(), m.head(STAMPS_AT)), (0, 0))
         # modes
         for mode, want in ((0, False), (1, True), (2, True)):
             m.reset(mode=mode); m.now(77)
             flyer = m.model(1)
-            clean(f"{tag}mode {mode}", m.stamp(1, 40, flyer, site))
+            clean(f"{tag}mode {mode}", m.stamp(MELEE, 40, flyer, site))
             expect(f"{tag}mode {mode} entry", m.find(flyer),
                    [(slot_of(flyer), 77, 1)] if want else [])
         # repeat, collisions, the probe budget, wrap-around
@@ -651,9 +696,9 @@ def check(mutate=()):
         flyer = m.model(1)
         other = _keys(1)[0]
         m.put(other, 850)
-        m.stamp(1, 40, flyer, site)
+        m.stamp(MELEE, 40, flyer, site)
         m.now(940)
-        clean(tag + "repeat", m.stamp(3, 12, flyer, site))
+        clean(tag + "repeat", m.stamp(MELEE, 12, flyer, site))
         expect(tag + "repeat: one entry, newest tick, two hits", m.find(flyer),
                [(slot_of(flyer), 940, 2)])
         expect(tag + "repeat: another entity's entry kept", m.find(other), [(slot_of(other), 850, 0)])
@@ -662,7 +707,7 @@ def check(mutate=()):
         home = slot_of(flyer)
         for k in range(3):
             m.put(0x7000000000 + k, 5, slot=(home + k) % TABLE_SLOTS)
-        clean(tag + "collision", m.stamp(1, 40, flyer, site))
+        clean(tag + "collision", m.stamp(MELEE, 40, flyer, site))
         expect(tag + "collision: three entries past home", m.find(flyer),
                [((home + 3) % TABLE_SLOTS, 900, 1)])
         m.reset(); m.now(900)
@@ -670,7 +715,7 @@ def check(mutate=()):
         home = slot_of(flyer)
         for k in range(PROBES):
             m.put(0x7000000000 + k, 5, slot=(home + k) % TABLE_SLOTS)
-        clean(tag + "no entry in reach", m.stamp(1, 40, flyer, site))
+        clean(tag + "no entry in reach", m.stamp(MELEE, 40, flyer, site))
         expect(tag + "no entry in reach: dropped, nothing overwritten",
                (m.find(flyer), m.head(DROPPED_AT), m.head(STAMPS_AT), m.used()),
                ([], 1, 1, PROBES))
@@ -679,7 +724,7 @@ def check(mutate=()):
         home = slot_of(flyer)
         for k in range(PROBES - 1):
             m.put(0x7000000000 + k, 5, slot=(home + k) % TABLE_SLOTS)
-        clean(tag + "last entry in reach", m.stamp(1, 40, flyer, site))
+        clean(tag + "last entry in reach", m.stamp(MELEE, 40, flyer, site))
         expect(tag + "last entry in reach: taken", m.find(flyer),
                [((home + PROBES - 1) % TABLE_SLOTS, 900, 1)])
         # wrap-around: a flyer whose home is the table's last slot
@@ -689,13 +734,14 @@ def check(mutate=()):
                TABLE_SLOTS - 1)
         m.put(0x7000000000, 5, slot=TABLE_SLOTS - 1)
         m.put(0x7000000001, 5, slot=0)
-        clean(tag + "wrap-around", m.stamp(1, 40, flyer, site))
+        clean(tag + "wrap-around", m.stamp(MELEE, 40, flyer, site))
         expect(tag + "wrap-around: slot 1", m.find(flyer), [(1, 900, 1)])
 
     # ---- hold cave ----------------------------------------------------------
-    def hold_case(name, living, struck, now, want, window=WINDOW_TICKS, mode=1, extra=(), **kw):
+    def hold_case(name, living, struck, now, want, window=WINDOW_TICKS, mode=1, extra=(),
+                  single=WINDOW_SINGLE_TICKS, **kw):
         """``struck`` = {entity: tick}; ``want`` = 1 hold / 0 free / None pass-through."""
-        m.reset(window=window, mode=mode)
+        m.reset(window=window, mode=mode, single=single)
         m.now(now, battle=kw.pop("battle", True), ticks=kw.pop("ticks", True))
         for entity, tick in list(struck.items()) + list(extra):
             m.put(entity, tick)
@@ -734,7 +780,25 @@ def check(mutate=()):
     hold_case("struck this very tick", e8, fresh(e8[:5], 1000), 1000, 1)
     # single-model unit
     hold_case("single model, struck", e8[:1], fresh(e8[:1]), 1000, 1)
-    hold_case("single model, struck 15 ticks ago", e8[:1], fresh(e8[:1], 985), 1000, 0)
+    # [§C8-78] one living model: 3.0 s (30 ticks); 2.9 s held, 3.0 and 3.1 s free
+    hold_case("single model, struck 15 ticks ago", e8[:1], fresh(e8[:1], 985), 1000, 1)
+    hold_case("single model, struck 29 ticks ago (2.9 s)", e8[:1], fresh(e8[:1], 971), 1000, 1)
+    hold_case("single model, struck 30 ticks ago (3.0 s)", e8[:1], fresh(e8[:1], 970), 1000, 0)
+    hold_case("single model, struck 31 ticks ago (3.1 s)", e8[:1], fresh(e8[:1], 969), 1000, 0)
+    hold_case("single model, single window 10: struck 9 ago", e8[:1], fresh(e8[:1], 991), 1000, 1,
+              single=10)
+    hold_case("single model, single window 10: struck 10 ago", e8[:1], fresh(e8[:1], 990), 1000, 0,
+              single=10)
+    hold_case("single model held by the single window, not the multi one", e8[:1],
+              fresh(e8[:1], 980), 1000, 1, window=0)
+    hold_case("one living model left of eight (dead gone from the list): 3.0 s", e8[4:5],
+              fresh(e8[:5], 980), 1000, 1)
+    hold_case("one living model and a null entry: 3.0 s", [e8[0], 0], fresh(e8[:1], 980), 1000, 1)
+    hold_case("two living, both struck 20 ticks ago: multi window", e8[:2], fresh(e8[:2], 980),
+              1000, 0)
+    hold_case("eight living, all struck 20 ticks ago: multi window", e8, fresh(e8, 980), 1000, 0)
+    hold_case("eight living, five struck 14 ticks ago, single window 0", e8, fresh(e8[:5], 986),
+              1000, 1, single=0)
     hold_case("single model, never struck", e8[:1], {}, 1000, 0)
     hold_case("single model, only others struck", e8[:1], fresh(e8[1:]), 1000, 0)
     # two and three models
@@ -805,36 +869,43 @@ def check(mutate=()):
         who = "riders" if riders else "flyers"
         m.reset(); m.now(2000)
         ents, victims = unit_of(range(1, 9), riders)
-        for k, v in enumerate(victims[:4]):
-            m.stamp(1, 30, v, "pin_stamp" if k % 2 else "pin_stamp_now")
+        for v in victims[:4]:
+            m.stamp(MELEE, 30, v)
         expect(f"round trip {who}: 4 of 8 struck", m.hold(ents)["al"], 0)
-        m.stamp(4, 30, victims[4], "pin_stamp_now")
+        m.stamp(6, 30, victims[4])                          # a charge's collision attack
+        m.stamp(1, 30, victims[4])                          # a ranged hit
+        expect(f"round trip {who}: non-melee damage on the fifth does not hold", m.hold(ents)["al"], 0)
+        m.stamp(MELEE, 30, victims[4])
         expect(f"round trip {who}: 5 of 8 struck", m.hold(ents)["al"], 1)
         expect(f"round trip {who}: stamps", m.head(STAMPS_AT), 5)
         m.now(2014)
         expect(f"round trip {who}: 14 ticks later", m.hold(ents)["al"], 1)
         m.now(2015)
         expect(f"round trip {who}: 15 ticks later", m.hold(ents)["al"], 0)
-        m.stamp(1, 30, victims[0], "pin_stamp")
-        m.stamp(1, 30, victims[0], "pin_stamp")             # one model struck twice
+        m.stamp(MELEE, 30, victims[0])
+        m.stamp(MELEE, 30, victims[0])                      # one model struck twice
         expect(f"round trip {who}: one model struck twice is one model", m.hold(ents)["al"], 0)
         m.now(2100)
         for v in victims[:5]:
-            m.stamp(1, 30, v, "pin_stamp")
+            m.stamp(MELEE, 30, v)
         expect(f"round trip {who}: 5 of 8 again", m.hold(ents)["al"], 1)
         expect(f"round trip {who}: three struck die, 2 of 5 living", m.hold(ents[3:])["al"], 0)
         expect(f"round trip {who}: three unstruck die, 5 of 5 living", m.hold(ents[:5])["al"], 1)
         m.reset(); m.now(3000)
         ents, victims = unit_of([1], riders)
         expect(f"round trip {who}: single model, not struck", m.hold(ents)["al"], 0)
-        m.stamp(1, 30, victims[0], "pin_stamp_now")
+        m.stamp(MELEE, 30, victims[0])
         expect(f"round trip {who}: single model, struck", m.hold(ents)["al"], 1)
         m.now(3015)
-        expect(f"round trip {who}: single model, 15 ticks later", m.hold(ents)["al"], 0)
+        expect(f"round trip {who}: single model, 15 ticks later", m.hold(ents)["al"], 1)
+        m.now(3029)
+        expect(f"round trip {who}: single model, 29 ticks later", m.hold(ents)["al"], 1)
+        m.now(3031)
+        expect(f"round trip {who}: single model, 31 ticks later", m.hold(ents)["al"], 0)
         m.reset(mode=2); m.now(3000)
         ents, victims = unit_of(range(1, 9), riders)
         for v in victims:
-            m.stamp(1, 30, v, "pin_stamp")
+            m.stamp(MELEE, 30, v)
         expect(f"round trip {who}: mode 2 records", m.head(STAMPS_AT), 8)
         expect(f"round trip {who}: mode 2 leaves the stock check", m.hold(ents)["where"], "through")
     return failures, count[0]
@@ -850,12 +921,24 @@ MUTANTS = (
     ("no probe limit on the lookup", "hold", "jnz look\n        jmp skip",
      "jmp look\n        jmp skip"),
     ("the two caves hash differently", "hold", "shr rdi, 17", "shr rdi, 16"),
+    ("one living model judged on the multi-model window", "hold", "jne several", "jmp several"),
+    ("several living models judged on the single-model window", "hold", "jne several",
+     "je several"),
+    ("the single-model window's last tick counts", "hold", "jae short_window", "ja short_window"),
+    ("the single-model window read from the multi-model slot", "hold",
+     f"[r9 + {WINDOW_SINGLE_AT}]", f"[r9 + {WINDOW_AT}]"),
+    ("living models not counted for the single-model test", "hold", "inc r12d\n", "nop\n"),
     ("zero-damage hits recorded", "stamp", "jle done", "jl done"),
-    ("result type 2 recorded", "stamp", "cmp eax, 3", "cmp eax, 2"),
+    ("non-melee damage recorded", "stamp", "jne done\n        cmp r8d, 0",
+     "nop\n        cmp r8d, 0"),
+    ("the damage type read from the wrong stack slot", "stamp",
+     f"[rsp + {8 * STAMP_PUSHES + TYPE_ARG:#x}]", f"[rsp + {8 * STAMP_PUSHES + TYPE_ARG - 8:#x}]"),
+    ("the victim read from the wrong context field", "stamp", "mov rcx, qword ptr [rcx + 8]",
+     "mov rcx, qword ptr [rcx + 0]"),
     ("entities without a flight controller recorded", "stamp", "jne keyed", "jmp keyed"),
     ("riders not followed to the mount", "stamp", f"mov edx, {CHAIN_MAX}", "mov edx, 1"),
-    ("mode 0 still records", "stamp", "je done\n        mov eax, dword ptr [rsi]",
-     "nop\n        mov eax, dword ptr [rsi]"),
+    ("mode 0 still records", "stamp", "je done\n        cmp dword ptr [rsp",
+     "nop\n        cmp dword ptr [rsp"),
 )
 
 
@@ -877,18 +960,20 @@ def site_lua(codes):
         "-- (--write-site); do not edit, rerun the generator. Pure data.",
         "-- [AIR-DIVE-TAKEOFF-W1 2026-11-12] Flyers are held on the ground only while",
         "-- more than half of their living models were struck in melee in the last",
-        "-- `layout.window` battle ticks: three code caves (two record the hit, one",
-        "-- answers the take-off countdown) and the anchors that pin the engine",
-        "-- fields they read, as memreader Plus site-loader entries (handle:sites),",
-        "-- plus the buffer layout lib/ld_flyer_takeoff.lua writes.",
-        "-- / 飞兽只在过半存活模型近 1.5 秒内近战挨打时才被按在地上：三个代码洞与",
-        "--   字段锚点的位点表、缓冲区布局（生成物）。",
+        "-- `layout.window` battle ticks (one living model: `layout.window_single`,",
+        "-- §C8-78): two code caves (one records every melee",
+        "-- hit at the damage applier, one answers the take-off countdown) and the",
+        "-- anchors that pin the engine fields and damage types they rely on, as",
+        "-- memreader Plus site-loader entries (handle:sites), plus the buffer",
+        "-- layout lib/ld_flyer_takeoff.lua writes.",
+        "-- / 飞兽只在过半存活模型近 1.5 秒内近战挨打时才被按在地上：两个代码洞与",
+        "--   锚点的位点表、缓冲区布局（生成物）。",
         "return {",
         f"    owner = '{OWNER}',",
         f"    feature = '{FEATURE}',",
         "    entries = {",
     ]
-    for name, (pattern, at, expect, _victim) in CAVES.items():
+    for name, (pattern, at, expect, _role) in CAVES.items():
         lines += cave_site_text.cave_entry_lines(
             name, FEATURE, pattern, at, expect, bytes_template(codes[name]))
     for name, (pattern, pins) in ANCHORS.items():
@@ -909,6 +994,7 @@ def site_lua(codes):
         f"        dropped_at = {lay['dropped_at']}, held_at = {lay['held_at']}, free_at = {lay['free_at']},",
         f"        table_at = {lay['table_at']}, table_slots = {lay['table_slots']},",
         f"        entry_bytes = {lay['entry_bytes']}, window = {lay['window']},",
+        f"        window_single_at = {lay['window_single_at']}, window_single = {lay['window_single']},",
         "    },",
         f"    format = {agreement_format()},",
         f"    build = '{BUILD}',",
@@ -961,7 +1047,8 @@ def main(argv):
     codes = {name: assemble(name) for name in CAVES}
     failures, n = check()
     print("caves: " + ", ".join(f"{name} {len(code)} bytes" for name, code in codes.items())
-          + f"; buffer {BUFFER_BYTES} bytes, {TABLE_SLOTS} entries, window {WINDOW_TICKS} ticks")
+          + f"; buffer {BUFFER_BYTES} bytes, {TABLE_SLOTS} entries, window {WINDOW_TICKS} ticks"
+          f" (single model {WINDOW_SINGLE_TICKS})")
     for f in failures:
         print("FAIL", f)
     print(f"emulator: {n} checks,", "PASS" if not failures else f"{len(failures)} FAIL")

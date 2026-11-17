@@ -259,11 +259,14 @@ def alliance_xml(idx, faction, units):
             "\t\t</victory_condition>\n\t</alliance>\n")
 
 
-def battle_xml(flyers=FLYERS, target=TARGET):
-    """The battle definition, CA's battle_map_test.xml format (UTF-16)."""
+def battle_xml(flyers=FLYERS, target=TARGET, ally=None):
+    """The battle definition, CA's battle_map_test.xml format (UTF-16).
+    [FLYER-FIX-1117] ``ally``: one unit of that key per lane on the flyers' side (``ally_<i>``)."""
     unit, alliance = unit_xml, alliance_xml
     hef = [unit("general_hef", HEF_GENERAL, GENERAL_NAMES[0])]
     hef += [unit(f"flyer_{i}", k) for i, k in enumerate(flyers, 1)]
+    if ally:
+        hef += [unit(f"ally_{i}", ally) for i in range(1, len(flyers) + 1)]
     emp = [unit("general_emp", EMP_GENERAL, GENERAL_NAMES[1])]
     emp += [unit(f"target_{i}", target) for i in range(1, len(flyers) + 1)]
     text = ("<?xml version=\"1.0\"?>\n"
@@ -286,12 +289,80 @@ def battle_xml(flyers=FLYERS, target=TARGET):
     return text.replace("\n", "\r\n").encode("utf-16")   # BOM + LE, as CA's
 
 
-def helper_entries(flyers=FLYERS, target=TARGET):
+def helper_entries(flyers=FLYERS, target=TARGET, ally=None):
     driver = DRIVER_SOURCE.read_bytes()
     if b"ld_air_dive_autotest_cmd.txt" not in driver:
         raise SystemExit("[air_dive_autotest] REFUSING: the driver Lua does not "
                          "name its control file -- wrong source?")
-    return [(XML_PACK_PATH, battle_xml(flyers, target)), (DRIVER_PACK_PATH, driver)]
+    return [(XML_PACK_PATH, battle_xml(flyers, target, ally)), (DRIVER_PACK_PATH, driver)]
+
+
+PUSH_SCENARIOS = ("recharge", "assist")
+PUSH_WINDOW_S = 25.0    # [FLYER-FIX-1117] how long after the push order the target's travel is measured (a re-charge may take off and dive again)
+
+
+def parse_push(text):
+    """{lane: [(t_s, tx, tz, fx, fz, target_melee, flyer_melee, flying)]} from the P lines."""
+    out = {}
+    for raw in (text or "").splitlines():
+        parts = raw.split()
+        if len(parts) == 10 and parts[0] == "P":
+            out.setdefault(int(parts[2]), []).append(
+                (int(parts[1]) / 1000.0, float(parts[3]), float(parts[4]), float(parts[5]),
+                 float(parts[6]), parts[7] == "true", parts[8] == "true", parts[9] == "true"))
+    for rows in out.values():
+        rows.sort()
+    return out
+
+
+def judge_push(status_lines, hp_text, lanes_expected, scenario):
+    """[FLYER-FIX-1117] Per lane: the push order (scenario recharge: the second attack order, given while
+    in melee; assist: the flyer's first attack order, its target already fighting the ally) and the
+    target's centre travel along the charge axis (flyer start -> target start; + = pushed back) from that
+    order to PUSH_WINDOW_S after it, plus the largest such travel. PASS only says the record is complete."""
+    reasons, lanes_out = [], []
+    rows = parse_push(hp_text)
+    want_n = 2 if scenario == "recharge" else 1
+    orders = {}
+    for ln in status_lines:
+        parts = ln.split()
+        if len(parts) >= 5 and parts[1] == "push" and parts[2] == "attack":
+            try:
+                t_ms = int(parts[0])
+            except ValueError:
+                continue
+            lane, n = int(parts[3]), int(parts[4].lstrip("#"))
+            kv = dict(p.split("=", 1) for p in parts[5:] if "=" in p)
+            if n == want_n:
+                orders[lane] = (t_ms / 1000.0, kv)
+    if not any(ln.split(" ", 1)[-1].startswith("DONE") for ln in status_lines):
+        reasons.append("driver never reached DONE")
+    for lane in range(1, lanes_expected + 1):
+        r = rows.get(lane) or []
+        o = orders.get(lane)
+        if not r or o is None:
+            reasons.append(f"lane {lane}: no position record or no push order #{want_n}")
+            lanes_out.append({"lane": lane})
+            continue
+        t0, kv = o
+        start = r[0]
+        ax, az = start[1] - start[3], start[2] - start[4]
+        n = (ax * ax + az * az) ** 0.5 or 1.0
+        ax, az = ax / n, az / n
+        before = [x for x in r if x[0] <= t0]
+        win = [x for x in r if t0 <= x[0] <= t0 + PUSH_WINDOW_S]
+        if not before or not win or win[-1][0] < t0 + PUSH_WINDOW_S - 0.5:
+            reasons.append(f"lane {lane}: position record does not cover the push window")
+            lanes_out.append({"lane": lane})
+            continue
+        b = before[-1]
+        travel = [((x[1] - b[1]) * ax + (x[2] - b[2]) * az) for x in win]
+        lanes_out.append({"lane": lane, "order_s": t0, "order_state": kv,
+                          "target_in_melee_at_order": b[5], "flyer_in_melee_at_order": b[6],
+                          "target_back_travel_m": round(travel[-1], 2),
+                          "target_back_travel_max_m": round(max(travel), 2),
+                          "flyer_flying_in_window_s": round(sum(0.1 for x in win if x[7]), 1)})
+    return {"verdict": "FAIL" if reasons else "PASS", "reasons": reasons, "lanes": lanes_out}
 
 
 def breath_keys():
@@ -748,9 +819,19 @@ class Restore:
                 print(f"[air_dive_autotest] WARNING could not restore {path}: {exc}")
 
 
-def write_startup(via, test_pack, restore, extra_packs=()):
+# [FLYER-FIX-1117] the Workshop memreader Plus (the test pack's declared prerequisite) for a run without
+# the entity reader, which carried its own copy: --memreader
+MEMREADER_DIR = Path(os.environ.get("LD_MEMREADER_DIR",
+                                    r"D:\SteamLibrary\steamapps\workshop\content\1142710\3811098873"))
+
+
+def write_startup(via, test_pack, restore, extra_packs=(), memreader=False):
     mod_lines = [f'mod "{test_pack}";', f'mod "{HELPER_PACK}";']
     mod_lines += [f'mod "{p}";' for p in extra_packs]
+    if memreader:
+        if not (MEMREADER_DIR / "memreader_plus.pack").is_file():
+            raise SystemExit(f"[air_dive_autotest] REFUSING: no memreader_plus.pack in {MEMREADER_DIR}")
+        mod_lines += [f'add_working_directory "{MEMREADER_DIR}";', 'mod "memreader_plus.pack";']
     startup = f"game_startup_mode battle {XML_PACK_PATH};"
     restore.save(USED_MODS)
     if via == "argv":
@@ -802,7 +883,7 @@ def run(args):
     lane_offsets = resolve_lane_offsets(args.lane_offsets, len(flyers))
     own = None
     try:
-        write_pack_file(str(helper), helper_entries(flyers, args.target), PACK_TYPE_MOD)
+        write_pack_file(str(helper), helper_entries(flyers, args.target, args.ally), PACK_TYPE_MOD)
         if STATUS_FILE.exists():
             STATUS_FILE.unlink()
         if HP_FILE.exists():
@@ -811,6 +892,8 @@ def run(args):
             f"dist={args.dist}\nspacing={args.spacing}\noffset={args.offset}\nsettle_ms=3000\n"
             f"stagger_ms={int(args.stagger * 1000)}\ntail_ms={int(args.tail * 1000)}\n"
             f"lanes={len(flyers)}\n"
+            + (f"scenario={args.scenario}\n" if args.scenario in PUSH_SCENARIOS else "")
+            + (f"cam_lane={args.cam_lane}\n" if args.cam_lane else "")
             + (f"scenario=engage\nengage_ms={ENGAGE_MS}\nbreath_ms={BREATH_MS}\n"
                f"away_ms={AWAY_MS}\naway_m={AWAY_M}\n"
                f"breath={','.join(breath_keys())}\n"
@@ -827,7 +910,7 @@ def run(args):
             restore.save(entity_pack)     # removed again after the run
             build_entity_read_minimod.main(["--out", str(entity_pack)])
             extra = (ENTITY_PACK,)
-        write_startup(args.startup_via, args.test_pack, restore, extra)
+        write_startup(args.startup_via, args.test_pack, restore, extra, args.memreader)
         note(f"launch: mods {args.test_pack} + {HELPER_PACK}, "
              f"startup via {args.startup_via}")
         own = OwnGame()
@@ -861,6 +944,7 @@ def run(args):
         note(f"window mode: {args.window}")
         seen_pid = False
         last_len = 0
+        last_shot = 0.0
         prio_done = False
         while True:
             time.sleep(3)
@@ -882,6 +966,18 @@ def run(args):
                 if not ln.startswith("  "):     # skip UI dump body
                     note("driver: " + ln)
             last_len = len(lines)
+            # [FLYER-FIX-1117] screenshots of the game's screen while the battle runs (--shots s)
+            if args.shots and has(lines, "phase Deployed") and time.time() - last_shot >= args.shots:
+                last_shot = time.time()
+                try:
+                    from PIL import ImageGrab
+                    shots_dir = out_dir / "shots"
+                    shots_dir.mkdir(exist_ok=True)
+                    stamp_ms = lines[-1].split(" ", 1)[0] if lines else "x"
+                    ImageGrab.grab().save(shots_dir / f"{len(list(shots_dir.iterdir())):03d}_{stamp_ms}.jpg",
+                                          quality=80)
+                except Exception as exc:          # a missed frame is logged, the run goes on
+                    note(f"screenshot failed: {exc}")
             if has(lines, "DONE"):
                 time.sleep(3)              # recorder flushes every second
                 break
@@ -956,6 +1052,8 @@ def run(args):
                                           encoding="utf-8", newline="\n")
     if args.scenario == "engage":
         result = judge_engage(status_lines, hp_text, len(flyers), entity_text=entity_text)
+    elif args.scenario in PUSH_SCENARIOS:
+        result = judge_push(status_lines, hp_text, len(flyers), args.scenario)
     else:
         result = judge(status_lines, probe_text, hp_text, len(flyers),
                        entity_text=entity_text)
@@ -973,7 +1071,7 @@ def run(args):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--test-pack", default="ld_air_dive.pack")
-    ap.add_argument("--scenario", choices=("charge", "engage"), default="charge",
+    ap.add_argument("--scenario", choices=("charge", "engage") + PUSH_SCENARIOS, default="charge",
                     help="charge: the dive charge lanes; engage (AIR-DIVE-W15): "
                          "flyers in melee use their breath, then move away")
     ap.add_argument("--dist", type=float, default=None,
@@ -1018,6 +1116,13 @@ def main(argv=None):
     ap.add_argument("--target", default=TARGET,
                     help="land unit key of every lane's enemy unit")
     ap.add_argument("--cmd", help="extra driver control lines, comma list of key=value")
+    # [FLYER-FIX-1117] the push scenarios' ally, the camera lane and screenshots
+    ap.add_argument("--memreader", action="store_true",
+                    help="also enable the Workshop memreader Plus (MEMREADER_DIR), the caves' prerequisite")
+    ap.add_argument("--ally", help="scenario assist: land unit key of the flyer side's infantry, one per lane")
+    ap.add_argument("--cam-lane", type=int, default=0, help="keep the camera on this lane's target (0: off)")
+    ap.add_argument("--shots", type=float, default=0.0,
+                    help="save a screenshot every this many seconds of the battle (0: none)")
     ap.add_argument("--judge-only", metavar="DIR",
                     help="re-judge a saved run (status.txt + probe_slice.txt)")
     args = ap.parse_args(argv)
@@ -1047,6 +1152,8 @@ def main(argv=None):
             json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n")
     if result.get("scenario") == "engage":
         print_engage(result)
+    elif args.scenario in PUSH_SCENARIOS:
+        print(json.dumps(result.get("lanes"), indent=1))
     else:
         print_table(result)
     print("VERDICT " + json.dumps(result, separators=(",", ":")))

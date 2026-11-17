@@ -167,6 +167,15 @@ RELEASED_AT, SLIDE_AT, SLIDE_SLOTS = 48, 64, 256
 # (entity +0x128): +0 its entity, +0x14 the landing point's height, +0x90 its phase (1 landed, 4 descending,
 # 5 final approach, 6 go-around, read from the bob probe, 2026-11-15)
 COMMITTED_AT = 52
+# [FLYER-FIX-1117] a landed flyer's slide window ends for good at its first melee engage the engine takes
+# (CLOSED_AT counts them), and a body the flyer hits that is already in melee with another unit is not
+# carried (ENGAGED_BODY_AT counts those contacts): player report "dive or trash" 2026-11-17, a Jade Longma
+# unit charged again into a melee it was already in dragged the enemy 20 m back into its own missile line.
+CLOSED_AT, ENGAGED_BODY_AT = 56, 60
+MELEE_OFF = 0x324                               # an entity's engage state (1 = engaged, 0x143075dd8 sets it)
+ORDER_TARGET_OFF = 0x368                        # the entity's order (+0x330) target (+0x38: vfunc +0xc0)
+UNIT_OFF = 0x2E8                                # the entity's unit
+BODY_OFF = 0x18                                 # melee-engage parameters: the body touched (0x14305ad94)
 FC_PHASE_OFF, FC_LAND_Y_OFF, POS_Y_OFF = 0x90, 0x14, 0x8C
 FC_LAND_X_OFF, FC_LAND_Z_OFF = 0x10, 0x18          # the landing point's x, z (dv_commit moves it, see LAND_AHEAD_M)
 RADIUS_OFF = 0xA0                                  # the entity's radius
@@ -186,7 +195,7 @@ POS_OFF = 0x88                                 # entity position x (+0x88), z (+
 # out the far side; past it the engine's engage / stop / re-path take over and its own deceleration brakes.
 SLIDE_RELEASE_M = 20.0
 BUFFER_BYTES = 64 + 256 * 16                  # [AIR-DIVE-BRACE-W1 round 3] + the slide table
-MAGIC = b"LDFLYDV1"
+MAGIC = b"LDFLYDV2"                           # [FLYER-FIX-1117] two counters more: v2
 SKIP_SPEED = 2.0                      # m/s: below it a landed flyer attacks / stops as vanilla
 FC_OFF, PARENT_OFF, LAYER_OFF, FLAGS_OFF = 0x128, 0x2E0, 0x104, 0xC4
 STATE_OFF, VEL_OFF = 0x26C, 0xE0
@@ -418,10 +427,21 @@ wair:
 
 def _window_clear(ent):
     """[AIR-DIVE-BRACE-W1 round 3] dv_through, for a flyer charging IN THE AIR (+0x104 not 0): tombstone the
-    mover's slide entry (the mover is its mount when it rides one), so its next landing gets a new window."""
+    mover's slide entry (the mover is its mount when it rides one), so its next landing gets a new window.
+    [FLYER-FIX-1117] Not when the charging entity is engaged in melee (+0x324 1): a re-charge out of a melee
+    lands with its window closed (_window_close), so it does not drag the enemy it was fighting."""
     return f"""
     cmp dword ptr [{ent} + {LAYER_OFF:#x}], 0
     je wclr_done
+    cmp dword ptr [{ent} + {MELEE_OFF:#x}], 1
+    jne wclr_go
+    push r11
+    mov r11, qword ptr [{ent} + {PARENT_OFF:#x}]
+    test r11, r11
+    cmove r11, {ent}
+{_window_close("r11")}    pop r11
+    jmp wclr_done
+wclr_go:
     push rax
     push rcx
     push rdx
@@ -458,6 +478,83 @@ wclr_out:
     pop rcx
     pop rax
 wclr_done:
+"""
+
+
+def _window_close(ent):
+    """[FLYER-FIX-1117] End the mover's slide window for good: its entry (held or not yet released) is
+    marked released (key | 1, counted once at CLOSED_AT); a mover with no entry gets one, already released,
+    so a later ground re-charge in the same landing is never held (the window opens only on a fresh air
+    charge, dv_through). A full table is left alone. Every register comes back; flags are not kept."""
+    return f"""
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push r8
+    push r9
+    mov r9, {ent}
+    mov rax, r9
+    shr rax, 4
+    and eax, {SLIDE_SLOTS - 1}
+    mov r8d, {SLIDE_SLOTS}
+    xor ecx, ecx
+cprobe:
+    mov rdx, rax
+    shl rdx, 4
+    lea rbx, [r10 + rdx + {SLIDE_AT}]
+    mov rdx, qword ptr [rbx]
+    cmp rdx, r9
+    je cfound
+    xor rdx, 1
+    cmp rdx, r9
+    je cout
+    xor rdx, 1
+    cmp rdx, 2
+    jne cnot_tomb
+    test rcx, rcx
+    jne cnext
+    mov rcx, rbx
+    jmp cnext
+cnot_tomb:
+    test rdx, rdx
+    jne cnext
+    test rcx, rcx
+    jne cinsert
+    mov rcx, rbx
+    jmp cinsert
+cnext:
+    inc eax
+    and eax, {SLIDE_SLOTS - 1}
+    dec r8d
+    jne cprobe
+    test rcx, rcx
+    je cout
+cinsert:
+    mov r8, rcx
+    mov rax, qword ptr [r8]
+    mov rdx, qword ptr [r8 + 8]
+    mov ecx, dword ptr [r9 + {POS_OFF + 8:#x}]
+    shl rcx, 32
+    mov ebx, dword ptr [r9 + {POS_OFF:#x}]
+    or rcx, rbx
+    mov rbx, r9
+    or rbx, 1
+    lock cmpxchg16b xmmword ptr [r8]
+    jne cout
+    lock inc dword ptr [r10 + {CLOSED_AT}]
+    jmp cout
+cfound:
+    lock bts qword ptr [rbx], 0
+    jc cout
+    lock inc dword ptr [r10 + {CLOSED_AT}]
+cout:
+    pop r9
+    pop r8
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
 """
 
 
@@ -653,6 +750,8 @@ pass:
     popfq
 """
     if name == "dv_contact":
+        # [FLYER-FIX-1117] 'pass' ends the slide window (the engine takes this melee engage), 'pure' does not
+        # touch it (not a landed flyer); a body already in melee with another unit is never carried.
         return f"""
     pushfq
     push rax
@@ -660,20 +759,36 @@ pass:
     push r11
     mov r10, {BUF_PLACEHOLDER:#x}
     cmp dword ptr [r10 + {MODE_AT}], 1
-    jne pass
+    jne pure
     mov r11, rcx
     test r11, r11
-    je pass
+    je pure
     mov rax, qword ptr [r11 + {PARENT_OFF:#x}]
     test rax, rax
     cmovne r11, rax
     mov rax, qword ptr [r11 + {FC_OFF:#x}]
     test rax, rax
-    je pass
+    je pure
     cmp dword ptr [r11 + {LAYER_OFF:#x}], 0
-    jne pass
+    jne pure
     cmp dword ptr [r11 + {FLYMODE_OFF:#x}], 0
     je pass
+    test rdx, rdx
+    je nobody
+    mov rax, qword ptr [rdx + {BODY_OFF:#x}]
+    test rax, rax
+    je nobody
+    cmp dword ptr [rax + {MELEE_OFF:#x}], 1
+    jne nobody
+    mov rax, qword ptr [rax + {ORDER_TARGET_OFF:#x}]
+    test rax, rax
+    je nobody
+    mov rax, qword ptr [rax + {UNIT_OFF:#x}]
+    cmp rax, qword ptr [rcx + {UNIT_OFF:#x}]
+    je nobody
+    lock inc dword ptr [r10 + {ENGAGED_BODY_AT}]
+    jmp pass
+nobody:
 {_fast_test("r11")}
 {_window_test("r11")}    lock inc dword ptr [r10 + {CONTACT_AT}]
     pop r11
@@ -682,6 +797,7 @@ pass:
     popfq
     ret
 pass:
+{_window_close("r11")}pure:
     pop r11
     pop r10
     pop rax
@@ -805,7 +921,7 @@ def _ret_or_pass(name, code, build, want_ret):
     contact = name == "dv_contact"
     vals = {X.UC_X86_REG_RCX: rcx, X.UC_X86_REG_RSP: rsp, X.UC_X86_REG_RBX: 0xB1,
             X.UC_X86_REG_RBP: 0xB2, X.UC_X86_REG_RSI: 0xB3, X.UC_X86_REG_RDI: 0xB4, X.UC_X86_REG_R12: 0xC1,
-            X.UC_X86_REG_R15: 0xC4, X.UC_X86_REG_R8: 0x8E8E, X.UC_X86_REG_RDX: 0xD5D5 if contact else 0xD5,
+            X.UC_X86_REG_R15: 0xC4, X.UC_X86_REG_R8: 0x8E8E, X.UC_X86_REG_RDX: OBJ + 0xF000 if contact else 0xD5,
             X.UC_X86_REG_EFLAGS: 0x202,
             X.UC_X86_REG_XMM0: 0x1111_2222_3333_4444_5555_6666_7777_8888,
             X.UC_X86_REG_XMM1: 0x9999_AAAA_BBBB_CCCC_DDDD_EEEE_FFFF_0000}
@@ -1055,13 +1171,17 @@ def _window_rig(hold_code, through_code):
             X.UC_X86_REG_RDI, X.UC_X86_REG_RBP, X.UC_X86_REG_R8, X.UC_X86_REG_R9, X.UC_X86_REG_R10,
             X.UC_X86_REG_R11, X.UC_X86_REG_R12, X.UC_X86_REG_R15, X.UC_X86_REG_XMM0, X.UC_X86_REG_XMM1)
 
-    def hold(ent, x, z):
+    params = OBJ + 0xF000
+
+    def hold(ent, x, z, body=0):
         mu.mem_write(ent + POS_OFF, struct.pack("<f", x))
         mu.mem_write(ent + POS_OFF + 8, struct.pack("<f", z))
+        mu.mem_write(params + BODY_OFF, struct.pack("<Q", body))
         rsp = STACK + 0x8000
         mu.mem_write(rsp, struct.pack("<Q", RET))
         vals = {r: 0x1000 + i for i, r in enumerate(keep)}
         vals[X.UC_X86_REG_RCX] = ent
+        vals[X.UC_X86_REG_RDX] = params
         vals[X.UC_X86_REG_XMM0] = 0x1111_2222_3333_4444_5555_6666_7777_8888
         vals[X.UC_X86_REG_XMM1] = 0x9999_AAAA_BBBB_CCCC_DDDD_EEEE_FFFF_0000
         for r, v in vals.items():
@@ -1203,6 +1323,148 @@ def check_window_ridden(contact_code, through_code):
     return fails, n
 
 
+def _counter(mu, buf, at):
+    return struct.unpack("<I", bytes(mu.mem_read(buf + at, 4)))[0]
+
+
+def check_engaged(contact_code, through_code):
+    """[FLYER-FIX-1117] dv_contact + dv_through on one buffer. A body already in melee (+0x324 1) whose
+    target belongs to another unit is not carried: the engage goes through, counted, and the window closes.
+    A body in melee with the flyer's own unit (this charge's own contact) or not in melee is carried. The
+    first engage the engine takes ends the window for good, so a ground re-charge from that melee is never
+    held; an air re-charge ordered while engaged keeps it closed, a fresh air charge opens a new one."""
+    fails, n = [], 0
+    mu, hold, through, buf = _window_rig(contact_code, through_code)
+    obj = 0x500000
+    f, g, e, t_other, t_own = obj + 0x1000, obj + 0x3000, obj + 0x5000, obj + 0x7000, obj + 0x9000
+    unit_f, unit_x = 0x6600_0000, 0x7700_0000
+    for ent in (f, g):
+        _mover(mu, ent, True, 30, FAST)
+        mu.mem_write(ent + FLYMODE_OFF, struct.pack("<i", 4))
+        mu.mem_write(ent + UNIT_OFF, struct.pack("<Q", unit_f))
+    mu.mem_write(t_other + UNIT_OFF, struct.pack("<Q", unit_x))
+    mu.mem_write(t_own + UNIT_OFF, struct.pack("<Q", unit_f))
+
+    def body(state, target):
+        mu.mem_write(e + MELEE_OFF, struct.pack("<i", state))
+        mu.mem_write(e + ORDER_TARGET_OFF, struct.pack("<Q", target))
+        return e
+
+    def speed(ent, fast):
+        v = FAST if fast else SLOW
+        mu.mem_write(ent + VEL_OFF, struct.pack("<fff", v[0], 0.0, v[1]))
+
+    def step(label, got, want, counts):
+        nonlocal n
+        n += 1
+        have = {k: _counter(mu, buf, at) for k, at in (("contact", CONTACT_AT), ("body", ENGAGED_BODY_AT),
+                                                       ("closed", CLOSED_AT), ("released", RELEASED_AT))}
+        if got != want or any(have[k] != v for k, v in counts.items()):
+            fails.append(f"engaged {label}: {got} {have} (want {want}, {counts})")
+    # a fresh landing: free bodies, and bodies fighting this flyer's own unit, are carried
+    step("fresh: a free body", hold(f, 0.0, 0.0, body(0, 0)), "held", {"contact": 1, "body": 0, "closed": 0})
+    step("fresh: no body", hold(f, 1.0, 0.0, 0), "held", {"contact": 2})
+    step("fresh: a body fighting this unit", hold(f, 2.0, 0.0, body(1, t_own)), "held", {"contact": 3, "body": 0})
+    step("fresh: a body in another state", hold(f, 3.0, 0.0, body(0x13, t_other)), "held", {"contact": 4, "body": 0})
+    step("fresh: engaged, no target", hold(f, 3.5, 0.0, body(1, 0)), "held", {"contact": 5, "body": 0})
+    # a body locked in melee with another unit: not carried, the window ends
+    step("a body fighting another unit", hold(f, 4.0, 0.0, body(1, t_other)), "passed",
+         {"contact": 5, "body": 1, "closed": 1})
+    step("then a free body: window closed", hold(f, 5.0, 0.0, body(0, 0)), "passed",
+         {"contact": 5, "body": 1, "closed": 1})
+    # a second flyer: blocked (slow) -> the engine engages -> window closed; a ground re-charge is not held
+    step("g first hold", hold(g, 100.0, 0.0, body(0, 0)), "held", {"contact": 6, "closed": 1})
+    speed(g, False)
+    step("g slowed: the engine engages", hold(g, 104.0, 0.0, body(0, 0)), "passed", {"contact": 6, "closed": 2})
+    speed(g, True)
+    n += 1
+    if not through(g, 0):
+        fails.append("engaged: a ground re-charge must resume")
+    step("g ground re-charge into its melee", hold(g, 106.0, 0.0, body(1, t_own)), "passed",
+         {"contact": 6, "closed": 2, "released": 0})
+    # an air re-charge ordered while engaged keeps the window closed
+    mu.mem_write(g + MELEE_OFF, struct.pack("<i", 1))
+    n += 1
+    if not through(g, 2):
+        fails.append("engaged: an air re-charge must resume")
+    mu.mem_write(g + MELEE_OFF, struct.pack("<i", 0))
+    step("g lands from a re-charge out of melee", hold(g, 130.0, 0.0, body(0, 0)), "passed",
+         {"contact": 6, "closed": 2})
+    # a fresh air charge (not engaged) opens a new window
+    n += 1
+    if not through(g, 2):
+        fails.append("engaged: a fresh air charge must resume")
+    step("g lands from a fresh charge", hold(g, 200.0, 0.0, body(0, 0)), "held", {"contact": 7, "closed": 2})
+    # a flyer that engaged without ever being held gets a closed entry: its later fast contacts are not held
+    h = obj + 0xB000
+    _mover(mu, h, True, 30, SLOW)
+    mu.mem_write(h + FLYMODE_OFF, struct.pack("<i", 4))
+    step("h slow first engage", hold(h, 300.0, 0.0, body(0, 0)), "passed", {"contact": 7, "closed": 3})
+    n += 1
+    if (h | 1) not in _slot_keys(mu, buf):
+        fails.append("engaged: a flyer engaging with no entry must get a released one")
+    speed(h, True)
+    step("h fast again: not held", hold(h, 301.0, 0.0, body(0, 0)), "passed", {"contact": 7, "closed": 3})
+    # a landed ground mover (+0x710 0) engaging closes its window too
+    k = obj + 0xD000
+    _mover(mu, k, True, 30, FAST)
+    step("k ground mover engages", hold(k, 400.0, 0.0, body(0, 0)), "passed", {"contact": 7, "closed": 4})
+    # an airborne flyer and a ground unit never touch the table
+    a, u = obj + 0xE000, obj + 0xE800
+    _mover(mu, a, True, 30, FAST, layer=2)
+    mu.mem_write(a + FLYMODE_OFF, struct.pack("<i", 4))
+    _mover(mu, u, False, 30, FAST)
+    before = _slot_keys(mu, buf)
+    step("airborne contact", hold(a, 0.0, 0.0, body(1, t_other)), "passed", {"body": 1, "closed": 4})
+    step("ground unit contact", hold(u, 0.0, 0.0, body(1, t_other)), "passed", {"body": 1, "closed": 4})
+    n += 1
+    if _slot_keys(mu, buf) != before:
+        fails.append("engaged: an airborne flyer or a ground unit changed the table")
+    return fails, n
+
+
+def check_engaged_ridden(contact_code, through_code):
+    """[FLYER-FIX-1117] A rider (rcx) on a flying mount: the engaged-body test reads the rider's unit, the
+    closed window is the mount's, and a rider's air re-charge out of melee keeps the mount's window closed."""
+    fails, n = [], 0
+    mu, hold, through, buf = _window_rig(contact_code, through_code)
+    rider, mount, e, t = 0x501000, 0x503000, 0x505000, 0x507000
+    mu.mem_write(rider + PARENT_OFF, struct.pack("<Q", mount))
+    mu.mem_write(rider + UNIT_OFF, struct.pack("<Q", 0x6600_0000))
+    _mover(mu, mount, True, 30, FAST)
+    mu.mem_write(mount + FLYMODE_OFF, struct.pack("<i", 4))
+    mu.mem_write(t + UNIT_OFF, struct.pack("<Q", 0x6600_0000))
+    mu.mem_write(e + MELEE_OFF, struct.pack("<i", 1))
+    mu.mem_write(e + ORDER_TARGET_OFF, struct.pack("<Q", t))
+    n += 1
+    got = hold(rider, 0.0, 0.0, e)
+    if got != "held":
+        fails.append(f"engaged ridden: a body fighting the rider's own unit: {got} (want held)")
+    mu.mem_write(t + UNIT_OFF, struct.pack("<Q", 0x7700_0000))
+    n += 1
+    got = hold(rider, 0.0, 0.0, e)
+    keys = _slot_keys(mu, buf)
+    if got != "passed" or (mount | 1) not in keys or any(k & ~1 == rider for k in keys):
+        fails.append(f"engaged ridden: a body fighting another unit: {got}, mount closed {(mount | 1) in keys}")
+    # the rider re-charges in the air while engaged: the mount's entry stays closed
+    mu.mem_write(rider + MELEE_OFF, struct.pack("<i", 1))
+    n += 1
+    if not through(rider, 2) or (mount | 1) not in _slot_keys(mu, buf):
+        fails.append("engaged ridden: an air re-charge out of melee must keep the mount's window closed")
+    mu.mem_write(rider + MELEE_OFF, struct.pack("<i", 0))
+    n += 1
+    if not through(rider, 2) or any(k & ~1 == mount for k in _slot_keys(mu, buf)):
+        fails.append("engaged ridden: a fresh air charge must clear the mount's entry")
+    # with no entry left, a re-charge out of melee writes a closed one for the mount, none for the rider
+    mu.mem_write(rider + MELEE_OFF, struct.pack("<i", 1))
+    n += 1
+    keys = _slot_keys(mu, buf) if through(rider, 2) else []
+    if (mount | 1) not in keys or any(k & ~1 == rider for k in keys):
+        fails.append("engaged ridden: a re-charge out of melee with no entry must close the mount's window")
+    mu.mem_write(rider + MELEE_OFF, struct.pack("<i", 0))
+    return fails, n
+
+
 def check_commit(code):
     """[AIR-DIVE-BRACE-W1 round 4] dv_commit: a controller on its landing approach (phase 4 / 5) within
     COMMIT_M of its landing height gets al = 0 (counted, the test not called); any other phase, a higher
@@ -1295,13 +1557,17 @@ def _through_and_window(code):
     f1, n1 = check_through(code)
     f2, n2 = check_window(assemble("dv_keep"), code)
     f3, n3 = check_window_ridden(assemble("dv_contact"), code)
-    return f1 + f2 + f3, n1 + n2 + n3
+    f4, n4 = check_engaged(assemble("dv_contact"), code)
+    f5, n5 = check_engaged_ridden(assemble("dv_contact"), code)
+    return f1 + f2 + f3 + f4 + f5, n1 + n2 + n3 + n4 + n5
 
 
 def _contact_and_window(code):
     f1, n1 = check_contact(code)
     f2, n2 = check_window_ridden(code, assemble("dv_through"))
-    return f1 + f2, n1 + n2
+    f3, n3 = check_engaged(code, assemble("dv_through"))
+    f4, n4 = check_engaged_ridden(code, assemble("dv_through"))
+    return f1 + f2 + f3 + f4, n1 + n2 + n3 + n4
 
 
 CHECKS = {"dv_through": _through_and_window, "dv_skip": check_skip, "dv_keep": _keep_and_window,
@@ -1351,10 +1617,10 @@ MUTANTS = (
      "    mov r11, rdi\n"),
     ("contact holds every body", "dv_contact", "    jbe pass\n", "    nop\n"),
     ("contact misses a ridden flyer", "dv_contact", "    cmovne r11, rax\n", ""),
-    ("contact in the air too", "dv_contact", "    cmp dword ptr [r11 + 0x104], 0\n    jne pass\n    cmp dword ptr [r11 + 0x710]",
+    ("contact in the air too", "dv_contact", "    cmp dword ptr [r11 + 0x104], 0\n    jne pure\n    cmp dword ptr [r11 + 0x710]",
      "    cmp dword ptr [r11 + 0x710]"),
     ("contact for ground movers too", "dv_contact", "    cmp dword ptr [r11 + 0x710], 0\n    je pass\n", ""),
-    ("contact for ground units too", "dv_contact", "    mov rax, qword ptr [r11 + 0x128]\n    test rax, rax\n    je pass\n",
+    ("contact for ground units too", "dv_contact", "    mov rax, qword ptr [r11 + 0x128]\n    test rax, rax\n    je pure\n",
      "    mov rax, qword ptr [r11 + 0x128]\n    test rax, rax\n    nop\n"),
     ("contact on the wrong register", "dv_contact", "    mov r11, rcx\n", "    mov r11, rdx\n"),
     ("contact forgets rax", "dv_contact", "    pop rax\n    popfq\n    ret\n", "    pop r11\n    popfq\n    ret\n"),
@@ -1403,6 +1669,25 @@ MUTANTS = (
     ("through never clears", "dv_through", "    mov qword ptr [r10 + rdx + 64], 2\n", ""),
     ("through clears on a ground charge", "dv_through", "    je wclr_done\n", "    nop\n"),
     ("through clears the rider, not the mount", "dv_through", "    cmovne rcx, rax\n", ""),
+    # [FLYER-FIX-1117] engaged bodies and the first engage
+    ("contact carries a body in another unit's melee", "dv_contact",
+     "    lock inc dword ptr [r10 + 60]\n    jmp pass\n", "    jmp nobody\n"),
+    ("contact ignores whose melee the body is in", "dv_contact",
+     "    cmp rax, qword ptr [rcx + 0x2e8]\n    je nobody\n", "    cmp rax, qword ptr [rcx + 0x2e8]\n    nop\n"),
+    ("contact counts any engage state", "dv_contact",
+     "    cmp dword ptr [rax + 0x324], 1\n    jne nobody\n", "    cmp dword ptr [rax + 0x324], 1\n    nop\n"),
+    ("contact leaves the window open on the first engage", "dv_contact",
+     "    lock bts qword ptr [rbx], 0\n", "    bt qword ptr [rbx], 0\n"),
+    ("close inserts an open entry", "dv_contact", "    or rbx, 1\n    lock cmpxchg16b", "    lock cmpxchg16b"),
+    ("close uncounted", "dv_contact", "    jc cout\n    lock inc dword ptr [r10 + 56]\n", "    jc cout\n"),
+    ("engaged body uncounted", "dv_contact", "    lock inc dword ptr [r10 + 60]\n", ""),
+    ("contact closes for a ground unit", "dv_contact", "    je pure\n    cmp dword ptr [r11 + 0x104], 0\n",
+     "    je pass\n    cmp dword ptr [r11 + 0x104], 0\n"),
+    ("contact closes for an airborne flyer", "dv_contact", "    cmp dword ptr [r11 + 0x104], 0\n    jne pure\n",
+     "    cmp dword ptr [r11 + 0x104], 0\n    jne pass\n"),
+    ("through clears an engaged re-charge", "dv_through", "    jne wclr_go\n", "    jmp wclr_go\n"),
+    ("through closes the rider, not the mount", "dv_through",
+     "    mov r11, qword ptr [r9 + 0x2e0]\n    test r11, r11\n    cmove r11, r9\n", "    mov r11, r9\n"),
 )
 
 
@@ -1431,7 +1716,7 @@ def layout():
             "throughs_at": THROUGHS_AT, "kept_at": KEPT_AT, "engaged_at": ENGAGED_AT,
             "reordered_at": REORDERED_AT, "contact_at": CONTACT_AT, "settled_at": SETTLED_AT,
             "released_at": RELEASED_AT, "slide_at": SLIDE_AT, "slide_slots": SLIDE_SLOTS,
-            "committed_at": COMMITTED_AT}
+            "committed_at": COMMITTED_AT, "closed_at": CLOSED_AT, "engaged_body_at": ENGAGED_BODY_AT}
 
 
 def source_sha():

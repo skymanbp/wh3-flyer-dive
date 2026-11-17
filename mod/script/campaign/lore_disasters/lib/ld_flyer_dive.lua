@@ -152,7 +152,7 @@ function M.arm(buf)
     local l = site.layout
     put_u32(buf, l.mode_at, 0)
     for _, at in ipairs({ l.skipped_at, l.throughs_at, l.kept_at, l.engaged_at, l.reordered_at,
-            l.contact_at, l.settled_at, l.released_at, l.committed_at }) do
+            l.contact_at, l.settled_at, l.released_at, l.committed_at, l.closed_at, l.engaged_body_at }) do
         put_u32(buf, at, 0)
     end
     -- [AIR-DIVE-BRACE-W1 round 3] the slide table holds entity pointers of the last battle: cleared
@@ -180,7 +180,10 @@ function M.counters(buf)
         throughs = u32(buf, l.throughs_at), kept = u32(buf, l.kept_at),
         engaged = u32(buf, l.engaged_at), reordered = u32(buf, l.reordered_at),
         contact = u32(buf, l.contact_at), settled = u32(buf, l.settled_at),
-        released = u32(buf, l.released_at), committed = u32(buf, l.committed_at) }
+        released = u32(buf, l.released_at), committed = u32(buf, l.committed_at),
+        -- [FLYER-FIX-1117] slide windows ended by the first melee engage; contacts with a body already in
+        -- melee with another unit, not carried
+        closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at) }
 end
 
 -- Off for this session's later battles too (the agreement said no or has not

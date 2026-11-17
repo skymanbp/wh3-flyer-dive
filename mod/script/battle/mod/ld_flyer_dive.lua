@@ -79,7 +79,8 @@ record(("BATTLE mp=%s campaign=%s %s, caves format %s built for %s"):format(tost
 
 local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, flight stops held off %d, "
     .. "engage re-paths held off %d, charge-order re-paths held off %d, melee engages held off %d, "
-    .. "blocked stops held off %d, slides ended %d, landings kept %d"
+    .. "blocked stops held off %d, slides ended %d, landings kept %d, "
+    .. "slides ended by melee %d, bodies already in melee not carried %d"
 local TICK_NAME, TICK_MS = "ld_flyer_dive_counts", 10000
 
 -- Every 10 s, a NOW line when the counters changed: the END line needs the
@@ -95,7 +96,7 @@ if buffer then
                 return
             end
             local line = COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-                c.released, c.committed)
+                c.released, c.committed, c.closed, c.engaged_body)
             if line ~= last then
                 last = line
                 record("NOW " .. line)
@@ -111,6 +112,6 @@ bm:register_phase_change_callback("Complete", function()
         local c = dive.counters(buffer)
         dive.pass_through(buffer)
         record("END " .. COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-            c.released, c.committed))
+            c.released, c.committed, c.closed, c.engaged_body))
     end)
 end)

@@ -87,6 +87,19 @@ cfg.engage_ms, cfg.breath_ms, cfg.away_ms, cfg.away_m = 3000, 15000, 25000, 150
 -- straight away from its flyer, at a run (the enemy stops attacking).
 cfg.melee_off, cfg.retreat = {}, {}
 cfg.fight_ms, cfg.cycle_away_ms, cfg.cycle_back_ms = 90000, -1, 6000
+-- [FLYER-FIX-1117 2026-11-17] PUSH scenarios (player report "dive or trash": a unit already in melee was
+-- dragged back into its own missile line when the flyer charged it again).
+--   scenario=recharge: flyer i attacks target i at settle_ms; recharge_ms later (and every recharge_gap_ms,
+--     recharge_count times) the same attack order is given again while they are in melee.
+--   scenario=assist: ally i (the flyer's side, xml script_name ally_<i>) and target i attack each other at
+--     settle_ms; assist_ms later flyer i attacks target i, which is then already in melee with the ally.
+--   Every 100 ms: "P <ms> <lane> <target x> <target z> <flyer x> <flyer z> <target in melee>
+--     <flyer in melee> <flyer flying>" in the hp file; DONE at settle_ms + push_ms.
+--   cam_lane=<i> (any scenario): every cam_every_ms the camera looks at lane i's target from the side,
+--     cam_dist m away and cam_up m up, so the Python side's screenshots show that lane.
+cfg.recharge_ms, cfg.recharge_gap_ms, cfg.recharge_count = 15000, 15000, 1
+cfg.assist_ms, cfg.push_ms = 12000, 45000
+cfg.cam_lane, cfg.cam_every_ms, cfg.cam_dist, cfg.cam_up = 0, 500, 45, 22
 for line in probe:lines() do
     local k, val = line:match("^%s*([%w_]+)%s*=%s*([%d%.%-]+)%s*$")
     if k and cfg[k] ~= nil then cfg[k] = tonumber(val) end
@@ -313,6 +326,56 @@ local function run_engage(lanes, ux, uz)
     end, cfg.away_ms + cfg.tail_ms)
 end
 
+-- [FLYER-FIX-1117] PUSH scenarios (see the cfg header)
+local function run_push(lanes, ux, uz)
+    bm:repeat_callback(function()
+        local now = bm:time_elapsed_ms()
+        for i, lane in ipairs(lanes) do
+            local ok, line = pcall(function()
+                local u, t = lane.flyer.unit, lane.target.unit
+                local p, q = u:position(), t:position()
+                return fmt("P %d %d %.2f %.2f %.2f %.2f %s %s %s", now, i, q:get_x(), q:get_z(),
+                    p:get_x(), p:get_z(), tostring(t:is_in_melee()), tostring(u:is_in_melee()),
+                    tostring(u:is_currently_flying()))
+            end)
+            hp_line(ok and line or fmt("PFAIL %d %d %s", now, i, tostring(line)))
+        end
+    end, 100, "ld_air_dive_autotest_push")
+    local function attack(n)
+        for i, lane in ipairs(lanes) do
+            local ok, err = pcall(function()
+                lane.flyer.uc:attack_unit(lane.target.unit, true, true)
+            end)
+            status(fmt("push attack %d #%d ok=%s melee=%s flying=%s target_melee=%s %s", i, n, tostring(ok),
+                tostring(lane.flyer.unit:is_in_melee()), tostring(lane.flyer.unit:is_currently_flying()),
+                tostring(lane.target.unit:is_in_melee()), ok and "" or tostring(err)))
+        end
+    end
+    if cfg.scenario == "assist" then
+        bm:callback(function()
+            for i, lane in ipairs(lanes) do
+                local ok, err = pcall(function()
+                    lane.ally.uc:attack_unit(lane.target.unit, true, true)
+                    lane.target.uc:attack_unit(lane.ally.unit, true, true)
+                end)
+                status(fmt("push ally %d engage ok=%s %s", i, tostring(ok), ok and "" or tostring(err)))
+            end
+        end, cfg.settle_ms)
+        bm:callback(function() attack(1) end, cfg.settle_ms + cfg.assist_ms)
+    else
+        bm:callback(function() attack(1) end, cfg.settle_ms)
+        for k = 1, cfg.recharge_count do
+            bm:callback(function() attack(k + 1) end, cfg.settle_ms + cfg.recharge_ms + (k - 1) * cfg.recharge_gap_ms)
+        end
+    end
+    bm:callback(function()
+        bm:remove_callback("ld_air_dive_autotest_push")
+        bm:remove_callback("ld_air_dive_autotest_hp")
+        hp_line(nil)
+        status("DONE")
+    end, cfg.settle_ms + cfg.push_ms)
+end
+
 -- [AIR-DIVE-TAKEOFF-W1] CYCLE scenario (see the cfg header)
 local function run_cycle(lanes, ux, uz)
     local t_end = cfg.engage_ms + cfg.fight_ms
@@ -389,6 +452,14 @@ local function run()
             return
         end
         lanes[i] = { flyer = flyer, target = target }
+        if cfg.scenario == "assist" then          -- [FLYER-FIX-1117] the flyer side's infantry
+            local ally, aa = find_sunit("ally_" .. i)
+            if not ally or aa ~= fa then
+                status(fmt("FAIL lane %d ally missing or not on the flyer's side (%s)", i, tostring(aa)))
+                return
+            end
+            lanes[i].ally = ally
+        end
     end
 
     -- axis: from the flyers' side to the targets' side, through the middle
@@ -426,6 +497,9 @@ local function run()
         local f_x, f_z = lx - ux * cfg.dist / 2, lz - uz * cfg.dist / 2
         lane.target.uc:teleport_to_location(v(t_x, t_z), face_flyer, 40)
         lane.flyer.uc:teleport_to_location(v(f_x, f_z), face_target, 20)
+        if lane.ally then   -- [FLYER-FIX-1117] 30 m in front of the target, facing it
+            lane.ally.uc:teleport_to_location(v(t_x - ux * 30, t_z - uz * 30), face_target, 40)
+        end
         status(fmt("lane %d flyer=%s uid=%s at=%.1f,%.1f target=%s uid=%s at=%.1f,%.1f",
             i, tostring(lane.flyer.unit:type()), tostring(lane.flyer.unit:unique_ui_id()),
             f_x, f_z, tostring(lane.target.unit:type()),
@@ -523,8 +597,24 @@ local function run()
             end, math.max(rt, 1))
         end
     end
+    -- [FLYER-FIX-1117] the camera on one lane, from the side
+    local cl = lanes[cfg.cam_lane]
+    if cl then
+        bm:repeat_callback(function()
+            pcall(function()
+                local q = cl.target.unit:position()
+                bm:camera():move_to(v(q:get_x() + px * cfg.cam_dist - ux * 10, q:get_y() + cfg.cam_up,
+                    q:get_z() + pz * cfg.cam_dist - uz * 10), v(q:get_x(), q:get_y() + 2, q:get_z()), 0, false, 0)
+            end)
+        end, cfg.cam_every_ms, "ld_air_dive_autotest_cam")
+        status(fmt("camera on lane %d", cfg.cam_lane))
+    end
     if cfg.scenario == "cycle" then
         run_cycle(lanes, ux, uz)
+        return
+    end
+    if cfg.scenario == "recharge" or cfg.scenario == "assist" then
+        run_push(lanes, ux, uz)
         return
     end
     if cfg.scenario == "engage" then

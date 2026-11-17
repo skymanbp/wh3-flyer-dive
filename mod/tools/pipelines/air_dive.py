@@ -115,7 +115,9 @@ MOD_DIR = Path(rolepath.__file__).resolve().parent.parent
 OUT_DIR = MOD_DIR / "assets" / "air_dive"
 # [AIR-DIVE-W12] staged donor closures: their land units / mounts ride flight
 # tables too (census_riders)
-VENDORED_DIR = MOD_DIR / "assets" / "vendored_chars"
+# [FLYER-FIX-1117] the donor riders the census counts live in the Lore Disasters checkout since the flyer mod
+# moved to its own repository: LD_VENDORED_DIR=<lore_disaster>/mod/assets/vendored_chars to re-derive
+VENDORED_DIR = Path(os.environ.get("LD_VENDORED_DIR", str(MOD_DIR / "assets" / "vendored_chars")))
 MANIFEST = OUT_DIR / "air_dive_manifest.json"
 # [AIR-DIVE-W8] a non-vanilla animpack name holding non-vanilla table names:
 # vanilla tables cannot be overridden by name (module docstring)
@@ -140,6 +142,13 @@ SLOT_MOVING = 484
 # its moving attack from this slot: CA's own ATTACK_1 clip of the same
 # skeleton (CA's precedent: azazel's 484 plays a standing attack clip)
 SLOT_ATTACK_1 = 454
+# [FLYER-FIX-1117 2026-11-17] Pegasus-type tables (horse01: pegasi, hellsteeds, jade longma): slot 103
+# FLY_CHARGE plays the table's own slot 102 FLY_WALK clip. With slot 104 gone and the flight movement kept
+# after touchdown (lib/ld_flyer_dive.lua), CA's dive clip (hr1_fly_charge_01, the horse pitched nose-down for a
+# steep drop) went on playing at ground level: royal pegasus knights slid along the ground standing on their
+# heads (in-game shots, runs P_old / P_new, 2026-11-17); with the level clip they glide in level (run P_103).
+SLOT_FLY_WALK = 102
+LEVEL_DIVE_SKELETONS = ("horse01",)
 CLIP_DIR = "animations/battle/ld_air_dive/plough/"
 
 
@@ -273,6 +282,16 @@ def dive_entries(table, plough=None):
         raise SystemExit(f"[air_dive] REFUSING: {table['name']} has no slot "
                          f"{SLOT_LAND} to remove")
     if plough is None:
+        level_103 = None
+        if table.get("skeleton") in LEVEL_DIVE_SKELETONS:
+            walk = next((e for e in table["entries"] if e["slot"] == SLOT_FLY_WALK), None)
+            dive = [e for e in table["entries"] if e["slot"] == SLOT_AIR_TO_GROUND]
+            if walk is None or not dive:
+                raise SystemExit(f"[air_dive] REFUSING: {table['name']} ({table['skeleton']}) has no slot "
+                                 f"{SLOT_FLY_WALK} / {SLOT_AIR_TO_GROUND} for the level dive")
+            for e in dive:
+                e["refs"] = [list(r) for r in walk["refs"]]
+            level_103 = {"from_slot": SLOT_FLY_WALK, "refs": [list(r) for r in walk["refs"]]}
         added_484 = None
         if not any(e["slot"] == SLOT_MOVING for e in table["entries"]):
             src = (next((e for e in table["entries"] if e["slot"] == SLOT_JUMP), None)
@@ -289,7 +308,8 @@ def dive_entries(table, plough=None):
                      for r in e["refs"]]
         table["entries"] = [e for e in table["entries"] if e["slot"] not in drop]
         return {"slot_104_removed": removed, "slot_489_removed": jump_gone,
-                "slot_484_added": added_484, "plough_slots": [], "slot_489_added": False}
+                "slot_484_added": added_484, "plough_slots": [], "slot_489_added": False,
+                "slot_103_level": level_103}
     jump = [r[0] for e in table["entries"] if e["slot"] == SLOT_JUMP
             for r in e["refs"]]
     moving = [r[0] for e in table["entries"] if e["slot"] == SLOT_MOVING
@@ -555,7 +575,9 @@ def derive(data_dir=GAME_DATA):
                             "flying riders; the plough clip peaks at that speed "
                             "(AIR-DIVE-W12); plough speed = charge speed x "
                             "body-size multiplier, cap 20 (AIR-DIVE-W13)"),
-                 "slot_103": "unchanged (no vanilla clip carries descent there)"},
+                 "slot_103": ("the table's own slot 102 clip on " + ", ".join(LEVEL_DIVE_SKELETONS)
+                              + " (FLYER-FIX-1117: CA's nose-down dive clip went on at ground level), "
+                              "else unchanged (no vanilla clip carries descent there)")},
         "flight_tables": len(flight),
         "slot_103_census": {"clips": len(s103),
                             "max_abs_animroot_drop_m": round(worst_103, 3),

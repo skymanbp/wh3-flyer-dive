@@ -65,6 +65,11 @@ needs `keystone-engine` and `unicorn`
 test (`tools/pipelines/air_dive_autotest.py`) needs `psutil`; its optional
 `--entity-read` reader is not part of this repository.
 
+Re-deriving the staged flight tables (`tools/pipelines/air_dive.py`, only when
+the rules or the game's tables change) still counts the Lore Disasters donor
+riders: set `LD_VENDORED_DIR=<lore_disaster>/mod/assets/vendored_chars`.
+The pack build itself does not need it.
+
 ## Development home
 
 Since 2026-11-17 this repository is where the flyer mod is developed (user

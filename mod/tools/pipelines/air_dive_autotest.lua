@@ -92,14 +92,17 @@ cfg.fight_ms, cfg.cycle_away_ms, cfg.cycle_back_ms = 90000, -1, 6000
 --   scenario=recharge: flyer i attacks target i at settle_ms; recharge_ms later (and every recharge_gap_ms,
 --     recharge_count times) the same attack order is given again while they are in melee.
 --   scenario=assist: ally i (the flyer's side, xml script_name ally_<i>) and target i attack each other at
---     settle_ms; assist_ms later flyer i attacks target i, which is then already in melee with the ally.
+--     settle_ms; assist_ms later flyer i attacks target i, which is then already in melee with the ally
+--     (re-charges as for recharge, timed from that attack).
 --   Every 100 ms: "P <ms> <lane> <target x> <target z> <flyer x> <flyer z> <target in melee>
 --     <flyer in melee> <flyer flying>" in the hp file; DONE at settle_ms + push_ms.
 --   cam_lane=<i> (any scenario): every cam_every_ms the camera looks at lane i's target from the side,
 --     cam_dist m away and cam_up m up, so the Python side's screenshots show that lane.
 cfg.recharge_ms, cfg.recharge_gap_ms, cfg.recharge_count = 15000, 15000, 1
 cfg.assist_ms, cfg.push_ms = 12000, 45000
+cfg.recharge_away_ms = 0       -- > 0: a move-away order (away_m back) this long before each re-charge
 cfg.cam_lane, cfg.cam_every_ms, cfg.cam_dist, cfg.cam_up = 0, 500, 45, 22
+cfg.cam_flyer = 0          -- 1: follow lane cam_lane's flyer instead of its target
 for line in probe:lines() do
     local k, val = line:match("^%s*([%w_]+)%s*=%s*([%d%.%-]+)%s*$")
     if k and cfg[k] ~= nil then cfg[k] = tonumber(val) end
@@ -361,12 +364,25 @@ local function run_push(lanes, ux, uz)
                 status(fmt("push ally %d engage ok=%s %s", i, tostring(ok), ok and "" or tostring(err)))
             end
         end, cfg.settle_ms)
-        bm:callback(function() attack(1) end, cfg.settle_ms + cfg.assist_ms)
-    else
-        bm:callback(function() attack(1) end, cfg.settle_ms)
-        for k = 1, cfg.recharge_count do
-            bm:callback(function() attack(k + 1) end, cfg.settle_ms + cfg.recharge_ms + (k - 1) * cfg.recharge_gap_ms)
+    end
+    -- the flyer's first attack, then recharge_count more; with recharge_away_ms > 0 each re-charge is
+    -- preceded by a move-away order (away_m back, at a run) that many ms earlier: the cycle charge
+    local t1 = cfg.settle_ms + (cfg.scenario == "assist" and cfg.assist_ms or 0)
+    bm:callback(function() attack(1) end, t1)
+    for k = 1, cfg.recharge_count do
+        local tk = t1 + cfg.recharge_ms + (k - 1) * cfg.recharge_gap_ms
+        if cfg.recharge_away_ms > 0 then
+            bm:callback(function()
+                for i, lane in ipairs(lanes) do
+                    local ok, err = pcall(function()
+                        local p = lane.flyer.unit:position()
+                        lane.flyer.uc:goto_location(v(p:get_x() - ux * cfg.away_m, p:get_z() - uz * cfg.away_m), true)
+                    end)
+                    status(fmt("push away %d #%d ok=%s %s", i, k, tostring(ok), ok and "" or tostring(err)))
+                end
+            end, tk - cfg.recharge_away_ms)
         end
+        bm:callback(function() attack(k + 1) end, tk)
     end
     bm:callback(function()
         bm:remove_callback("ld_air_dive_autotest_push")
@@ -602,7 +618,7 @@ local function run()
     if cl then
         bm:repeat_callback(function()
             pcall(function()
-                local q = cl.target.unit:position()
+                local q = (cfg.cam_flyer > 0 and cl.flyer or cl.target).unit:position()
                 bm:camera():move_to(v(q:get_x() + px * cfg.cam_dist - ux * 10, q:get_y() + cfg.cam_up,
                     q:get_z() + pz * cfg.cam_dist - uz * 10), v(q:get_x(), q:get_y() + 2, q:get_z()), 0, false, 0)
             end)

@@ -819,6 +819,45 @@ class Restore:
                 print(f"[air_dive_autotest] WARNING could not restore {path}: {exc}")
 
 
+def grab_window(own, path):
+    """[FLYER-FIX-1117] Save the GAME window only (PrintWindow, PW_RENDERFULLCONTENT), never the screen: other
+    windows on top of it (the user's own programs) must not end up in a test record. False: no window."""
+    import ctypes
+    import ctypes.wintypes as wt
+    from PIL import Image
+    wins = own._own_windows()
+    if not wins:
+        return False
+    hwnd = wins[0]
+    user32, gdi32 = ctypes.windll.user32, ctypes.windll.gdi32
+    r = wt.RECT()
+    user32.GetClientRect(hwnd, ctypes.byref(r))
+    w, h = r.right - r.left, r.bottom - r.top
+    if w <= 0 or h <= 0:
+        return False
+    hdc = user32.GetDC(hwnd)
+    mdc = gdi32.CreateCompatibleDC(hdc)
+    bmp = gdi32.CreateCompatibleBitmap(hdc, w, h)
+    gdi32.SelectObject(mdc, bmp)
+    try:
+        user32.PrintWindow(hwnd, mdc, 3)          # PW_CLIENTONLY | PW_RENDERFULLCONTENT
+        buf = ctypes.create_string_buffer(w * h * 4)
+
+        class BIH(ctypes.Structure):
+            _fields_ = [("biSize", wt.DWORD), ("biWidth", wt.LONG), ("biHeight", wt.LONG), ("biPlanes", wt.WORD),
+                        ("biBitCount", wt.WORD), ("biCompression", wt.DWORD), ("biSizeImage", wt.DWORD),
+                        ("biXPelsPerMeter", wt.LONG), ("biYPelsPerMeter", wt.LONG), ("biClrUsed", wt.DWORD),
+                        ("biClrImportant", wt.DWORD)]
+        bih = BIH(ctypes.sizeof(BIH), w, -h, 1, 32, 0, 0, 0, 0, 0, 0)
+        gdi32.GetDIBits(mdc, bmp, 0, h, buf, ctypes.byref(bih), 0)
+        Image.frombuffer("RGBA", (w, h), buf, "raw", "BGRA", 0, 1).convert("RGB").save(path, quality=80)
+        return True
+    finally:
+        gdi32.DeleteObject(bmp)
+        gdi32.DeleteDC(mdc)
+        user32.ReleaseDC(hwnd, hdc)
+
+
 # [FLYER-FIX-1117] the Workshop memreader Plus (the test pack's declared prerequisite) for a run without
 # the entity reader, which carried its own copy: --memreader
 MEMREADER_DIR = Path(os.environ.get("LD_MEMREADER_DIR",
@@ -944,7 +983,7 @@ def run(args):
         note(f"window mode: {args.window}")
         seen_pid = False
         last_len = 0
-        last_shot = 0.0
+        shots_started, shots_stop = False, threading.Event()
         prio_done = False
         while True:
             time.sleep(3)
@@ -966,18 +1005,22 @@ def run(args):
                 if not ln.startswith("  "):     # skip UI dump body
                     note("driver: " + ln)
             last_len = len(lines)
-            # [FLYER-FIX-1117] screenshots of the game's screen while the battle runs (--shots s)
-            if args.shots and has(lines, "phase Deployed") and time.time() - last_shot >= args.shots:
-                last_shot = time.time()
-                try:
-                    from PIL import ImageGrab
+            # [FLYER-FIX-1117] screenshots of the GAME window (grab_window) while the battle runs, on their
+            # own thread: this loop polls every 3 s, so --shots below that would not be honoured here
+            if args.shots and not shots_started and has(lines, "phase Deployed"):
+                shots_started = True
+
+                def _shots():
                     shots_dir = out_dir / "shots"
                     shots_dir.mkdir(exist_ok=True)
-                    stamp_ms = lines[-1].split(" ", 1)[0] if lines else "x"
-                    ImageGrab.grab().save(shots_dir / f"{len(list(shots_dir.iterdir())):03d}_{stamp_ms}.jpg",
-                                          quality=80)
-                except Exception as exc:          # a missed frame is logged, the run goes on
-                    note(f"screenshot failed: {exc}")
+                    n = 0
+                    while not shots_stop.wait(args.shots):
+                        try:
+                            if grab_window(own, shots_dir / f"{n:04d}_{time.time() - t0:07.1f}s.jpg"):
+                                n += 1
+                        except Exception as exc:  # a missed frame is logged, the run goes on
+                            note(f"screenshot failed: {exc}")
+                threading.Thread(target=_shots, daemon=True).start()
             if has(lines, "DONE"):
                 time.sleep(3)              # recorder flushes every second
                 break
@@ -1011,6 +1054,8 @@ def run(args):
                 reasons.append(f"timeout {args.timeout}s before DONE")
                 break
     finally:
+        if "shots_stop" in locals():
+            shots_stop.set()
         if own is not None and args.window == "behind":
             win_stop.set()
             note(f"window: kept behind on {win_count[0]} tick(s); the game held the foreground on {win_count[1]} "

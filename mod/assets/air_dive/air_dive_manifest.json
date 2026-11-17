@@ -7,7 +7,7 @@
   "slot_489": "removed where the table has a 484 moving attack (every table since AIR-DIVE-RELEASE-W1); no plough clip (AIR-DIVE-MP-DIVE-W1 ground handoff)",
   "jump_attack_chance": "0 on every flyer (air_dive_rules)",
   "copies": "one renamed copy per plough speed among a table's flying riders; the plough clip peaks at that speed (AIR-DIVE-W12); plough speed = charge speed x body-size multiplier, cap 20 (AIR-DIVE-W13)",
-  "slot_103": "unchanged (no vanilla clip carries descent there)"
+  "slot_103": "the table's own slot 102 clip on horse01 (FLYER-FIX-1117: CA's nose-down dive clip went on at ground level), else unchanged (no vanilla clip carries descent there)"
  },
  "flight_tables": 74,
  "slot_103_census": {
@@ -49,7 +49,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2_deathclaw",
@@ -80,7 +81,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2_griffon",
@@ -113,7 +115,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2_griffon",
@@ -144,7 +147,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2_griffon_draught",
@@ -175,7 +179,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2b_hippogryph",
@@ -215,7 +220,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2b_hippogryph",
@@ -257,7 +263,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2b_hippogryph",
@@ -297,7 +304,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2c_dlc23_lammasu_feral",
@@ -330,7 +338,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc2c_dlc23_lammasu_mount",
@@ -361,7 +370,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc3_manticore",
@@ -407,7 +417,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc3b_dlc27_chimera",
@@ -449,7 +460,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bc3ca_dlc29_mnt_dread_abyssal",
@@ -493,7 +505,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_dlc15_phoenix",
@@ -535,7 +548,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_dlc24_moon_bird",
@@ -575,7 +589,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_eagle",
@@ -615,7 +630,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_eagle",
@@ -657,7 +673,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_eagle",
@@ -697,7 +714,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_eagle_boss",
@@ -737,7 +755,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1_eagle_sisters_of_twilight",
@@ -777,7 +796,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1b_carrion",
@@ -819,7 +839,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1b_carrion",
@@ -859,7 +880,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi1b_carrion",
@@ -899,7 +921,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi2_dlc27_preyton",
@@ -943,7 +966,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi2_terrorgheist",
@@ -985,7 +1009,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi2_terrorgheist_boss",
@@ -1025,7 +1050,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi2_wyvern",
@@ -1065,7 +1091,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "bi2_wyvern",
@@ -1105,7 +1132,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "co1_dlc22_cockatrice",
@@ -1138,7 +1166,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr04_dlc24_dragon_jade",
@@ -1178,7 +1207,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr04_dragon_iron",
@@ -1218,7 +1248,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr04_dragon_storm",
@@ -1258,7 +1289,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon",
@@ -1291,7 +1323,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon",
@@ -1332,7 +1365,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon",
@@ -1363,7 +1397,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon_boss",
@@ -1396,7 +1431,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon_carmine",
@@ -1427,7 +1463,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon_zombie",
@@ -1458,7 +1495,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1_dragon_zombie",
@@ -1489,7 +1527,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1b_chaos_dragon",
@@ -1525,7 +1564,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1b_chaos_dragon",
@@ -1559,7 +1599,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1b_chaos_dragon_boss",
@@ -1593,7 +1634,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "dr1b_wyrm_dragon",
@@ -1627,7 +1669,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hr1_pegasus",
@@ -1669,7 +1712,17 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": {
+    "from_slot": 102,
+    "refs": [
+     [
+      "animations/battle/horse01/locomotion/hr1_fly_walk_01.anim",
+      "",
+      "animations/audio/battle/horse01/locomotion/hr1_fly_walk_01.{y7ww5v}.snd.meta"
+     ]
+    ]
+   }
   },
   {
    "source": "hr1_pegasus",
@@ -1715,7 +1768,17 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": {
+    "from_slot": 102,
+    "refs": [
+     [
+      "animations/battle/horse01/locomotion/hr1_fly_walk_01.anim",
+      "",
+      "animations/audio/battle/horse01/locomotion/hr1_fly_walk_01.{y7ww5v}.snd.meta"
+     ]
+    ]
+   }
   },
   {
    "source": "hr1_wh3_longma",
@@ -1757,7 +1820,17 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": {
+    "from_slot": 102,
+    "refs": [
+     [
+      "animations/battle/horse01/locomotion/hr1_fly_walk_01.anim",
+      "",
+      "animations/audio/battle/horse01/locomotion/hr1_fly_walk_01.{y7ww5v}.snd.meta"
+     ]
+    ]
+   }
   },
   {
    "source": "hu10_dlc29_morghast_archai_halberd",
@@ -1799,7 +1872,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10_dlc29_morghast_harbingers_dual_swords",
@@ -1839,7 +1913,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10_wh3_bloodthirster_axe_and_whip",
@@ -1881,7 +1956,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10_wh3_bloodthirster_great_axe",
@@ -1925,7 +2001,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10e_dlc20_daemon_prince_1h_noarmoury",
@@ -1971,7 +2048,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10e_dlc20_daemon_prince_1h_noarmoury",
@@ -2011,7 +2089,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10e_dlc20_daemon_prince_2h_noarmoury",
@@ -2053,7 +2132,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10e_wh3_daemon_prince_1h",
@@ -2095,7 +2175,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu10e_wh3_daemon_prince_2h",
@@ -2135,7 +2216,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu14_t1_dlc21_blue_scribes",
@@ -2160,7 +2242,8 @@
    "slot_489_removed": [],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book",
@@ -2191,7 +2274,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu16c_wh3_dlc20_valkia_spear_shield",
@@ -2222,7 +2306,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu6g_wh3_dlc20_azazel_sword",
@@ -2253,7 +2338,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "hu8b_vargheist",
@@ -2293,7 +2379,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "mt1_wh3_screamers",
@@ -2335,7 +2422,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "ox1_dlc23_taurus_cages",
@@ -2375,7 +2463,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "ox1_dlc23_taurus_feral",
@@ -2419,7 +2508,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "ox1_dlc23_taurus_mount",
@@ -2461,7 +2551,8 @@
     ]
    },
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   },
   {
    "source": "sky1_dlc27_skycutter01",
@@ -2496,7 +2587,8 @@
    ],
    "slot_484_added": null,
    "plough_slots": [],
-   "slot_489_added": false
+   "slot_489_added": false,
+   "slot_103_level": null
   }
  ],
  "unridden_tables": [
@@ -3148,20 +3240,20 @@
   {
    "staged": "animations/database/battle/bin/hr1_pegasus_ld_dive_v153.bin",
    "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_ld_dive_v153.bin",
-   "sha256": "c48ebbbd750429f09ee6f6d0549b2f91729328bafdc43cf1fb3f514ac0e8094f",
-   "bytes": 13252
+   "sha256": "cf26c4d9441135b59a188c7c7e2320c5da6c76748e6a70eaf59d15458df08722",
+   "bytes": 13263
   },
   {
    "staged": "animations/database/battle/bin/hr1_pegasus_ld_dive_v162.bin",
    "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_ld_dive_v162.bin",
-   "sha256": "1bae283106bad66f4676e2522cffd04e42d8b885717f18d797453e17e14fe0c0",
-   "bytes": 13252
+   "sha256": "c252b0be65dc842deb188504e030a76cc499da3a351af19c0fb5fad92d5cd11c",
+   "bytes": 13263
   },
   {
    "staged": "animations/database/battle/bin/hr1_wh3_longma_ld_dive.bin",
    "pack_path": "animations\\database\\battle\\bin\\hr1_wh3_longma_ld_dive.bin",
-   "sha256": "308ddda6fe6d879292a5f998b710fcb69339fa4b24c76e9cd4972e880faa224f",
-   "bytes": 13526
+   "sha256": "cadde7437b509bd3a26443c071b8b6ea2d42023cce00eaa9715583f1c9290817",
+   "bytes": 13537
   },
   {
    "staged": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
@@ -3280,8 +3372,8 @@
   {
    "staged": "ld_air_dive_tables.animpack",
    "pack_path": "animations\\database\\battle\\bin\\ld_air_dive_tables.animpack",
-   "sha256": "6706408cbf461ebb6ae54c36ed15930f200a6fb27642b748baddefd4eeb01419",
-   "bytes": 1145959
+   "sha256": "2cb5518393be160bacda89a3979d230bb6f4a366a5d4fe15ae974b807a9d41f4",
+   "bytes": 1145992
   }
  ]
 }

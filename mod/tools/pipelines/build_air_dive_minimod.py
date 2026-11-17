@@ -89,8 +89,8 @@ from pathlib import Path
 
 import air_dive_rules
 import anim_table_rename
-import db_writer
-from installed_db_table import decode_round_trip_with_replay, decode_round_trip
+import flyer_db as db_writer   # [FLYER-FIX-1117] self-contained: the recorded schemas, not the main mod's writer
+from flyer_db import decode_round_trip_with_replay, decode_round_trip
 from packfile import PACK_TYPE_MOD, write_pack_file
 
 MOD_DIR = Path(rolepath.__file__).resolve().parent.parent
@@ -160,7 +160,7 @@ def db_entries(db_pack):
 def _guid_writer(db_pack, table):
     """A writer for ``table`` under the installed fragment's GUID, after the
     installed fragment round-trips through our schema."""
-    import installed_db_table
+    import flyer_db as installed_db_table
     _rows, header = installed_db_table.decode_round_trip(
         db_pack, table, "air_dive_minimod", remedy="before extending it")
     schema = dict(db_writer.SCHEMAS[table])

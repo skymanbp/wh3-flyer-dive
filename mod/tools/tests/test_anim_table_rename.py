@@ -51,8 +51,8 @@ import rolepath  # noqa: E402 -- tools dir must be on sys.path first (§A12.2)
 import air_dive_rules  # noqa: E402 -- same reason
 import anim_table_bin  # noqa: E402 -- same reason
 import anim_table_rename  # noqa: E402 -- same reason
-import db_writer  # noqa: E402 -- same reason
-import installed_db_table  # noqa: E402 -- same reason
+import flyer_db as db_writer  # noqa: E402 -- same reason (FLYER-FIX-1117: self-contained repository)
+import flyer_db as installed_db_table  # noqa: E402 -- same reason (FLYER-FIX-1117: self-contained repository)
 from animpack_codec import animpack_iter  # noqa: E402 -- same reason
 from packfile import PackFile  # noqa: E402 -- same reason
 

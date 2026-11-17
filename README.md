@@ -39,42 +39,39 @@ so the tools run unchanged in either place:
 | `mod/assets/vendored_scripts/memreader_plus/` | memreader Plus 0_15_2 as used by the main mod (MIT, see its `third_party_licenses.txt`); the stand-alone pack does **not** include it, it is a declared prerequisite |
 | `mod/tools/pipelines/` | `build_air_dive_minimod.py` (builds the pack), `air_dive.py` (derives the tables), cave assemblers, probes and the automated battle test |
 | `mod/tools/lib/`, `mod/tools/tests/` | rule module, animation codecs, tests |
-| `mod/tools/sync_flyer_repo.py`, `mod/tools/data/flyer_repo_manifest.json` | the sync with the main repository (below) |
+| `mod/tools/lib/flyer_db.py`, `mod/tools/data/flyer_db_schemas.json` | DB table reader/writer and the recorded writer schemas (self-contained build) |
+| `mod/tools/sync_flyer_repo.py`, `mod/tools/data/flyer_repo_manifest.json` | the retired sync with the main repository (history only) |
 
 ## Building the pack
 
-`build_air_dive_minimod.py` reads the installed game (`db.pack`, `local_en.pack`,
-`Warhammer3.exe`) every time, so a game patch is a re-run. It writes DB fragments
-through the main mod's shared DB writer (`db_writer`, which loads the main mod's
-unit catalogue and validator) and needs the RPFM schema file; those are not part
-of this repository. Build from a checkout of the main repository:
+The build is self-contained (since 2026-11-17): it needs only this repository,
+the installed game and a few PyPI packages (`lz4`, `zstandard`, `pefile`).
+It reads the installed game (`db.pack`, `local_en.pack`, `Warhammer3.exe`) every
+time, so a game patch is a re-run.
 
 ```
-cd <main repository>/mod
+cd mod
 python -P tools/pipelines/build_air_dive_minimod.py --out <path>/ld_air_dive.pack
 ```
 
 Set `LD_WH3_DATA` to your game's `data` folder if it is not the default path in
-the script. The build of 2026-11-16 reproduced the published Workshop pack byte
-for byte (sha256 `a7249a829d961ffb4c216c5d19f6dab50319c63e51887a6b0f65513cecec24a9`).
+the script. The DB tables are written by `mod/tools/lib/flyer_db.py` (the table
+reader/writer, copied from the Lore Disasters mod) with the writer schemas
+recorded in `mod/tools/data/flyer_db_schemas.json`; every installed table the
+build reads must still re-encode byte-identical, so a patched table is refused,
+not guessed. Rebuilding the cave site tables and their emulator checks also
+needs `keystone-engine` and `unicorn`
+(`python tools/pipelines/dive_cave_asm.py --write-site`). The automated battle
+test (`tools/pipelines/air_dive_autotest.py`) needs `psutil`; its optional
+`--entity-read` reader is not part of this repository.
 
-## How this repository stays in sync with the main repository
+## Development home
 
-* `mod/tools/data/flyer_repo_manifest.json` lists the shared files. Both
-  repositories hold them at the same paths with the same stored (git blob)
-  bytes; `README.md`, `.gitignore`, `.gitattributes`, `hooks/` and `.sync/`
-  exist only here.
-* A commit on `main` in either repository runs its `post-commit` hook
-  (`hooks/` here, `mod/tools/hooks/` there), which calls
-  `python -P mod/tools/sync_flyer_repo.py hook post-commit`: changed shared files
-  are copied to the other repository and committed there with a
-  `Synced-From: <repo>@<sha>` trailer. `.sync/state.json` records what was
-  synced last; a file changed on both sides since then is refused, never
-  overwritten. Nothing is pushed to any remote.
-* Manual commands: `python -P mod/tools/sync_flyer_repo.py status | check | push | pull`.
-  The other repository is found as a sibling directory, or through
-  `LD_MAIN_REPO` (here) / `LD_FLYER_REPO` (there). `LD_FLYER_SYNC=0` turns the
-  hooks off.
+Since 2026-11-17 this repository is where the flyer mod is developed (user
+ruling); the Lore Disasters mod no longer carries it. The old two-way sync
+(`mod/tools/sync_flyer_repo.py`, `mod/tools/data/flyer_repo_manifest.json`,
+`.sync/`) is retired and the hooks in `hooks/` do nothing; the files stay only
+as history.
 
 ## Credits
 
@@ -107,21 +104,16 @@ for byte (sha256 `a7249a829d961ffb4c216c5d19f6dab50319c63e51887a6b0f65513cecec24
 
 ## 建包
 
-`build_air_dive_minimod.py` 每次都从安装的游戏读数据。它写数据表时用主模组的共用
-写入器（`db_writer`，会加载主模组的单位目录与校验器）并需要 RPFM 的 schema 文件，
-这些不在本仓库里，所以请在主仓库的检出里建包（命令见上面英文部分）。2026-11-16
-那次建出的包与创意工坊发布的包逐字节相同（sha256 `a7249a82…`）。
+自 2026-11-17 起建包只需要本仓库、安装的游戏和几个 PyPI 包（`lz4`、`zstandard`、
+`pefile`），命令见上面英文部分。数据表由 `mod/tools/lib/flyer_db.py`（从主模组照搬的
+表读写器）按 `mod/tools/data/flyer_db_schemas.json` 里记录的表结构写出；建包读到的
+每张原版表仍须逐字节往返，游戏更新改了表就拒绝而不是猜。重生代码洞位点表与模拟器检查
+另需 `keystone-engine` 与 `unicorn`；自动实机测试需要 `psutil`。
 
-## 与主仓库同步
+## 开发位置
 
-* 共有文件列在 `mod/tools/data/flyer_repo_manifest.json`，两边同路径、git 存的内容
-  相同；`README.md`、`.gitignore`、`.gitattributes`、`hooks/`、`.sync/` 只在本仓库。
-* 任一仓库在 `main` 分支提交后，`post-commit` 钩子调用
-  `mod/tools/sync_flyer_repo.py hook`：改动的共有文件复制到另一边并提交，带
-  `Synced-From: <仓库>@<提交>`。`.sync/state.json` 记上次同步；同一文件两边都改过
-  就拒绝，不覆盖。不推送任何远端。
-* 手动命令：`status`、`check`、`push`、`pull`。另一仓库按同级目录找，或用环境变量
-  `LD_MAIN_REPO`（本仓库）/ `LD_FLYER_REPO`（主仓库）指定；`LD_FLYER_SYNC=0` 关闭钩子。
+用户 2026-11-17 裁定：飞兽模组从此在本仓库开发，主模组不再包含它。原来的双向同步
+（`sync_flyer_repo.py`、清单、`.sync/`）已停用，`hooks/` 里的钩子不再做事，文件只作历史保留。
 
 ## 鸣谢
 

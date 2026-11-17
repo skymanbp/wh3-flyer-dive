@@ -329,7 +329,7 @@ def body_sizes(db_pack, vendored_dir=VENDORED_DIR):
     ``air_dive_rules.GENERATED_ENTITY_SIZES`` (the entities only our
     generator emits). A donor row overriding an installed key wins (the donor
     ships it); fail-closed on a missing required input."""
-    import installed_db_table
+    import flyer_db as installed_db_table
     rows, _h = installed_db_table.decode_round_trip(db_pack, "battle_entities_tables",
                                                     "air_dive_sizes")
     sizes = {r["key"]: r["size"] for r in rows}
@@ -356,7 +356,7 @@ def census_riders(sources, data_dir=GAME_DATA, vendored_dir=VENDORED_DIR):
     ``air_dive_rules.plough_speed(charge speed, body size)``; a flyer whose
     size no source carries is a refusal. Fail-closed on a missing required
     input."""
-    import installed_db_table
+    import flyer_db as installed_db_table
     db_pack = Path(data_dir) / "db.pack"
     if not db_pack.is_file():
         raise SystemExit(f"[air_dive] REFUSING: {db_pack} missing")

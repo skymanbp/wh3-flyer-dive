@@ -187,7 +187,7 @@ def targets(renames, source):
 
 
 def _installed_rows(db_pack, table, tag):
-    import installed_db_table
+    import flyer_db as installed_db_table
     rows, header = installed_db_table.decode_round_trip(db_pack, table, tag)
     return rows, header
 
@@ -231,7 +231,7 @@ def _repointed_rows(table, column, entity_column, renames, db_pack, tag, skip):
     a source table, whole, that cell repointed (by the row's
     ``entity_column`` where the source has per-entity copies) and every other
     cell replayed byte-for-byte (DB merge is whole-row replacement)."""
-    import installed_db_table
+    import flyer_db as installed_db_table
     rows, _header, replay = installed_db_table.decode_round_trip_with_replay(
         db_pack, table, tag)
     out = []

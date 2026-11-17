@@ -7,6 +7,7 @@ strip for the vanilla table and the donor TSVs, and on the installed game
 that the replacement table drops exactly the breath rows and nothing else.
 / 喷吐技能接战可放：判定规则、漏判检测、原版整表与捐赠方表的删行。
 """
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -16,8 +17,7 @@ sys.path.insert(0, str(TOOLS))
 import rolepath  # noqa: F401 -- because it puts the role directories on sys.path
 
 import air_dive_rules as rules
-import db_writer
-import installed_db_table
+import flyer_db as installed_db_table   # [FLYER-FIX-1117] self-contained repository
 
 UA = [
     {"key": "cone", "type": "wh_type_breath", "icon_name": "i_cone"},
@@ -94,7 +94,7 @@ class RowStrip(unittest.TestCase):
 
 
 class InstalledTable(unittest.TestCase):
-    DB = Path(db_writer.VANILLA_SCALE_DB_PACK)
+    DB = Path(os.environ.get("LD_WH3_DATA", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data")) / "db.pack"
 
     def test_replacement_drops_exactly_the_breath_rows(self):
         writer, removed, breath = rules.breath_usage_writer(

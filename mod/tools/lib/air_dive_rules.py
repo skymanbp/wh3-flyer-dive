@@ -765,7 +765,7 @@ def installed_breath_sources(db_pack, tag="air_dive_breath"):
     """``(unit_abilities, unit_special_abilities, projectiles, usage rows,
     usage header)`` from the installed db.pack, every table round-tripped
     through our writer schema (installed_db_table: fail-closed)."""
-    import installed_db_table
+    import flyer_db as installed_db_table   # [FLYER-FIX-1117] self-contained build
     got = {}
     for table in ("unit_abilities_tables", "unit_special_abilities_tables",
                   "projectiles_tables", USAGE_FLAGS_TABLE):
@@ -815,7 +815,7 @@ def breath_usage_writer(db_pack, local_en_pack, flags=BREATH_BLOCK_FLAGS):
     the installed fragment's GUID; ld_mod.pack (dbw_balance) and the
     stand-alone ld_air_dive.pack ship it at
     ``db/<USAGE_FLAGS_TABLE>/<USAGE_FLAGS_FRAGMENT>``."""
-    import db_writer
+    import flyer_db as db_writer   # [FLYER-FIX-1117] self-contained build
     kept, removed, breath, header = installed_breath_table(db_pack, local_en_pack, flags)
     schema = dict(db_writer.SCHEMAS[USAGE_FLAGS_TABLE])
     schema["guid"] = header["guid"]
@@ -1092,8 +1092,9 @@ def charge_passive_rows(db_pack, land_unit_keys, tag="air_dive_impact"):
     """[AIR-DIVE-W16] ``{table: [(row, raw)]}`` of the hidden charge passive
     (CHARGE_PASSIVE_KEY), cloned from CHARGE_PASSIVE_TEMPLATE's installed
     rows, and one ability junction row per land unit in ``land_unit_keys``."""
-    import installed_db_table as idb
-    import dbw_resist  # noqa: F401 -- registers the stat-effects writer schema
+    # [FLYER-FIX-1117] self-contained build: the stat-effects schema dbw_resist registered in the main mod
+    # is not recorded (no shipped stage reads it), so stage D is refused by flyer_db until it is
+    import flyer_db as idb
     got = {t: idb.decode_round_trip_with_replay(db_pack, t, tag)
            for t in CHARGE_PASSIVE_TABLES}
     tk = CHARGE_PASSIVE_TEMPLATE
@@ -1151,7 +1152,7 @@ def installed_impact(db_pack, stage=None, tag="air_dive_impact"):
     melee_weapons: every flyer weapon :func:`flyer_weapon_plan` changes
     (installed row + cells, other cells replayed) and its clones; stage D
     adds :func:`charge_passive_rows` for every installed flyer land unit."""
-    import installed_db_table as idb
+    import flyer_db as idb
     ent = {r["key"]: r for r in idb.decode_round_trip(db_pack, "battle_entities_tables", tag)[0]}
     mounts = {r["key"]: r for r in idb.decode_round_trip(db_pack, "mounts_tables", tag)[0]}
     land = idb.decode_round_trip(db_pack, "land_units_tables", tag)[0]
@@ -1178,7 +1179,7 @@ def weapon_repointed_land_rows(land_rows, repoint, db_pack, tag="air_dive_impact
     of every repointed land unit not among them. Keys in ``owned`` are shipped
     whole by another emitter, which must repoint them itself through
     ``repoint`` (one row, one owner) -- they are skipped here."""
-    import installed_db_table as idb
+    import flyer_db as idb
     out, have = [], set()
     for row, raw in land_rows:
         new = repoint.get(row["key"])
@@ -1232,9 +1233,9 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
     Fails closed when a flyer land unit the pack fields ends without a
     collision attack, a ground unit ends on a weapon the rule changed, or a
     flyer land unit lacks the charge passive (stage D)."""
-    import installed_db_table as idb
-    import db_writer
-    from dbw_binary import _decode_db_table_bytes
+    import flyer_db as idb
+    import flyer_db as db_writer
+    from flyer_db import _decode_db_table_bytes
     from packfile import DBTableReader
     inst = {}
     for t in IMPACT_READ_TABLES:

@@ -29,7 +29,7 @@ if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 import rolepath  # noqa: E402,F401 -- because it puts the role dirs on sys.path
 import air_dive_rules  # noqa: E402 -- because rolepath above puts lib/ on sys.path
-import installed_db_table  # noqa: E402 -- same reason
+import flyer_db as installed_db_table  # noqa: E402 -- same reason (FLYER-FIX-1117: self-contained repository)
 
 MOD_DIR = TOOLS_DIR.parent
 DB_PACK = Path(os.environ.get(

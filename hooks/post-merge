@@ -1,12 +1,4 @@
 #!/bin/sh
-# FLYER-REPO: sync shared files with the lore-disasters repository after post-merge.
-# Logic: mod/tools/sync_flyer_repo.py (identical in both repositories).
-root=$(git rev-parse --show-toplevel) || exit 0
-[ -f "$root/mod/tools/sync_flyer_repo.py" ] || exit 0
-if command -v python >/dev/null 2>&1; then PY=python
-elif command -v python3 >/dev/null 2>&1; then PY=python3
-elif command -v py >/dev/null 2>&1; then PY="py -3"
-else echo "[flyer-sync] no python on PATH; not synced" >&2; exit 0
-fi
-$PY -P "$root/mod/tools/sync_flyer_repo.py" hook post-merge || true
+# FLYER-REPO post-merge: retired 2026-11-17 (user ruling: the flyer mod is developed in this repository,
+# the Lore Disasters mod no longer carries it). The two-way sync no longer runs. / 双向同步已停用。
 exit 0

@@ -1,6 +1,6 @@
 # 现状与待办
 
-每批收尾时更新。上次更新：2026-11-18（INGAME-1118 实机一轮、D3-1118）。
+每批收尾时更新。上次更新：2026-11-18（INGAME-1118 实机一轮、D3-1118、INGAME-1118 series 2）。
 
 ## 已发布
 
@@ -22,10 +22,10 @@
 | 项 | 裁定 | 状态 |
 |---|---|---|
 | 骑手俯冲时坐稳 | 玩家报告的缺陷 | 已实现；2026-11-18 用改名后的包实机五局，骑手都坐稳（INGAME-1118） |
-| 平衡子模组 `flyer_dive_balance.pack` | D1 | 已实现；2026-11-18 两种包名先后下子模组都生效（INGAME-1118）。决定先后的是片段名还是 `used_mods.txt` 顺序还没分开 |
+| 平衡子模组 `flyer_dive_balance.pack` | D1 | 已实现；2026-11-18 两种包名先后下子模组都生效（INGAME-1118），子模组在 `used_mods.txt` 里排在主包之前也生效（INGAME-1118 series 2 第 3 局）：决定同键行的不是 `used_mods.txt` 顺序也不是包名，三局都与「片段名排前者赢」相符。README 加载顺序一段待改 |
 | 工坊页面每种语言一份 | D2 | 文字已写（`workshop/`），有两处占位（子模组条目号、D4 那一条） |
-| 按体型、逐兵模的起飞判定 | D3 | 已实现并离线核对（D3-1118：体型字段 2026-11-18 实测成立，协商标记 `FLYPINS4`）；欠实机 |
-| 俯冲撞上冲锋反制受双倍伤害 | D4 | 没实现。2026-11-18 地面骑兵对照组 4 局都没看到反射（飞兽 12 局也没有）；原因查到「反射检查之前或之内」，探针已加，欠一局 |
+| 按体型、逐兵模的起飞判定 | D3 | 已实现并离线核对（D3-1118：体型字段 2026-11-18 实测成立，协商标记 `FLYPINS4`）；2026-11-18 实机一局两条判据都过（窗口 `45/40/35/30/45`，`unsized=0 unmatched=0`，held 3763、free 33293，INGAME-1118 series 2 第 1 局）。各体型实际离地快慢没量出来（只有整队 flying 标志），欠一局逐兵模的 |
+| 俯冲撞上冲锋反制受双倍伤害 | D4 | 没实现。地面骑兵对照组 5 局都没看到反射（飞兽 12 局也没有）；2026-11-18 带新探针那局：`ACTION UPDATES 0`、`BRACE CHECK NOT REACHED`——长矛兵根本没进入能调用反射检查的动作（INGAME-1118 series 2 第 2 局）。欠一局改摆兵的（要改测试驱动） |
 | 落地后第二次撞穿 | D5（评估，非裁定） | 不改代码 |
 | 与主模组仓库断开（代码侧） | D6 | 已做完并核对：测试 84 项全过，两个包的字节没变，运行时不读主模组仓库（`docs/HISTORY.md` HOME-1117 第二节） |
 
@@ -33,6 +33,9 @@
 断开用的代码改动在本分支，随下一版一起进 `main`。
 
 ### 欠的实机测试（三局，约 12 分钟；游戏空着才能跑，一次一件）
+
+**2026-11-18 02:41–02:53 三局都跑了**（INGAME-1118 series 2，`docs/HISTORY.md` 同名一节；证据 `ingame_1118/series2/`）：第 1 项判据通过，
+但离地快慢只量到整队标志，欠一局逐兵模的；第 2 项挡在动作这一层（`ACTION UPDATES 0`），欠一局改摆兵的；第 3 项已有答案。下面各项后面写了结果和还欠什么。
 
 命令都在 `rename-1118/wt` 的 `mod/` 目录下跑。包都在 `D:/Projects/.worktrees/wh3-flyer-dive/d3-1118_scratch/probes/`：
 `base/flyer_dive_takeoff.pack`（D3 的主包加移动记录器，sha256 `555afdd2…`）、`base/flyer_dive_balance.pack`、`probe_impact.pack`
@@ -46,6 +49,9 @@
      `pin_probe.txt` 最后一条 S 行 `unsized=0 unmatched=0`，且 `held` 与 `free` 都大于 0。`unmatched` 大于 0 说明发问兵模的飞行控制器
      不是表里那个实体的，规则形同放行，要先查再发。
    - 另看：hp 文件 F 行里每次 `cycle away` 之后到 `flying` 变 1 的秒数，四道都要能离地。
+   - **结果（series 2 第 1 局）**：判据通过——`… 45/40/35/30/45 ticks`；最后 S 行 `held=3763 free=33293 unsized=0 unmatched=0`。
+     F 行的 `flying` 是整队的：24 次撤退令里 6 秒内整队离地只有 1 次（蝎尾狮，0.7 秒），而且不在近战、窗口内没挨打的单位也常不变 flying，
+     所以这个指标量不出 D3。**还欠一局**：同一命令加 `--entity-read`（逐实体飞行状态），最好再让目标撤走（`retreat_<i>`）免得撤退途中一直挨打。
 2. **冲锋反制对照组**（约 3 分钟）。拷 `probe_impact.pack`。
    `python -P tools/pipelines/air_dive_autotest.py --test-pack probe_impact.pack --memreader --target wh_main_emp_inf_spearmen_1 --flyers wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm`
    然后 `python -P tools/pipelines/reflect_probe_report.py "<游戏目录>/reflect_probe.txt"`（自动判定会写 FAIL，骑兵不会「落地」）。
@@ -53,11 +59,16 @@
    - 没看到时按两行读：`ACTION UPDATES 0` → 长矛兵没进入能调用反射检查的动作，下一步改摆兵（目标不收归脚本控制）；
      `BRACE CHECK REACHED` 而反射者不是 `0x69` → 挡在 `Back`；是 `0x69` 而第一个敌人状态是 12/15/16/17 或距离不在半径内 → 挡在那一道。
      这一局只回答「挡在哪」；之后可能还要一局验证改法。
+   - **结果（series 2 第 2 局）**：`ACTION UPDATES 0`、`BRACE CHECK NOT REACHED 0 calls`、`CONTROL NOT SEEN`；扣血记录活着（683 次）。
+     挡在长矛兵的动作这一层。**下一局**：改 `tools/pipelines/air_dive_autotest.lua`，目标瞬移后释放脚本控制（`uc:release_control()`，
+     或不对目标 `take_control()` / `halt()`，现在是第 458–459 行对所有单位都做），其余同上；看 `ACTION UPDATES` 是否大于 0。要改测试驱动的代码（它随驱动自己写的辅助包进游戏，探针包不用重建）。
 3. **子模组换序：片段名还是 `used_mods.txt` 顺序**（约 3 分钟）。拷 `base/flyer_dive_takeoff.pack`、`base/flyer_dive_balance.pack`、`size_reader.pack`。
    `python -P tools/pipelines/air_dive_autotest.py --test-pack flyer_dive_takeoff.pack --pack-before flyer_dive_balance.pack --pack-after size_reader.pack --memreader --flyers wh2_main_def_inf_harpies,wh_main_brt_cav_pegasus_knights,wh2_dlc10_def_mon_feral_manticore_0,wh2_main_hef_mon_star_dragon`
    然后 `python -P tools/pipelines/flyer_size_probe_report.py "<游戏目录>/flyer_size_probe.txt"`。
    - 子模组列在主包之前，包名不变。蝎尾狮 `+0xb4` 读 1700、星龙 4425 → 片段名决定（排前者赢）；读 2000、5900 → `used_mods.txt` 里排后者赢。
      驱动在时间线里写出 `used_mods:` 一行，先确认顺序真是子模组在前。
+   - **结果（series 2 第 3 局）**：时间线 `used_mods: mod "flyer_dive_balance.pack"; | mod "flyer_dive_takeoff.pack"; …`（子模组在前）；
+     蝎尾狮 1700、星龙 4425，`BALANCE submod loaded`。所以不是 `used_mods.txt` 里排后者赢；三局都与「片段名排前者赢」相符（片段名没反过来验）。
 
 D4 的飞兽各道（INGAME-1118 第 4、5 项的样子）要等 D4 有了做法再跑。真人联机仍是可选。
 

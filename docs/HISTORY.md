@@ -1682,3 +1682,74 @@ RENAME-1118 第四节说 `kaylika_auri_lahmians` 有 3 行、`lbm` 有 1 行与�
 - 引擎对同键行的规则：本仓库只有实测，没有官方文档可引。INGAME-1118 第 6 项已推翻「包名决定」；剩下「片段名」与「`used_mods.txt` 顺序」
   两种，一局可分（`docs/STATUS.md`）。为此自动测试驱动加了 `--pack-before` / `--pack-after`（把 `data/` 里已有的包按给定顺序列进
   `used_mods.txt`，不拷不删），有测试钉住顺序。
+
+## INGAME-1118 series 2 2026-11-18：欠测三局（D3 起飞、冲锋反制对照组、子模组换序）
+
+子代理在 02:41–02:53 按 `docs/STATUS.md`「欠的实机测试」跑完三局，每局一次、没有重跑。工作树 `rename-1118/wt` 在 `f56bc6b`、干净，代码与包都没改。
+包取自 `d3-1118_scratch/probes/`：`base/flyer_dive_takeoff.pack` sha256 `555afdd2…`、`base/flyer_dive_balance.pack` `9f936db4…`、`pin_record.pack` `1b8bd9d3…`、
+`probe_impact.pack` `9ba1b2fb…`、`size_reader.pack` `339770f9…`（各局 `deployed.txt` 有全值）。驱动直接调用（它已有 `--pack-before` / `--pack-after`），
+外面套 `ingame_1118/_tools/run_one_s2.sh`：开跑前忙碌检查、删掉游戏目录里的 `flyer_size_probe.txt`、`reflect_probe.txt`、`pin_probe.txt`，拷包、跑、移走包、
+拷日志（追加写的日志另存本局新写的那一段）、核对 `used_mods.txt` 与 `data/` 列表。每局一行记在 `ingame_1118/LOG.md` 的「Series 2」节，证据在
+`ingame_1118/series2/<局名>/`。三局都没有崩溃；结束后 `used_mods.txt` sha256 `8bc9569f…` 与基线相同、`data/` 列表与基线相同、`Warhammer3` 进程 0。
+
+| 局 | 时间 | 驱动退出码 / 自动判定 | 结论 |
+|---|---|---|---|
+| 1 D3 起飞（`run1_d3_takeoff`） | 02:41:21–02:43:55 | 1 / FAIL（engage 判定读不懂 cycle 场景：`no engage samples; move-away never ordered`，不是本项的判据） | 两条判据都过；离地时间见下 |
+| 2 冲锋反制对照组（`run2_reflect_control`） | 02:47:32–02:50:00 | 1 / FAIL（骑兵不会「落地」，预料之中） | 挡在长矛兵的动作这一层：`ACTION UPDATES 0` |
+| 3 子模组换序（`run3_pack_order`） | 02:50:46–02:53:17 | 0 / PASS | 子模组列在主包之前仍然生效：不是 `used_mods.txt` 里排后者赢 |
+
+**第 1 局，判据：**
+
+- `flyer_takeoff.txt`（本局新写的一段只有这一行）：`2026-11-18 02:42:16 BATTLE mp=false campaign=false on (single player), windows by size small/medium/large/very large/unknown 45/40/35/30/45 ticks`。
+- `pin_probe.txt`（只有本局一场，`BATTLE 2026-11-18 02:42:16 window=0 mode=1 table=8192`）最后一条 S 行：
+  `S 97500 975 stamps=158 dropped=0 held=3763 free=33293 unsized=0 unmatched=0 used=49 stray=0`。`unsized=0 unmatched=0`，`held`、`free` 都大于 0。
+- 所以新洞在游戏里装上了，四种体型的发问兵模都找到了自己的实体、读到了 1–4 的体型。
+
+**第 1 局，离地时间**（`_tools/takeoff_timing2.py`，结果 `series2/run1_d3_takeoff/takeoff_timing2.txt`）。读的是 hp 文件 F 行的 `is_currently_flying`——
+这是**整个单位**的一个布尔值，不是逐兵模的；挨打时刻取自 `pin_probe.txt` 的 H 行（每个飞行实体最近一次挨打的时刻）。每道 6 次撤退令（12.3、26.3、40.3、
+54.3、68.3、82.3 秒），每次 6 秒后再令攻击。
+
+| 道 | 体型窗口 | 6 秒内整队离地 | 离地那次的秒数 |
+|---|---|---|---|
+| 哈比（60 个兵模） | 小型 4.5 秒 | 0 / 6 | — |
+| 飞马骑士（24 骑） | 中型 4.0 秒 | 0 / 6 | — |
+| 野生蝎尾狮（1） | 大型 3.5 秒 | 1 / 6 | 第 4 次：下令后 0.7 秒，距上次挨打（42.1 秒）12.9 秒 |
+| 星龙（1） | 超大型 3.0 秒 | 0 / 6 | 第 1 次 6.1 秒（刚过 6 秒，且那时再攻击令已下） |
+
+- 不离地的大多数次，下令时单位正在近战且撤退期间仍在挨打（例：哈比第 2 次，下令时 59 个里 10 个在 4.5 秒窗口内挨过打，撤退期间又有 13 个挨打时刻，最后 32.2 秒）——
+  这正是规则要按住的情形。
+- **但也有规则解释不了的不离地**：哈比与飞马骑士第 5、6 次、星龙第 1 次，下令时不在近战、窗口内没有挨打的兵模、撤退期间也没有新的挨打记录，整队仍没变成 flying。
+  移动记录器（`flyer_dive_probe.txt` S 行）显示它们按令以每秒 4–9 米走开，`fly=0`。所以「整队 flying」在这个场景里多半根本不会出现，跟 D3 无关：
+  旧车道同一指标（`from_lore_disaster/air-dive-takeoff-w1_scratch/cycle_takeoff.py` 对 `bswc*` 四局重算）飞马骑士在各臂也是 0–2 / 6。
+- 用单位位置高度作替代（`_tools/takeoff_height.py`：撤退令后 6 秒内高度比下令时高 10 米以上）：哈比第 2、4 次 +2.2 / +2.3 秒，飞马骑士第 2、3、4 次 +4.0 / +2.1 / +3.7 秒，
+  蝎尾狮第 4 次 +2.4 秒，星龙 0 次。这不能当逐兵模读数：`unit:position()` 跟的是哪个实体没有文档，蝎尾狮那次 F 行 0.7 秒已是 flying 而高度 2.4 秒才升。
+- **四道的先后与窗口是否一致（超大型最先、小型最晚）：这一局分不出来。** 能离地的样本太少（整队 flying 只有 1 次），而唯一的逐兵模来源（`--entity-read` 的 FE 行）这局没开。
+
+**第 2 局**（`reflect_probe_report.py` 读本局的 `reflect_probe.txt`，只有一场，`BATTLE 2026-11-18 02:48:11 on: buffer 00007FF4DF920010`，即五个洞作为一个功能装上了）：
+
+- `reflections logged 0 (flyer chargers 0), damage calls 683, reflection damage calls 0`
+- `ACTION UPDATES 0 (no soldier ran an action that can call the reflection check)`
+- `BRACE CHECK NOT REACHED 0 calls, reflector in state 0x69 0, with an enemy in reach list 0`
+- `CONTROL NOT SEEN (0 ground units took reflection damage)`
+- 扣血记录是活的（683 次；四个长矛兵单位各有 7–11 次冲击伤害，返回 `0x143061966`），骑士在 37.6、61.8、76.4、93.1 秒首次接触。
+- 读法（`docs/STATUS.md` 原写的规则）：`ACTION UPDATES 0` → 长矛兵整场没有一个兵模进入 `0x14326a2bc` / `0x14326a958` 这两个动作更新，反射检查 `0x14325bbec` 也一次没被调用。
+  挡住反射的是这一层，不是 `Back` / `Near` / `Interr` 等那几道。最可能的原因是摆兵：`air_dive_autotest.lua` 开战后对每个单位 `take_control()` 加 `halt()`
+  （第 458–459 行），再瞬移目标（第 519 行），此后不给目标命令——收归脚本控制、停住的长矛兵不进入架矛的动作。这一点没在本局证实，是下一局要验的。
+
+**第 3 局：**
+
+- 驱动时间线（`timeline.txt`）：`used_mods: mod "flyer_dive_balance.pack"; | mod "flyer_dive_takeoff.pack"; | mod "flyer_dive_autotest.pack"; | mod "size_reader.pack"; | …`——子模组确实在主包之前。
+- `flyer_dive.txt`：`2026-11-18 02:51:26 BALANCE submod loaded, built for this main version 34d827c323572f8e`。
+- `flyer_size_probe_report.py`：`HOLDS: mapping {'small': 1, 'medium': 2, 'large': 3, 'very_large': 4}`；蝎尾狮 `+0xb4 [1700.0, 1700.0]`、星龙 `+0xb4 [4425.0, 4425.0]`
+  （飞马骑士 1300、哈比 200）。即子模组的值生效。
+- 与 INGAME-1118 第 6 项合起来：子模组在 `used_mods.txt` 里排后（两局）和排前（本局）都生效，所以「`used_mods.txt` 里排后者赢」被推翻，「排前者赢」也早被第 6 项推翻；
+  三局都与「片段名排前者赢」（`flyer_dive_balance` < `flyer_dive_takeoff`）相符。只测了这一对片段名，没有反过来改片段名验证，所以严格说能证明的是「决定同键行的不是
+  `used_mods.txt` 的先后，也不是包名」，片段名是剩下唯一与三局都相符的说法。
+
+**仍不知道的：**
+
+- D3 各体型实际离地快慢、四道先后是否符合窗口。要量就得逐兵模：同一命令加 `--entity-read`（FE 行逐实体记飞行状态），或者换成撤退期间对方不追打的场景
+  （例如 `retreat_<i>` 让目标撤走），否则「一直挨打所以按住」与「按令走开但整队不起飞」混在一起。
+- 冲锋反制：下一局在 `air_dive_autotest.lua` 里让目标在瞬移之后释放脚本控制（`uc:release_control()`，或不对目标 `take_control()`/`halt()`），
+  其余同第 2 局；看 `ACTION UPDATES` 是否大于 0、`BRACE CHECK` 是否被走到。这要改测试驱动代码，本局没做。
+- 游戏目录里留着第 3 局写的 `flyer_size_probe.txt`（追加写的探针文件，下一局开跑前照规矩删）。

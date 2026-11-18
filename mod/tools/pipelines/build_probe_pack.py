@@ -11,7 +11,7 @@ the output adds:
                 (part C: two logger caves, needs keystone + unicorn to assemble and to pass its
                 emulator check and negative controls before anything is written)
 
-The output name may not be a shipped pack's (flyer_dive_takeoff.pack, flyer_dive_balance.pack).
+The output name may not be the shipped pack's (flyer_dive_takeoff.pack).
 
 usage: python -P tools/pipelines/build_probe_pack.py --base <built pack> --out <name>.pack
        [--size-read] [--reflect]
@@ -26,7 +26,7 @@ from pathlib import Path
 from packfile import PACK_TYPE_MOD, PackFile, write_pack_file
 
 HERE = Path(__file__).resolve().parent
-SHIPPED = ("flyer_dive_takeoff.pack", "flyer_dive_balance.pack")
+SHIPPED = ("flyer_dive_takeoff.pack",)
 SIZE_PROBE = ("script/battle/mod/flyer_size_probe.lua", HERE / "flyer_size_probe.lua")
 REFLECT_PROBE = ("script/battle/mod/reflect_probe.lua", HERE / "reflect_probe.lua")
 REFLECT_SITE = "script/reflect_probe/reflect_probe_site.lua"

@@ -24,7 +24,7 @@ Two commands, both deterministic:
 The old -> new table and the reasons are in docs/HISTORY.md, RENAME-1118.
 
 usage:  python -P tools/rename_1118.py apply
-        python -P tools/rename_1118.py check --pack <main.pack> --pack <balance.pack>
+        python -P tools/rename_1118.py check --pack <flyer_dive_takeoff.pack> [--pack <other.pack> ...]
 """
 import argparse
 import re

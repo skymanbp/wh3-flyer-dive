@@ -144,11 +144,11 @@ class PackOrder(unittest.TestCase):
             adt.USED_MODS = Path(tmp) / "used_mods.txt"
             try:
                 adt.write_startup("argv", "flyer_dive_takeoff.pack", adt.Restore(), ("probe_size.pack",),
-                                  False, before_packs=("flyer_dive_balance.pack",))
+                                  False, before_packs=("before_probe.pack",))
                 lines = adt.USED_MODS.read_text("utf-8").splitlines()
             finally:
                 adt.USED_MODS = saved
-        self.assertEqual(lines[:4], ['mod "flyer_dive_balance.pack";', 'mod "flyer_dive_takeoff.pack";',
+        self.assertEqual(lines[:4], ['mod "before_probe.pack";', 'mod "flyer_dive_takeoff.pack";',
                                      f'mod "{adt.HELPER_PACK}";', 'mod "probe_size.pack";'])
         self.assertTrue(lines[-1].startswith("game_startup_mode battle "))
 

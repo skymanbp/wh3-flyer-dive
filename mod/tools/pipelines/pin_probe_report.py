@@ -18,6 +18,19 @@ lower bound on the rule, not an equality, which is why EARLY is the failure and 
 Take-offs of entities that were never hit are counted, not judged. A record without E lines, with a FAIL line or
 without the Z line of a flyer is not a measurement (exit 1).
 
+[d10-1118, D11] With the traced caves and ``trace 1`` the record has T lines (what the take-off caves saw of each
+entity in each tick, in order; format in the recorder's header). Then every EARLY take-off is explained: its
+tokens from three ticks before its last hit to one tick after it left, and which of the two explanations of the
+gap the data supports --
+  (1) the take-off check is not asked when the countdown is 0: after the hit, the flight update ran with the
+      countdown at 0 outside phase 1 and no check followed it, while every tick had its update;
+  (2) the check is asked less often than once per tick: a tick after the hit with no update at all, or an
+      update in which the gate should have asked (countdown above 0, or phase 1, FC +0x64 clear) and did not;
+-- or "neither", with the reason (e.g. the check WAS asked after the hit and the rule answered free). A TRACE line
+counts, over every traced entity, the ticks with 0 / 1 / more updates and how often the gate asked when its
+static reading says it should (the gate at 0x143053ce3: takeoff_trace_asm.py). A battle recorded with
+``trace=1`` but without a T line is a problem: the trace was asked for and is missing.
+
 usage: python -P tools/pipelines/pin_probe_report.py <pin_probe.txt> [--json]
 """
 import json
@@ -50,7 +63,8 @@ def parse(text):
         p = raw.split(" ")
         if p[0] == "BATTLE":
             cur = {"header": raw, "units": {}, "sizes": {}, "takeoffs": [], "fails": [], "e_lines": 0,
-                   "last_hit": {}, "state": {}, "period": None, "entities": None}
+                   "last_hit": {}, "state": {}, "period": None, "entities": None,
+                   "trace_on": "trace=1" in p[1:], "trace": {}, "t_lines": 0}
             for cell in p[1:]:
                 if cell.startswith("sample="):
                     cur["period"] = int(cell[7:])
@@ -71,6 +85,12 @@ def parse(text):
             for cell in p[3:]:
                 ent, tick, _hits = cell.split(":")
                 cur["last_hit"][ent] = int(tick)
+        elif p[0] == "T":
+            cur["t_lines"] += 1
+            tick = int(p[1])
+            for cell in p[3:]:
+                ent, toks = cell.split(":", 1)
+                cur["trace"].setdefault(ent, {}).setdefault(tick, []).extend(toks.split(","))
         elif p[0] == "E":
             cur["e_lines"] += 1
             tick, uid = int(p[2]), p[3]
@@ -86,6 +106,101 @@ def parse(text):
                                             "asked": st["asked"], "last_hit": cur["last_hit"].get(ent)})
                 cur["state"][ent] = st
     return battles[-1] if battles else None
+
+
+def token(tok):
+    """(letter, phase, count, flags) of a T-line token, e.g. "u2.0s" -> ("u", 2, 0, "s")."""
+    letter, rest = tok[0], tok[1:]
+    phase, _dot, tail = rest.partition(".")
+    digits = "".join(ch for ch in tail if ch.isdigit() or ch == "-")
+    return letter, int(phase), int(digits), tail[len(digits):]
+
+
+def _asks_after(stream, i):
+    """True when the token after the update at ``stream[i]`` (before the next update) is a check."""
+    for _tick, tok in stream[i + 1:]:
+        if tok[0] == "u":
+            return False
+        if tok[0] in "fhp":
+            return True
+    return False
+
+
+def _gate_should_ask(letter, phase, count, flags):
+    return letter == "u" and (count > 0 or phase == 1) and "g" not in flags
+
+
+def explain(battle, takeoff):
+    """[d10-1118] Which explanation of an early take-off the T lines support: (verdict, reason, sequence)."""
+    ent, up = takeoff["entity"], takeoff["tick"]
+    ticks = battle["trace"].get(ent)
+    if not ticks:
+        return "unexplained", "no T line for this entity (record with the traced caves and 'trace 1')", []
+    hits = [t for t, toks in ticks.items() if t <= up and any(x[0] == "x" for x in toks)]
+    hit = max(hits) if hits else takeoff["last_hit"]
+    if hit is None:
+        return "unexplained", "no hit before the take-off", []
+    sequence = [f"{t}: {','.join(ticks[t])}" for t in range(hit - 3, up + 2) if t in ticks]
+    stream = []
+    for t in range(hit, up + 1):
+        toks = ticks.get(t, [])
+        if t == hit and any(x[0] == "x" for x in toks):
+            last_x = max(i for i, x in enumerate(toks) if x[0] == "x")
+            toks = toks[last_x + 1:]
+        stream += [(t, x) for x in toks]
+    asks = [(t, x) for t, x in stream if x[0] in "fhp"]
+    for t, x in asks:
+        letter, _ph, _c, flags = token(x)
+        if letter == "h":
+            return "neither", f"the check was asked after the hit and the rule held it (tick {t}: {x})", sequence
+        if letter == "p":
+            return "neither", f"the check was asked after the hit and passed to the game's own (tick {t}: {x})", sequence
+        if flags:
+            return "neither", (f"the check was asked after the hit but the rule could not judge the model "
+                               f"(tick {t}: {x}; !u = no living entity carries its FC, !n = no model)"), sequence
+        return "neither", (f"the check was asked after the hit and the rule answered free (tick {t}: {x}): "
+                           "a fault in the rule itself (window or hit table)"), sequence
+    gap = [(t, x) for i, (t, x) in enumerate(stream)
+           if x[0] == "u" and token(x)[1] != 1 and token(x)[2] == 0 and not _asks_after(stream, i)]
+    missing = [t for t in range(hit + 1, up + 1) if not any(x[0] == "u" for x in ticks.get(t, []))]
+    skipped = [(t, x) for i, (t, x) in enumerate(stream)
+               if _gate_should_ask(*token(x)) and not _asks_after(stream, i)]
+    one = bool(gap) and not missing
+    two = bool(missing or skipped)
+    why1 = f"updates at countdown 0 outside phase 1, no check after them: {[f'{t} {x}' for t, x in gap]}"
+    why2 = (f"ticks without an update: {missing}" if missing else "") + (
+        ("; " if missing else "") + f"updates the gate should have asked on, not asked: "
+        f"{[f'{t} {x}' for t, x in skipped]}" if skipped else "")
+    if one and two:
+        return "both", why1 + "; " + why2, sequence
+    if one:
+        return "(1) not asked when the countdown is 0", why1 + "; every tick had its update", sequence
+    if two:
+        return "(2) asked less often than once per tick", why2, sequence
+    if not stream:
+        return "neither", "no trace entry between the hit and the take-off", sequence
+    return "neither", "every update after the hit was in phase 1 or had a countdown, and none was skipped", sequence
+
+
+def trace_census(battle):
+    """[d10-1118] Over every traced entity: ticks with 0 / 1 / 2+ updates between its first and last traced
+    tick, and the gate's asks against its static reading."""
+    per_tick = {0: 0, 1: 0, 2: 0}
+    gate = {"should, asked": 0, "should, not asked": 0, "should not, asked": 0, "should not, not asked": 0}
+    for ent, ticks in battle["trace"].items():
+        if ent.startswith("?"):
+            continue
+        for t in range(min(ticks), max(ticks) + 1):
+            n = sum(1 for x in ticks.get(t, []) if x[0] == "u")
+            per_tick[min(n, 2)] += 1
+        stream = [(t, x) for t in sorted(ticks) for x in ticks[t]]
+        for i, (_t, x) in enumerate(stream):
+            if x[0] != "u":
+                continue
+            key = ("should" if _gate_should_ask(*token(x)) else "should not") + (
+                ", asked" if _asks_after(stream, i) else ", not asked")
+            gate[key] += 1
+    return per_tick, gate
 
 
 def judge(battle):
@@ -117,14 +232,22 @@ def judge(battle):
         if early:
             problems.append(f"flyer {uid} ({size}): {len(early)} take-off(s) earlier than its window "
                             f"{window} ticks after the last hit: {sorted(early)[:8]}")
+        gaps = []
+        for t in hit:
+            if window is not None and t["tick"] - t["last_hit"] < window - slack:
+                verdict, reason, sequence = explain(battle, t)
+                gaps.append({"entity": t["entity"], "tick": t["tick"], "last_hit": t["last_hit"],
+                             "verdict": verdict, "reason": reason, "sequence": sequence})
         rows.append({"uid": uid, "key": battle["units"][uid]["key"], "size": size, "codes": codes,
                      "window": window, "expected": None if window is None else window + ENGINE_TIMER_TICKS,
                      "takeoffs": len(mine), "never_hit": len(mine) - len(hit), "delays": sorted(delays),
-                     "early": len(early)})
+                     "early": len(early), "gaps": gaps})
+    if battle["trace_on"] and battle["t_lines"] == 0:
+        problems.append("the battle was recorded with trace=1 but has no T line (the traced caves wrote nothing)")
     return rows, problems
 
 
-def render(rows, problems):
+def render(rows, problems, census=None):
     out = []
     for r in rows:
         d = r["delays"]
@@ -136,6 +259,17 @@ def render(rows, problems):
             spread = "no take-off after a hit"
         out.append(f"{r['key']} (uid {r['uid']}, {r['size']}, window {r['window']}, expected about {r['expected']}): "
                    f"{r['takeoffs']} take-offs, {r['never_hit']} never hit, {len(d)} judged -- {spread}")
+    for r in rows:
+        for g in r.get("gaps", []):
+            out.append(f"TAKE-OFF GAP flyer {r['uid']} entity {g['entity']}: hit at tick {g['last_hit']}, airborne "
+                       f"at {g['tick']} (window {r['window']}) -- {g['verdict']}: {g['reason']}")
+            out += ["    " + line for line in g["sequence"]]
+    if census is not None:
+        per_tick, gate = census
+        out.append(f"TRACE updates per entity-tick: none {per_tick[0]}, one {per_tick[1]}, more {per_tick[2]}; "
+                   "gate asked when it should " + f"{gate['should, asked']}/"
+                   f"{gate['should, asked'] + gate['should, not asked']}, asked when it should not "
+                   f"{gate['should not, asked']}/{gate['should not, asked'] + gate['should not, not asked']}")
     out.append("PROBLEMS: " + ("none" if not problems else ""))
     out += ["  " + p for p in problems]
     return "\n".join(out)
@@ -149,8 +283,11 @@ def main(argv=None):
         print(__doc__)
         return 2
     text = Path(paths[0]).read_text(encoding="utf-8", errors="replace")
-    rows, problems = judge(parse(text))
-    print(json.dumps({"rows": rows, "problems": problems}, indent=1) if as_json else render(rows, problems))
+    battle = parse(text)
+    rows, problems = judge(battle)
+    census = trace_census(battle) if battle is not None and battle["trace"] else None
+    print(json.dumps({"rows": rows, "problems": problems, "trace": census}, indent=1) if as_json
+          else render(rows, problems, census))
     return 1 if problems else 0
 
 

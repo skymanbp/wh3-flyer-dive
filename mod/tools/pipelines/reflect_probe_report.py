@@ -21,6 +21,14 @@ reflection check 0x14325bbec, by reflector unit, with the reflector's +0x318 -- 
 16 / 17 is "Interr") and its distance against the radius). A probe file older than these caves
 has none of these lines; the report says "not logged" then, never "not reached".
 
+[d10-1118, D4] Each damage call is printed with the CLASS of its call site (reflect_probe_asm.APPLIER_CALLS:
+hit processor, splash, matched combat, charge collision, impact, ranged, the impact reflection, or unidentified).
+And the charge-reflect multiplier of 9.0 (the damage calculator 0x142e5fcb0, rf_cgate / rf_cmul):
+CHARGE REFLECT GATE n / MULTIPLIER n by caller, and for each multiplier the first damage call after it on the
+same thread (by the shared clock): its class, victim unit and damage -- the hit the multiplier fed, if the
+pairing holds. CANDIDATES says which logged interface field equals that victim (the field that names the
+entity, read by one run). A file without C lines says "not logged", never "not applied".
+
 usage: python -P tools/pipelines/reflect_probe_report.py [reflect_probe.txt]
 """
 import os as _os, sys as _sys
@@ -53,7 +61,7 @@ def parse(text):
         p = line.split()
         if not p:
             continue
-        if p[0] in ("B", "A", "BS", "AS"):
+        if p[0] in ("B", "A", "BS", "AS", "C", "CS"):
             other.append(line)          # read by brace_summary()
             continue
         if p[0] == "BATTLE":
@@ -65,9 +73,10 @@ def parse(text):
             refl.append({"ms": int(p[1]), "tick": int(p[2]), "charger_unit": p[8].upper(), "reflector_unit": p[7].upper(),
                          "ret": p[5], "speed": f32(p[6]), "charger_flyer": p[9] == "1",
                          "brace": f32(p[10]), "immovable": int(p[11])})
-        elif p[0] == "D" and len(p) == 10:
+        elif p[0] == "D" and len(p) in (10, 12):
             dmg.append({"ms": int(p[1]), "tick": int(p[2]), "ret": p[3].upper(), "unit": p[5].upper(), "damage": int(p[6]),
-                        "type": int(p[7]), "flyer": p[8] == "1"})
+                        "type": int(p[7]), "flyer": p[8] == "1", "victim": p[4].upper(),
+                        "thread": int(p[10]) if len(p) == 12 else None, "clock": int(p[11]) if len(p) == 12 else None})
         elif p[0] == "U":
             row = {"ms": int(p[1])}
             for cell in p[2:]:
@@ -143,6 +152,60 @@ def brace_summary(other, units):
     return out
 
 
+def call_class(ret_hex):
+    """[d10-1118] The class of an applier call site from its return address (hex, 16 digits)."""
+    return reflect_probe_asm.APPLIER_CALLS.get(int(ret_hex, 16), "unknown call site")
+
+
+def charge_reflect_summary(other, dmg, units):
+    """[d10-1118] The C / CS lines of the last battle: the damage calculator's charge-reflect test and
+    multiplier, and the damage call each multiplier fed (same thread, next clock)."""
+    c = [ln.split() for ln in other if ln.startswith("C ")]
+    cs = [ln.split() for ln in other if ln.startswith("CS ")]
+    if not c and not cs and not any(" cr=" in ln for ln in other if ln.startswith("S ")):
+        return ["CHARGE REFLECT not logged (probe file older than rf_cgate / rf_cmul)"]
+    name = lambda u8: units.get(u8.upper(), {}).get("key", u8)
+    calls = {}
+    for q in cs:
+        k = (int(q[2]), int(q[3], 16), int(q[4], 16))
+        calls[k] = calls.get(k, 0) + int(q[5].split("=")[1])
+    gate = sum(n for (w, _r1, _r2), n in calls.items() if w == 1)
+    mult = sum(n for (w, _r1, _r2), n in calls.items() if w == 2)
+    out = [f"CHARGE REFLECT GATE {gate} calls (both of the calculator's tests passed), MULTIPLIER "
+           f"{'APPLIED' if mult else 'NOT APPLIED'} {mult} calls"]
+    for (w, r1, r2), n in sorted(calls.items(), key=lambda kv: -kv[1]):
+        via = reflect_probe_asm.CALC_CALLERS.get(r1, f"{r1:#x}")
+        up = f" <- {reflect_probe_asm.CALC_CALLERS_2.get(r2, f'{r2:#x}')}" if r2 else ""
+        out.append(f"  {'gate' if w == 1 else 'multiplier'} via {via}{up}: {n}")
+    by_thread = {}
+    for d in dmg:
+        if d["thread"] is not None:
+            by_thread.setdefault(d["thread"], []).append(d)
+    fed, cand_hits = {}, {i: 0 for i in range(4)}
+    mults = [q for q in c if q[2] == "2"]
+    for q in mults:
+        thread, clock = int(q[11]), int(q[12])
+        nxt = min((d for d in by_thread.get(thread, []) if d["clock"] > clock), key=lambda d: d["clock"], default=None)
+        if nxt is None:
+            fed[("no damage call after it on its thread", "", "")] = fed.get(("no damage call after it on its thread", "", ""), 0) + 1
+            continue
+        k = (call_class(nxt["ret"]), name(nxt["unit"]), TYPES.get(nxt["type"], str(nxt["type"])))
+        fed[k] = fed.get(k, 0) + 1
+        for i in range(4):
+            if q[13 + i].upper() == nxt["victim"]:
+                cand_hits[i] += 1
+    for (cls, unit, typ), n in sorted(fed.items(), key=lambda kv: -kv[1])[:12]:
+        out.append(f"  multiplier fed: {cls} on {unit} ({typ}): {n}")
+    if mults:
+        names = ("[target+8]", "[target+0x10]", "[source+8]", "[source+0x10]")
+        out.append("CANDIDATES equal to the fed call's victim: " + ", ".join(
+            f"{names[i]} {cand_hits[i]}/{len(mults)}" for i in range(4)))
+        f = [(f32(q[7]), f32(q[8]), f32(q[9])) for q in mults]
+        out.append(f"  multiplier values: charge factor median {statistics.median(x[0] for x in f):.2f} "
+                   f"(threshold {f[0][1]:.2f}), multiplier {sorted({round(x[2], 3) for x in f})}")
+    return out
+
+
 def main(argv):
     path = Path(argv[0]) if argv else GAME_ROOT / "reflect_probe.txt"
     on, units, refl, dmg, hp, other = parse(path.read_text("utf-8", errors="replace"))
@@ -171,7 +234,7 @@ def main(argv):
             by.setdefault(k, []).append(d["damage"])
         for (t, ret), vals in sorted(by.items(), key=lambda kv: -sum(kv[1])):
             tag = "  <- the reflection's damage call" if ret == REFLECT_RET else ""
-            print(f"  damage {t:16s} site {ret}: {len(vals)} calls, {sum(vals)} total{tag}")
+            print(f"  damage {t:16s} site {ret} [{call_class(ret)}]: {len(vals)} calls, {sum(vals)} total{tag}")
         if reflect_hits:
             print(f"  reflection hits: {reflect_hits} (the game's own; the ruled flyer hit is x{factor}: "
                   f"{[h * factor for h in reflect_hits]})")
@@ -187,6 +250,8 @@ def main(argv):
           f"damage calls {len(dmg)}, reflection damage calls "
           f"{sum(1 for d in dmg if d['ret'] == REFLECT_RET)}")
     for line in brace_summary(other, units):
+        print(line)
+    for line in charge_reflect_summary(other, dmg, units):
         print(line)
     print("CONTROL", "SEEN" if control else "NOT SEEN", f"({control} ground units took reflection damage)")
     print("FLYER", "SEEN" if flyer else "NOT SEEN", f"({flyer} flying units took reflection damage)")

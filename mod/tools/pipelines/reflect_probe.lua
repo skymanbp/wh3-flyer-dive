@@ -14,8 +14,14 @@
 --   UNIT <uid> <alliance> <key> obj=<id8> men=<n> flyer=<0|1>
 --   R <ms> <tick> <reflector8> <charger8> <ret> <speed> <reflector unit8> <charger unit8>
 --     <charger flyer> <reflector +0xbc> <reflector +0x6c>          every impact reflection
---   D <ms> <tick> <ret> <victim8> <victim unit8> <damage> <type> <flyer> <flyer entity8>
+--   D <ms> <tick> <ret> <victim8> <victim unit8> <damage> <type> <flyer> <flyer entity8> <thread> <clock>
 --                                                               every damage-applier call
+--   C <ms> <which> <target if8> <source if8> <ret1> <ret2> <xmm0> <xmm6> <xmm7> <xmm8> <thread> <clock>
+--     <[target+8]8> <[target+0x10]8> <[source+8]8> <[source+0x10]8>
+--                                     [d10-1118] the damage calculator 0x142e5fcb0 passed its charge-reflect
+--                                     test (which 1, rf_cgate) / applied the multiplier (2, rf_cmul); the
+--                                     first C_LINES of them (floats as big-endian hex)
+--   CS <ms> <which> <ret1> <ret2> n=<calls>    every 2 s, every C call since the last summary
 --   B <ms> <tick> <reflector8> <reflector unit8> <reflector +0x318 hex8> <flag> <enemies> <x> <z> <radius>
 --     <enemy8> <enemy unit8> <enemy +0x324> <x> <z>  (twice)   a call of the reflection check,
 --                                     the first B_LINES of them (floats as big-endian hex)
@@ -26,6 +32,7 @@
 --                                     every 2 s: every call since the last summary, by those fields
 --   U <ms> <uid>:<unary hp>:<men alive>:<in melee> ...          every 100 ms, every unit
 --   S <ms> refl=<n> dmg=<n> brace=<n> act=<n> lost_refl=<n> lost_dmg=<n> lost_brace=<n> lost_act=<n>
+--     cr=<n> lost_cr=<n>
 --                                                                every 2 s
 --   END
 -- id8 = the low 8 hex digits of a pointer (the units' obj ids match a D / R line's unit8).
@@ -35,6 +42,7 @@ local LOG_FILE = "reflect_probe.txt"
 local CALLBACK = "reflect_probe_tick"
 local SAMPLE_MS, SUMMARY_MS = 100, 2000
 local B_LINES, A_LINES = 3000, 1000           -- d3-1118: raw lines kept; the summaries count all
+local C_LINES = 5000                          -- d10-1118
 
 local lines = {}
 local function emit(s) lines[#lines + 1] = s end
@@ -124,6 +132,7 @@ end
 local seen_r, seen_d, lost_r, lost_d, last_s = 0, 0, 0, 0, -SUMMARY_MS
 local seen_b, seen_a, lost_b, lost_a, lines_b, lines_a = 0, 0, 0, 0, 0, 0
 local agg_b, agg_a = {}, {}
+local seen_c, lost_c, lines_c, agg_c = 0, 0, 0, {}
 
 -- entries of one ring not read yet; `size` / `seq_at` default to the 64-byte rings (seq at +60)
 local function drain(count_at, ring_at, slots, seen, lost, line, size, seq_at)
@@ -154,8 +163,8 @@ local function tick()
             u32(e, 48), f32hex(sub(e, 53, 56)), u32(e, 56))
     end)
     seen_d, lost_d, nd = drain(l.dmg_count_at, l.dmg_ring_at, l.dmg_slots, seen_d, lost_d, function(e)
-        return fmt("D %d %d %s %s %s %d %d %d %s", ms, u32(e, 32), hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)),
-            low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36), low8(sub(e, 41, 48)))
+        return fmt("D %d %d %s %s %s %d %d %d %s %d %d", ms, u32(e, 32), hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)),
+            low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36), low8(sub(e, 41, 48)), u32(e, 48), u32(e, 52))
     end)
     local nb, na
     seen_b, lost_b, nb = drain(l.brace_count_at, l.brace_ring_at, l.brace_slots, seen_b, lost_b, function(e)
@@ -176,6 +185,18 @@ local function tick()
         return fmt("A %d %d %d %s %s %s %s %d %d", ms, u32(e, 28), u32(e, 24), low8(sub(e, 1, 8)),
             low8(sub(e, 9, 16)), hexle(sub(e, 17, 20)), hexle(sub(e, 21, 24)), u32(e, 32), u32(e, 36))
     end)
+    local nc = 0
+    if l.cr_ring_at then
+        seen_c, lost_c, nc = drain(l.cr_count_at, l.cr_ring_at, l.cr_slots, seen_c, lost_c, function(e)
+            bump(agg_c, fmt("%d %s %s", u32(e, 32), hexle(sub(e, 17, 24)), hexle(sub(e, 25, 32))))
+            if lines_c >= C_LINES then return nil end
+            lines_c = lines_c + 1
+            return fmt("C %d %d %s %s %s %s %s %s %s %s %d %d %s %s %s %s", ms, u32(e, 32), low8(sub(e, 1, 8)),
+                low8(sub(e, 9, 16)), hexle(sub(e, 17, 24)), hexle(sub(e, 25, 32)), f32hex(sub(e, 37, 40)),
+                f32hex(sub(e, 41, 44)), f32hex(sub(e, 45, 48)), f32hex(sub(e, 57, 60)), u32(e, 48), u32(e, 52),
+                low8(sub(e, 65, 72)), low8(sub(e, 73, 80)), low8(sub(e, 81, 88)), low8(sub(e, 89, 96)))
+        end, l.cr_entry, 124)
+    end
     local cells = {}
     for _, u in ipairs(units) do
         local hp, men, melee = -1, -1, false
@@ -189,9 +210,10 @@ local function tick()
         last_s = ms
         for key, n in pairs(agg_b) do emit(fmt("BS %d %s n=%d", ms, key, n)) end
         for key, n in pairs(agg_a) do emit(fmt("AS %d %s n=%d", ms, key, n)) end
-        agg_b, agg_a = {}, {}
-        emit(fmt("S %d refl=%d dmg=%d brace=%d act=%d lost_refl=%d lost_dmg=%d lost_brace=%d lost_act=%d",
-            ms, nr, nd, nb, na, lost_r, lost_d, lost_b, lost_a))
+        for key, n in pairs(agg_c) do emit(fmt("CS %d %s n=%d", ms, key, n)) end
+        agg_b, agg_a, agg_c = {}, {}, {}
+        emit(fmt("S %d refl=%d dmg=%d brace=%d act=%d lost_refl=%d lost_dmg=%d lost_brace=%d lost_act=%d cr=%d lost_cr=%d",
+            ms, nr, nd, nb, na, lost_r, lost_d, lost_b, lost_a, nc, lost_c))
     end
     flush()
 end

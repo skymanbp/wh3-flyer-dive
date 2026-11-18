@@ -3,7 +3,7 @@
 全面战争：战锤 3 的独立模组。创意工坊 3840651516，GitHub `skymanbp/wh3-flyer-dive`（公开仓库）。
 
 - 只有一个包 `flyer_dive_takeoff.pack`（2026-11-18 以前叫 `ld_air_dive.pack`，D9）：物理俯冲、近战起飞、每种飞兽各自的冲锋速度、冲撞攻击、接战时可用吹息、大型飞兽质量下调。
-- 接战时能不能用吹息是 MCT（模组设置工具）里的开关，默认开；质量下调不设开关（D10，2026-11-18）。平衡子模组 `flyer_dive_balance.pack` 已撤回：`rename-1118` 分支的代码目前还会建出它，并回主包之前以 `docs/STATUS.md` 为准。
+- 接战时能不能用吹息是 MCT（模组设置工具，可选）里的开关，默认开；质量下调不设开关（D10，2026-11-18）。平衡子模组 `flyer_dive_balance.pack` 已撤回，分支 `rename-1118` 上已并回主包。
 - 前置：memreader Plus（创意工坊 3811098873）。没装时两条引擎规则不生效，游戏按原版运行。
 
 ## 这个仓库是独立的
@@ -49,13 +49,12 @@
 
 ```
 cd mod
-python -P tools/pipelines/build_air_dive_minimod.py --out <目录>/flyer_dive_takeoff.pack --balance-out <目录>/flyer_dive_balance.pack
+python -P tools/pipelines/build_air_dive_minimod.py --out <目录>/flyer_dive_takeoff.pack
 python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 ```
 
-- `main` 的代码是已发布的那一版：那里的建包命令没有 `--balance-out`，测试还要靠主模组的仓库。
-  子模组、断开后的测试与数据快照都在下一版的分支上，位置见 `docs/STATUS.md`。
-- D10 落地前分支上仍建两个包，它们必须出自同一次建包（包里带同一个版本戳，对不上时战斗日志会写出来）；D10 落地后只建一个包，上面命令里的 `--balance-out` 与这一条一起删。
+- `main` 的代码是已发布的那一版，测试还要靠主模组的仓库。断开后的测试、数据快照与 MCT 开关都在下一版的分支上，
+  位置见 `docs/STATUS.md`。
 - 建包每次都读安装好的游戏；游戏更新后重建，代码洞的位点要重新核对（特征码必须恰好命中一次、原字节相符，
   否则拒绝建包，不许猜）。
 - 实机自动测试：`mod/tools/pipelines/air_dive_autotest.py`。**启动游戏前先查进程表**：主人在玩任何游戏
@@ -77,7 +76,7 @@ python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 - 改数值先量原版自己（同一把尺子），强度按整体判断，不只比某一项。
 - 任何名字都不带 `ld`、不带 "lore disaster"（D9，2026-11-18 起包名、脚本路径、动作表、片段名、键都已改；
   旧 → 新见 `docs/HISTORY.md` RENAME-1118）。主模组的键（适配包输入）照原样留着，它们是别人的名字。
-  `python -P tools/rename_1118.py check --pack <主包> --pack <子模组>` 查树与包里有没有旧名字。
+  `python -P tools/rename_1118.py check --pack <主包>` 查树与包里有没有旧名字。
 - 包名 `flyer_dive_takeoff.pack` 不再改（D10：子模组撤回后，「必须排在子模组之后」这条理由已不成立；名字留着是因为分支、实机记录和改名表都已用它）。
 
 ## 给玩家看的文字

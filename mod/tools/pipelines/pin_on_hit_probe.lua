@@ -14,8 +14,11 @@
 --                    check still answers (the vanilla arm, with the record)
 --   sample <ms>      default 200; the sampling period (100 = one battle tick)
 --   entities <0|1>   default 0; 1 = also write the E lines
+--   trace <0|1>      default 0; 1 = also write the T lines [d10-1118]. Needs the traced caves
+--                    (a pack built with build_pin_on_hit_probe.py --trace-from); with the shipped
+--                    caves it writes a FAIL line and records without the trace.
 -- WRITES pin_probe.txt next to Warhammer3.exe:
---   BATTLE <stamp> window=<n> mode=<m> table=<entries> sample=<ms> entities=<0|1>
+--   BATTLE <stamp> window=<n> mode=<m> table=<entries> sample=<ms> entities=<0|1>[ trace=1]
 --   UNIT <uid> <alliance> <key> obj=<id> flyer=<0|1>
 --   L <ms> <uid> <n> <id> ...     a flyer's living flight entities (unit +0x184
 --                                 / +0x188), at the start and when they change
@@ -44,8 +47,28 @@
 --                                 flight entity's body size code (entity +0x74:
 --                                 1 small .. 4 very large, the field the hold
 --                                 cave reads; pin_cave_asm.py SIZE_OFF)
+--   T <tick> <uid> <id>:<token>,<token>,... ...
+--                                 [d10-1118] with "trace 1": what the take-off
+--                                 caves saw of each flight entity in one battle
+--                                 tick, in the order it happened (tools/pipelines/
+--                                 takeoff_trace_asm.py). Tokens <kind><phase>.<count>
+--                                 with phase = FC +0x90 and count = FC +0x44 at
+--                                 that moment:
+--                                   u  the flight update 0x143053bd4 ran (state
+--                                      before its state machine); suffix s = FC +8
+--                                      ("stay down") set, g = FC +0x64 set
+--                                   f / h  the take-off check was asked and the
+--                                      rule answered free / held; suffix !u = no
+--                                      living entity carries this FC, !n = no
+--                                      model / unit / tick to judge by
+--                                   p  the check was asked and passed to the game's
+--                                      own check (mode 2)
+--                                   x  a melee hit was recorded on this entity
+--                                 id = the entity's id as in E lines ("?" + the FC's
+--                                 id when no living flight entity carries it; uid "?"
+--                                 then); a tick that cannot be read is -1
 --   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> unsized=<n> unmatched=<n>
---     used=<entries> stray=<n>
+--     used=<entries> stray=<n>[ trace=<entries> trace_lost=<n>]
 --                                 every 2 s; stray = entries that never were
 --                                 in a flyer's list
 --   END | FAIL <why>
@@ -83,7 +106,7 @@ local function id_of(p)
 end
 
 local function read_cfg(defaults)
-    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0 }
+    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0 }
     local f = io.open(CFG_FILE, "r")
     if not f then return cfg end
     for line in f:lines() do
@@ -110,6 +133,74 @@ local flyers = {}                 -- {uid, unit, obj, list = "id id ..", n, aliv
 local ever, seen = {}, {}         -- ids that were in a flyer's list; id -> "tick:hits" last written
 local last_summary = -SUMMARY_MS
 local with_entities = false       -- cfg "entities 1": the E lines
+local trace = nil                 -- cfg "trace 1" with traced caves: {seen, lost}
+
+local function u32le(s, at)       -- 4 bytes at 1-based `at`; exact below 2^24 (game Lua numbers are float32)
+    local a, b, c, d = s:byte(at, at + 3)
+    return a + b * 256 + c * 65536 + d * 16777216
+end
+local function all_ff(s, at) return s:byte(at) == 255 and s:byte(at + 1) == 255 and s:byte(at + 2) == 255
+    and s:byte(at + 3) == 255 end
+local function low8(s, at)        -- the low 8 hex digits of the u64 at `at`
+    local a, b, c, d = s:byte(at, at + 3)
+    return fmt("%02X%02X%02X%02X", d, c, b, a)
+end
+local TRACE_LETTER = { "u", "f", "h", "p", "x" }
+
+-- [d10-1118] the trace entries written since the last sample, as T lines grouped by tick and unit
+local function drain_trace(owner_of_fc, owner_of_entity)
+    local count = u32le(mr.read(buffer, layout.trace_count_at, 4), 1)
+    if count - trace.seen > layout.trace_slots then
+        trace.lost = trace.lost + (count - trace.seen - layout.trace_slots)
+        trace.seen = count - layout.trace_slots
+    end
+    local ticks, order = {}, {}
+    while trace.seen < count do
+        local slot = trace.seen % layout.trace_slots
+        local n = math.min(count - trace.seen, layout.trace_slots - slot, 128)
+        local chunk = mr.read(buffer, layout.trace_ring_at + slot * layout.trace_entry, n * layout.trace_entry)
+        local stop = false
+        for i = 0, n - 1 do
+            local at = i * layout.trace_entry + 1
+            if u32le(chunk, at + 28) ~= trace.seen + 1 then stop = true; break end   -- not written yet
+            local kind = u32le(chunk, at + 20)
+            local key = low8(chunk, at)
+            local owner = (kind == 5 and owner_of_entity or owner_of_fc)[key]
+            local id, uid = owner and owner[1] or ("?" .. key), owner and owner[2] or "?"
+            local tick = all_ff(chunk, at + 8) and -1 or u32le(chunk, at + 8)
+            local tok = fmt("%s%d.%d", TRACE_LETTER[kind] or ("k" .. kind), u32le(chunk, at + 16), u32le(chunk, at + 12))
+            if kind == 1 then
+                local extra = u32le(chunk, at + 24)
+                if extra >= 256 then tok = tok .. "s" end
+                if extra % 256 ~= 0 then tok = tok .. "g" end
+            elseif kind == 2 or kind == 3 then
+                if all_ff(chunk, at + 24) then tok = tok .. "!n"
+                elseif chunk:byte(at + 24) == 254 and chunk:byte(at + 25) == 255 and chunk:byte(at + 26) == 255
+                    and chunk:byte(at + 27) == 255 then tok = tok .. "!u" end
+            end
+            local per_tick = ticks[tick]
+            if not per_tick then per_tick = {}; ticks[tick] = per_tick; order[#order + 1] = tick end
+            local per_unit = per_tick[uid]
+            if not per_unit then per_unit = { ids = {}, toks = {} }; per_tick[uid] = per_unit end
+            if not per_unit.toks[id] then per_unit.ids[#per_unit.ids + 1] = id; per_unit.toks[id] = {} end
+            local list = per_unit.toks[id]
+            list[#list + 1] = tok
+            trace.seen = trace.seen + 1
+        end
+        if stop then break end
+    end
+    table.sort(order)
+    for _, tick in ipairs(order) do
+        local uids = {}
+        for uid in pairs(ticks[tick]) do uids[#uids + 1] = uid end
+        table.sort(uids)
+        for _, uid in ipairs(uids) do
+            local per_unit, cells = ticks[tick][uid], {}
+            for _, id in ipairs(per_unit.ids) do cells[#cells + 1] = id .. ":" .. table.concat(per_unit.toks[id], ",") end
+            emit(fmt("T %d %s %s", tick, uid, table.concat(cells, " ")))
+        end
+    end
+end
 
 -- {id = {tick, hits}} of every table entry, read in 4096-byte pieces
 local function read_table()
@@ -204,6 +295,18 @@ local function sample()
             end
         end
     end
+    if trace then
+        local by_fc, by_entity = {}, {}
+        for _, f in ipairs(flyers) do
+            for i, e in ipairs(f.ents) do
+                local owner = { f.ids[i], tostring(f.uid) }
+                by_entity[f.ids[i]] = owner
+                local fc = mr.read_pointer(e, E_FC)
+                if not mr.is_null(fc) then by_fc[id_of(fc)] = owner end
+            end
+        end
+        drain_trace(by_fc, by_entity)
+    end
     local map, used = read_table()
     local changed, stray = {}, 0
     for id, e in pairs(map) do
@@ -237,7 +340,8 @@ local function sample()
         last_summary = ms
         local c = takeoff.counters(buffer)
         emit(fmt("S %d %d stamps=%d dropped=%d held=%d free=%d unsized=%d unmatched=%d used=%d stray=%d",
-            ms, now, c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched, used, stray))
+            ms, now, c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched, used, stray)
+            .. (trace and fmt(" trace=%d trace_lost=%d", trace.seen, trace.lost) or ""))
     end
     flush()
 end
@@ -271,7 +375,24 @@ local function start()
     takeoff.arm(buffer, windows, cfg.mode)
     with_entities = cfg.entities == 1
     emit(fmt("BATTLE %s window=%d mode=%d table=%d sample=%d entities=%d", stamp, cfg.window, cfg.mode,
-        layout.table_slots, cfg.sample, cfg.entities))
+        layout.table_slots, cfg.sample, cfg.entities) .. (cfg.trace == 1 and " trace=1" or ""))
+    if cfg.trace == 1 then
+        if not layout.trace_ring_at then
+            emit("FAIL trace 1 asked, but the take-off caves in the game carry no trace "
+                .. "(deploy the pack built with build_pin_on_hit_probe.py --trace-from)")
+        else
+            -- off; ring and counter to 0, so an entry of an earlier battle in this session can never pass
+            -- the seq test of a slot claimed but not yet written; then on
+            mr.write(buffer, layout.trace_on_at, mr.uint32(0))
+            local zeros, span = string.rep("\0", 4096), layout.trace_slots * layout.trace_entry
+            for off = 0, span - 1, 4096 do
+                mr.write(buffer, layout.trace_ring_at + off, sub(zeros, 1, math.min(4096, span - off)))
+            end
+            mr.write(buffer, layout.trace_count_at, mr.uint32(0))
+            mr.write(buffer, layout.trace_on_at, mr.uint32(1))
+            trace = { seen = 0, lost = 0 }
+        end
+    end
     each_unit(function(alliance, unit)
         local obj = mr.read_pointer(mr.ud_topointer(unit), 8)
         local flyer = not mr.is_null(mr.read_pointer(obj, U_CTL))

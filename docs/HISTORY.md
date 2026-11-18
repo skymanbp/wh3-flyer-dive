@@ -1803,3 +1803,88 @@ series 2 欠下的两局，加上为补数据多跑的两局。都用 `rename-11
 - **D13**：分支 `rename-1118` 在提交 `0a3b2c4` 推到了 GitHub（`* [new branch] rename-1118 -> rename-1118`）；`main` 没动，仍是已发布的那一版。
 
 改的文件：`docs/DECISIONS.md`（加 D10–D13）、`docs/STATUS.md`（发版前四件事、各行状态、推送状态）、`CLAUDE.md`（一个包、MCT 开关、包名那一条的理由）。
+
+## D10-1118 2026-11-18：改回一个包，接战吹息做成设置开关（离线）
+
+主人裁定 D10：平衡子模组撤回，吹息与质量改动放回同一个包，接战时能不能用吹息用 MCT（模组设置工具）调。本节只做到离线，**没有进过游戏**。
+
+### 一、改回一个包
+
+- 建包脚本只写 `flyer_dive_takeoff.pack`：质量下调回到 `tuned_cells`，吹息表（原版 `special_ability_to_invalid_usage_flags` 去掉若干行）回到主包；
+  `--balance-out`、子模组的两个配对脚本（`balance_check.lua`、`main_stamp.lua`）、子模组的工坊文字都删了。
+- 主管自己重建并读**建好的包**核对（`D:/Projects/.worktrees/wh3-flyer-dive/d10-1118_scratch/supervisor/probe_onepack_sup.py`，21 项全过）：
+  - 包 14,064,594 字节，sha256 `95407721…`，172 个条目；与车道建的那一份逐字节相同（两次建包同一个 sha256）。
+  - 对两包版主包（D3-1118 `build3/`）：165 个条目逐字节相同，少 2 个（两个配对脚本），多 5 个（吹息表、三个开关脚本、一个生成的数据模块），改 2 个（飞兽实体表、战斗入口脚本）。
+  - 飞兽实体表 137 行，与两包版主包逐列比只差 `mass` 一列；93 行的质量被下调，每一格都等于安装游戏里的值 × 0.85（大型）或 × 0.75（超大型），两头天界狮按大型算；
+    星龙 5900 → 4425，蝎尾狮那个实体 2000 → 1700；表里的 9 个飞行器械质量没动。
+  - 吹息表 39,490 字节，与两包版子模组里那一份逐字节相同；671 行，比安装游戏的 703 行少 32 行、一行没多：`engaged_in_melee` 20 行、`grounded` 12 行，涉及 20 个吹息技能。
+  - 包里没有任何路径或内容提到撤回的子模组（拿两包版主包做对照，同一条搜索能搜到）。
+  - 反向验证：把两包版主包当成新包喂给探针，11 项转红。
+- 脚本路径在包里是正斜杠，与已发布那一版的脚本一样（新包 13 个、两包版 11 个，反斜杠都是 0）。
+
+### 二、开关怎么做
+
+- 表在游戏运行中改不了，所以**开 ＝ 表照旧放开**，这就是已发布版本的行为，不需要脚本、不需要 MCT、也不需要 memreader Plus。
+- **关**：战斗脚本 `script/battle/mod/flyer_breath.lua` 每 100 毫秒（`bm:repeat_callback`，跟着战斗模型走的定时器）对每支部队拥有的这 20 个技能逐个处理：
+  陷入近战（`unit:is_in_melee()`）就禁用；其中 12 个原版另有 `grounded` 限制的，没在飞（`not unit:is_currently_flying()`）时也禁用；两条都不成立就恢复。
+  只在状态变化时才调 `unit:disable_special_ability`。判定与计数在纯模块 `script/campaign/flyer_dive/lib/breath_switch.lua`，技能名单是建包时从被去掉的那些行生成的
+  （`data/breath_rows.lua`），所以名单与表不会各说各话。
+- 设置页 `script/mct/settings/flyer_dive_takeoff.lua`：一个勾选项，默认开。MCT 是可选的：没装就用默认值。
+  设置在 `MctInitialized` 或 `ScriptEventAllModsLoaded` 两个事件里先到的那个读。页面文字按客户端语言选英文或简体中文（看游戏自己对「吹息」这个技能类别的叫法），一条文字只有一种语言。
+- **联机战斗不看这个设置，一律为开**（主管定，记在 D10）：两边玩家的设置可能不一样，脚本禁用技能在联机战斗里也没见过；要改得做双人实测。
+- 写一个记录文件 `flyer_breath.txt`（游戏目录）：`BREATH on (…)` 或 `BREATH off (…): N abilities locked by hand every 100 ms`，之后是计数行。
+- 没走的路：用代码洞改引擎自己的那道检查。那样一个小设置就得依赖 memreader Plus，还要改联机协商标记，不值。
+
+### 三、测试
+
+- 整套测试主管重跑：`python -m pytest mod/tools/tests -q` → `157 passed, 1771 subtests passed`（两条车道的改动合在一起）。
+- 开关的反向验证（`D:/Projects/.worktrees/wh3-flyer-dive/d10-1118_scratch/supervisor/reverse_switch.py`）：把「联机一律为开」改成听设置、把「没装 MCT 用默认」反过来，各跑一次开关测试，两次都转红（各 2 条失败），还原后文件 sha256 不变、测试回绿。
+- **没验的**（都要进游戏）：`disable_special_ability` 是否真按文档工作；`is_in_melee` / `is_currently_flying` 与原版那两条限制是否同一回事；真 MCT 的读取顺序。见 `docs/STATUS.md`「下一轮实机」第 1 项。
+
+## PROBES-1118 2026-11-18：起飞空当与冲锋反制的两套探针（离线）
+
+主人裁定 D11：起飞那一两个时刻的空当「查清再发」，撞长矛受伤（D4）「做完一起传」。本节把两局实机要用的探针备好，**没有进过游戏**。车道的完整报告在
+`D:/Projects/.worktrees/wh3-flyer-dive/d10-1118_scratch/probes_gap_d4/report.md`。
+
+### 一、起飞空当
+
+- 读引擎代码（Warhammer3.exe 9.0.5）：每个时刻对每个活着的飞行实体先可能发起飞请求（阶段 1 → 2），再一定跑一次飞行更新；更新里先跑状态机，阶段 2 且倒计时为 0 就把兵模抬起来，
+  **之后**才是问起飞判定的那道门，而那道门只在「倒计时大于 0」或「阶段是 1」时才问。所以倒计时早已到 0 的兵模刚挨第一下、紧接着被下令时，引擎不再问，规则没机会按住它。
+  series 3 的数据（第 204 个时刻挨打、205 下令、206 离地）与此相符。只凭读代码定不了的是同一个时刻里「挨打」与「更新」谁先谁后，所以那一局还得跑。
+- 新的测试专用代码洞 `takeoff_trace_asm.py`：在发布的两个洞上各加一条记录，另加一个洞挂在飞行更新入口；记录进发布缓冲区之后的一个环形区，标记 `FLYPINT4`。
+  记录器多一种 `T` 行（每个时刻每个兵模：更新跑没跑、判定问没问、答的什么、有没有挨打），`pin_probe.cfg` 里写 `trace 1` 打开；
+  `pin_probe_report.py` 对每个提前离地的兵模给出「(1) 倒计时为 0 时没被问」「(2) 问得比每时刻一次稀」「两者都有」「都不是：原因」之一，另印一行 `TRACE` 普查。
+- 主管重跑：模拟器 `takeoff_trace_asm.py` → `1332 checks, PASS`，13 个故意改坏的洞都被抓到，位点表是当前的；两个测试包都从**一个包**的新代码建出来了
+  （基包 14,073,631 字节，sha256 `a57b0b34…`，测试包 `flyer_dive_trace.pack` 14,095,649 字节，sha256 `528a5d05…`）——车道自己只用旧的两包版基包试过。
+- 命令（在 `mod/` 下）：
+
+      python -P tools/pipelines/build_air_dive_minimod.py --probe --out <目录>/flyer_dive_takeoff.pack
+      python -P tools/pipelines/build_pin_on_hit_probe.py --trace-from <目录>/flyer_dive_takeoff.pack --out <目录>/flyer_dive_trace.pack
+      python -P tools/pipelines/air_dive_autotest.py --test-pack flyer_dive_trace.pack --memreader --scenario engage --cmd scenario=cycle,fight_ms=90000,cycle_away_ms=16000,cycle_back_ms=16000,retreat_1=52000,retreat_2=52000,retreat_3=52000,retreat_4=52000 --target wh_main_emp_inf_halberdiers --flyers wh2_dlc10_def_mon_feral_manticore_0,wh2_dlc10_def_mon_feral_manticore_0,wh2_main_hef_mon_star_dragon,wh2_main_hef_mon_star_dragon
+      python -P tools/pipelines/pin_probe_report.py "<游戏目录>/pin_probe.txt"
+
+- 若证实是 (1)，改法（没做）：记挨打的那个洞在「飞行实体、倒计时为 0、阶段 1 或 2」时把倒计时抬到至少 1，这样离地前那道门一定会问。风险：挨打是在伤害线程里写的，
+  飞行更新可能同时在跑。改了规则，联机协商标记要换（`FLYPINS4` → `FLYPINS5`）。
+
+### 二、冲锋反制（D4）
+
+- 装好的游戏数据（9.0）：带 `charge_reflection` 的陆军单位 129 个（游戏文字：架好时对冲锋来的敌人造成额外伤害），`charge_defense_vs_large` 139 个，`charge_defense` 60 个。
+  规则值：`charge_reflect_damage_multiplier` 2，`charge_reflect_min_charge_factor_threshold` 0.7，`impact_reflection_final_damage_modifier` 1，
+  `impact_reflection_velocity_bonus_damage_modifier` 3，`bracing_charge_reflector_bonus` 2，`unit_braced_status_threshold` 0.75，`bracing_attack_angle` 80。
+- 引擎里读那两个 `charge_reflect_*` 值的只有伤害计算函数：两道检查过了、冲锋系数不低于 0.7，就把伤害系数乘 2。它的调用者有溅射攻击、冲撞、对位近战，以及撞击反射自己的伤害计算。
+  撞击反射另算一份伤害，按伤害类别 0 扣血（起飞规则把这一类当近战挨打）。
+- 结论（只凭读数据与代码）：原版本来就会伤到冲锋者，两条路——架好的反制兵的普通攻击翻倍，以及撞击反射。此前 17 局「没看到反射」很可能是因为翻倍的那一下在旧探针眼里就是一次普通攻击。
+  D4 多半不用另造伤害来源。拿不准的：两个接口哪个是攻击方、三个函数号各是什么意思，都是读出来的，没有哪一局证实过。
+- 新探针：在「两道检查都过」和「乘上倍数」两处各挂一个洞，记两边接口、返回地址、几个寄存器、线程与一个各洞共用的时钟；扣血的 25 个调用点逐个分了类；标记 `RFPROBE3`。
+  报告多三行：检查过了几次、倍数乘了几次（按调用者分）、倍数之后同一线程的第一次扣血落在谁身上。
+- 主管重跑：`build_probe_pack.py --reflect` 从一个包的新基包建出 `probe_impact.pack`（14,095,432 字节，sha256 `1dfb6b25…`），建包时模拟器通过、28 个故意改坏的洞都被抓到。
+- 命令：
+
+      <带 keystone 的 Python> -P tools/pipelines/build_probe_pack.py --base <目录>/flyer_dive_takeoff.pack --out <目录>/probe_impact.pack --reflect
+      python -P tools/pipelines/air_dive_autotest.py --test-pack probe_impact.pack --memreader --target wh_main_emp_inf_spearmen_1 --flyers wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm --cmd free_targets_ms=0
+      python -P tools/pipelines/reflect_probe_report.py "<游戏目录>/reflect_probe.txt"
+
+### 三、跑完要问主人的一句
+
+D4 写的是「一次反射伤害，取游戏自己的两倍」。如果那一局证实原版的反制就是「架好的兵的普通攻击 × 2」、没有单独的一下，那么「两倍」有三种读法：
+(a) 飞兽冲架好的长矛时，那些攻击按 × 4 算而不是 × 2；(b) 接触那一刻另加一下，等于那个兵翻倍后的一击的两倍；(c) 飞兽也只吃原版的 × 2。实机结果出来后一次问清。

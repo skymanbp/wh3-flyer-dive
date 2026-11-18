@@ -95,16 +95,13 @@ with ``fly_speed > 0``; ``research_1109/air_dive_charge.md`` §1.1):
   chance) about 0-5 m, canary 13 (both) 24.26 / 24.28 m, 6.5-10 m into the
   line (autotest, user-confirmed).
 
-BALANCE SUBMOD (user ruling 2026-11-17: only breath-while-engaged and the
-mass cut move out of the main pack). :func:`tuned_cells` is the main pack's
-rule and no longer touches ``mass``; :func:`balance_cells` is the mass cut,
-shipped only in ``flyer_dive_balance.pack``
-(``pipelines/build_air_dive_minimod.balance_entries``), whose rows are the
-main pack's full rows plus the cut mass. The breath usage-flag table
-(:func:`breath_usage_writer`, below) ships only there as well.
+ONE PACK (owner ruling 2026-11-18, docs/DECISIONS.md D10, withdrawing the
+2026-11-17 balance submod of D1): the mass cut is part of :func:`tuned_cells`
+again and the breath usage-flag table (:func:`breath_usage_writer`, below)
+ships in the same pack, ``flyer_dive_takeoff.pack``.
 
-* ``mass`` [AIR-DIVE-BRACE-W1, user ruling 2026-11-14; balance submod since
-  2026-11-17]: large flyers x0.85,
+* ``mass`` [AIR-DIVE-BRACE-W1, user ruling 2026-11-14; back in the main
+  pack 2026-11-18, D10]: large flyers x0.85,
   very_large x0.75 (``MASS_FACTOR``), the same large-flyer rule as
   :func:`flyer_units` (``fly_speed > 0``, not fauna, by the body row's
   size). Flying war machines and chariots keep their mass
@@ -113,9 +110,8 @@ main pack's full rows plus the cut mass. The breath usage-flag table
   installed 9.0 tables and ld_mod 2026-11-14, flyer-balance_scratch). The
   cut ignores a declared ``mass`` (no flying character spec declares one,
   measured 2026-11-14: 3 of 256 specs do, all on foot). The W16 collision
-  attack is sized on the UNCUT mass (:func:`uncut_mass`: since the split the
-  main pack's rows carry it), so the cut changes the body's mass and nothing
-  else.
+  attack is still sized on the UNCUT mass (:func:`uncut_mass`), so the cut
+  changes the body's mass and nothing else.
   Per-entity exceptions (``MASS_SIZE_OVERRIDE``, each with its ruling): the
   celestial lion takes the large-flyer factor x0.85 although its body is
   very_large (user ruling 2026-11-15: at x0.75 the crowd slowed it below the
@@ -519,11 +515,10 @@ def mass_factor(row):
 
 
 def uncut_mass(row):
-    """[AIR-DIVE-BRACE-W1] The mass the collision attack is sized on: the row's mass before
-    :func:`balance_cells` cut it. Since the balance split (2026-11-17) :func:`tuned_cells` never
-    cuts mass, so a row the main pack ships carries its uncut mass and this is that mass; a row
-    with the cut applied is never fed back here (the balance pack ships no collision attack)."""
-    return float(row["mass"])
+    """[AIR-DIVE-BRACE-W1] The mass a row had before :func:`tuned_cells` cut it -- the collision
+    attack is sized on it, so the cut changes nothing but the body's mass."""
+    f = mass_factor(row)
+    return float(row["mass"]) if f == 1.0 else round(float(row["mass"]) / f, 3)
 
 
 def tuned_cells(row, declared=()):
@@ -558,19 +553,10 @@ def tuned_cells(row, declared=()):
             and int(row["jump_attack_chance"]) != JUMP_ATTACK_CHANCE):
         out["jump_attack_chance"] = JUMP_ATTACK_CHANCE
     out.update(knock_cells(row, declared))   # [AIR-DIVE-W16] stage C and up
-    # [balance split 2026-11-17] no mass here: balance_cells, balance pack only
+    f = mass_factor(row)                     # [AIR-DIVE-BRACE-W1] a declared mass is cut too
+    if f != 1.0:
+        out["mass"] = round(float(row["mass"]) * f, 3)
     return out
-
-
-def balance_cells(row):
-    """[balance split 2026-11-17] ``{"mass": cut mass}`` for one entity row the
-    balance submod changes (:func:`mass_factor` != 1), ``{}`` otherwise. A
-    declared mass is cut too (AIR-DIVE-BRACE-W1). The balance row is the main
-    pack's full row (installed row + :func:`tuned_cells`) plus this cell."""
-    f = mass_factor(row)
-    if f == 1.0:
-        return {}
-    return {"mass": round(float(row["mass"]) * f, 3)}
 
 
 def _tsv_cell(text):
@@ -876,9 +862,9 @@ USAGE_FLAGS_FRAGMENT = "data__"   # the vanilla path: a junction row cannot be d
 def breath_usage_writer(db_pack, local_en_pack, flags=BREATH_BLOCK_FLAGS):
     """``(writer, removed rows, breath)``: the vanilla-path replacement of the
     usage-flag table (:func:`installed_breath_table`) as a DBTableWriter under
-    the installed fragment's GUID; [balance split 2026-11-17] only the
-    balance submod (flyer_dive_balance.pack) ships it, at
-    ``db/<USAGE_FLAGS_TABLE>/<USAGE_FLAGS_FRAGMENT>``; the main pack does not."""
+    the installed fragment's GUID; flyer_dive_takeoff.pack ships it at
+    ``db/<USAGE_FLAGS_TABLE>/<USAGE_FLAGS_FRAGMENT>`` (one pack again since
+    2026-11-18, D10)."""
     import flyer_db as db_writer   # [FLYER-FIX-1117] self-contained build
     kept, removed, breath, header = installed_breath_table(db_pack, local_en_pack, flags)
     schema = dict(db_writer.SCHEMAS[USAGE_FLAGS_TABLE])
@@ -887,6 +873,51 @@ def breath_usage_writer(db_pack, local_en_pack, flags=BREATH_BLOCK_FLAGS):
     for row in kept:
         writer.add_row(row)
     return writer, removed, breath
+
+
+# [D10, owner ruling 2026-11-18] Whether breath may be used while engaged in melee is a setting of the Mod
+# Configuration Tool (MCT, Workshop 2927955021). The table above still ships unlocked (that IS the "on" state,
+# so a player without MCT, or without memreader Plus, keeps what the published version does). When the setting
+# is OFF the battle script script/battle/mod/flyer_breath.lua puts CA's two locks back by hand: every
+# BREATH_SWITCH_POLL_MS it disables (unit:disable_special_ability, CA's battle_unit API) each removed ability on
+# a unit that is in melee (row engaged_in_melee; unit:is_in_melee) or not flying (row grounded;
+# unit:is_currently_flying) and enables it again when neither holds. Only the rows the table dropped are put
+# back, per ability (:func:`breath_switch_lua`). Multiplayer battles ignore the setting and stay on: the value
+# can differ between the players of a custom battle, and a script that disables abilities has never been seen
+# in a multiplayer battle (docs/DECISIONS.md D10).
+BREATH_SWITCH_DEFAULT_ON = True        # the published behaviour (maintainer's choice under D10)
+BREATH_SWITCH_POLL_MS = 100            # one battle tick (10 a second)
+BREATH_SWITCH_MCT_MOD = "flyer_dive_takeoff"
+BREATH_SWITCH_MCT_OPTION = "breath_while_engaged"
+BREATH_SWITCH_LUA_PATH = "script/campaign/flyer_dive/data/breath_rows.lua"
+BREATH_SWITCH_LOCKS = {"engaged_in_melee": "in_melee", "grounded": "not_flying"}
+
+
+def breath_switch_lua(removed):
+    """The generated Lua data module the breath switch reads: the rules' constants and, per breath ability
+    the shipped table unlocks, the locks the OFF setting puts back (``removed`` = the rows
+    :func:`breath_usage_writer` dropped). Sorted, so the bytes depend on the rows only. A flag with no lock is
+    a refusal."""
+    locks = {}
+    for r in removed:
+        flag = r["invalid_usage_flag"]
+        if flag not in BREATH_SWITCH_LOCKS:
+            raise RuntimeError(f"[air_dive_rules] REFUSING: removed usage flag {flag!r} has no breath lock")
+        locks.setdefault(r["special_ability"], set()).add(BREATH_SWITCH_LOCKS[flag])
+    if not locks:
+        raise RuntimeError("[air_dive_rules] REFUSING: no breath ability to switch")
+    lines = ["-- generated by build_air_dive_minimod.py from air_dive_rules (D10); do not edit",
+             "return {",
+             f"    default_on = {str(BREATH_SWITCH_DEFAULT_ON).lower()},",
+             f"    poll_ms = {BREATH_SWITCH_POLL_MS},",
+             f'    mct_mod = "{BREATH_SWITCH_MCT_MOD}",',
+             f'    mct_option = "{BREATH_SWITCH_MCT_OPTION}",',
+             "    abilities = {"]
+    for key in sorted(locks):
+        flags = ", ".join(f'"{lock}"' for lock in sorted(locks[key]))
+        lines.append(f'        ["{key}"] = {{ {flags} }},')
+    lines += ["    },", "}", ""]
+    return "\n".join(lines).encode("utf-8")
 
 
 def tsv_dicts(text):
@@ -1340,7 +1371,7 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
     mounts, ents = merged["mounts_tables"], merged["battle_entities_tables"]
     weapons = merged[COLLISION_ATTACK_TABLE]
     # [AIR-DIVE-BRACE-W1] sized on the uncut mass: an installed body's own (vanilla) mass, any other
-    # body's own row mass (uncut_mass; since the 2026-11-17 balance split tuned_cells cuts no mass)
+    # body's mass before tuned_cells cut it -- the shipped rows here already carry the cut
     inst_ent = inst["battle_entities_tables"]
     cells, clones, repoint = flyer_weapon_plan(
         land, mounts, ents, weapons, stage, anchors=anchors,

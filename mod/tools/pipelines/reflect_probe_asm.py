@@ -59,6 +59,29 @@ distances). EVERY call is logged, 128-byte entry:
 (the id 0x14326a2bc compares with the soldier's +0x318)   +24 u32 which (1 / 2)
 +28 u32 battle tick   +32 u32 action byte +0x48   +36 u32 action byte +0x7c   +60 u32 seq + 1.
 
+[d10-1118, D4: from the damage side] 17 runs reached neither rf_brace nor rf_act*, while rf_dmg logged ~680
+calls a battle. The installed data (db.pack _kv_rules, local_en.pack unit_attributes) and this static read say
+what "Charge Reflection" is in 9.0: the kv rules are fields of one object (registered at 0x1405c17ad /
+0x1405c17c6: charge_reflect_damage_multiplier at +0x6610, its value at +0x6670 = 2.0;
+charge_reflect_min_charge_factor_threshold at +0x6678, value +0x66d8 = 0.7). Their only battle reader is the
+damage calculator 0x142e5fcb0 (args: r9 = the attack's source interface, 5th = its target, r12 = the kv
+object): at 0x142e6005f it asks target->vfunc[0x48], at 0x142e6006c source->vfunc[0x38]; when both hold it
+compares target's 0x143065f3c (charge factor) with 0.7 and at 0x142e600af multiplies the damage factor by
+the 2.0 (``mulss xmm8, xmm7``). Its callers: 0x142e602ac (the impact reflection's 0x1430af180, the charge
+collision's 0x1430b008c path, matched combat), 0x1430b0570 (the splash attack 0x143087068) and 0x142e3945c.
+Which interface is which entity is NOT read statically, so the caves log raw candidates.
+``rf_cgate`` at 0x142e60070 (both tests passed; stolen ``mov rax,[rdi]; mov rcx,rdi``) and ``rf_cmul`` at
+0x142e600af (the multiplier applied; stolen ``mulss xmm8,xmm7``), one 128-byte ring, EVERY call:
+  +0 u64 rdi (target interface)  +8 u64 rbx (source interface)  +16 u64 return address of 0x142e5fcb0
+  +24 u64 the next return address up (valid when +16 is 0x142e60306, i.e. through 0x142e602ac)
+  +32 u32 which (1 gate, 2 multiplier)  +36 f32 xmm0 (rf_cmul: the target's charge factor)
+  +40 f32 xmm6 (rf_cmul: the threshold)  +44 f32 xmm7 (the multiplier)  +48 u32 thread id (gs:[0x48])
+  +52 u32 clock  +56 f32 xmm8 (the damage factor before the multiply)  +64 / +72 u64 [rdi+8] / [rdi+0x10]
+  +80 / +88 u64 [rbx+8] / [rbx+0x10] (candidates for the entities)  +124 u32 seq + 1
+rf_dmg gains +48 u32 thread id and +52 u32 clock; clock = one counter all caves share (header +32), so a
+multiplier and the damage call it feeds can be paired on one thread. ``APPLIER_CALLS`` classes each of the
+applier's 25 call sites by its caller (pin_cave_asm's own notes and the callers' functions).
+
 ``python reflect_probe_asm.py [--write-site PATH]`` (keystone + unicorn) assembles the caves,
 runs them in Unicorn against synthetic objects, runs mutated sources that must each fail, and
 writes the site table to PATH (default: print only).
@@ -92,17 +115,49 @@ ACT1_STOLEN = "48 8B C4 55 53 56 57 41 55"
 ACT2_PATTERN = ("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 68 A1 48 81 EC A8 00 00 00 "
                 "0F 29 70 A8 48 8B F1 48 8B 49 08")
 ACT2_STOLEN = "48 8B C4 55 53 56 57 41 54"
+# [d10-1118] the damage calculator's charge-reflect test and multiplier (0x142e5fcb0)
+CGATE_PATTERN = "84 C0 74 5B 48 8B 07 48 8B CF FF 50 08 48 85 C0 74 4D 48 8B 03"
+CGATE_AT, CGATE_STOLEN = 4, "48 8B 07 48 8B CF"
+CMUL_PATTERN = "E8 ?? ?? ?? ?? 0F 2F C6 0F 82 ?? ?? ?? ?? F3 44 0F 59 C7 40 84 ED 74 12"
+CMUL_AT, CMUL_STOLEN = 14, "F3 44 0F 59 C7"
+CALC_RET_FRAME = 0xC8                # 0x142e5fcb0: 5 pushes + sub rsp,0xa0 -> its return address
+CALC_RET2_FRAME = 0x158              # through 0x142e602ac (3 pushes + sub rsp,0x70): the next one up
+CALC_VIA_602AC = 0x142E60306
+CALC_CALLERS = {0x142E60306: "0x142e602ac (impact reflection / charge collision / matched combat)",
+                0x1430B077D: "0x1430b0570 (splash attack 0x143087068)", 0x142E39502: "0x142e3945c"}
+CALC_CALLERS_2 = {0x1430ADDCC: "0x1430adabc", 0x1430AF7B4: "0x1430af180 (impact reflection, matched combat)",
+                  0x1430B0284: "0x1430b008c (charge collision attack, hit processor)"}
 EXE_SITES = {"rf_refl": 0x1430AFAE4, "rf_dmg": 0x14325AA18,   # build 6ae2a00b
-             "rf_brace": 0x14325BBEC, "rf_act1": 0x14326A2BC, "rf_act2": 0x14326A958}
+             "rf_brace": 0x14325BBEC, "rf_act1": 0x14326A2BC, "rf_act2": 0x14326A958,
+             "rf_cgate": 0x142E60070, "rf_cmul": 0x142E600AF}
+# the applier 0x14325a9c4's 25 call sites (return address = call + 5) by caller
+_APPLIER_SITES = {
+    "hit processor 0x14326cd24 (melee weapon hit)": (0x14326CF5F, 0x14326D0C0, 0x14326D167, 0x14326D212),
+    "hit processor twin 0x14325b54c": (0x14325B6DD, 0x14325B83E, 0x14325B8E5, 0x14325B990),
+    "splash attack 0x143087068": (0x1430874D0,),
+    "matched combat 0x142f72320": (0x142F724BF, 0x142F72529),
+    "matched combat 0x142f8cc94": (0x142F8CE13, 0x142F8CEB8),
+    "matched combat 0x142f8e0f8": (0x142F8E737, 0x142F8EBED),
+    "charge collision attack 0x143060e44 (type 6)": (0x14306109D,),
+    "impact 0x143061144 (type 5)": (0x143061961,),
+    "ranged / explosion 0x1430aaa88": (0x1430AAB7F,),
+    "impact reflection 0x14325bbec": (0x14325BF8B,),
+    "unidentified 0x142f8f508": (0x142F8F673,), "unidentified 0x14306824c": (0x143068323,),
+    "unidentified 0x14308c1d0": (0x14308C605,), "unidentified 0x1430be044": (0x1430BE1CB,),
+    "unidentified 0x1430be2d4": (0x1430BE637,), "unidentified 0x1430bec08": (0x1430BED2B,),
+}
+APPLIER_CALLS = {site + 5: cls for cls, sites in _APPLIER_SITES.items() for site in sites}
 
 MODE_AT, MAGIC_AT, REFL_COUNT_AT, DMG_COUNT_AT, BRACE_COUNT_AT, ACT_COUNT_AT = 0, 8, 16, 20, 24, 28
-MAGIC = b"RFPROBE2"                 # 2: + rf_brace, rf_act1, rf_act2 (d3-1118)
+CLOCK_AT, CR_COUNT_AT = 32, 36       # [d10-1118]
+MAGIC = b"RFPROBE3"                 # 2: + rf_brace, rf_act1, rf_act2 (d3-1118); 3: + rf_cgate, rf_cmul, clock
 REFL_RING_AT, REFL_SLOTS = 64, 4096
 DMG_RING_AT, DMG_SLOTS = REFL_RING_AT + REFL_SLOTS * 64, 32768
 ENTRY = 64
 BRACE_RING_AT, BRACE_SLOTS, BRACE_ENTRY = DMG_RING_AT + DMG_SLOTS * ENTRY, 8192, 128
 ACT_RING_AT, ACT_SLOTS = BRACE_RING_AT + BRACE_SLOTS * BRACE_ENTRY, 8192
-BYTES = ACT_RING_AT + ACT_SLOTS * ENTRY
+CR_RING_AT, CR_SLOTS, CR_ENTRY = ACT_RING_AT + ACT_SLOTS * ENTRY, 8192, 128
+BYTES = CR_RING_AT + CR_SLOTS * CR_ENTRY
 STATE_OFF, POS_X, POS_Z, CHARGER_STATE = 0x318, 0x88, 0x90, 0x324
 ACT_ID, ACT_FLAG1, ACT_FLAG2 = 0x38, 0x48, 0x7C
 BUF = 0x1122334455667788
@@ -264,6 +319,11 @@ flyer:
 unit_out:
 no_victim:
     mov qword ptr [r11 + 16], rax
+    mov eax, dword ptr gs:[0x48]
+    mov dword ptr [r11 + 48], eax
+    mov eax, 1
+    lock xadd dword ptr [r10 + {CLOCK_AT}], eax
+    mov dword ptr [r11 + 52], eax
     inc r9d
     mov dword ptr [r11 + 60], r9d
 done:
@@ -419,6 +479,76 @@ done:
     return _mutate(s, mutate)
 
 
+CR_PUSHES = 6                       # flags + rax rcx rdx r10 r11
+
+
+def _candidates(reg, at):
+    return f"""
+    test {reg}, {reg}
+    jz cand_end_{reg}
+    mov rax, qword ptr [{reg} + 8]
+    mov qword ptr [r11 + {at}], rax
+    mov rax, qword ptr [{reg} + 0x10]
+    mov qword ptr [r11 + {at + 8}], rax
+cand_end_{reg}:
+"""
+
+
+def cr_source(which, mutate=None):
+    """[d10-1118] rf_cgate (which 1) / rf_cmul (2) inside the damage calculator 0x142e5fcb0."""
+    zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, CR_ENTRY, 8))
+    s = f"""
+    pushfq
+    push rax
+    push rcx
+    push rdx
+    push r10
+    push r11
+    mov r10, {BUF:#x}
+    cmp dword ptr [r10 + {MODE_AT}], 0
+    je done
+    mov edx, 1
+    lock xadd dword ptr [r10 + {CR_COUNT_AT}], edx
+    mov r11d, edx
+    and r11d, {CR_SLOTS - 1}
+    shl r11, 7
+    mov rax, {CR_RING_AT}
+    add r11, rax
+    add r11, r10
+    inc edx
+    xor eax, eax
+{zero}    mov qword ptr [r11], rdi
+    mov qword ptr [r11 + 8], rbx
+    mov rax, qword ptr [rsp + {8 * CR_PUSHES + CALC_RET_FRAME:#x}]
+    mov qword ptr [r11 + 16], rax
+    mov rcx, {CALC_VIA_602AC:#x}
+    cmp rax, rcx
+    jne no_ret2
+    mov rax, qword ptr [rsp + {8 * CR_PUSHES + CALC_RET2_FRAME:#x}]
+    mov qword ptr [r11 + 24], rax
+no_ret2:
+    mov dword ptr [r11 + 32], {which}
+    movss dword ptr [r11 + 36], xmm0
+    movss dword ptr [r11 + 40], xmm6
+    movss dword ptr [r11 + 44], xmm7
+    movss dword ptr [r11 + 56], xmm8
+    mov eax, dword ptr gs:[0x48]
+    mov dword ptr [r11 + 48], eax
+    mov eax, 1
+    lock xadd dword ptr [r10 + {CLOCK_AT}], eax
+    mov dword ptr [r11 + 52], eax
+{_candidates("rdi", 64)}{_candidates("rbx", 80)}    mov dword ptr [r11 + 124], edx
+done:
+    pop r11
+    pop r10
+    pop rdx
+    pop rcx
+    pop rax
+    popfq
+"""
+    return _mutate(s, mutate)
+
+
 def _mutate(s, mutate):
     if mutate:
         old, new = mutate
@@ -430,7 +560,9 @@ def _mutate(s, mutate):
 
 SOURCES = {"rf_refl": refl_source, "rf_dmg": dmg_source, "rf_brace": brace_source,
            "rf_act1": lambda mutate=None: act_source(1, mutate),
-           "rf_act2": lambda mutate=None: act_source(2, mutate)}
+           "rf_act2": lambda mutate=None: act_source(2, mutate),
+           "rf_cgate": lambda mutate=None: cr_source(1, mutate),
+           "rf_cmul": lambda mutate=None: cr_source(2, mutate)}
 
 
 def assemble(name, mutate=None):
@@ -444,6 +576,7 @@ def assemble(name, mutate=None):
 # --- emulator ---------------------------------------------------------------
 CODE, B, STACK, OBJ = 0x100000, 0x200000, 0x2000000, 0x3000000
 RET, SPEED = 0x14325BF4B, 9.25
+TEB, THREAD = 0x5000000, 0x2A3C
 
 
 def _machine(code):
@@ -453,6 +586,10 @@ def _machine(code):
     mu.mem_map(B, ((BYTES + 0xFFFF) // 0x10000) * 0x10000)
     mu.mem_map(STACK, 0x10000)
     mu.mem_map(OBJ, 0x100000)
+    mu.mem_map(TEB, 0x1000)
+    mu.mem_write(TEB + 0x48, struct.pack("<I", THREAD))
+    from unicorn import x86_const as X
+    mu.reg_write(X.UC_X86_REG_GS_BASE, TEB)
     mu.mem_write(CODE, code.replace(struct.pack("<Q", BUF), struct.pack("<Q", B)))
     return mu
 
@@ -552,6 +689,7 @@ def check(mutate=None, which=None):
                     victim, unit = 0, 0
                 mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
                 mu.mem_write(B + DMG_COUNT_AT, struct.pack("<I", DMG_SLOTS + 3))
+                mu.mem_write(B + CLOCK_AT, struct.pack("<I", 41))
                 frame = STACK + 0x6000                   # rbp = entry rsp - 0x3f
                 mu.mem_write(frame + 0x3F, struct.pack("<Q", REFLECT_DAMAGE_RETURN))
                 mu.mem_write(frame + 0x6F, struct.pack("<I", 5))
@@ -568,9 +706,11 @@ def check(mutate=None, which=None):
                     if cnt or ent != b"\xEE" * ENTRY:
                         fails.append(f"rf_dmg {name}: logged in mode 0")
                     continue
-                got = struct.unpack_from("<QQQiIIIQ", ent, 0) + struct.unpack_from("<I", ent, 60)
+                got = struct.unpack_from("<QQQiIIIQII", ent, 0) + struct.unpack_from("<I", ent, 60)
                 exp = (REFLECT_DAMAGE_RETURN, victim, unit, 0x33, 5, 777 if victim else 0, want_flyer,
-                       flyer, DMG_SLOTS + 4)
+                       flyer, THREAD, 41, DMG_SLOTS + 4)
+                if _u32(mu, B + CLOCK_AT) != 42:
+                    fails.append(f"rf_dmg {name}: clock not advanced")
                 if (cnt, got) != (1, exp):
                     fails.append(f"rf_dmg {name}: count {cnt} entry {got} want {exp}")
     if which in (None, "rf_brace"):
@@ -578,6 +718,62 @@ def check(mutate=None, which=None):
     for act, n in (("rf_act1", 1), ("rf_act2", 2)):
         if which in (None, act):
             fails += _check_act(act, n, mutate if which == act else None)
+    for cr, n in (("rf_cgate", 1), ("rf_cmul", 2)):
+        if which in (None, cr):
+            fails += _check_cr(cr, n, mutate if which == cr else None)
+    return fails
+
+
+def _check_cr(name_site, which, mutate):
+    """rf_cgate / rf_cmul on synthetic calls: every field (the xmm values, both return addresses through
+    0x142e602ac and only the first otherwise, the candidates), the mode switch, null interfaces, a junk
+    slot, every register and xmm register unchanged."""
+    from unicorn import x86_const as X
+    fails = []
+    code = assemble(name_site, mutate)
+    xmm = {0: 0.85, 6: 0.7, 7: 2.0, 8: 1.25}
+    for name, mode, ret1, nulls in (("through 0x142e602ac", 1, CALC_VIA_602AC, False),
+                                    ("from the splash path", 1, 0x1430B077D, False),
+                                    ("null interfaces", 1, CALC_VIA_602AC, True), ("off", 0, CALC_VIA_602AC, False)):
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            a, b = OBJ + 0x20000, OBJ + 0x30000
+            mu.mem_write(a + 8, struct.pack("<QQ", 0xA8, 0xA10))
+            mu.mem_write(b + 8, struct.pack("<QQ", 0xB8, 0xB10))
+            for r, v in xmm.items():
+                mu.reg_write(getattr(X, f"UC_X86_REG_XMM{r}"), struct.unpack("<I", struct.pack("<f", v))[0])
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + CR_COUNT_AT, struct.pack("<I", CR_SLOTS + 2))
+            mu.mem_write(B + CLOCK_AT, struct.pack("<I", 900))
+            slot = B + CR_RING_AT + 2 * CR_ENTRY
+            mu.mem_write(slot, b"\xEE" * CR_ENTRY)
+            rsp = STACK + 0x2000
+            mu.mem_write(rsp + CALC_RET_FRAME, struct.pack("<Q", ret1))
+            mu.mem_write(rsp + CALC_RET2_FRAME, struct.pack("<Q", 0x1430AF7B4))
+            ia, ib = (0, 0) if nulls else (a, b)
+            before_x = [mu.reg_read(getattr(X, f"UC_X86_REG_XMM{r}")) for r in (0, 6, 7, 8)]
+            changed = _run(mu, code, {"rdi": ia, "rbx": ib, "rsp": rsp}, flags)
+            if changed:
+                fails.append(f"{name_site} {name}/{flags:#x}: registers changed {changed}")
+            if [mu.reg_read(getattr(X, f"UC_X86_REG_XMM{r}")) for r in (0, 6, 7, 8)] != before_x:
+                fails.append(f"{name_site} {name}: an xmm register changed")
+            cnt = _u32(mu, B + CR_COUNT_AT) - (CR_SLOTS + 2)
+            ent = bytes(mu.mem_read(slot, CR_ENTRY))
+            if mode == 0:
+                if cnt or ent != b"\xEE" * CR_ENTRY:
+                    fails.append(f"{name_site} {name}: logged in mode 0")
+                continue
+            want = bytearray(CR_ENTRY)
+            struct.pack_into("<QQQQI", want, 0, ia, ib, ret1, 0x1430AF7B4 if ret1 == CALC_VIA_602AC else 0, which)
+            struct.pack_into("<fff", want, 36, xmm[0], xmm[6], xmm[7])
+            struct.pack_into("<II", want, 48, THREAD, 900)
+            struct.pack_into("<f", want, 56, xmm[8])
+            if not nulls:
+                struct.pack_into("<QQQQ", want, 64, 0xA8, 0xA10, 0xB8, 0xB10)
+            struct.pack_into("<I", want, 124, CR_SLOTS + 3)
+            if cnt != 1 or ent != bytes(want) or _u32(mu, B + CLOCK_AT) != 901:
+                fails.append(f"{name_site} {name}/{flags:#x}: count {cnt}, entry differs at "
+                             f"{[i for i in range(CR_ENTRY) if ent[i] != want[i]][:8]}")
     return fails
 
 
@@ -704,6 +900,14 @@ MUTANTS = (
     ("rf_act1", f"mov eax, dword ptr [rcx + {ACT_ID:#x}]", "mov eax, dword ptr [rcx + 0x3c]"),
     ("rf_act2", f"mov eax, dword ptr [rcx + {STATE_OFF:#x}]", "mov eax, dword ptr [rcx + 0x31c]"),
     ("rf_act2", "    mov dword ptr [r11 + 60], edx\n", "    nop\n"),
+    ("rf_dmg", "mov eax, dword ptr gs:[0x48]", "mov eax, dword ptr gs:[0x40]"),
+    ("rf_dmg", f"lock xadd dword ptr [r10 + {CLOCK_AT}], eax", f"mov eax, dword ptr [r10 + {CLOCK_AT}]"),
+    ("rf_cgate", f"[rsp + {8 * CR_PUSHES + CALC_RET_FRAME:#x}]", f"[rsp + {8 * (CR_PUSHES - 1) + CALC_RET_FRAME:#x}]"),
+    ("rf_cgate", "    jne no_ret2\n", "    nop\n"),
+    ("rf_cgate", "movss dword ptr [r11 + 44], xmm7", "movss dword ptr [r11 + 44], xmm6"),
+    ("rf_cmul", "mov dword ptr [r11 + 32], 2", "mov dword ptr [r11 + 32], 1"),
+    ("rf_cmul", "mov rax, qword ptr [rbx + 0x10]", "mov rax, qword ptr [rbx + 0x18]"),
+    ("rf_cmul", "movss dword ptr [r11 + 56], xmm8", "nop"),
 )
 
 
@@ -719,7 +923,8 @@ def _regex(pattern):
 
 SITES = {"rf_refl": (REFL_PATTERN, 0, REFL_STOLEN), "rf_dmg": (DMG_PATTERN, DMG_AT, DMG_STOLEN),
          "rf_brace": (BRACE_PATTERN, 0, BRACE_STOLEN), "rf_act1": (ACT1_PATTERN, 0, ACT1_STOLEN),
-         "rf_act2": (ACT2_PATTERN, 0, ACT2_STOLEN)}
+         "rf_act2": (ACT2_PATTERN, 0, ACT2_STOLEN),
+         "rf_cgate": (CGATE_PATTERN, CGATE_AT, CGATE_STOLEN), "rf_cmul": (CMUL_PATTERN, CMUL_AT, CMUL_STOLEN)}
 
 
 def check_exe(exe_path):
@@ -770,6 +975,8 @@ def site_lua(codes):
               f"        brace_count_at = {BRACE_COUNT_AT}, brace_ring_at = {BRACE_RING_AT}, "
               f"brace_slots = {BRACE_SLOTS}, brace_entry = {BRACE_ENTRY},",
               f"        act_count_at = {ACT_COUNT_AT}, act_ring_at = {ACT_RING_AT}, act_slots = {ACT_SLOTS},",
+              f"        clock_at = {CLOCK_AT}, cr_count_at = {CR_COUNT_AT}, cr_ring_at = {CR_RING_AT}, "
+              f"cr_slots = {CR_SLOTS}, cr_entry = {CR_ENTRY},",
               f"        entry = {ENTRY} }},", "}"]
     return "\n".join(lines) + "\n"
 

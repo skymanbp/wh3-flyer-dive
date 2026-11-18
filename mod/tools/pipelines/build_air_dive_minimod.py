@@ -24,42 +24,30 @@ re-run, not a hand edit):
   ``animation`` repointed -- a mounted unit's body plays the mount's table),
   each under the installed fragment's GUID;
 * ``db\\battle_entities_tables\\flyer_dive_takeoff``: EVERY installed flyer the rule
-  changes (``air_dive_rules.tuned_cells``), installed row + the rule's cells,
-  unchanged cells replayed byte-for-byte. This pack has no other entity
-  fragment, so all of them ship in this one fragment. Since the
-  balance split (2026-11-17) no ``mass`` cell;
+  changes (``air_dive_rules.tuned_cells``, ``jump_attack_chance`` 100 and the
+  mass cut for large / very large flyers included), installed row + the
+  rule's cells, unchanged cells replayed byte-for-byte. This pack has no other
+  entity fragment, so all of them ship in this one fragment;
 * ``db\\battle_entity_locomotion_constants_tables\\flyer_dive_takeoff``: the two
   flyer_dive_* rows;
-* [balance split 2026-11-17] ``script/flyer_dive/main_stamp.lua`` (generated:
-  the build stamp of this run) and ``script/flyer_dive/balance_check.lua``,
-  which the battle entry asks for the BALANCE line of flyer_dive.txt.
-
-THE BALANCE SUBMOD (user ruling 2026-11-17: only breath-while-engaged and the
-mass cut move out of the main pack). ``--balance-out`` writes
-``flyer_dive_balance.pack`` from the SAME run (:func:`balance_entries`), so
-the two packs can never disagree:
-
-* ``db\\battle_entities_tables\\flyer_dive_balance``: every flyer row
-  ``air_dive_rules.balance_cells`` cuts (large x0.85, very_large x0.75, the
-  celestial-lion size override, the eleven war machines untouched), each the
-  MAIN pack's full row (installed row + tuned_cells) plus the cut ``mass``,
-  under the installed GUID: when both packs load these rows win and differ
-  from main only in ``mass``;
-* ``db\\battle_entity_locomotion_constants_tables\\flyer_dive_balance``:
-  the main pack's locomotion fragment, byte for byte, so the repointed
-  ``locomotion_constants`` of those rows never dangles;
 * [AIR-DIVE-W15 2026-11-11] ``db\\special_ability_to_invalid_usage_flags_tables\\data__``:
   the whole installed table under its vanilla path minus the rows that stop a
   breath ability in melee or while grounded (``air_dive_rules.breath_usage_writer``;
   a junction row cannot be deleted by key). A mod that ships the same
-  data__ wins or loses by load order;
-* ``script/flyer_dive/balance_stamp.lua``: the main build stamp it was built for.
+  data__ wins or loses by load order.
 
-Row priority between the two packs: RESIST-W2 measured "the row from the pack
-whose name sorts first wins" with pack AND fragment names sorted the same
-way, so which of the two decides is not separated. Both are made to sort
-first here (``flyer_dive_balance`` / ``data__`` < ``flyer_dive_takeoff``; pinned by
-tests/test_flyer_dive_balance.py). The in-game swap test is still owed.
+One pack (owner ruling 2026-11-18, docs/DECISIONS.md D10): the balance submod
+of 2026-11-17 (D1) is withdrawn and its two changes, the mass cut and breath
+while engaged, are back in this pack. No second pack is written.
+
+* [D10] the breath-while-engaged setting (``breath_switch_entries``): the
+  Mod Configuration Tool page ``script/mct/settings/flyer_dive_takeoff.lua``,
+  the battle entry ``script/battle/mod/flyer_breath.lua``, its pure module
+  ``script/campaign/flyer_dive/lib/breath_switch.lua`` and the generated
+  ``script/campaign/flyer_dive/data/breath_rows.lua`` (the rows the usage table
+  drops, per ability, and the rules' constants: ``air_dive_rules.breath_switch_lua``).
+  On (the default) the table alone does it; off, the battle script puts the
+  dropped locks back by hand.
 
 * [AIR-DIVE-W16 2026-11-12] the impact (``air_dive_rules`` IMPACT_STAGE,
   ``--impact-stage`` for the comparison builds): ``melee_weapons_tables``
@@ -99,7 +87,7 @@ with the dive pack disabled. Both packs carry the script at the same path,
 so enabling both loads it once. Never part of the published packs.
 
 Usage:  python -P tools/pipelines/build_air_dive_minimod.py --out <path>/flyer_dive_takeoff.pack
-        --balance-out <path>/flyer_dive_balance.pack [--probe]
+        [--probe]
         python -P tools/pipelines/build_air_dive_minimod.py --out <path.pack>
         --probe-only [--takeoff]
         (deliberately no default: this pack is not part of the mod build)
@@ -129,14 +117,8 @@ GAME_DIR = Path(os.environ.get(
     r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data"))
 FRAGMENT = "flyer_dive_takeoff"
 MAIN_PACK_NAME = "flyer_dive_takeoff.pack"
-# [balance split 2026-11-17] the submod: pack and fragment names sort before the main pack's
-BALANCE_PACK_NAME = "flyer_dive_balance.pack"
-BALANCE_FRAGMENT = "flyer_dive_balance"
 ENTITY_TABLE = "battle_entities_tables"
 LOCOMOTION_TABLE = "battle_entity_locomotion_constants_tables"
-STAMP_MAIN_PATH = "script/flyer_dive/main_stamp.lua"        # generated, main pack
-STAMP_BALANCE_PATH = "script/flyer_dive/balance_stamp.lua"  # generated, balance pack
-BALANCE_CHECK_PATH = "script/flyer_dive/balance_check.lua"  # repository file, main pack
 PROBE_SOURCE = Path(__file__).resolve().parent / "air_dive_probe.lua"
 PROBE_PACK_PATH = "script/battle/mod/flyer_dive_probe.lua"   # Lua: forward slashes
 
@@ -204,67 +186,6 @@ def db_entries(db_pack):
         (f"db\\{ENTITY_TABLE}\\{FRAGMENT}", ent.build()),
         (f"db\\{LOCOMOTION_TABLE}\\{FRAGMENT}", loco.build()),
     ], len(ent.rows), len(loco.rows)
-
-
-def _one_entry(entries, path):
-    hits = [data for p, data in entries if p == path]
-    if len(hits) != 1:
-        raise SystemExit(f"[air_dive_minimod] REFUSING: {len(hits)} entries at {path}")
-    return hits[0]
-
-
-def build_stamp(main_dbs):
-    """[balance split 2026-11-17] The main version a balance pack pairs with:
-    the first 16 hex digits of the sha256 of the main battle_entities
-    fragment (``main_dbs`` = :func:`db_entries` entries)."""
-    data = _one_entry(main_dbs, f"db\\{ENTITY_TABLE}\\{FRAGMENT}")
-    return hashlib.sha256(data).hexdigest()[:16]
-
-
-def _stamp_lua(field, stamp):
-    return ("-- generated by build_air_dive_minimod.py (balance split 2026-11-17); do not edit\n"
-            f"return {{ {field} = \"{stamp}\" }}\n").encode("utf-8")
-
-
-def main_stamp_entries(main_dbs, mod_dir=MOD_DIR):
-    """The main pack's stamp module and the repository's balance check."""
-    check = mod_dir / BALANCE_CHECK_PATH
-    if not check.is_file():
-        raise SystemExit(f"[air_dive_minimod] REFUSING: {check} missing")
-    return [(STAMP_MAIN_PATH, _stamp_lua("main", build_stamp(main_dbs))),
-            (BALANCE_CHECK_PATH, check.read_bytes().replace(b"\r\n", b"\n"))]
-
-
-def balance_entries(db_pack, main_dbs, game_dir=GAME_DIR):
-    """[balance split 2026-11-17] The balance submod's entries and a report.
-
-    ``main_dbs`` is :func:`db_entries` of the same run: every cut row is the
-    main pack's full row (installed + tuned_cells) plus the cut mass, the
-    locomotion fragment is main's bytes under the balance fragment name, the
-    stamp is main's build stamp. Refuses when the rule cuts nothing."""
-    rows, header, replay = _installed_entities(db_pack)
-    ent = _entity_writer(header)
-    for row, raw in zip(rows, replay):
-        cut = air_dive_rules.balance_cells(row)
-        if not cut:
-            continue
-        cells = dict(air_dive_rules.tuned_cells(row))
-        cells.update(cut)
-        ent.add_row(*_with_cells(row, raw, cells))
-    if not ent.rows:
-        raise SystemExit("[air_dive_minimod] REFUSING: the mass cut changes no installed flyer")
-    loco = _one_entry(main_dbs, f"db\\{LOCOMOTION_TABLE}\\{FRAGMENT}")
-    usage, removed, breath = usage_entries(game_dir)
-    stamp = build_stamp(main_dbs)
-    entries = [
-        (f"db\\{ENTITY_TABLE}\\{BALANCE_FRAGMENT}", ent.build()),
-        (f"db\\{LOCOMOTION_TABLE}\\{BALANCE_FRAGMENT}", loco),
-    ] + usage + [(STAMP_BALANCE_PATH, _stamp_lua("built_for_main", stamp))]
-    report = {"mass_rows": len(ent.rows), "usage_rows_removed": len(removed),
-              "breath_abilities": len(breath),
-              "breath_abilities_unblocked": len({r["special_ability"] for r in removed}),
-              "stamp": stamp}
-    return entries, report
 
 
 def _guid_writer(db_pack, table):
@@ -393,6 +314,28 @@ def dive_rule_entries(mod_dir=MOD_DIR, game_dir=GAME_DIR):
     return out
 
 
+# [D10 2026-11-18] the breath-while-engaged setting: MCT page, battle entry, pure module (repository files)
+BREATH_SWITCH_SCRIPTS = (
+    "script/mct/settings/flyer_dive_takeoff.lua",
+    "script/battle/mod/flyer_breath.lua",
+    "script/campaign/flyer_dive/lib/breath_switch.lua",
+    # lib/cave_common.lua, which the battle entry requires for its log lines, ships in TAKEOFF_SCRIPTS
+)
+
+
+def breath_switch_entries(removed, mod_dir=MOD_DIR):
+    """[D10] The setting's scripts and the generated data module built from ``removed`` (the usage rows
+    the shipped table drops: :func:`usage_entries`)."""
+    out = []
+    for rel in BREATH_SWITCH_SCRIPTS:
+        disk = mod_dir / rel
+        if not disk.is_file():
+            raise SystemExit(f"[air_dive_minimod] REFUSING: {disk} missing")
+        out.append((rel, disk.read_bytes().replace(b"\r\n", b"\n")))
+    out.append((air_dive_rules.BREATH_SWITCH_LUA_PATH, air_dive_rules.breath_switch_lua(removed)))
+    return out
+
+
 def usage_entries(game_dir=GAME_DIR):
     """[AIR-DIVE-W15] The breath usage-flag table and the rows it drops."""
     writer, removed, breath = air_dive_rules.breath_usage_writer(
@@ -403,35 +346,35 @@ def usage_entries(game_dir=GAME_DIR):
 
 
 def pack_entries(probe=False, db_pack=None):
-    """[balance split 2026-11-17] ``(main entries, balance entries, info)``
-    of one full build: what main() writes into the two packs (the tests read
-    the same lists). Refuses a path both packs would ship."""
-    db_pack = GAME_DIR / "db.pack" if db_pack is None else db_pack
+    """``(entries, info)`` of one full build: what main() writes into the one
+    pack (the tests read the same list). Refuses a path shipped twice."""
+    db_pack = GAME_DIR / "db.pack" if db_pack is None else Path(db_pack)
     anims, manifest = anim_entries()
     dbs, n_ent, n_loco = db_entries(db_pack)
     impact, repoint, impact_report = impact_entries(db_pack)
     renamed, counts = rename_entries(db_pack, repoint)
-    stamp = main_stamp_entries(dbs)
-    balance, balance_report = balance_entries(db_pack, dbs)
+    usage, removed, breath = usage_entries(db_pack.parent)
+    switch = breath_switch_entries(removed)
     extra = [probe_entry("with_dive")] if probe else []
     takeoff = takeoff_entries()
     dive = dive_rule_entries()
-    main_entries = anims + dbs + impact + renamed + takeoff + dive + stamp + extra
-    shared = {p for p, _d in main_entries} & {p for p, _d in balance}
-    if shared:
-        raise SystemExit(f"[air_dive_minimod] REFUSING: both packs ship {sorted(shared)}")
+    entries = anims + dbs + impact + renamed + usage + switch + takeoff + dive + extra
+    paths = [p for p, _d in entries]
+    twice = sorted({p for p in paths if paths.count(p) > 1})
+    if twice:
+        raise SystemExit(f"[air_dive_minimod] REFUSING: {twice} shipped twice")
     info = {"manifest": manifest, "n_ent": n_ent, "n_loco": n_loco, "counts": counts,
             "impact_report": impact_report, "n_takeoff": len(takeoff), "n_dive": len(dive),
-            "balance": balance_report}
-    return main_entries, balance, info
+            "n_mass_cut": sum(1 for r in _installed_entities(db_pack)[0]
+                              if air_dive_rules.mass_factor(r) != 1.0),
+            "usage_rows_removed": len(removed), "breath_abilities": len(breath),
+            "breath_abilities_unblocked": len({r["special_ability"] for r in removed})}
+    return entries, info
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", required=True)
-    ap.add_argument("--balance-out",
-                    help="the balance submod pack (flyer_dive_balance.pack), built in the same "
-                         "run; required for a full build")
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument("--probe", action="store_true",
                       help="also ship the battle movement recorder")
@@ -452,18 +395,13 @@ def main(argv=None):
         print(f"wrote {args.out} ({size} bytes): movement recorder only"
               + (" + take-off rule scripts" if extra else ""))
         return
-    if not args.balance_out:
-        raise SystemExit("[air_dive_minimod] REFUSING: a full build writes both packs "
-                         f"(--balance-out <path>/{BALANCE_PACK_NAME})")
-    for path, name in ((args.out, MAIN_PACK_NAME), (args.balance_out, BALANCE_PACK_NAME)):
-        if Path(path).name != name:
-            raise SystemExit(f"[air_dive_minimod] REFUSING: {path} must be named {name} "
-                             "(the DB row priority between the two packs follows the names)")
-    main_entries, balance, info = pack_entries(probe=args.probe)
+    if Path(args.out).name != MAIN_PACK_NAME:
+        raise SystemExit(f"[air_dive_minimod] REFUSING: {args.out} must be named {MAIN_PACK_NAME} "
+                         "(the file name players enabled; D10 keeps it)")
+    entries, info = pack_entries(probe=args.probe)
     manifest, counts, n_ent, n_loco = info["manifest"], info["counts"], info["n_ent"], info["n_loco"]
-    impact_report, balance_report = info["impact_report"], info["balance"]
-    size = write_pack_file(args.out, main_entries, PACK_TYPE_MOD)
-    bsize = write_pack_file(args.balance_out, balance, PACK_TYPE_MOD)
+    impact_report = info["impact_report"]
+    size = write_pack_file(args.out, entries, PACK_TYPE_MOD)
     print(f"wrote {args.out} ({size} bytes): "
           f"{len(manifest['tables_renamed'])} renamed flight tables without slot 104 "
           f"({counts[anim_table_rename.REGISTRY_TABLE]} registry rows, "
@@ -471,17 +409,14 @@ def main(argv=None):
           f"{counts[anim_table_rename.LAND_TABLE]} land units and "
           f"{counts[anim_table_rename.MOUNTS_TABLE]} mounts repointed), "
           f"{len(manifest['plough_clips'])} plough clips (ground handoff ships none), "
-          f"{n_ent} flyer entity rows, {n_loco} locomotion rows"
+          f"{n_ent} flyer entity rows ({info['n_mass_cut']} with the mass cut), "
+          f"{n_loco} locomotion rows, "
+          f"{info['usage_rows_removed']} melee/grounded rows off "
+          f"{info['breath_abilities_unblocked']} of {info['breath_abilities']} breath abilities "
+          f"(MCT switch, default {'on' if air_dive_rules.BREATH_SWITCH_DEFAULT_ON else 'off'})"
           + f", impact stage {args.impact_stage} {impact_report}"
           + f", take-off rule scripts {info['n_takeoff']}, physics dive scripts {info['n_dive']}"
-          + f", build stamp {balance_report['stamp']}"
           + (", movement recorder" if args.probe else ""))
-    print(f"wrote {args.balance_out} ({bsize} bytes): "
-          f"{balance_report['mass_rows']} mass-cut flyer rows, {n_loco} locomotion rows, "
-          f"{balance_report['usage_rows_removed']} melee/grounded rows off "
-          f"{balance_report['breath_abilities_unblocked']} of "
-          f"{balance_report['breath_abilities']} breath abilities, "
-          f"built for main {balance_report['stamp']}")
 
 
 if __name__ == "__main__":

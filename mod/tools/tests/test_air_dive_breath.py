@@ -110,19 +110,17 @@ class InstalledTable(unittest.TestCase):
         self.assertIn("wh2_main_unit_abilities_star_dragons_breath",
                       {r["special_ability"] for r in removed})
 
-    def test_only_the_balance_pack_ships_it(self):
-        """[balance split 2026-11-17] the table ships in flyer_dive_balance.pack
-        at the vanilla path, built as above, and nowhere in the main pack's
-        DB entries."""
+    def test_the_pack_entry_is_this_table(self):
+        """[one pack again 2026-11-18, D10] the build's usage entry is the table
+        above at the vanilla path (that the one pack carries it:
+        tests/test_one_pack.py)."""
         import build_air_dive_minimod as mini
-        dbs, _n_ent, _n_loco = mini.db_entries(self.DB)
-        balance, report = mini.balance_entries(self.DB, dbs, self.DB.parent)
+        usage, removed, _breath = mini.usage_entries(self.DB.parent)
         path = f"db\\{rules.USAGE_FLAGS_TABLE}\\{rules.USAGE_FLAGS_FRAGMENT}"
-        writer, removed, _breath = rules.breath_usage_writer(
+        writer, removed_again, _breath = rules.breath_usage_writer(
             self.DB, self.DB.parent / "local_en.pack")
-        self.assertEqual([d for p, d in balance if p == path], [writer.build()])
-        self.assertEqual(report["usage_rows_removed"], len(removed))
-        self.assertEqual([p for p, _d in dbs if rules.USAGE_FLAGS_TABLE in p], [])
+        self.assertEqual(usage, [(path, writer.build())])
+        self.assertEqual(len(removed), len(removed_again))
 
 
 if __name__ == "__main__":

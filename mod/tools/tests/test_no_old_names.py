@@ -22,7 +22,7 @@ class NoOldNames(unittest.TestCase):
         self.assertEqual(rename_1118.check_tree(), [])
 
     def test_shipped_names(self):
-        for name in (mini.MAIN_PACK_NAME, mini.FRAGMENT, mini.BALANCE_PACK_NAME):
+        for name in (mini.MAIN_PACK_NAME, mini.FRAGMENT):
             with self.subTest(name=name):
                 self.assertIsNone(rename_1118.TOKEN.search(name))
 

@@ -8,15 +8,12 @@ one language slot of one item. Descriptions are Steam BBCode, not Markdown.
 |---|---|---|---|---|
 | Flyer Dive & Take-off (`flyer_dive_takeoff.pack`) | 3840651516 | English | `flyer_dive/en/title.txt` | `flyer_dive/en/description.txt` |
 | Flyer Dive & Take-off (`flyer_dive_takeoff.pack`) | 3840651516 | Simplified Chinese | `flyer_dive/zh/title.txt` | `flyer_dive/zh/description.txt` |
-| Balance submod (`flyer_dive_balance.pack`) | not published yet | English | `flyer_dive_balance/en/title.txt` | `flyer_dive_balance/en/description.txt` |
-| Balance submod (`flyer_dive_balance.pack`) | not published yet | Simplified Chinese | `flyer_dive_balance/zh/title.txt` | `flyer_dive_balance/zh/description.txt` |
 
 Before publishing:
 
-* Replace `SUBMOD_ID_PLACEHOLDER` in both `flyer_dive/*/description.txt` with the
-  submod's Workshop id once it exists.
-* The submod declares Workshop item 3840651516 as a required item, with the same
-  tags as the main item.
+* There is no second item: the balance submod of 2026-11-17 was withdrawn
+  (`docs/DECISIONS.md` D10). Breath while engaged and the mass cut are back in the
+  one pack; breath while engaged is a Mod Configuration Tool setting, default on.
 * The `PLACEHOLDER` line in `flyer_dive/*/description.txt` (damage from braced
   spears) stays until that rule ships. The take-off line describes the body-size rule
   (D3), implemented on the `rename-1118` branch and not yet checked in game.

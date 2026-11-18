@@ -117,10 +117,18 @@ class ChargeSpeedCoverage(unittest.TestCase):
                 for col, x, y in zip(header, a.split("\t"), b.split("\t")):
                     if x != y:
                         with self.subTest(path=path, col=col):
-                            # [balance split 2026-11-17] mass is no longer a main rule
-                            # cell (tuned_cells): the cut and its assertions moved to
-                            # balance_cells / tests/test_flyer_dive_balance.py
-                            self.assertIn(col, allowed)
+                            if col == "mass":
+                                # [AIR-DIVE-BRACE-W1; back in the one pack 2026-11-18, D10]
+                                # mass is a rule cell, but only as the ruled cut of THIS row
+                                # (large x0.85, very_large x0.75, MASS_SIZE_OVERRIDE; war
+                                # machines untouched)
+                                row = dict(zip(header, a.rstrip("\r").split("\t")))
+                                factor = air_dive_rules.mass_factor(row)
+                                self.assertNotEqual(factor, 1.0)
+                                self.assertEqual(float(y.rstrip("\r")),
+                                                 round(float(x.rstrip("\r")) * factor, 3))
+                            else:
+                                self.assertIn(col, allowed)
 
 
 class SnapshotShape(unittest.TestCase):

@@ -15,10 +15,8 @@
 --     mod / data / exe checks keep every player on the same code (why and the
 --     remaining risk: lib/cave_common.lua start_battle).
 -- Lines go to flyer_dive.txt next to Warhammer3.exe (one BATTLE line with
--- the cave version, one BALANCE line saying whether the balance submod is
--- loaded and built for this main version [balance split 2026-11-17,
--- script/flyer_dive/balance_check.lua], one END line with the counters) --
--- the file both players send back after a test.
+-- the cave version, one END line with the counters) -- the file both players
+-- send back after a test.
 -- / 单机与战役外的联机战斗装洞并生效；联机战役战斗看战役协商写下的"允许"。
 
 local LOG_FILE = "flyer_dive.txt"
@@ -78,14 +76,6 @@ end
 local okv, site = pcall(require, "script/campaign/flyer_dive/data/dive_site")
 record(("BATTLE mp=%s campaign=%s %s, caves format %s built for %s"):format(tostring(mp), tostring(from_campaign),
     tostring(how), tostring(okv and site.format), tostring(okv and site.build)))
--- [balance split 2026-11-17] a balance submod from another build puts that build's flyer values back
-local okb, balance_check = pcall(require, "script/flyer_dive/balance_check")
-if okb and type(balance_check) == "table" then
-    local okl, line = pcall(balance_check.line, require)
-    record(okl and line or ("BALANCE check failed: " .. tostring(line)))
-else
-    record("BALANCE check failed: script/flyer_dive/balance_check did not load: " .. tostring(balance_check))
-end
 
 local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, flight stops held off %d, "
     .. "engage re-paths held off %d, charge-order re-paths held off %d, melee engages held off %d, "

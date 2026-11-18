@@ -30,34 +30,34 @@ Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=38406515
 (Workshop 3811098873). Without it the rule scripts log "not installed" and the
 game runs as vanilla for those two rules.
 
-## Balance submod (optional)
+## Breath and mass
 
-A second pack, `flyer_dive_balance.pack`, carries the two balance changes that
-used to be in the main pack (user ruling 2026-11-17, `docs/DECISIONS.md` D1):
+Both are in the one pack (owner's ruling 2026-11-18, `docs/DECISIONS.md` D10; the
+optional balance submod of 2026-11-17 was withdrawn before it was published):
 
 * **Breath attacks while engaged.** Breath abilities can be used while the
   flyer is engaged in melee and while it is on the ground (the game's own
   usage-flag table, shipped whole under its vanilla path minus those rows).
+  This one is a setting of the
+  [Mod Configuration Tool](https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021)
+  (MCT, optional), default **on**. Off, the battle script
+  `mod/script/battle/mod/flyer_breath.lua` puts the game's two locks back by hand
+  every battle tick (it disables a listed breath while its unit is in melee, or not
+  flying where the game also locks it on the ground) and writes `flyer_breath.txt`
+  next to `Warhammer3.exe`. Without MCT the setting stays on. Multiplayer battles
+  ignore it and stay on, because the players' settings could differ.
 * **Mass cut.** Large flyers weigh ×0.85, very large ones ×0.75. The celestial
   lion and The Wise One (the boss lion) are cut as large; the game's nine flying
   war machine and chariot bodies (thunderbarges, sky-junk, sky lantern,
   skycutters, burning chariot, gyrocopter, gyrobomber) keep their mass
   (`MASS_CUT_MACHINES` also names two Lore Disasters bodies this pack never ships).
+  Not a setting. The collision attack is still sized on the uncut mass.
 
-It **requires the main mod** and is built by the same run (below), so the two
-packs always match: its flyer rows are the main pack's rows with only the mass
-changed, and both packs carry the same build stamp. When they come from
-different builds, the battle log `flyer_dive.txt` gets a
-`BALANCE MISMATCH` line. Load order needs no manual step: a project measurement
-(Lore Disasters ledger, RESIST-W2) found that the row from the pack whose name
-sorts first wins, and both the submod's pack name and every one of its table
-fragment names sort before the main pack's (`flyer_dive_balance` < `flyer_dive_takeoff`; a main pack
-called `flyer_dive.pack` would not, because `.` sorts before `_`), so it holds whichever of the two
-names the game goes by. Checked in game on 2026-11-18 with these two packs: the submod's masses were
-read in battle (manticore 1700, star dragon 4425) with the submod listed after the main pack in the mod
-list (two runs) and listed before it (one run), so the order in the mod list does not decide it. The
-three runs agree with "the fragment name that sorts first wins"; the opposite fragment order was not
-tested.
+Another mod that ships the same flyer rows or its own copy of the usage-flag
+table wins or loses against this pack by load order. Measured in game on
+2026-11-18 with two packs of this mod: the order in the mod list did not decide
+which rows applied; three runs agree with "the DB fragment name that sorts first
+wins" (the opposite order was not tested).
 
 ## Repository layout
 
@@ -69,6 +69,7 @@ once after that update, and an old `ld_air_dive.pack` left in the game's `data` 
 |---|---|
 | `mod/assets/air_dive/` | renamed flight tables (`.bin`, animpack) and `air_dive_manifest.json` (sha256 of each) |
 | `mod/script/{battle,campaign}/mod/flyer_*.lua`, `mod/script/campaign/flyer_dive/{lib,data}/` | battle and campaign entry scripts, rule modules, generated site tables |
+| `mod/script/mct/settings/flyer_dive_takeoff.lua` | the Mod Configuration Tool page (breath while engaged); its keys and default come from the generated `breath_rows.lua` |
 | `mod/assets/vendored_scripts/memreader_plus/` | memreader Plus 0_15_2 (MIT, see its `third_party_licenses.txt`), read by the cave-site tests; the pack does **not** include it, it is a declared prerequisite |
 | `mod/tools/pipelines/` | `build_air_dive_minimod.py` (builds the pack), `air_dive.py` (derives the tables), cave assemblers, probes and the automated battle test |
 | `mod/tools/lib/`, `mod/tools/tests/` | rule module, animation codecs, tests |
@@ -84,10 +85,10 @@ time, so a game patch is a re-run.
 
 ```
 cd mod
-python -P tools/pipelines/build_air_dive_minimod.py --out <path>/flyer_dive_takeoff.pack --balance-out <path>/flyer_dive_balance.pack
+python -P tools/pipelines/build_air_dive_minimod.py --out <path>/flyer_dive_takeoff.pack
 ```
 
-One run writes both packs (the names are fixed: the build refuses others).
+One run writes the one pack (the name is fixed: the build refuses others).
 
 Set `WH3_DATA` to your game's `data` folder if it is not the default path in
 the script. The DB tables are written by `mod/tools/lib/flyer_db.py` (the table
@@ -145,27 +146,27 @@ separate main-mod adapter pack.
 
 **前置模组**：memreader Plus（创意工坊 3811098873）。没装时两条规则不生效、按原版运行。
 
-## 平衡子模组（可选）
+## 吹息与质量
 
-第二个包 `flyer_dive_balance.pack` 装着原来在主包里的两项平衡调整（用户 2026-11-17 裁定，
-`docs/DECISIONS.md` D1）：
+两项都在这一个包里（模组主人 2026-11-18 裁定，`docs/DECISIONS.md` D10；2026-11-17 定的可选平衡子模组
+在发布前已撤回）：
 
 * **陷入近战时可用吹息**：吹息类技能在陷入近战时、已落地时都能释放（游戏自己的技能可用条件表，
-  按原版路径整表发货，只去掉这几行）。
+  按原版路径整表发货，只去掉这几行）。这一项是
+  [Mod Configuration Tool](https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021)（模组设置工具，
+  可选）里的设置，默认**开**。关掉时由战斗脚本 `mod/script/battle/mod/flyer_breath.lua` 每个战斗时刻把原版的两条限制
+  按兵补回去（部队陷入近战时、以及原版在地面上也禁用的那些吹息在没飞起来时，禁用该吹息），并在
+  `Warhammer3.exe` 旁写 `flyer_breath.txt`。没装 MCT 时保持开。联机战斗不看这个设置、始终为开，因为两端的设置可能不同。
 * **质量下调**：大型飞兽质量 ×0.85，超大型 ×0.75。昊天狮与「智者」按大型算；游戏里九种飞行战争机器
-  与战车的实体（雷霆空艇、天舟、天灯、斩天者、浴焰战车、矮人直升机、矮人轰炸机）质量不变。
+  与战车的实体（雷霆空艇、天舟、天灯、斩天者、浴焰战车、矮人直升机、矮人轰炸机）质量不变。不是设置。
+  冲撞攻击仍按下调前的质量计算。
 
-它**需要主模组**，并且和主包由同一次建包生成（见下），两包始终一致：它的飞兽行就是主包的行、
-只改了质量，两包带同一个建包戳；来自不同建包时，战斗日志 `flyer_dive.txt` 会写一行
-`BALANCE MISMATCH`。加载顺序不用手动调：本项目此前实测（主模组台账 RESIST-W2）是名字排序在前的
-包的行生效，子模组的包名和每个表片段名都排在主包之前（`flyer_dive_balance` < `flyer_dive_takeoff`），所以不论游戏看的是哪个名字都成立。
-2026-11-18 用这两个包实机核对过：子模组在模组列表里排在主包之后（两局）和之前（一局），战斗里读到的都是子模组的质量
-（蝎尾狮 1700、星龙 4425），所以决定结果的不是模组列表里的先后；三局都与「片段名排前者赢」相符，反过来的片段名顺序没测。
+别的模组若发同样的飞兽行、或自带一份技能可用条件表，与本包谁生效取决于加载顺序。2026-11-18 用本模组的两个包
+实机量过：模组列表里的先后不决定结果，三局都与「表片段名排前者赢」相符（反过来的顺序没测）。
 
 ## 建包
 
-建包命令一次写出两个包（`--out <路径>/flyer_dive_takeoff.pack --balance-out <路径>/flyer_dive_balance.pack`，
-包名固定，别的名字会被拒绝）。自 2026-11-17 起建包只需要本仓库、安装的游戏和几个 PyPI 包（`lz4`、`zstandard`、
+建包命令写出一个包（`--out <路径>/flyer_dive_takeoff.pack`，包名固定，别的名字会被拒绝）。自 2026-11-17 起建包只需要本仓库、安装的游戏和几个 PyPI 包（`lz4`、`zstandard`、
 `pefile`），命令见上面英文部分。数据表由 `mod/tools/lib/flyer_db.py`（从主模组照搬的
 表读写器）按 `mod/tools/data/flyer_db_schemas.json` 里记录的表结构写出；建包读到的
 每张原版表仍须逐字节往返，游戏更新改了表就拒绝而不是猜。重生代码洞位点表与模拟器检查

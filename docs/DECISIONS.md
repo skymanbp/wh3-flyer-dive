@@ -159,6 +159,12 @@ One rule replaces the two earlier ones ("more than half of the living models str
 - No native mechanic does exactly this. Order of work: measure first (a ground-cavalry positive
   control and the flyer lanes), then choose the mechanism from the measurement. If it cannot be
   done without the bounce, the question goes back to the owner.
+- **Measured offline on 2026-11-18 (`docs/HISTORY.md` PROBES-1118; nothing run in game yet):** the
+  installed game has 129 land units with `charge_reflection`, not 136. The game itself already hurts
+  the charger, two ways: a braced `charge_reflection` soldier's ordinary attacks on a charger whose
+  charge factor is 0.7 or more are multiplied by `charge_reflect_damage_multiplier` (2), and a separate
+  impact reflection applies its own damage. So this rule may need no damage source of its own. What
+  "twice the game's own" means under that mechanism is asked of the owner after the control run.
 
 ### D5 · Second carry-through: no change (assessment, not a ruling)
 
@@ -262,6 +268,19 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - What follows from it: D9's reason for the pack name (it had to sort after the submod) no longer
   applies, and the name `flyer_dive_takeoff.pack` stays, because the branch, its in-game records and
   the rename table already use it. D2's Workshop texts lose the submod item.
+- **Mechanism chosen (maintainer, 2026-11-18, from the offline work; the in-game check is owed):** the
+  shipped table stays unlocked. That is the on state: it needs no script, no MCT and no memreader Plus,
+  and it is what the published version does. When the setting is off, a battle script puts the game's
+  two locks back by hand: every 100 ms of battle time, each of the 20 breath abilities a unit owns is
+  disabled while the unit is in melee (and, for the 12 abilities whose `grounded` row was dropped, while
+  it is not flying), and enabled again when no lock holds. Not chosen: changing the engine's own check
+  with a code cave, which would tie a cosmetic-sized setting to memreader Plus and to the multiplayer
+  agreement.
+- **A multiplayer battle ignores the setting and stays on** (maintainer's call until the owner says
+  otherwise): the two players' settings can differ, and a script disabling abilities has never been
+  seen in a multiplayer battle. Changing this needs a two-player test.
+- The settings page is English, or Simplified Chinese when the client is Simplified Chinese (told by
+  the game's own word for the breath ability type). One language per string.
 
 ### D11 · The next version is uploaded only when the braced-spear damage is in and the take-off gap is explained
 

@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .cache/
 .pytest_cache/
+.ccm/
+.claude/settings.local.json

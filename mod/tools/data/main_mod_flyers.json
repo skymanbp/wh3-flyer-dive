@@ -1,0 +1,3536 @@
+{
+ "about": "A snapshot of the main mod's flying bodies and donor flyers, kept as input for the future main-mod adapter pack; this repository never reads the other checkout. Rows copied verbatim from the Lore Disasters repository's staged donor closures (mod/assets/vendored_chars/<closure>/tsv/db/<table>/<fragment>.tsv): battle_entities rows that fly (fly_speed > 0, type not fauna; every column, with the source's header and #table;version marker), and the land_units / mounts rows whose animation table is a flight table of the installed game (one with slot 104), as (unit key, animation table, battle entity). Read by tools/pipelines/air_dive.py (body sizes, rider census) through tools/lib/main_mod_flyers.py, and by tools/tests/test_air_dive_charge_speeds.py. Change it only by taking the snapshot again.",
+ "taken_from": {
+  "repository": "lore-disasters",
+  "commit": "83ec18df1aceac6d0e0a11a68449053c76b53665",
+  "date": "2026-11-17",
+  "path": "mod/assets/vendored_chars"
+ },
+ "selection": {
+  "flight_tables_in_installed_game": 74,
+  "battle_entities_tables": "fly_speed > 0 and type not in air_dive_rules.EXCLUDED_TYPES",
+  "land_units_tables / mounts_tables": "animation table carries slot 104 in the installed game"
+ },
+ "closures": {
+  "abhorash": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/abhorash/tsv/db/battle_entities_tables/@ld_chr_abhorash.tsv",
+    "sha256": "b6eca862fdb6e21fa5721528232b19f248a0571bfb42f017c60f526d7b91b975",
+    "rows_in_source": 1,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_abhorash",
+    "rows": [
+     [
+      "ld_chr_abhorash_entity",
+      "man",
+      "3.0000",
+      "5.0000",
+      "6.0000",
+      "7.0000",
+      "8.0000",
+      "40.0000",
+      "35.0000",
+      "35.0000",
+      "0.7000",
+      "circle",
+      "1.0000",
+      "2000.0000",
+      "2.3000",
+      "60.0000",
+      "120.0000",
+      "8",
+      "true",
+      "true",
+      "1.0000",
+      "9.5000",
+      "15.0000",
+      "small",
+      "1.0000",
+      "ignore",
+      "wh_human_male",
+      "6.0000",
+      "infantry_light_effects",
+      "75",
+      "95",
+      "0.0000",
+      "true",
+      "1.0000",
+      "0.9000",
+      "1",
+      "wh_main_generic_character_aura",
+      "",
+      "0.5000",
+      "1.6000",
+      "1",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "70",
+      "small_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   }
+  },
+  "amenemhetum": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/amenemhetum/tsv/db/battle_entities_tables/@ld_chr_amenemhetum.tsv",
+    "sha256": "a94f3bb20d7b7b23d3fa40e547e2241daabf4e585472eaef717419610131b5c4",
+    "rows_in_source": 1,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_amenemhetum",
+    "rows": [
+     [
+      "ld_cr_vehicle_tmb_tomb_barque",
+      "chariot",
+      "1.8000",
+      "4.8000",
+      "4.0000",
+      "6.0000",
+      "6.8000",
+      "35.0000",
+      "30.0000",
+      "30.0000",
+      "3.7000",
+      "capsule",
+      "0.3700",
+      "3000.0000",
+      "7.0000",
+      "40.0000",
+      "80.0000",
+      "8",
+      "true",
+      "true",
+      "2.8000",
+      "6.0000",
+      "7.0000",
+      "large",
+      "1.6000",
+      "rotation",
+      "wh_war_machine_wood_medium",
+      "6.0000",
+      "artillery_effects",
+      "0",
+      "0",
+      "0.0000",
+      "false",
+      "1.0000",
+      "0.8000",
+      "4",
+      "",
+      "",
+      "0.5000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "articulated_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   }
+  },
+  "anark_von_carstein": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/anark_von_carstein/tsv/db/battle_entities_tables/@ld_chr_anark_von_carstein.tsv",
+    "sha256": "7a3c9b7d3bb4aa2dfe9b54e9f5eb6bd918e647a22590759ea660fad7fa6748ad",
+    "rows_in_source": 9,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_anark_von_carstein",
+    "rows": [
+     [
+      "ld_mikael_skeletal_hippo",
+      "giant",
+      "3.0000",
+      "7.0000",
+      "6.0000",
+      "10.0000",
+      "10.0000",
+      "35.0000",
+      "30.0000",
+      "35.0000",
+      "2.1000",
+      "capsule",
+      "0.6500",
+      "2000.0000",
+      "4.0000",
+      "120.0000",
+      "110.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "10.0000",
+      "14.0000",
+      "very_large",
+      "1.5000",
+      "rotation_x",
+      "wh_hippogryph",
+      "6.0000",
+      "war_beast_effects",
+      "75",
+      "65",
+      "0.0000",
+      "false",
+      "1.3000",
+      "0.8000",
+      "6",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "99",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "50",
+      "very_large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ],
+     [
+      "ld_drakenhof_templar_skeleton_manticore",
+      "giant",
+      "2.2000",
+      "7.0000",
+      "8.0000",
+      "10.0000",
+      "10.0000",
+      "35.0000",
+      "35.0000",
+      "35.0000",
+      "2.3000",
+      "capsule",
+      "0.3500",
+      "2500.0000",
+      "3.0000",
+      "120.0000",
+      "120.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "8.5000",
+      "13.0000",
+      "large",
+      "1.0000",
+      "rotation_x",
+      "wh_dlc_manticore",
+      "4.0000",
+      "war_beast_effects",
+      "40",
+      "40",
+      "0.0000",
+      "false",
+      "1.2000",
+      "0.8000",
+      "4",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "70",
+      "large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   }
+  },
+  "araby_units": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/araby_units/tsv/db/battle_entities_tables/@ld_chr_araby_units.tsv",
+    "sha256": "de7033fb1ceccb567adce7ad946e65f17c06051197ec89fd5ca646f95160685a",
+    "rows_in_source": 2,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_araby_units",
+    "rows": [
+     [
+      "ld_ovn_arb_cav_flying_carpet",
+      "man",
+      "1.8000",
+      "8.5000",
+      "7.0000",
+      "10.0000",
+      "11.5000",
+      "30.0000",
+      "30.0000",
+      "30.0000",
+      "1.3500",
+      "ellipse",
+      "0.7000",
+      "800.0000",
+      "2.5000",
+      "360.0000",
+      "120.0000",
+      "8",
+      "true",
+      "true",
+      "1.0000",
+      "10.5000",
+      "13.0000",
+      "medium",
+      "1.0000",
+      "ignore",
+      "wh_human_male",
+      "0.0000",
+      "hovering_effects",
+      "0",
+      "0",
+      "0.0000",
+      "false",
+      "1.0000",
+      "0.9000",
+      "2",
+      "",
+      "",
+      "0.5000",
+      "1.6000",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "medium_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   }
+  },
+  "birdmen_of_catrazza": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/birdmen_of_catrazza/tsv/db/battle_entities_tables/@ld_chr_birdmen_of_catrazza.tsv",
+    "sha256": "5ce4b0b5bacbf32e3b21bbc0a4ab292100d809e752c2865e2df75d82a380b13d",
+    "rows_in_source": 3,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_birdmen_of_catrazza",
+    "rows": [
+     [
+      "ld_unused_teb_birdmen_wings",
+      "man",
+      "1.5000",
+      "3.8000",
+      "6.0000",
+      "8.0000",
+      "5.2000",
+      "30.0000",
+      "25.0000",
+      "25.0000",
+      "0.7000",
+      "circle",
+      "1.0000",
+      "50.0000",
+      "1.8000",
+      "170.0000",
+      "140.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "8.2000",
+      "12.0000",
+      "small",
+      "1.0000",
+      "ignore",
+      "wh_war_machine_wood_small",
+      "0.0000",
+      "infantry_light_effects",
+      "30",
+      "0",
+      "0.0000",
+      "false",
+      "1.2000",
+      "0.9500",
+      "1",
+      "",
+      "",
+      "0.5000",
+      "1.6000",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_artillery_footstep",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "small_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ],
+     [
+      "ld_teb_birdmen",
+      "man",
+      "1.5000",
+      "3.8000",
+      "6.0000",
+      "8.0000",
+      "5.2000",
+      "30.0000",
+      "30.0000",
+      "30.0000",
+      "0.7000",
+      "ellipse",
+      "2.0000",
+      "200.0000",
+      "1.8000",
+      "270.0000",
+      "140.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "8.2000",
+      "12.0000",
+      "medium",
+      "1.0000",
+      "ignore",
+      "wh_fell_bat",
+      "0.0000",
+      "infantry_light_effects",
+      "30",
+      "0",
+      "0.0000",
+      "false",
+      "1.2000",
+      "0.9500",
+      "1",
+      "",
+      "",
+      "0.5000",
+      "1.6000",
+      "0",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_artillery_footstep",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "small_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   },
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/birdmen_of_catrazza/tsv/db/mounts_tables/@ld_chr_birdmen_of_catrazza.tsv",
+    "sha256": "691ac96d5b4d105bbc64f5ffb9d5cf7ff04582a4eddc77bb63b72b72ce49a7bd",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_teb_birdmen_wings",
+      "hu10b_harpy",
+      "ld_unused_teb_birdmen_wings"
+     ]
+    ]
+   }
+  },
+  "black_grail_knight": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/black_grail_knight/tsv/db/battle_entities_tables/@ld_chr_black_grail_knight.tsv",
+    "sha256": "7d41df760d009b8e18bf3abe271672f4c5eeb6902ce8f4e46af985c3f74d27d4",
+    "rows_in_source": 4,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_black_grail_knight",
+    "rows": [
+     [
+      "ld_black_grail_hippo",
+      "giant",
+      "3.0000",
+      "7.0000",
+      "6.0000",
+      "10.0000",
+      "11.0000",
+      "40.0000",
+      "35.0000",
+      "35.0000",
+      "2.1000",
+      "capsule",
+      "0.6500",
+      "2100.0000",
+      "4.0000",
+      "120.0000",
+      "100.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "10.0000",
+      "14.0000",
+      "very_large",
+      "1.5000",
+      "rotation_x",
+      "wh_hippogryph",
+      "6.0000",
+      "war_beast_effects",
+      "70",
+      "70",
+      "0.0000",
+      "false",
+      "1.3000",
+      "0.8000",
+      "4",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "50",
+      "very_large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   },
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/black_grail_knight/tsv/db/mounts_tables/@ld_chr_black_grail_knight.tsv",
+    "sha256": "486c223fa3fd7f2283061235455273ddfa8fedca826816fb6f3d7b5862d38b11",
+    "rows_in_source": 4,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_black_grail_hippo",
+      "bc2b_hippogryph",
+      "ld_black_grail_hippo"
+     ],
+     [
+      "ld_black_grail_hippo_1",
+      "bc2b_hippogryph",
+      "ld_black_grail_hippo"
+     ]
+    ]
+   }
+  },
+  "cody_thunderbarge": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/cody_thunderbarge/tsv/db/battle_entities_tables/@ld_chr_cody_thunderbarge.tsv",
+    "sha256": "68da69700222ee8cb3c85dbd4b3fee9754be1d72a037a0c03a5da183aa4b43d8",
+    "rows_in_source": 2,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies"
+    ],
+    "marker": "#battle_entities_tables;38;db/battle_entities_tables/@ld_chr_cody_thunderbarge",
+    "rows": [
+     [
+      "ld_dwf_flying_thunderbarge",
+      "giant",
+      "2.0000",
+      "2.5000",
+      "4.5000",
+      "7.5000",
+      "5.0000",
+      "30.0000",
+      "25.0000",
+      "25.0000",
+      "12.0000",
+      "capsule",
+      "0.2600",
+      "25000.0000",
+      "10.0000",
+      "270.0000",
+      "10.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "2.5000",
+      "3.0000",
+      "very_large",
+      "1.0000",
+      "ignore_and_disable_banking",
+      "wh_gyrobomber",
+      "0.0000",
+      "ethereal_effects",
+      "40",
+      "0",
+      "0.0000",
+      "false",
+      "1.0000",
+      "0.8000",
+      "4",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "true",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "hovering_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false"
+     ]
+    ]
+   }
+  },
+  "cou_units": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/cou_units/tsv/db/battle_entities_tables/@ld_chr_cou_units.tsv",
+    "sha256": "0319719cae2e90943a1c9b5dfded76d574ed7ff9db06234b1ad3cf54dc736162",
+    "rows_in_source": 6,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_cou_units",
+    "rows": [
+     [
+      "ld_bm_wf_obsidian_great_wyrm",
+      "giant",
+      "2.0000",
+      "6.0000",
+      "6.0000",
+      "8.0000",
+      "7.5000",
+      "35.0000",
+      "35.0000",
+      "35.0000",
+      "3.0000",
+      "circle",
+      "1.0000",
+      "1750.0000",
+      "3.0000",
+      "360.0000",
+      "150.0000",
+      "8",
+      "true",
+      "true",
+      "1.0000",
+      "9.0000",
+      "11.5000",
+      "very_large",
+      "1.5000",
+      "rotation_x",
+      "wh2_dlc12_ripperdactyl",
+      "4.5000",
+      "war_beast_effects",
+      "60",
+      "85",
+      "0.0000",
+      "false",
+      "1.0000",
+      "0.8500",
+      "4",
+      "",
+      "",
+      "0.0000",
+      "2.0000",
+      "0",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "very_large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ],
+     [
+      "ld_blood_dragon_hippogryph",
+      "giant",
+      "3.0000",
+      "7.0000",
+      "6.0000",
+      "10.0000",
+      "10.0000",
+      "35.0000",
+      "30.0000",
+      "35.0000",
+      "2.1000",
+      "capsule",
+      "0.6500",
+      "1800.0000",
+      "4.0000",
+      "120.0000",
+      "110.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "10.0000",
+      "14.0000",
+      "very_large",
+      "1.5000",
+      "rotation_x",
+      "wh_hippogryph",
+      "6.0000",
+      "war_beast_effects",
+      "75",
+      "65",
+      "0.0000",
+      "false",
+      "1.3000",
+      "0.8000",
+      "6",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "50",
+      "very_large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   },
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/cou_units/tsv/db/mounts_tables/@ld_chr_cou_units.tsv",
+    "sha256": "b5745d832ce1f9042d7ee0f294ab511ca7ebef39eb9bc277a38318d3ef3a2fec",
+    "rows_in_source": 3,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_great_wyrm_mount",
+      "bi2_wyvern",
+      "ld_bm_wf_obsidian_great_wyrm"
+     ]
+    ]
+   }
+  },
+  "dread_king": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/dread_king/tsv/db/battle_entities_tables/@ld_chr_dread_king.tsv",
+    "sha256": "a718c1e1d7bd8a4e64b2a7de9b6149be806280f1a8569e471b54ab952fbd0dc2",
+    "rows_in_source": 1,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_dread_king",
+    "rows": [
+     [
+      "ld_dread_flying_pegasus_hero",
+      "giant",
+      "2.0000",
+      "8.2000",
+      "6.0000",
+      "10.0000",
+      "10.8000",
+      "35.0000",
+      "35.0000",
+      "35.0000",
+      "1.4000",
+      "ellipse",
+      "0.4000",
+      "1300.0000",
+      "2.0000",
+      "120.0000",
+      "120.0000",
+      "8",
+      "true",
+      "true",
+      "1.0000",
+      "10.5000",
+      "13.0000",
+      "medium",
+      "1.0000",
+      "rotation_x",
+      "wh_horse_pegasus",
+      "0.0000",
+      "ethereal_effects",
+      "60",
+      "30",
+      "0.0000",
+      "false",
+      "1.1000",
+      "0.8500",
+      "3",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "70",
+      "medium_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   },
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/dread_king/tsv/db/mounts_tables/@ld_chr_dread_king.tsv",
+    "sha256": "d9a28d6d23b997d1e7b7ff4083748226acef97eb54064412bbb4041f024da673",
+    "rows_in_source": 5,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_dread_king_mnt_dragon_zombie",
+      "dr1_dragon_zombie",
+      "wh_main_flying_dragon_blood"
+     ],
+     [
+      "ld_dread_skeletal_pegasus_hero",
+      "hr1_pegasus",
+      "ld_dread_flying_pegasus_hero"
+     ]
+    ]
+   }
+  },
+  "golden_magus": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/golden_magus/tsv/db/battle_entities_tables/@ld_chr_golden_magus.tsv",
+    "sha256": "e6f54b6286bf6d28885dffdd71fcd00f2e59948fa38ecf85f1f3ef766169fedb",
+    "rows_in_source": 7,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_golden_magus",
+    "rows": [
+     [
+      "ld_arb_flying_air_skiff",
+      "giant",
+      "2.0000",
+      "3.6000",
+      "5.0000",
+      "8.0000",
+      "3.6000",
+      "30.0000",
+      "25.0000",
+      "25.0000",
+      "3.1000",
+      "circle",
+      "1.0000",
+      "2000.0000",
+      "20.0000",
+      "270.0000",
+      "30.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "3.6000",
+      "3.6000",
+      "very_large",
+      "1.0000",
+      "ignore_and_disable_banking",
+      "wh3_cth_war_machine_kong_ming_sky_junk",
+      "0.0000",
+      "ethereal_effects",
+      "0",
+      "0",
+      "0.0000",
+      "false",
+      "0.9000",
+      "0.8000",
+      "4",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "hovering_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ]
+    ]
+   }
+  },
+  "zerooz_units": {
+   "battle_entities_tables": {
+    "source": "mod/assets/vendored_chars/zerooz_units/tsv/db/battle_entities_tables/@ld_chr_zerooz_units.tsv",
+    "sha256": "26fb52c71b43b107d532e487eaeac03129eccda499fc5035ecb34ca89d9603b5",
+    "rows_in_source": 9,
+    "header": [
+     "key",
+     "type",
+     "walk_speed",
+     "run_speed",
+     "acceleration",
+     "deceleration",
+     "charge_speed",
+     "charge_distance_commence_run",
+     "charge_distance_adopt_charge_pose",
+     "charge_distance_pick_target",
+     "radius",
+     "shape",
+     "radii_ratio",
+     "mass",
+     "height",
+     "fire_arc_close",
+     "turn_speed",
+     "hit_points",
+     "allow_turn_to_move_anim",
+     "allow_static_turn_anim",
+     "min_turning_speed",
+     "fly_speed",
+     "flying_charge_speed",
+     "size",
+     "strafe_speed",
+     "gradient_strategy",
+     "audio_entity_type",
+     "combat_reaction_radius",
+     "entity_effects",
+     "hit_reactions_ignore_chance",
+     "knock_interrupts_ignore_chance",
+     "soft_collision_offset_z",
+     "can_climb_ladder_and_stair_pipes",
+     "projectile_intersection_radius_ratio",
+     "projectile_penetration_speed_change",
+     "projectile_penetration_resistance",
+     "aura_vfx",
+     "porthole_camera",
+     "min_tracking_ratio",
+     "max_tracking_ratio",
+     "vfx_filter_id",
+     "can_cast_projectile",
+     "porthole_composite_scene",
+     "has_blood",
+     "can_dismember",
+     "combat_camera_shake",
+     "dismember_head_alive_hp_ratio",
+     "dismember_arms_alive_hp_ratio",
+     "jump_attack_chance",
+     "locomotion_constants",
+     "enable_engine_crew_turn_in_movement_direction",
+     "dealt_collision_knocked_flying_threshold_multiplier",
+     "dealt_collision_knocked_down_threshold_multiplier",
+     "dealt_collision_knocked_back_threshold_multiplier",
+     "anim_lod_distance_multiplier",
+     "size_for_animation_lod",
+     "leaves_collision_when_dies",
+     "stop_before_turn"
+    ],
+    "marker": "#battle_entities_tables;39;db/battle_entities_tables/@ld_chr_zerooz_units",
+    "rows": [
+     [
+      "ld_cth_inf_onyx_armored_crowmen",
+      "man",
+      "1.5000",
+      "5.0000",
+      "6.0000",
+      "8.0000",
+      "12.0000",
+      "30.0000",
+      "25.0000",
+      "25.0000",
+      "0.6000",
+      "circle",
+      "1.0000",
+      "200.0000",
+      "1.2000",
+      "60.0000",
+      "140.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "9.0000",
+      "12.0000",
+      "small",
+      "1.0000",
+      "ignore",
+      "wh3_dlc24_cth_onyx_crowman",
+      "0.0000",
+      "infantry_light_effects",
+      "30",
+      "0",
+      "0.0000",
+      "false",
+      "1.2000",
+      "0.9500",
+      "1",
+      "",
+      "",
+      "0.5000",
+      "1.6000",
+      "0",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "small_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ],
+     [
+      "ld_cth_flying_sky_ark",
+      "giant",
+      "2.0000",
+      "3.0000",
+      "5.0000",
+      "8.0000",
+      "8.0000",
+      "30.0000",
+      "25.0000",
+      "25.0000",
+      "12.0000",
+      "circle",
+      "1.0000",
+      "15000.0000",
+      "5.0000",
+      "270.0000",
+      "30.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "3.5000",
+      "3.7000",
+      "very_large",
+      "1.0000",
+      "ignore_and_disable_banking",
+      "wh3_cth_war_machine_skylantern",
+      "0.0000",
+      "ethereal_effects",
+      "0",
+      "0",
+      "0.0000",
+      "false",
+      "0.9000",
+      "0.8000",
+      "4",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "false",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "hovering_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ],
+     [
+      "ld_hef_mnt_dragon",
+      "giant",
+      "3.0000",
+      "6.5000",
+      "6.0000",
+      "10.0000",
+      "9.5000",
+      "35.0000",
+      "28.0000",
+      "35.0000",
+      "2.4000",
+      "capsule",
+      "0.5000",
+      "2300.0000",
+      "4.5000",
+      "120.0000",
+      "100.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "8.0000",
+      "12.5000",
+      "very_large",
+      "1.5000",
+      "rotation_x",
+      "wh_dragon_large_default",
+      "6.0000",
+      "war_beast_effects",
+      "70",
+      "70",
+      "0.0000",
+      "false",
+      "1.1000",
+      "0.7500",
+      "5",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "24",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "very_large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "false",
+      "false"
+     ],
+     [
+      "ld_emp_griffon_blood",
+      "giant",
+      "3.0000",
+      "7.0000",
+      "5.0000",
+      "10.0000",
+      "9.5000",
+      "35.0000",
+      "30.0000",
+      "35.0000",
+      "2.2000",
+      "capsule",
+      "0.5000",
+      "1600.0000",
+      "4.0000",
+      "120.0000",
+      "100.0000",
+      "8",
+      "true",
+      "true",
+      "0.0000",
+      "9.0000",
+      "13.0000",
+      "very_large",
+      "1.5000",
+      "rotation_x",
+      "wh_griffin",
+      "6.0000",
+      "war_beast_effects",
+      "50",
+      "50",
+      "0.0000",
+      "false",
+      "1.3000",
+      "0.7500",
+      "5",
+      "",
+      "",
+      "0.0000",
+      "1.4500",
+      "0",
+      "false",
+      "",
+      "true",
+      "false",
+      "wh_main_unit_combat",
+      "-1.0000",
+      "-1.0000",
+      "20",
+      "very_large_entity",
+      "false",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "1.0000",
+      "",
+      "true",
+      "false"
+     ]
+    ]
+   },
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/zerooz_units/tsv/db/mounts_tables/@ld_chr_zerooz_units.tsv",
+    "sha256": "300657a8a2a1045fbf90c56d1e073eba04a34a5b9d960a02be1083a046beda01",
+    "rows_in_source": 3,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_emp_mnt_gryph_knights",
+      "bc2_griffon",
+      "ld_emp_griffon_blood"
+     ],
+     [
+      "ld_hef_mnt_dragon",
+      "dr1_dragon",
+      "ld_hef_mnt_dragon"
+     ]
+    ]
+   }
+  },
+  "karavox": {
+   "land_units_tables": {
+    "source": "mod/assets/vendored_chars/karavox/tsv/db/land_units_tables/@ld_chr_karavox.tsv",
+    "sha256": "4d05efc4af49dc5af7327fdc6f46a34b5fddfe1427d10734de9f74f1632312bd",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "man_animation",
+     "man_entity"
+    ],
+    "rows": [
+     [
+      "ld_chr_karavox",
+      "hu10_wh3_bloodthirster_great_axe",
+      "wh3_main_kho_cha_exalted_bloodthirster"
+     ]
+    ]
+   }
+  },
+  "tchzen": {
+   "land_units_tables": {
+    "source": "mod/assets/vendored_chars/tchzen/tsv/db/land_units_tables/@ld_chr_tchzen.tsv",
+    "sha256": "a1806c690fa782a11454c331695facf3347b1ee6507c92e1aef642dead116012",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "man_animation",
+     "man_entity"
+    ],
+    "rows": [
+     [
+      "ld_chr_tchzen",
+      "hu10c_exalted_lord_of_change_staff",
+      "wh3_main_tze_cha_exalted_lord_of_change"
+     ]
+    ]
+   }
+  },
+  "armand_daquitaine": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/armand_daquitaine/tsv/db/mounts_tables/@ld_chr_armand_daquitaine.tsv",
+    "sha256": "f45f51b6edd7085e7c2326726013a4e6e909502618f48d0cdd437076667c1d7f",
+    "rows_in_source": 3,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_brt_armand_pegasus",
+      "hr1_pegasus",
+      "wh_main_flying_pegasus_hero_blood"
+     ],
+     [
+      "ld_brt_mnt_hippogryph_armand",
+      "bc2b_hippogryph",
+      "wh_main_brt_mnt_hippogryph_hero_blood"
+     ]
+    ]
+   }
+  },
+  "cassyon_of_parravon": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/cassyon_of_parravon/tsv/db/mounts_tables/@ld_chr_cassyon_of_parravon.tsv",
+    "sha256": "2d2080f5fd73e5bb3fabeb37e6f1a8cda8ff9ce176c0adb226554d0b96d2e5c9",
+    "rows_in_source": 2,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_brt_cassyon_mount_pegasus",
+      "hr1_pegasus",
+      "wh_main_flying_pegasus_hero_blood"
+     ]
+    ]
+   }
+  },
+  "chilfroy_of_artois": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/chilfroy_of_artois/tsv/db/mounts_tables/@ld_chr_chilfroy_of_artois.tsv",
+    "sha256": "0f78cc87c6b871a3835be568dc96986ce7b4534b15f7a758b859c57f52b3e66a",
+    "rows_in_source": 2,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_brt_chilfroy_mount_royal_pegasus",
+      "hr1_pegasus",
+      "wh_main_flying_pegasus_hero_blood"
+     ]
+    ]
+   }
+  },
+  "hagen_of_gisoreux": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/hagen_of_gisoreux/tsv/db/mounts_tables/@ld_chr_hagen_of_gisoreux.tsv",
+    "sha256": "e4d0a617532c26d46d6b624e27e0dc40e25a6867fa8f13fc3e6efb08a630ff0c",
+    "rows_in_source": 3,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_brt_hagen_royal_pegasus",
+      "hr1_pegasus",
+      "wh_main_flying_pegasus_hero_blood"
+     ],
+     [
+      "wh_main_brt_mnt_hippogryph_hagen",
+      "bc2b_hippogryph",
+      "wh_main_brt_mnt_hippogryph_hero_blood"
+     ]
+    ]
+   }
+  },
+  "naieth_the_prophetess": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/naieth_the_prophetess/tsv/db/mounts_tables/@ld_chr_naieth_the_prophetess.tsv",
+    "sha256": "837d115ce8bafeba829c775fe3d76e4884fdb9b038387d05a4ae6816700434e6",
+    "rows_in_source": 2,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_wef_naieth_mount_great_eagle",
+      "bi1_eagle",
+      "wh_dlc05_wef_mon_great_eagle_blood"
+     ]
+    ]
+   }
+  },
+  "rykarth_the_unbreakable": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/rykarth_the_unbreakable/tsv/db/mounts_tables/@ld_chr_rykarth_the_unbreakable.tsv",
+    "sha256": "2707a022897c2975cff34e9021449de9bc87a340afc87f61d102e55f3d7ff1c0",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_chd_rykarth_mnt_lammasu",
+      "bc2c_dlc23_lammasu_mount",
+      "wh3_dlc23_chd_mnt_lammasu"
+     ]
+    ]
+   }
+  },
+  "taubert_de_langlante": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/taubert_de_langlante/tsv/db/mounts_tables/@ld_chr_taubert_de_langlante.tsv",
+    "sha256": "3a57bebedb73e49dd60f330dd8f41ce9cf41439d93565021b85604d44964b6e0",
+    "rows_in_source": 2,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_brt_taubert_royal_pegasus",
+      "hr1_pegasus",
+      "wh_main_flying_pegasus_hero_blood"
+     ]
+    ]
+   }
+  },
+  "theoderic_gausser": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/theoderic_gausser/tsv/db/mounts_tables/@ld_chr_theoderic_gausser.tsv",
+    "sha256": "bb5de3d142e36aba4636f1dea17915c7b0cd19cc9897a23a8a61bcb0e0430ad2",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_emp_theoderic_gausser_mount_griffon",
+      "bc2_griffon",
+      "wh_main_flying_griffon_blood"
+     ]
+    ]
+   }
+  },
+  "theodoric_of_brionne": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/theodoric_of_brionne/tsv/db/mounts_tables/@ld_chr_theodoric_of_brionne.tsv",
+    "sha256": "65646e8f4e32a2c5bf86157c69b7c4bcd850bfe68374af011dc853dfd471b848",
+    "rows_in_source": 3,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_brt_theodoric_royal_pegasus",
+      "hr1_pegasus",
+      "wh_main_flying_pegasus_hero_blood"
+     ],
+     [
+      "wh_main_brt_mnt_hippogryph_theodoric",
+      "bc2b_hippogryph",
+      "wh_main_brt_mnt_hippogryph_hero_blood"
+     ]
+    ]
+   }
+  },
+  "ushoran": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/ushoran/tsv/db/mounts_tables/@ld_chr_ushoran.tsv",
+    "sha256": "0e27456d223878b2c35fb74b706555152200bdb68250b0c736e8f74f5b830e46",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_chr_ushoran_throne_of_ghoul",
+      "bi2_terrorgheist",
+      "ld_chr_ushoran_throne_of_ghoul"
+     ]
+    ]
+   }
+  },
+  "wolfram_hertwig": {
+   "mounts_tables": {
+    "source": "mod/assets/vendored_chars/wolfram_hertwig/tsv/db/mounts_tables/@ld_chr_wolfram_hertwig.tsv",
+    "sha256": "3c22cd110cb67347ec75856f28daa115df2dd208fa235fb4af32763d2156f47d",
+    "rows_in_source": 1,
+    "columns": [
+     "key",
+     "animation",
+     "entity"
+    ],
+    "rows": [
+     [
+      "ld_emp_wolfram_hertwig_mount_griffon",
+      "bc2_griffon",
+      "wh_main_flying_griffon_blood"
+     ]
+    ]
+   }
+  }
+ },
+ "sources_without_selected_rows": {
+  "battle_entities_tables": [
+   {
+    "source": "mod/assets/vendored_chars/alberich_haupt_anderssen/tsv/db/battle_entities_tables/@ld_chr_alberich_haupt_anderssen.tsv",
+    "sha256": "ee384bb46169084dbf66dfe3de85c29d21e2f9f8f8a037e2dda3af8ef3e28b19",
+    "rows_in_source": 1,
+    "closure": "alberich_haupt_anderssen"
+   },
+   {
+    "source": "mod/assets/vendored_chars/albion_giants/tsv/db/battle_entities_tables/@ld_chr_albion_giants.tsv",
+    "sha256": "59ba93ba68630cdcf1b7c84115e8466e40e04e318d0246502011f10a17d78c20",
+    "rows_in_source": 2,
+    "closure": "albion_giants"
+   },
+   {
+    "source": "mod/assets/vendored_chars/alrik_ranulfsson/tsv/db/battle_entities_tables/@ld_chr_alrik_ranulfsson.tsv",
+    "sha256": "1dd534da60c06b12ed3c16aeca198a5a4a78a7779493ada898a2794e1b906a72",
+    "rows_in_source": 1,
+    "closure": "alrik_ranulfsson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/anakondas_amazons/tsv/db/battle_entities_tables/@ld_chr_anakondas_amazons.tsv",
+    "sha256": "e77cc7ee66e443bf496d100a33ed05f3e9f79e4e921049fd95546085c7374c76",
+    "rows_in_source": 1,
+    "closure": "anakondas_amazons"
+   },
+   {
+    "source": "mod/assets/vendored_chars/barundin_stoneheart/tsv/db/battle_entities_tables/@ld_chr_barundin_stoneheart.tsv",
+    "sha256": "68137848810b3b0df58d28bb3f25db6b3f1acf99041bcd729765a2ca5ae0c2a5",
+    "rows_in_source": 3,
+    "closure": "barundin_stoneheart"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bazrak_bolgan/tsv/db/battle_entities_tables/@ld_chr_bazrak_bolgan.tsv",
+    "sha256": "d41b11d082c6f9c7baef0693eb624d04f512f02397082c5d15ea1874fca68511",
+    "rows_in_source": 1,
+    "closure": "bazrak_bolgan"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bolragoth/tsv/db/battle_entities_tables/@ld_chr_bolragoth.tsv",
+    "sha256": "72921bad9c7c03c1133e705694026cbc6edccd16f0dc457a3cf0928b5db1c0d3",
+    "rows_in_source": 1,
+    "closure": "bolragoth"
+   },
+   {
+    "source": "mod/assets/vendored_chars/borgut_facebeater/tsv/db/battle_entities_tables/@ld_chr_borgut_facebeater.tsv",
+    "sha256": "c95eb041d5c0288a02f4153e2069cb9300238abbb6fdd9b07d8ce90d8853f984",
+    "rows_in_source": 2,
+    "closure": "borgut_facebeater"
+   },
+   {
+    "source": "mod/assets/vendored_chars/brokk_ironpick/tsv/db/battle_entities_tables/@ld_chr_brokk_ironpick.tsv",
+    "sha256": "0ad2987777e3dee4139b2e1d0e0fa54fcc2b6932155f115a63eccebda64d49e2",
+    "rows_in_source": 1,
+    "closure": "brokk_ironpick"
+   },
+   {
+    "source": "mod/assets/vendored_chars/burlok_damminson/tsv/db/battle_entities_tables/@ld_chr_burlok_damminson.tsv",
+    "sha256": "b43401d86cd742b73955539f3d8f576a732d788f829d829b5617b06dd8ac2d93",
+    "rows_in_source": 1,
+    "closure": "burlok_damminson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/byrrnoth_grundadrakk/tsv/db/battle_entities_tables/@ld_chr_byrrnoth_grundadrakk.tsv",
+    "sha256": "f6eb02ab020b8276e2192105aa79c4083920b395460450afc738bf3f3d915fed",
+    "rows_in_source": 1,
+    "closure": "byrrnoth_grundadrakk"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cr_skaven_aberrations/tsv/db/battle_entities_tables/@ld_chr_cr_skaven_aberrations.tsv",
+    "sha256": "460c20781931d40929a6956522cd0bcee0f9ed75ca9d52178f2faa2376d9ff1f",
+    "rows_in_source": 1,
+    "closure": "cr_skaven_aberrations"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cr_skaven_monsters/tsv/db/battle_entities_tables/@ld_chr_cr_skaven_monsters.tsv",
+    "sha256": "f4b036efa9f0d94b9094e2a02941595c650acba1779413b30f4a82668a5bdd41",
+    "rows_in_source": 3,
+    "closure": "cr_skaven_monsters"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dark_omen_ror/tsv/db/battle_entities_tables/@ld_chr_dark_omen_ror.tsv",
+    "sha256": "077c451c55f4ab3a2c419a66fbbaa127fdebfa709b4fd287b4908692e1c118f5",
+    "rows_in_source": 3,
+    "closure": "dark_omen_ror"
+   },
+   {
+    "source": "mod/assets/vendored_chars/deer_cathay_units/tsv/db/battle_entities_tables/@ld_chr_deer_cathay_units.tsv",
+    "sha256": "aa7a204d1c61d77c246d3d3b208be2858854b9a1bb220e01dd47c3a41ee239b3",
+    "rows_in_source": 2,
+    "closure": "deer_cathay_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dk_bone_hydra/tsv/db/battle_entities_tables/@ld_chr_dk_bone_hydra.tsv",
+    "sha256": "52c5ee1f520c36d9160aefc23ebcece002d22206336139b5bff922d2f6b86fa6",
+    "rows_in_source": 1,
+    "closure": "dk_bone_hydra"
+   },
+   {
+    "source": "mod/assets/vendored_chars/duffskul/tsv/db/battle_entities_tables/@ld_chr_duffskul.tsv",
+    "sha256": "6016366f5a217289679a405871f224f8a662c7bb77a20223b377af233abd5e9d",
+    "rows_in_source": 1,
+    "closure": "duffskul"
+   },
+   {
+    "source": "mod/assets/vendored_chars/duregar/tsv/db/battle_entities_tables/@ld_chr_duregar.tsv",
+    "sha256": "3165d8342f65d75f3e1cce8aa1a5b7b3cd32c34e332f4ed22327abb4232abeb0",
+    "rows_in_source": 1,
+    "closure": "duregar"
+   },
+   {
+    "source": "mod/assets/vendored_chars/durzak_dragonback/tsv/db/battle_entities_tables/@ld_chr_durzak_dragonback.tsv",
+    "sha256": "92dd636f2dcb1c8422cd9b3575ff16e2b2e252085ed0c791f8fe26a4e334f1ee",
+    "rows_in_source": 1,
+    "closure": "durzak_dragonback"
+   },
+   {
+    "source": "mod/assets/vendored_chars/egil_styrbjorn/tsv/db/battle_entities_tables/@ld_chr_egil_styrbjorn.tsv",
+    "sha256": "f05142c445ac8ca079c7f5d867e71d726a7ed1a3fd8fd49b5125a1ee5a395624",
+    "rows_in_source": 1,
+    "closure": "egil_styrbjorn"
+   },
+   {
+    "source": "mod/assets/vendored_chars/folcard_of_montfort/tsv/db/battle_entities_tables/@ld_chr_folcard_of_montfort.tsv",
+    "sha256": "5dd9e7781a34791593a392c941cdeeda5c2e5546418fadb0b545d4d96131fe1b",
+    "rows_in_source": 1,
+    "closure": "folcard_of_montfort"
+   },
+   {
+    "source": "mod/assets/vendored_chars/glf_units/tsv/db/battle_entities_tables/@ld_chr_glf_units.tsv",
+    "sha256": "a2e7be3b15e4da9ac3ddb5e65545294a4f8f2f0a175993659381ff785c2f714c",
+    "rows_in_source": 6,
+    "closure": "glf_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/gorfang_rotgut/tsv/db/battle_entities_tables/@ld_chr_gorfang_rotgut.tsv",
+    "sha256": "d5fb08120358a3aa5744bb7e0b68f3c34cab0742eef25410628da222e713b04e",
+    "rows_in_source": 1,
+    "closure": "gorfang_rotgut"
+   },
+   {
+    "source": "mod/assets/vendored_chars/haurg_frostmaw/tsv/db/battle_entities_tables/@ld_chr_haurg_frostmaw.tsv",
+    "sha256": "b4dbc25729935e1613add533ce974ba5b60aad5b8f11f86ecb8a4784144f873c",
+    "rows_in_source": 1,
+    "closure": "haurg_frostmaw"
+   },
+   {
+    "source": "mod/assets/vendored_chars/helmut_feuerbach/tsv/db/battle_entities_tables/@ld_chr_helmut_feuerbach.tsv",
+    "sha256": "2262b33754caaa8c7f45ab27226bdad400f2d9d743351c40217ce359c7810c74",
+    "rows_in_source": 1,
+    "closure": "helmut_feuerbach"
+   },
+   {
+    "source": "mod/assets/vendored_chars/hng_horse_archers/tsv/db/battle_entities_tables/@ld_chr_hng_horse_archers.tsv",
+    "sha256": "70bfe0b5a0c54a2cfd56c8e0548cd7b21e18013bc057d8bccb71e0c94cbd810f",
+    "rows_in_source": 1,
+    "closure": "hng_horse_archers"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ilja_of_murova/tsv/db/battle_entities_tables/@ld_chr_ilja_of_murova.tsv",
+    "sha256": "98273906cf0f356e6a47758986411b5f5a71b5827148f348e34a6562e220b24c",
+    "rows_in_source": 1,
+    "closure": "ilja_of_murova"
+   },
+   {
+    "source": "mod/assets/vendored_chars/iron_orcs/tsv/db/battle_entities_tables/@ld_chr_iron_orcs.tsv",
+    "sha256": "4a21d613bec8f6af9fd6745cb35e29fe1ea95eb641dd33c90c873f8c4901dffc",
+    "rows_in_source": 11,
+    "closure": "iron_orcs"
+   },
+   {
+    "source": "mod/assets/vendored_chars/jaego_roth/tsv/db/battle_entities_tables/@ld_chr_jaego_roth.tsv",
+    "sha256": "a4392cfd27cd62b997bc9a80e11a4bcff10e5e14fdf2740c620880a0ad67dcf9",
+    "rows_in_source": 2,
+    "closure": "jaego_roth"
+   },
+   {
+    "source": "mod/assets/vendored_chars/juggo_joriksonn/tsv/db/battle_entities_tables/@ld_chr_juggo_joriksonn.tsv",
+    "sha256": "5a0d2a75446a1739fe5f7f4c6f34427e26ffde5e28b2647cb3165d1f449ae79c",
+    "rows_in_source": 1,
+    "closure": "juggo_joriksonn"
+   },
+   {
+    "source": "mod/assets/vendored_chars/khaled_al_muntasir/tsv/db/battle_entities_tables/@ld_chr_khaled_al_muntasir.tsv",
+    "sha256": "15a75e48c72b68388362765596bbd5e9432a29f24e99a50b21f535b599767326",
+    "rows_in_source": 4,
+    "closure": "khaled_al_muntasir"
+   },
+   {
+    "source": "mod/assets/vendored_chars/kouran_darkhand/tsv/db/battle_entities_tables/@ld_chr_kouran_darkhand.tsv",
+    "sha256": "e7c575b15005eb998a8359b8abb951d9dfb02d6b3b4c046a019ccad2a3b4d78f",
+    "rows_in_source": 1,
+    "closure": "kouran_darkhand"
+   },
+   {
+    "source": "mod/assets/vendored_chars/laf_dwarfs/tsv/db/battle_entities_tables/@ld_chr_laf_dwarfs.tsv",
+    "sha256": "3f4d78d26adf7fa3ddbe580c6896d82bd3c1043dbbadbe6a8c539552fc407031",
+    "rows_in_source": 6,
+    "closure": "laf_dwarfs"
+   },
+   {
+    "source": "mod/assets/vendored_chars/long_drong/tsv/db/battle_entities_tables/@ld_chr_long_drong.tsv",
+    "sha256": "fb5b9e1e9fbf6574b3cab96d258c8f4b89c0c1d5ee1069bda7d0f9547b12d98d",
+    "rows_in_source": 1,
+    "closure": "long_drong"
+   },
+   {
+    "source": "mod/assets/vendored_chars/lurklox/tsv/db/battle_entities_tables/@ld_chr_lurklox.tsv",
+    "sha256": "02b26297e225639feb7db139c21e73509c03bd228941dbd14b7c0ec5c146ff77",
+    "rows_in_source": 1,
+    "closure": "lurklox"
+   },
+   {
+    "source": "mod/assets/vendored_chars/mixu_chaos_cultists/tsv/db/battle_entities_tables/@ld_chr_mixu_chaos_cultists.tsv",
+    "sha256": "f13ddf1f5e829fb91ba7e6342758c5f1585fabbc78a14db4343214deb151b00e",
+    "rows_in_source": 1,
+    "closure": "mixu_chaos_cultists"
+   },
+   {
+    "source": "mod/assets/vendored_chars/molokh_slugtongue/tsv/db/battle_entities_tables/@ld_chr_molokh_slugtongue.tsv",
+    "sha256": "5ca8e68d2c4c75707a2f058d762449203c1bc34bb9d80de401d1603c8ece48b6",
+    "rows_in_source": 1,
+    "closure": "molokh_slugtongue"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morgan_bernhardt/tsv/db/battle_entities_tables/@ld_chr_morgan_bernhardt.tsv",
+    "sha256": "7a377f80dc1a090da4705b3decb4ce8889f80ee46a35c47a23d9d9724a0dec6f",
+    "rows_in_source": 1,
+    "closure": "morgan_bernhardt"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morglum_necksnapper/tsv/db/battle_entities_tables/@ld_chr_morglum_necksnapper.tsv",
+    "sha256": "d25025ab3517aa3a596071478190071a492bc26d9f3741839535909762df39ad",
+    "rows_in_source": 2,
+    "closure": "morglum_necksnapper"
+   },
+   {
+    "source": "mod/assets/vendored_chars/naieth_the_prophetess/tsv/db/battle_entities_tables/@ld_chr_naieth_the_prophetess.tsv",
+    "sha256": "0d499dc1293a8b7040cb942ad8c65d8b2c97e0c4f3186b5294c7bab6b8da1b98",
+    "rows_in_source": 1,
+    "closure": "naieth_the_prophetess"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ovn_fimir_units/tsv/db/battle_entities_tables/@ld_chr_ovn_fimir_units.tsv",
+    "sha256": "e203896e209ffa2f92bdeb8ca49366d41a1b93fe68d147803f18737040a38832",
+    "rows_in_source": 1,
+    "closure": "ovn_fimir_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/queen_marrisith/tsv/db/battle_entities_tables/@ld_chr_queen_marrisith.tsv",
+    "sha256": "bc9422498ad58c28f4ce48161c4a77d32d41d844829ff0b226b5c7ddad4ba597",
+    "rows_in_source": 4,
+    "closure": "queen_marrisith"
+   },
+   {
+    "source": "mod/assets/vendored_chars/rabe_von_stahl/tsv/db/battle_entities_tables/@ld_chr_rabe_von_stahl.tsv",
+    "sha256": "bfdfdb696305e91545710cec15bc17126fe8caed1396bccaf2f79f18af86f9c7",
+    "rows_in_source": 3,
+    "closure": "rabe_von_stahl"
+   },
+   {
+    "source": "mod/assets/vendored_chars/rorek_granitehand/tsv/db/battle_entities_tables/@ld_chr_rorek_granitehand.tsv",
+    "sha256": "108489ee83d2ef846c04aaf63251ca2355261f0aba448de92d67d3ec7a7a8ec6",
+    "rows_in_source": 1,
+    "closure": "rorek_granitehand"
+   },
+   {
+    "source": "mod/assets/vendored_chars/scm_huscarl_horseriders/tsv/db/battle_entities_tables/@ld_chr_scm_huscarl_horseriders.tsv",
+    "sha256": "b54171d2975df2d339223bf195747a3513a7f0aa796fa1a0baad4396064f1f48",
+    "rows_in_source": 2,
+    "closure": "scm_huscarl_horseriders"
+   },
+   {
+    "source": "mod/assets/vendored_chars/sisters_of_sigmar/tsv/db/battle_entities_tables/@ld_chr_sisters_of_sigmar.tsv",
+    "sha256": "8073e79b73ae2e922aeda4993c3f61bc5dff3fdd6165c312c707cbbaf3ae7ab5",
+    "rows_in_source": 1,
+    "closure": "sisters_of_sigmar"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skaw_the_falconer/tsv/db/battle_entities_tables/@ld_chr_skaw_the_falconer.tsv",
+    "sha256": "e51c2777ed56b3714733753be4b8022e2e51d8bd8d53dcc38142f40778fbfc23",
+    "rows_in_source": 1,
+    "closure": "skaw_the_falconer"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skeggi_threkkson/tsv/db/battle_entities_tables/@ld_chr_skeggi_threkkson.tsv",
+    "sha256": "e136b0fb2c73e012dc55e2786530c833c12ba4d58b4e11410861176e5fef1673",
+    "rows_in_source": 1,
+    "closure": "skeggi_threkkson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/stonehammer_trio/tsv/db/battle_entities_tables/@ld_chr_stonehammer_trio.tsv",
+    "sha256": "e112e183eb7dede9781d8cafb37f9b416bc07f8a94f8108eb4e525b83d73db5f",
+    "rows_in_source": 3,
+    "closure": "stonehammer_trio"
+   },
+   {
+    "source": "mod/assets/vendored_chars/str_skaven/tsv/db/battle_entities_tables/@ld_chr_str_skaven.tsv",
+    "sha256": "fdc124011b89399869f70b746b56a61e894dfc2ca9ae3052beaf4cd9d9ef6c04",
+    "rows_in_source": 1,
+    "closure": "str_skaven"
+   },
+   {
+    "source": "mod/assets/vendored_chars/sven_hasselfriesian/tsv/db/battle_entities_tables/@ld_chr_sven_hasselfriesian.tsv",
+    "sha256": "cbd3db53c08527650f425b5f48a20fe32d493c04a1b3fc5e2991b80f5271adac",
+    "rows_in_source": 1,
+    "closure": "sven_hasselfriesian"
+   },
+   {
+    "source": "mod/assets/vendored_chars/taubert_de_langlante/tsv/db/battle_entities_tables/@ld_chr_taubert_de_langlante.tsv",
+    "sha256": "1592fbf32b9a4228c5220872b831db2d2e7a92ea29efc575dd30728b6325160a",
+    "rows_in_source": 1,
+    "closure": "taubert_de_langlante"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tetto_eko/tsv/db/battle_entities_tables/@ld_chr_tetto_eko.tsv",
+    "sha256": "ae7ca9ee58a981ddc300df259c5060f3ca464774792c2a8d5c3ed81f21c62a03",
+    "rows_in_source": 1,
+    "closure": "tetto_eko"
+   },
+   {
+    "source": "mod/assets/vendored_chars/thorgar_the_blooded_one/tsv/db/battle_entities_tables/@ld_chr_thorgar_the_blooded_one.tsv",
+    "sha256": "bb1c617dd6ac98e85ac54f11fd816e86b7d7b67822ff618aacdd5f5db8cfc639",
+    "rows_in_source": 1,
+    "closure": "thorgar_the_blooded_one"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tordrek_hackhart/tsv/db/battle_entities_tables/@ld_chr_tordrek_hackhart.tsv",
+    "sha256": "8f46afa2d235e33de4f75eb01c3b220d8217594e35dbc33c08ee8b2ab8534cb3",
+    "rows_in_source": 1,
+    "closure": "tordrek_hackhart"
+   },
+   {
+    "source": "mod/assets/vendored_chars/torston_treehaka/tsv/db/battle_entities_tables/@ld_chr_torston_treehaka.tsv",
+    "sha256": "1dc3488787abc7503ffba36691f0730b6410cb05335946f48a9b9a89c8bb8c08",
+    "rows_in_source": 1,
+    "closure": "torston_treehaka"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tutankhanut/tsv/db/battle_entities_tables/@ld_chr_tutankhanut.tsv",
+    "sha256": "5be71c7a9ab0f22a1c47ac40a66ad6842cbd2366525eb1a158b94db0a093f212",
+    "rows_in_source": 1,
+    "closure": "tutankhanut"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ushoran/tsv/db/battle_entities_tables/@ld_chr_ushoran.tsv",
+    "sha256": "9d388b6d0d159ae27a9e0e7c2251a6d189e6b760d755524adcd980712b726c09",
+    "rows_in_source": 1,
+    "closure": "ushoran"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vazgrat_the_lucky/tsv/db/battle_entities_tables/@ld_chr_vazgrat_the_lucky.tsv",
+    "sha256": "6d2a130d6104253fe78629885e3471b5ba6336983d4b58f656f92873547572ee",
+    "rows_in_source": 1,
+    "closure": "vazgrat_the_lucky"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vraznak/tsv/db/battle_entities_tables/@ld_chr_vraznak.tsv",
+    "sha256": "ae85603e4b1336cb9bfd7bda01dbb6bb24220959197c07d2f86c8589f3641d22",
+    "rows_in_source": 1,
+    "closure": "vraznak"
+   },
+   {
+    "source": "mod/assets/vendored_chars/wychwethyl_the_wild/tsv/db/battle_entities_tables/@ld_chr_wychwethyl_the_wild.tsv",
+    "sha256": "edd4ad5d78d0010dacb0c9e8b53c415663f1307cfcdc3397743dd3b3c047a532",
+    "rows_in_source": 1,
+    "closure": "wychwethyl_the_wild"
+   },
+   {
+    "source": "mod/assets/vendored_chars/zerooz_org_units/tsv/db/battle_entities_tables/@ld_chr_zerooz_org_units.tsv",
+    "sha256": "cac70eb8e9634f1713f0a8d1adf41ce954cfff1520e9fd03dcbaaa2f93fd965c",
+    "rows_in_source": 1,
+    "closure": "zerooz_org_units"
+   }
+  ],
+  "land_units_tables": [
+   {
+    "source": "mod/assets/vendored_chars/abhorash/tsv/db/land_units_tables/@ld_chr_abhorash.tsv",
+    "sha256": "b573fef5dfaeba0eeff080960e16cbb245729f90911179a224307e8d309059fb",
+    "rows_in_source": 1,
+    "closure": "abhorash"
+   },
+   {
+    "source": "mod/assets/vendored_chars/adalhard_of_lyonesse/tsv/db/land_units_tables/@ld_chr_adalhard_of_lyonesse.tsv",
+    "sha256": "4f9a95b7284af39f2878b91865f7306ec1f4dad19a2b3d534eb44fb8e140c30b",
+    "rows_in_source": 4,
+    "closure": "adalhard_of_lyonesse"
+   },
+   {
+    "source": "mod/assets/vendored_chars/alberich_haupt_anderssen/tsv/db/land_units_tables/@ld_chr_alberich_haupt_anderssen.tsv",
+    "sha256": "f23254ccdbf409d30673a2c0310b26e69ff7ef9aa5db376d78c3151e7c0be63d",
+    "rows_in_source": 4,
+    "closure": "alberich_haupt_anderssen"
+   },
+   {
+    "source": "mod/assets/vendored_chars/albion_giants/tsv/db/land_units_tables/@ld_chr_albion_giants.tsv",
+    "sha256": "d893cc45bbf014e98761c1407fdcb114722a22df4d450da90a44ae5bfa47b8f4",
+    "rows_in_source": 2,
+    "closure": "albion_giants"
+   },
+   {
+    "source": "mod/assets/vendored_chars/aldebrand_ludenhof/tsv/db/land_units_tables/@ld_chr_aldebrand_ludenhof.tsv",
+    "sha256": "5b2039ce36346a77cb8a1fe158f326fb2caa4523a6761ce078853b990dd07cf6",
+    "rows_in_source": 4,
+    "closure": "aldebrand_ludenhof"
+   },
+   {
+    "source": "mod/assets/vendored_chars/alrik_ranulfsson/tsv/db/land_units_tables/@ld_chr_alrik_ranulfsson.tsv",
+    "sha256": "dd9ca8b26a671597d7a07b28e0d017e3d2ee97a9936a79fa45af8c42ba1395f0",
+    "rows_in_source": 1,
+    "closure": "alrik_ranulfsson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/amenemhetum/tsv/db/land_units_tables/@ld_chr_amenemhetum.tsv",
+    "sha256": "7b8d575885482a490e4f6a34b3ed5df6af6ef903a14e8eed879f8b1c0c67dbf9",
+    "rows_in_source": 5,
+    "closure": "amenemhetum"
+   },
+   {
+    "source": "mod/assets/vendored_chars/anakondas_amazons/tsv/db/land_units_tables/@ld_chr_anakondas_amazons.tsv",
+    "sha256": "0b2f168bbbda3729aef42d1954d9ec712aa176e5a1a5aa3c6851f9d7f5c68752",
+    "rows_in_source": 1,
+    "closure": "anakondas_amazons"
+   },
+   {
+    "source": "mod/assets/vendored_chars/anark_von_carstein/tsv/db/land_units_tables/@ld_chr_anark_von_carstein.tsv",
+    "sha256": "df52c15ccbe45c6faa747b21c7dc1e3e6cc980eb3bf3e31d0700ab1542b4a5ba",
+    "rows_in_source": 3,
+    "closure": "anark_von_carstein"
+   },
+   {
+    "source": "mod/assets/vendored_chars/araby_units/tsv/db/land_units_tables/@ld_chr_araby_units.tsv",
+    "sha256": "f96d324ff8eb939ce1e5bb7a1b1f689fbe35d56e5f4f4fb71e6f8950652e331b",
+    "rows_in_source": 4,
+    "closure": "araby_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/arleth_vann/tsv/db/land_units_tables/@ld_chr_arleth_vann.tsv",
+    "sha256": "097f9ab389013db729a72223e6e5714c045188266a76b107935e69fbe72cac85",
+    "rows_in_source": 2,
+    "closure": "arleth_vann"
+   },
+   {
+    "source": "mod/assets/vendored_chars/armand_daquitaine/tsv/db/land_units_tables/@ld_chr_armand_daquitaine.tsv",
+    "sha256": "1f5c1fc6bc1f600a69408bc214d632adad3adb741e8b91f00bf845f515747313",
+    "rows_in_source": 4,
+    "closure": "armand_daquitaine"
+   },
+   {
+    "source": "mod/assets/vendored_chars/barundin_stoneheart/tsv/db/land_units_tables/@ld_chr_barundin_stoneheart.tsv",
+    "sha256": "ddd218f2d294336660a075a32db7f046b9040cf7978c2c1b6966523aca217ac2",
+    "rows_in_source": 2,
+    "closure": "barundin_stoneheart"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bazrak_bolgan/tsv/db/land_units_tables/@ld_chr_bazrak_bolgan.tsv",
+    "sha256": "d0755067e54f3b5476f1a768e67993fa99ce1959492fc089eeaddd65d6771a66",
+    "rows_in_source": 1,
+    "closure": "bazrak_bolgan"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bertha_bestraufrung/tsv/db/land_units_tables/@ld_chr_bertha_bestraufrung.tsv",
+    "sha256": "55f07dc6d46ac872910713f068452a60e80f739bfe8d4a657fb51fbff586a85b",
+    "rows_in_source": 2,
+    "closure": "bertha_bestraufrung"
+   },
+   {
+    "source": "mod/assets/vendored_chars/birdmen_of_catrazza/tsv/db/land_units_tables/@ld_chr_birdmen_of_catrazza.tsv",
+    "sha256": "01081d14173a7f01ec9124b6dca32e223da0e558a7fa872644a981f5c463e5b2",
+    "rows_in_source": 1,
+    "closure": "birdmen_of_catrazza"
+   },
+   {
+    "source": "mod/assets/vendored_chars/black_grail_knight/tsv/db/land_units_tables/@ld_chr_black_grail_knight.tsv",
+    "sha256": "c01cef3c720890fbd067b2842b9d7206a58dd592f205e0a568cf4fe669699b5f",
+    "rows_in_source": 3,
+    "closure": "black_grail_knight"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bodvarr_ribspreader/tsv/db/land_units_tables/@ld_chr_bodvarr_ribspreader.tsv",
+    "sha256": "948ea35be8d162d23384cd5d7dbda39dbd545f1f5156899f32165474ccf7b558",
+    "rows_in_source": 2,
+    "closure": "bodvarr_ribspreader"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bohemond/tsv/db/land_units_tables/@ld_chr_bohemond.tsv",
+    "sha256": "0c02aacc81b9c773e416ff9a846ab28168cdc83909923901efc459c0cf7a83ba",
+    "rows_in_source": 4,
+    "closure": "bohemond"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bolragoth/tsv/db/land_units_tables/@ld_chr_bolragoth.tsv",
+    "sha256": "13ef75bc0da45bd5c8c5e0bacffd8add49bb1b5c6bfbc0a2633bdb0b4819897a",
+    "rows_in_source": 1,
+    "closure": "bolragoth"
+   },
+   {
+    "source": "mod/assets/vendored_chars/borgut_facebeater/tsv/db/land_units_tables/@ld_chr_borgut_facebeater.tsv",
+    "sha256": "9868a73ea7ee08a5f1f288de544929722c44ad3f90cc8bbc91d16039e28ec6e9",
+    "rows_in_source": 3,
+    "closure": "borgut_facebeater"
+   },
+   {
+    "source": "mod/assets/vendored_chars/brokk_ironpick/tsv/db/land_units_tables/@ld_chr_brokk_ironpick.tsv",
+    "sha256": "0872057237e9224f8e2d5c6350f9b4bc364acea90b1cf849457252c96c3dae63",
+    "rows_in_source": 1,
+    "closure": "brokk_ironpick"
+   },
+   {
+    "source": "mod/assets/vendored_chars/burlok_damminson/tsv/db/land_units_tables/@ld_chr_burlok_damminson.tsv",
+    "sha256": "a7237530b27915ac3fef2e47071d4d4786de13041f259f460aba08f786a33e6a",
+    "rows_in_source": 1,
+    "closure": "burlok_damminson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/byrrnoth_grundadrakk/tsv/db/land_units_tables/@ld_chr_byrrnoth_grundadrakk.tsv",
+    "sha256": "b65a1c91363a4d53b369ff0cc2945381820b7ce98eb8c57196e0959677232088",
+    "rows_in_source": 1,
+    "closure": "byrrnoth_grundadrakk"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cassyon_of_parravon/tsv/db/land_units_tables/@ld_chr_cassyon_of_parravon.tsv",
+    "sha256": "b4644e8c051b482ce5cf0e2dc0d8597bed7301d63777468afadc5e18405707a1",
+    "rows_in_source": 4,
+    "closure": "cassyon_of_parravon"
+   },
+   {
+    "source": "mod/assets/vendored_chars/chilfroy_of_artois/tsv/db/land_units_tables/@ld_chr_chilfroy_of_artois.tsv",
+    "sha256": "bd2dadeb1dac5f9e8984e646afcfaf0d4d8b54544a6eeef889283732ed0f2169",
+    "rows_in_source": 4,
+    "closure": "chilfroy_of_artois"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cody_thunderbarge/tsv/db/land_units_tables/@ld_chr_cody_thunderbarge.tsv",
+    "sha256": "67a1b2238379dbfd4ed49b13d2805db18c2c103f0ee8eb0a7e458bada842bd8e",
+    "rows_in_source": 1,
+    "closure": "cody_thunderbarge"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cou_units/tsv/db/land_units_tables/@ld_chr_cou_units.tsv",
+    "sha256": "878ae4dd7449b9683bf7510e482f8bf1c566d204abc210e3a4313b336507d233",
+    "rows_in_source": 6,
+    "closure": "cou_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cr_skaven_aberrations/tsv/db/land_units_tables/@ld_chr_cr_skaven_aberrations.tsv",
+    "sha256": "0e982426c4035d33ce27bf897b139bf6a759ce8533afbfda79d6549a08478f98",
+    "rows_in_source": 1,
+    "closure": "cr_skaven_aberrations"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cr_skaven_monsters/tsv/db/land_units_tables/@ld_chr_cr_skaven_monsters.tsv",
+    "sha256": "239aeee6c274751a78b6e7cf068ce4627d6fc2b64a6d8be76849ffb0b3a01982",
+    "rows_in_source": 3,
+    "closure": "cr_skaven_monsters"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cursed_company/tsv/db/land_units_tables/@ld_chr_cursed_company.tsv",
+    "sha256": "06e95f314bc46970d8f8f0e6aee5b37c9e2123b714ddff1a44eedbc5d913eb2e",
+    "rows_in_source": 1,
+    "closure": "cursed_company"
+   },
+   {
+    "source": "mod/assets/vendored_chars/daith/tsv/db/land_units_tables/@ld_chr_daith.tsv",
+    "sha256": "ada80088f0d2c9c492eef62f891bd6c2808aba24e89f79ff2358b3fac1140c6c",
+    "rows_in_source": 2,
+    "closure": "daith"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dark_omen_ror/tsv/db/land_units_tables/@ld_chr_dark_omen_ror.tsv",
+    "sha256": "156f21f95106e51dce0597b6d12f0a50233d988a644b93ced3334581009a150d",
+    "rows_in_source": 3,
+    "closure": "dark_omen_ror"
+   },
+   {
+    "source": "mod/assets/vendored_chars/deer_cathay_units/tsv/db/land_units_tables/@ld_chr_deer_cathay_units.tsv",
+    "sha256": "18b37a2d924445561871257f3ae0d396c03332ec98cb5f62fde8292ec5fcdcb1",
+    "rows_in_source": 2,
+    "closure": "deer_cathay_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dk_bone_hydra/tsv/db/land_units_tables/@ld_chr_dk_bone_hydra.tsv",
+    "sha256": "a4821074b8f34383094b5f99036f26bcf1e54233c5eec36137261671655ca6a7",
+    "rows_in_source": 1,
+    "closure": "dk_bone_hydra"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dread_king/tsv/db/land_units_tables/@ld_chr_dread_king.tsv",
+    "sha256": "b2b9cd8917f72e54f374cd087b6553e7a2db5ac51ad8db65a1764d4f6eb109c5",
+    "rows_in_source": 4,
+    "closure": "dread_king"
+   },
+   {
+    "source": "mod/assets/vendored_chars/duffskul/tsv/db/land_units_tables/@ld_chr_duffskul.tsv",
+    "sha256": "9f024e6bb159ac6f8f9b0ec018a9e4f7cf04aaab802440bf6bb361d169ada98f",
+    "rows_in_source": 2,
+    "closure": "duffskul"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dural_durak/tsv/db/land_units_tables/@ld_chr_dural_durak.tsv",
+    "sha256": "629ea18a47cad689efb44e1470500562e9e572491b1dda1fb6560f7791038584",
+    "rows_in_source": 3,
+    "closure": "dural_durak"
+   },
+   {
+    "source": "mod/assets/vendored_chars/duregar/tsv/db/land_units_tables/@ld_chr_duregar.tsv",
+    "sha256": "30b64cd6112b80a6b177e72fe26a34f278c4b5dbd19332ea0417c49ad3aae2f1",
+    "rows_in_source": 1,
+    "closure": "duregar"
+   },
+   {
+    "source": "mod/assets/vendored_chars/durzak_dragonback/tsv/db/land_units_tables/@ld_chr_durzak_dragonback.tsv",
+    "sha256": "42b899d32281c4a6134c5989b1d1a29df3112bd8efa250b4aef43fda8d0b3b81",
+    "rows_in_source": 1,
+    "closure": "durzak_dragonback"
+   },
+   {
+    "source": "mod/assets/vendored_chars/egil_styrbjorn/tsv/db/land_units_tables/@ld_chr_egil_styrbjorn.tsv",
+    "sha256": "cc12c081984d8b6ebfb531cac0e22efaa88255a59964d93677cce933fbadbdd2",
+    "rows_in_source": 3,
+    "closure": "egil_styrbjorn"
+   },
+   {
+    "source": "mod/assets/vendored_chars/estalia_tercio/tsv/db/land_units_tables/@ld_chr_estalia_tercio.tsv",
+    "sha256": "c3bfceebad1b7addf382f29fd0e04d3945fe297e4aca44456e5372d0f32c3f04",
+    "rows_in_source": 1,
+    "closure": "estalia_tercio"
+   },
+   {
+    "source": "mod/assets/vendored_chars/fernando_pirazzo/tsv/db/land_units_tables/@ld_chr_fernando_pirazzo.tsv",
+    "sha256": "28e7e3c01da39c74af4240001b920b17c4aea898974ed5dd3428924408f1c267",
+    "rows_in_source": 2,
+    "closure": "fernando_pirazzo"
+   },
+   {
+    "source": "mod/assets/vendored_chars/feskit/tsv/db/land_units_tables/@ld_chr_feskit.tsv",
+    "sha256": "123302be74a72cf25fc6921b7e11e175824a0a351e0e950bdea947afc1842ca4",
+    "rows_in_source": 3,
+    "closure": "feskit"
+   },
+   {
+    "source": "mod/assets/vendored_chars/feytor_the_tainted/tsv/db/land_units_tables/@ld_chr_feytor_the_tainted.tsv",
+    "sha256": "713702255c217c21dae6ab34262dae1b369a9c91f1314ecf8961a394cc325c2c",
+    "rows_in_source": 2,
+    "closure": "feytor_the_tainted"
+   },
+   {
+    "source": "mod/assets/vendored_chars/folcard_of_montfort/tsv/db/land_units_tables/@ld_chr_folcard_of_montfort.tsv",
+    "sha256": "2c5736921d5e627c28bf2b362be5e4fab2c4174f97b259853d2e2216add28e0e",
+    "rows_in_source": 3,
+    "closure": "folcard_of_montfort"
+   },
+   {
+    "source": "mod/assets/vendored_chars/furion_of_clar_karond/tsv/db/land_units_tables/@ld_chr_furion_of_clar_karond.tsv",
+    "sha256": "a3275047b670fd1672e0dab22890198aa5a02c428ac1acbed25939e059ba21f8",
+    "rows_in_source": 3,
+    "closure": "furion_of_clar_karond"
+   },
+   {
+    "source": "mod/assets/vendored_chars/glf_units/tsv/db/land_units_tables/@ld_chr_glf_units.tsv",
+    "sha256": "4f2e69bd69e0cf84e2b5423319382f87e1159528889f777277b1e3d16e9cd6d1",
+    "rows_in_source": 15,
+    "closure": "glf_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/gnaw_beaststalker/tsv/db/land_units_tables/@ld_chr_gnaw_beaststalker.tsv",
+    "sha256": "226030cad1f28cc87e93b9b6a7316cdf74bdbc2ee5078a3307ee2c5fea96f6b1",
+    "rows_in_source": 1,
+    "closure": "gnaw_beaststalker"
+   },
+   {
+    "source": "mod/assets/vendored_chars/gnawdwell/tsv/db/land_units_tables/@ld_chr_gnawdwell.tsv",
+    "sha256": "3c8975e7bcb65d9d513092dcdd24cb8808b117dd87bcd91607436fb5bcf0f4df",
+    "rows_in_source": 4,
+    "closure": "gnawdwell"
+   },
+   {
+    "source": "mod/assets/vendored_chars/golden_magus/tsv/db/land_units_tables/@ld_chr_golden_magus.tsv",
+    "sha256": "7e09ddcaac293d17153d4dd48b894973cb57281e606a868d03b2d22f534d249d",
+    "rows_in_source": 8,
+    "closure": "golden_magus"
+   },
+   {
+    "source": "mod/assets/vendored_chars/golengil/tsv/db/land_units_tables/@ld_chr_golengil.tsv",
+    "sha256": "2447ef478c8ae65ef55d15a42ed53b4d66a0c631fe7e32c611941e70d9cc5dcb",
+    "rows_in_source": 2,
+    "closure": "golengil"
+   },
+   {
+    "source": "mod/assets/vendored_chars/gorfang_rotgut/tsv/db/land_units_tables/@ld_chr_gorfang_rotgut.tsv",
+    "sha256": "0537654d24767dd7597e1b96b8e0bb2defa2c2d7722e462dfef16345d5f49878",
+    "rows_in_source": 4,
+    "closure": "gorfang_rotgut"
+   },
+   {
+    "source": "mod/assets/vendored_chars/grigori_medvezhiy/tsv/db/land_units_tables/@ld_chr_grigori_medvezhiy.tsv",
+    "sha256": "c229c638d05fff9f9c961cf28190d59629d7ec7c60d6defb7e6503c77d64dee2",
+    "rows_in_source": 3,
+    "closure": "grigori_medvezhiy"
+   },
+   {
+    "source": "mod/assets/vendored_chars/grimm_burloksson/tsv/db/land_units_tables/@ld_chr_grimm_burloksson.tsv",
+    "sha256": "740807aab02cebfe6775df94ed89727aed6ea7fd2481f3c0b03cda7b28a8de0a",
+    "rows_in_source": 3,
+    "closure": "grimm_burloksson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/haargroth_the_blooded/tsv/db/land_units_tables/@ld_chr_haargroth_the_blooded.tsv",
+    "sha256": "e29eabba609bf6179de71c5802fec52f297c80c8906dd378a20f05179da292e5",
+    "rows_in_source": 2,
+    "closure": "haargroth_the_blooded"
+   },
+   {
+    "source": "mod/assets/vendored_chars/hagen_of_gisoreux/tsv/db/land_units_tables/@ld_chr_hagen_of_gisoreux.tsv",
+    "sha256": "7f8e1c23e7e899661f5e7e71e5a91b50815b4528d13e07aaec75d15d3a42ee2f",
+    "rows_in_source": 4,
+    "closure": "hagen_of_gisoreux"
+   },
+   {
+    "source": "mod/assets/vendored_chars/haurg_frostmaw/tsv/db/land_units_tables/@ld_chr_haurg_frostmaw.tsv",
+    "sha256": "b0b53a87e6b10011014467ec6e8bc3b594c635f85a0b218b12864ea6bf19d221",
+    "rows_in_source": 1,
+    "closure": "haurg_frostmaw"
+   },
+   {
+    "source": "mod/assets/vendored_chars/helmut_feuerbach/tsv/db/land_units_tables/@ld_chr_helmut_feuerbach.tsv",
+    "sha256": "84f7a71ddd70ac0255710ad84be33ad5d633a691ac5046bb65e179e079161038",
+    "rows_in_source": 7,
+    "closure": "helmut_feuerbach"
+   },
+   {
+    "source": "mod/assets/vendored_chars/hng_horse_archers/tsv/db/land_units_tables/@ld_chr_hng_horse_archers.tsv",
+    "sha256": "8aec49173fed1c63fc1ea90439835120393503b34bd76d88ab2487409a633104",
+    "rows_in_source": 1,
+    "closure": "hng_horse_archers"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ilja_of_murova/tsv/db/land_units_tables/@ld_chr_ilja_of_murova.tsv",
+    "sha256": "b054d7ac559cf7a49b12e2696d3f66d525ab684dd7f91c8fd9b893c511be5ebc",
+    "rows_in_source": 2,
+    "closure": "ilja_of_murova"
+   },
+   {
+    "source": "mod/assets/vendored_chars/iron_orcs/tsv/db/land_units_tables/@ld_chr_iron_orcs.tsv",
+    "sha256": "d67ded8c672d544a659b1151936a0edf80a8bb750b138938e25dbb535ef3c0fe",
+    "rows_in_source": 13,
+    "closure": "iron_orcs"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ishaya_vess/tsv/db/land_units_tables/@ld_chr_ishaya_vess.tsv",
+    "sha256": "bf955e148088fe7d04575325500ded2b0048c6b724b996e520669d76268995f8",
+    "rows_in_source": 3,
+    "closure": "ishaya_vess"
+   },
+   {
+    "source": "mod/assets/vendored_chars/jaego_roth/tsv/db/land_units_tables/@ld_chr_jaego_roth.tsv",
+    "sha256": "46bd33580f2a4c72ec4e158ec088da642b721b455304926ae73e1451c9aa1267",
+    "rows_in_source": 3,
+    "closure": "jaego_roth"
+   },
+   {
+    "source": "mod/assets/vendored_chars/jerrod_of_asareux/tsv/db/land_units_tables/@ld_chr_jerrod_of_asareux.tsv",
+    "sha256": "f528f0bb4776f7603072ec02f4c3d7917b20a30fe131c8e04ddcb93f9c1fa78b",
+    "rows_in_source": 4,
+    "closure": "jerrod_of_asareux"
+   },
+   {
+    "source": "mod/assets/vendored_chars/juggo_joriksonn/tsv/db/land_units_tables/@ld_chr_juggo_joriksonn.tsv",
+    "sha256": "38a7be4bc285ca78bf33a521b15d3d140274a381d5789fe7f9bbf9b77600eb96",
+    "rows_in_source": 1,
+    "closure": "juggo_joriksonn"
+   },
+   {
+    "source": "mod/assets/vendored_chars/kazador/tsv/db/land_units_tables/@ld_chr_kazador.tsv",
+    "sha256": "a7e0292e186ee0f5f2b468dda238164b216a839f0802ac03135898a150acc036",
+    "rows_in_source": 1,
+    "closure": "kazador"
+   },
+   {
+    "source": "mod/assets/vendored_chars/khaled_al_muntasir/tsv/db/land_units_tables/@ld_chr_khaled_al_muntasir.tsv",
+    "sha256": "f0481131d6a93be6ad46e84a2325cc4d97790dcd02e24dcdc88502275f304ba6",
+    "rows_in_source": 3,
+    "closure": "khaled_al_muntasir"
+   },
+   {
+    "source": "mod/assets/vendored_chars/kouran_darkhand/tsv/db/land_units_tables/@ld_chr_kouran_darkhand.tsv",
+    "sha256": "318a39256ef3f6de5983a120ba55df92304d9dc410335a59b02b7b35aeb3af6e",
+    "rows_in_source": 1,
+    "closure": "kouran_darkhand"
+   },
+   {
+    "source": "mod/assets/vendored_chars/kragg_the_grim/tsv/db/land_units_tables/@ld_chr_kragg_the_grim.tsv",
+    "sha256": "06c5bf78361ef0aa77a5f44d6814882df2dea559e7cf38359251986a0721936c",
+    "rows_in_source": 1,
+    "closure": "kragg_the_grim"
+   },
+   {
+    "source": "mod/assets/vendored_chars/kratch_doomclaw/tsv/db/land_units_tables/@ld_chr_kratch_doomclaw.tsv",
+    "sha256": "fd2cbeef5d238974a4e7203456ae651a5878f8cfeb31a567465b12b0c075c8a4",
+    "rows_in_source": 3,
+    "closure": "kratch_doomclaw"
+   },
+   {
+    "source": "mod/assets/vendored_chars/laf_dwarfs/tsv/db/land_units_tables/@ld_chr_laf_dwarfs.tsv",
+    "sha256": "b3d39f55849e81ef0d3a860e156bb3852a3ea1d7482ef6e2263dce707961f6c9",
+    "rows_in_source": 3,
+    "closure": "laf_dwarfs"
+   },
+   {
+    "source": "mod/assets/vendored_chars/leanora_navrre/tsv/db/land_units_tables/@ld_chr_leanora_navrre.tsv",
+    "sha256": "43f0e886626a1f5a5b1a928575d9fe8a4d7399e96aef5bdae2a5f190facfd8f9",
+    "rows_in_source": 1,
+    "closure": "leanora_navrre"
+   },
+   {
+    "source": "mod/assets/vendored_chars/long_drong/tsv/db/land_units_tables/@ld_chr_long_drong.tsv",
+    "sha256": "5126be1deca09304e75b1fbe3ed826f90d6981af3ae0f9ec5b59ecf45c01e5f6",
+    "rows_in_source": 1,
+    "closure": "long_drong"
+   },
+   {
+    "source": "mod/assets/vendored_chars/lurklox/tsv/db/land_units_tables/@ld_chr_lurklox.tsv",
+    "sha256": "a14f82b319fdf1384ec0a35a13701ef18fb3aa0c02c9e3aabef060f375750bc1",
+    "rows_in_source": 1,
+    "closure": "lurklox"
+   },
+   {
+    "source": "mod/assets/vendored_chars/melekh_the_changer/tsv/db/land_units_tables/@ld_chr_melekh_the_changer.tsv",
+    "sha256": "9baf5f38fb1f10347fbd5168d31786f60d165cc5c4085dc16b5b61952b3b4fae",
+    "rows_in_source": 1,
+    "closure": "melekh_the_changer"
+   },
+   {
+    "source": "mod/assets/vendored_chars/mengil_manhide/tsv/db/land_units_tables/@ld_chr_mengil_manhide.tsv",
+    "sha256": "31a4e0f7ce69a2db6d3a555e2b5137263634a770beed07454cab62a2c469d7ac",
+    "rows_in_source": 2,
+    "closure": "mengil_manhide"
+   },
+   {
+    "source": "mod/assets/vendored_chars/mixu_chaos_cultists/tsv/db/land_units_tables/@ld_chr_mixu_chaos_cultists.tsv",
+    "sha256": "a14f76cc094577672b83807d182928bceaa3772b46a114523f609d951cba78d8",
+    "rows_in_source": 1,
+    "closure": "mixu_chaos_cultists"
+   },
+   {
+    "source": "mod/assets/vendored_chars/molokh_slugtongue/tsv/db/land_units_tables/@ld_chr_molokh_slugtongue.tsv",
+    "sha256": "f42d890a75db8e5fc9b5fbe9c4fbac804fa65a8f605e8a264d1e0749b3d2e731",
+    "rows_in_source": 1,
+    "closure": "molokh_slugtongue"
+   },
+   {
+    "source": "mod/assets/vendored_chars/monkey_king/tsv/db/land_units_tables/@ld_chr_monkey_king.tsv",
+    "sha256": "056b8f69551677e7a6fc0c14edadde5405b9adfc505e01d4b276a17a6068a114",
+    "rows_in_source": 2,
+    "closure": "monkey_king"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morgan_bernhardt/tsv/db/land_units_tables/@ld_chr_morgan_bernhardt.tsv",
+    "sha256": "f391ffa7d62afc2215663daa2b7c196a5de72d32d943cb4a4674a6e0d7caf210",
+    "rows_in_source": 2,
+    "closure": "morgan_bernhardt"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morglum_necksnapper/tsv/db/land_units_tables/@ld_chr_morglum_necksnapper.tsv",
+    "sha256": "6452481991022b121c33c447e96bae35c55db7bdb870ef0c7cdb6c26ed9c021a",
+    "rows_in_source": 2,
+    "closure": "morglum_necksnapper"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morskittar/tsv/db/land_units_tables/@ld_chr_morskittar.tsv",
+    "sha256": "eaa3db364d3f6f0699d9a25e4daa464fcddfe3e58336d1422aa8313a07f87d7a",
+    "rows_in_source": 2,
+    "closure": "morskittar"
+   },
+   {
+    "source": "mod/assets/vendored_chars/naieth_the_prophetess/tsv/db/land_units_tables/@ld_chr_naieth_the_prophetess.tsv",
+    "sha256": "d3872a2915c45c3e084b2bf6a2c660e749e336f97a3752363ce2f37970561090",
+    "rows_in_source": 4,
+    "closure": "naieth_the_prophetess"
+   },
+   {
+    "source": "mod/assets/vendored_chars/nastasya_roskolnikov/tsv/db/land_units_tables/@ld_chr_nastasya_roskolnikov.tsv",
+    "sha256": "84793a068dd4a436bf1bb2d56840b50dc5564d16a13371f65e87e08c08d30838",
+    "rows_in_source": 5,
+    "closure": "nastasya_roskolnikov"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ovn_fimir_units/tsv/db/land_units_tables/@ld_chr_ovn_fimir_units.tsv",
+    "sha256": "0f35bcef605b629d261beb20b653ba15f0d87251c78968b050ed2feda3942573",
+    "rows_in_source": 2,
+    "closure": "ovn_fimir_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/painseekers/tsv/db/land_units_tables/@ld_chr_painseekers.tsv",
+    "sha256": "df781e1921988b214ab179da1ee21ffa7ceed39acab264ba2bf6a6065d25ac7f",
+    "rows_in_source": 2,
+    "closure": "painseekers"
+   },
+   {
+    "source": "mod/assets/vendored_chars/queen_marrisith/tsv/db/land_units_tables/@ld_chr_queen_marrisith.tsv",
+    "sha256": "7065954d09be9ae672f9729556b7566c93f03776d7be9102dfdecbaa525128f2",
+    "rows_in_source": 7,
+    "closure": "queen_marrisith"
+   },
+   {
+    "source": "mod/assets/vendored_chars/rabe_von_stahl/tsv/db/land_units_tables/@ld_chr_rabe_von_stahl.tsv",
+    "sha256": "eb38fecc0173dd60e05d01b17a81592157cc5badfa4d657335261af2e7f0d757",
+    "rows_in_source": 2,
+    "closure": "rabe_von_stahl"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ramhotep_the_visionary/tsv/db/land_units_tables/@ld_chr_ramhotep_the_visionary.tsv",
+    "sha256": "e23d033aa098d63c6b7838b1b650a73fd85111822d214c55945e5d5f3812ef50",
+    "rows_in_source": 4,
+    "closure": "ramhotep_the_visionary"
+   },
+   {
+    "source": "mod/assets/vendored_chars/red_brokk/tsv/db/land_units_tables/@ld_chr_red_brokk.tsv",
+    "sha256": "11e3f964c61a3919c6308d9a07012d685b872a499fb859fa0d1d8a5c966915cd",
+    "rows_in_source": 2,
+    "closure": "red_brokk"
+   },
+   {
+    "source": "mod/assets/vendored_chars/rorek_granitehand/tsv/db/land_units_tables/@ld_chr_rorek_granitehand.tsv",
+    "sha256": "1051814d08eb3abfc8c7041725055da152e3f5e30e38294e4695c7f1668071f6",
+    "rows_in_source": 1,
+    "closure": "rorek_granitehand"
+   },
+   {
+    "source": "mod/assets/vendored_chars/rykarth_the_unbreakable/tsv/db/land_units_tables/@ld_chr_rykarth_the_unbreakable.tsv",
+    "sha256": "b14fa59b126a182d5a6970512e87a08633259255f89986bb762b87d2a2c2dd19",
+    "rows_in_source": 2,
+    "closure": "rykarth_the_unbreakable"
+   },
+   {
+    "source": "mod/assets/vendored_chars/scm_huscarl_horseriders/tsv/db/land_units_tables/@ld_chr_scm_huscarl_horseriders.tsv",
+    "sha256": "09ea5f7b33864925572818c4d9c0005e61cc156b74ec7988f1dc0435d09fd85c",
+    "rows_in_source": 1,
+    "closure": "scm_huscarl_horseriders"
+   },
+   {
+    "source": "mod/assets/vendored_chars/sisters_of_sigmar/tsv/db/land_units_tables/@ld_chr_sisters_of_sigmar.tsv",
+    "sha256": "6f4182bc6f30611535e14ba59a34e5db44ee45815b635671a1a66a9c65b887a1",
+    "rows_in_source": 1,
+    "closure": "sisters_of_sigmar"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skarrik/tsv/db/land_units_tables/@ld_chr_skarrik.tsv",
+    "sha256": "8e1b4be261bb69fd456adadacb143097be00cbb4357ba9e7d6f055fbe56ead3f",
+    "rows_in_source": 2,
+    "closure": "skarrik"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skaw_the_falconer/tsv/db/land_units_tables/@ld_chr_skaw_the_falconer.tsv",
+    "sha256": "e435082b24d2ddcf5f9f51349739cedc1280b1d93d96f90cfecbcc771e0aa8fe",
+    "rows_in_source": 2,
+    "closure": "skaw_the_falconer"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skeggi_threkkson/tsv/db/land_units_tables/@ld_chr_skeggi_threkkson.tsv",
+    "sha256": "84820bd91e4d6ee9d33125c8a9c9623cbb242247322bf7b33e9f4055f25be572",
+    "rows_in_source": 1,
+    "closure": "skeggi_threkkson"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skretch/tsv/db/land_units_tables/@ld_chr_skretch.tsv",
+    "sha256": "565da1e6e0ccf11ae1e6ff7db12b535f3ead9607709b6d3a5b46f55cdc82c873",
+    "rows_in_source": 3,
+    "closure": "skretch"
+   },
+   {
+    "source": "mod/assets/vendored_chars/sslivox/tsv/db/land_units_tables/@ld_chr_sslivox.tsv",
+    "sha256": "57b97a330a1f88d52c44745f13b59a8f0bfcc26693d763ea108ffa1a86da9278",
+    "rows_in_source": 1,
+    "closure": "sslivox"
+   },
+   {
+    "source": "mod/assets/vendored_chars/stonehammer_trio/tsv/db/land_units_tables/@ld_chr_stonehammer_trio.tsv",
+    "sha256": "29bd4dc8eb2e69fd504831c3a863917c6c01dd5554dbb9ee49ba69096d7f20cc",
+    "rows_in_source": 3,
+    "closure": "stonehammer_trio"
+   },
+   {
+    "source": "mod/assets/vendored_chars/str_skaven/tsv/db/land_units_tables/@ld_chr_str_skaven.tsv",
+    "sha256": "56e9b0d420dcd86d6673202601724a542f49eea3e2cd200a61b604c976890559",
+    "rows_in_source": 8,
+    "closure": "str_skaven"
+   },
+   {
+    "source": "mod/assets/vendored_chars/surtha_lenk/tsv/db/land_units_tables/@ld_chr_surtha_lenk.tsv",
+    "sha256": "0f1f348221be092eb7a058bd3dd16bcd726bc6c1f353e1c7fdf89ab011c0eb84",
+    "rows_in_source": 3,
+    "closure": "surtha_lenk"
+   },
+   {
+    "source": "mod/assets/vendored_chars/sven_hasselfriesian/tsv/db/land_units_tables/@ld_chr_sven_hasselfriesian.tsv",
+    "sha256": "4da8c7d661aed37cfd2982bf3befecb25d74398b91cc7fa387ba4cdba9139214",
+    "rows_in_source": 1,
+    "closure": "sven_hasselfriesian"
+   },
+   {
+    "source": "mod/assets/vendored_chars/taubert_de_langlante/tsv/db/land_units_tables/@ld_chr_taubert_de_langlante.tsv",
+    "sha256": "a6a145bcf1fad2ea2cac7d021f4b38a1d0cdda620108ccd4fa70a745b1ffa00f",
+    "rows_in_source": 4,
+    "closure": "taubert_de_langlante"
+   },
+   {
+    "source": "mod/assets/vendored_chars/teb_wave1_units/tsv/db/land_units_tables/@ld_chr_teb_wave1_units.tsv",
+    "sha256": "d0026febd245e7a77880d1cb119219eb31625c0cf2dae8b586ffa433d54cf133",
+    "rows_in_source": 2,
+    "closure": "teb_wave1_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tetto_eko/tsv/db/land_units_tables/@ld_chr_tetto_eko.tsv",
+    "sha256": "3433ea91f60078222c594a07cbabfb3b9117a5348ffe31aa682f73812f6f2840",
+    "rows_in_source": 2,
+    "closure": "tetto_eko"
+   },
+   {
+    "source": "mod/assets/vendored_chars/theoderic_gausser/tsv/db/land_units_tables/@ld_chr_theoderic_gausser.tsv",
+    "sha256": "295ba150948a1b8346fdc7f9b1837e3721c6eead37ea1229c49e9f6248011d48",
+    "rows_in_source": 4,
+    "closure": "theoderic_gausser"
+   },
+   {
+    "source": "mod/assets/vendored_chars/theodoric_of_brionne/tsv/db/land_units_tables/@ld_chr_theodoric_of_brionne.tsv",
+    "sha256": "a079e70359670beaa64d71ecf1cb13fad1cf0f83bfe86d2b3eb4b54fc1a48171",
+    "rows_in_source": 4,
+    "closure": "theodoric_of_brionne"
+   },
+   {
+    "source": "mod/assets/vendored_chars/thorgar_the_blooded_one/tsv/db/land_units_tables/@ld_chr_thorgar_the_blooded_one.tsv",
+    "sha256": "7f643cb9eec3023e78fcd161072f66b59969dac7bb47fbb810523e9063812dac",
+    "rows_in_source": 2,
+    "closure": "thorgar_the_blooded_one"
+   },
+   {
+    "source": "mod/assets/vendored_chars/thyrus_gormann/tsv/db/land_units_tables/@ld_chr_thyrus_gormann.tsv",
+    "sha256": "799818ccab2db030294f0da4c87109bf55a9e4696d83242248a7943497e12302",
+    "rows_in_source": 2,
+    "closure": "thyrus_gormann"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tordrek_hackhart/tsv/db/land_units_tables/@ld_chr_tordrek_hackhart.tsv",
+    "sha256": "35fa19ec87f1b584209bb7fb85bbf67635541de0be7c9f621ba084324868169f",
+    "rows_in_source": 1,
+    "closure": "tordrek_hackhart"
+   },
+   {
+    "source": "mod/assets/vendored_chars/torston_treehaka/tsv/db/land_units_tables/@ld_chr_torston_treehaka.tsv",
+    "sha256": "fc4e14bfe233d705c8b5d6ee6e1a6a77a42d98942cc8ff44f722e9b257e25489",
+    "rows_in_source": 1,
+    "closure": "torston_treehaka"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tutankhanut/tsv/db/land_units_tables/@ld_chr_tutankhanut.tsv",
+    "sha256": "9493473394b507392c1995399d0ad1c478651f22326f99179fe9c6f1eee00654",
+    "rows_in_source": 4,
+    "closure": "tutankhanut"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ungrol_four_horn/tsv/db/land_units_tables/@ld_chr_ungrol_four_horn.tsv",
+    "sha256": "ffc3018b7f6b2a6a1388848251552c6923e42207286c11550e4d5340042651af",
+    "rows_in_source": 1,
+    "closure": "ungrol_four_horn"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ushoran/tsv/db/land_units_tables/@ld_chr_ushoran.tsv",
+    "sha256": "1a35cab9a58746c9e3aa38221fd50262e7710b62206e8c4d6dd56ce463170a06",
+    "rows_in_source": 3,
+    "closure": "ushoran"
+   },
+   {
+    "source": "mod/assets/vendored_chars/valmir_von_raukov/tsv/db/land_units_tables/@ld_chr_valmir_von_raukov.tsv",
+    "sha256": "6b32588e5ab71226250f1b27eb5eb929fdcba584eb62cd8e9d23fe956804ccc2",
+    "rows_in_source": 4,
+    "closure": "valmir_von_raukov"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vandred_the_majestic/tsv/db/land_units_tables/@ld_chr_vandred_the_majestic.tsv",
+    "sha256": "ec2de7846f4133747d908f6f33b8c01b7c3afdd3d9ba3db9048409bd2c0951f8",
+    "rows_in_source": 1,
+    "closure": "vandred_the_majestic"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vaslo_kruld/tsv/db/land_units_tables/@ld_chr_vaslo_kruld.tsv",
+    "sha256": "26c83ee5ae768ba33effc2f9fc53de1d494ef50ac045513cb104553f132d40c3",
+    "rows_in_source": 2,
+    "closure": "vaslo_kruld"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vazgrat_the_lucky/tsv/db/land_units_tables/@ld_chr_vazgrat_the_lucky.tsv",
+    "sha256": "532904e5108b1f2b178dafb2e31dfd12c9b09e8412d7ceb6112a7622f674216f",
+    "rows_in_source": 2,
+    "closure": "vazgrat_the_lucky"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vraznak/tsv/db/land_units_tables/@ld_chr_vraznak.tsv",
+    "sha256": "180c85733bd2154ea192d2189136d1be83858befe597edbb76fc3cc0877f018e",
+    "rows_in_source": 1,
+    "closure": "vraznak"
+   },
+   {
+    "source": "mod/assets/vendored_chars/wolfram_hertwig/tsv/db/land_units_tables/@ld_chr_wolfram_hertwig.tsv",
+    "sha256": "8ddc3eef3ecf818b1960dd5b66925c7bcdfa72e850c552572480c1d0902fe093",
+    "rows_in_source": 4,
+    "closure": "wolfram_hertwig"
+   },
+   {
+    "source": "mod/assets/vendored_chars/wychwethyl_the_wild/tsv/db/land_units_tables/@ld_chr_wychwethyl_the_wild.tsv",
+    "sha256": "91fb2caeff6e7242699719c9935bbd586b5c318e3401689aedb458f97179bbc4",
+    "rows_in_source": 1,
+    "closure": "wychwethyl_the_wild"
+   },
+   {
+    "source": "mod/assets/vendored_chars/zerooz_org_units/tsv/db/land_units_tables/@ld_chr_zerooz_org_units.tsv",
+    "sha256": "f1791ba2492367b30c84c576b49b05de6af8f58c3049808869e6186bc11a0284",
+    "rows_in_source": 1,
+    "closure": "zerooz_org_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/zerooz_units/tsv/db/land_units_tables/@ld_chr_zerooz_units.tsv",
+    "sha256": "5556d0007a5a617d2356a3a1dd14f35be262de45442d16172bf9e8c88279c919",
+    "rows_in_source": 13,
+    "closure": "zerooz_units"
+   }
+  ],
+  "mounts_tables": [
+   {
+    "source": "mod/assets/vendored_chars/adalhard_of_lyonesse/tsv/db/mounts_tables/@ld_chr_adalhard_of_lyonesse.tsv",
+    "sha256": "c9df145cd15b5f39906b3564682feceb5eb1623e795bfb4da82ebf0ae917b0c2",
+    "rows_in_source": 1,
+    "closure": "adalhard_of_lyonesse"
+   },
+   {
+    "source": "mod/assets/vendored_chars/aldebrand_ludenhof/tsv/db/mounts_tables/@ld_chr_aldebrand_ludenhof.tsv",
+    "sha256": "0846704eec63cb6e06204cdde60ac5eabefcdccc8b343ecfadfd8970953ef8d0",
+    "rows_in_source": 1,
+    "closure": "aldebrand_ludenhof"
+   },
+   {
+    "source": "mod/assets/vendored_chars/anark_von_carstein/tsv/db/mounts_tables/@ld_chr_anark_von_carstein.tsv",
+    "sha256": "ee566c1f7c35d403052900939c16ba19dcaef02b69fad1f6b76a2101de42c3be",
+    "rows_in_source": 5,
+    "closure": "anark_von_carstein"
+   },
+   {
+    "source": "mod/assets/vendored_chars/araby_units/tsv/db/mounts_tables/@ld_chr_araby_units.tsv",
+    "sha256": "f0e7eb7b7675192c9962970a1160082124de560d1d54b23ef016223410a5ca0c",
+    "rows_in_source": 2,
+    "closure": "araby_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bertha_bestraufrung/tsv/db/mounts_tables/@ld_chr_bertha_bestraufrung.tsv",
+    "sha256": "e8f400aa192c4448a2f1f0123d707f9929c387ab95a1d92aa2f43b2d1d9b927a",
+    "rows_in_source": 1,
+    "closure": "bertha_bestraufrung"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bodvarr_ribspreader/tsv/db/mounts_tables/@ld_chr_bodvarr_ribspreader.tsv",
+    "sha256": "e2f405db105dee0b83c8e85bbd6d20e67bae77e89425481453998170d7f836a3",
+    "rows_in_source": 1,
+    "closure": "bodvarr_ribspreader"
+   },
+   {
+    "source": "mod/assets/vendored_chars/bohemond/tsv/db/mounts_tables/@ld_chr_bohemond.tsv",
+    "sha256": "eb7128fb1dc5e85574213bf7bd5903799b7d5c720e70473d10ef89c9361f2518",
+    "rows_in_source": 1,
+    "closure": "bohemond"
+   },
+   {
+    "source": "mod/assets/vendored_chars/cody_thunderbarge/tsv/db/mounts_tables/@ld_chr_cody_thunderbarge.tsv",
+    "sha256": "7943635b15b85128bbaa6707893c095ef5f5fd84ded7a0bfbd00e4cb97354d1c",
+    "rows_in_source": 1,
+    "closure": "cody_thunderbarge"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dark_omen_ror/tsv/db/mounts_tables/@ld_chr_dark_omen_ror.tsv",
+    "sha256": "44cddad56e8079693d35069346991dbed3cb0c4ea3f74ef49f18eba1678bdfa6",
+    "rows_in_source": 2,
+    "closure": "dark_omen_ror"
+   },
+   {
+    "source": "mod/assets/vendored_chars/duffskul/tsv/db/mounts_tables/@ld_chr_duffskul.tsv",
+    "sha256": "d9e2cbfd48b90b9e9332902181814485e87f82c084482fd8a799eb88c16f3595",
+    "rows_in_source": 1,
+    "closure": "duffskul"
+   },
+   {
+    "source": "mod/assets/vendored_chars/dural_durak/tsv/db/mounts_tables/@ld_chr_dural_durak.tsv",
+    "sha256": "9bbd5cc6e0b6153a5e454e695ab0c48a6bcd5c80d426c6d6ef0fab9abdaa8904",
+    "rows_in_source": 5,
+    "closure": "dural_durak"
+   },
+   {
+    "source": "mod/assets/vendored_chars/egil_styrbjorn/tsv/db/mounts_tables/@ld_chr_egil_styrbjorn.tsv",
+    "sha256": "9b131044a1a6fcc47d304b90a409c9450388f30a9c9c53f6d204a835538d13ba",
+    "rows_in_source": 3,
+    "closure": "egil_styrbjorn"
+   },
+   {
+    "source": "mod/assets/vendored_chars/fernando_pirazzo/tsv/db/mounts_tables/@ld_chr_fernando_pirazzo.tsv",
+    "sha256": "e55bb590be3714586808eee5f683f55dc13fd63ce3c01e5a37cd23b717b697be",
+    "rows_in_source": 1,
+    "closure": "fernando_pirazzo"
+   },
+   {
+    "source": "mod/assets/vendored_chars/feskit/tsv/db/mounts_tables/@ld_chr_feskit.tsv",
+    "sha256": "b9dcac68296f8fdbba68d3e094db4a8e7a8df342518d6ad8e83d211f30a313d5",
+    "rows_in_source": 1,
+    "closure": "feskit"
+   },
+   {
+    "source": "mod/assets/vendored_chars/glf_units/tsv/db/mounts_tables/@ld_chr_glf_units.tsv",
+    "sha256": "282eea77ead7cc008962cefeb350d436a5f2745214180819eb06894b8726d43c",
+    "rows_in_source": 4,
+    "closure": "glf_units"
+   },
+   {
+    "source": "mod/assets/vendored_chars/gnawdwell/tsv/db/mounts_tables/@ld_chr_gnawdwell.tsv",
+    "sha256": "ba772eb68bb819da94f8b6dcb2571d66ba3768385cbfc1c748c181f9201c3147",
+    "rows_in_source": 1,
+    "closure": "gnawdwell"
+   },
+   {
+    "source": "mod/assets/vendored_chars/golden_magus/tsv/db/mounts_tables/@ld_chr_golden_magus.tsv",
+    "sha256": "cefca5bcc0d80c2494945291a4c0d0383cef61d5c78249c8685744606cf5dc34",
+    "rows_in_source": 5,
+    "closure": "golden_magus"
+   },
+   {
+    "source": "mod/assets/vendored_chars/helmut_feuerbach/tsv/db/mounts_tables/@ld_chr_helmut_feuerbach.tsv",
+    "sha256": "c2c2dbe5996ea0eeb2e015504d5628ec91af0e5dc2db485b5acade386a0fc2dd",
+    "rows_in_source": 3,
+    "closure": "helmut_feuerbach"
+   },
+   {
+    "source": "mod/assets/vendored_chars/hng_horse_archers/tsv/db/mounts_tables/@ld_chr_hng_horse_archers.tsv",
+    "sha256": "833b667ddf6756944d1dd6252cd7cdf5fdcc201f23e4823a892355131a4eed2a",
+    "rows_in_source": 1,
+    "closure": "hng_horse_archers"
+   },
+   {
+    "source": "mod/assets/vendored_chars/iron_orcs/tsv/db/mounts_tables/@ld_chr_iron_orcs.tsv",
+    "sha256": "6c8f9bd5a41d205cdd3933c0281965e470d2b91603fb56a62059a7bf9867a4fc",
+    "rows_in_source": 3,
+    "closure": "iron_orcs"
+   },
+   {
+    "source": "mod/assets/vendored_chars/khaled_al_muntasir/tsv/db/mounts_tables/@ld_chr_khaled_al_muntasir.tsv",
+    "sha256": "d14ec66fccb7941eddb0f9ed3820f047ead798c3b28ff6f11e11f42a2e39dd59",
+    "rows_in_source": 2,
+    "closure": "khaled_al_muntasir"
+   },
+   {
+    "source": "mod/assets/vendored_chars/kratch_doomclaw/tsv/db/mounts_tables/@ld_chr_kratch_doomclaw.tsv",
+    "sha256": "ae782c3c8621d574642f26280eda462f7b820de98ed2c3030ad2853972f4b780",
+    "rows_in_source": 1,
+    "closure": "kratch_doomclaw"
+   },
+   {
+    "source": "mod/assets/vendored_chars/leanora_navrre/tsv/db/mounts_tables/@ld_chr_leanora_navrre.tsv",
+    "sha256": "216e60bbf9328695dd6e6f1184bbf931f71aa080d544633321289a1a7c931ea0",
+    "rows_in_source": 1,
+    "closure": "leanora_navrre"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morgan_bernhardt/tsv/db/mounts_tables/@ld_chr_morgan_bernhardt.tsv",
+    "sha256": "d92c711da18f935244705e3852afa138dac7dc98e300f0abeb807919c14e8ec2",
+    "rows_in_source": 1,
+    "closure": "morgan_bernhardt"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morglum_necksnapper/tsv/db/mounts_tables/@ld_chr_morglum_necksnapper.tsv",
+    "sha256": "154b094214cbbf9a154184bbd3838100b12f39b640bf297fe10eec8ef3632a7e",
+    "rows_in_source": 2,
+    "closure": "morglum_necksnapper"
+   },
+   {
+    "source": "mod/assets/vendored_chars/morskittar/tsv/db/mounts_tables/@ld_chr_morskittar.tsv",
+    "sha256": "1c43aff19d143a178bfbfb000aff87fbea24aab32d7759be346b39e95422c006",
+    "rows_in_source": 1,
+    "closure": "morskittar"
+   },
+   {
+    "source": "mod/assets/vendored_chars/painseekers/tsv/db/mounts_tables/@ld_chr_painseekers.tsv",
+    "sha256": "6c752b1adf6656338f93b2457b01e3e8ffab466302207fd2c9406c0340ad6677",
+    "rows_in_source": 2,
+    "closure": "painseekers"
+   },
+   {
+    "source": "mod/assets/vendored_chars/queen_marrisith/tsv/db/mounts_tables/@ld_chr_queen_marrisith.tsv",
+    "sha256": "1be5b68287961d07b8c6ec217e747ca32384a1ecfc8d98861512e81a0c9b6ae5",
+    "rows_in_source": 3,
+    "closure": "queen_marrisith"
+   },
+   {
+    "source": "mod/assets/vendored_chars/rabe_von_stahl/tsv/db/mounts_tables/@ld_chr_rabe_von_stahl.tsv",
+    "sha256": "3206ca25e5ba0c1b0b6f6e3f1e241af605173535808374c6b5334375a0bf8936",
+    "rows_in_source": 1,
+    "closure": "rabe_von_stahl"
+   },
+   {
+    "source": "mod/assets/vendored_chars/ramhotep_the_visionary/tsv/db/mounts_tables/@ld_chr_ramhotep_the_visionary.tsv",
+    "sha256": "af0e76ed9410079c62f2ca7189f8ae68c04389bcf3e0d8abde32f29554cad771",
+    "rows_in_source": 2,
+    "closure": "ramhotep_the_visionary"
+   },
+   {
+    "source": "mod/assets/vendored_chars/red_brokk/tsv/db/mounts_tables/@ld_chr_red_brokk.tsv",
+    "sha256": "2be5b4a0d49f7507ec562009f759ac9d4d899a8f151f763f78808102bada3473",
+    "rows_in_source": 1,
+    "closure": "red_brokk"
+   },
+   {
+    "source": "mod/assets/vendored_chars/scm_huscarl_horseriders/tsv/db/mounts_tables/@ld_chr_scm_huscarl_horseriders.tsv",
+    "sha256": "87ab05a7c70251df5fd60245e3e17915f02d6d0afa8560243c5b872557269895",
+    "rows_in_source": 3,
+    "closure": "scm_huscarl_horseriders"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skarrik/tsv/db/mounts_tables/@ld_chr_skarrik.tsv",
+    "sha256": "51d4add0798af0d975ec3e14395b983b249e547d804603a186213ba250e54f52",
+    "rows_in_source": 1,
+    "closure": "skarrik"
+   },
+   {
+    "source": "mod/assets/vendored_chars/skaw_the_falconer/tsv/db/mounts_tables/@ld_chr_skaw_the_falconer.tsv",
+    "sha256": "b8faaafc6920e0dbe5634c0a91f8d719d5798b88988c1175297e8afbb623073d",
+    "rows_in_source": 1,
+    "closure": "skaw_the_falconer"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tetto_eko/tsv/db/mounts_tables/@ld_chr_tetto_eko.tsv",
+    "sha256": "6e34ebae76f4e20ec18b3a6e034f608f0e2643b655847f86ef7445d62711a479",
+    "rows_in_source": 1,
+    "closure": "tetto_eko"
+   },
+   {
+    "source": "mod/assets/vendored_chars/thyrus_gormann/tsv/db/mounts_tables/@ld_chr_thyrus_gormann.tsv",
+    "sha256": "61f311ec95f54defbdd0e563dc1f04058c61f9cb639a2bb8a003b2bf7193621a",
+    "rows_in_source": 1,
+    "closure": "thyrus_gormann"
+   },
+   {
+    "source": "mod/assets/vendored_chars/tutankhanut/tsv/db/mounts_tables/@ld_chr_tutankhanut.tsv",
+    "sha256": "e6ee42024050cf8f1e60bdbcec5c9de27797767f85bfdcee7ba52ed9d7022d29",
+    "rows_in_source": 2,
+    "closure": "tutankhanut"
+   },
+   {
+    "source": "mod/assets/vendored_chars/valmir_von_raukov/tsv/db/mounts_tables/@ld_chr_valmir_von_raukov.tsv",
+    "sha256": "ccb93fcf33fdb58885670a07c6472957d1694d48a57ff40d55064e68d9a5c940",
+    "rows_in_source": 1,
+    "closure": "valmir_von_raukov"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vaslo_kruld/tsv/db/mounts_tables/@ld_chr_vaslo_kruld.tsv",
+    "sha256": "3622bcf826c01dfa0765dc143821a9a8b00cd32586711468569e6d01fa95de73",
+    "rows_in_source": 2,
+    "closure": "vaslo_kruld"
+   },
+   {
+    "source": "mod/assets/vendored_chars/vazgrat_the_lucky/tsv/db/mounts_tables/@ld_chr_vazgrat_the_lucky.tsv",
+    "sha256": "ad24c9950ccc2b0dd5f000738b3124c36097c7038323e215e23740e61bd7dfa5",
+    "rows_in_source": 1,
+    "closure": "vazgrat_the_lucky"
+   }
+  ]
+ }
+}

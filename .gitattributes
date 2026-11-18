@@ -1,8 +1,6 @@
-# Same normalisation as the lore-disasters repository for the shared paths:
-# the sync compares git blobs, so both repositories must store identical bytes.
+# Text is normalised, Lua is always LF; vendored scripts and the staged air-dive assets are stored byte for byte.
 * text=auto
 *.lua text eol=lf
-hooks/* text eol=lf
 mod/assets/vendored_scripts/** -text
 mod/assets/air_dive/** -text
 *.pack binary

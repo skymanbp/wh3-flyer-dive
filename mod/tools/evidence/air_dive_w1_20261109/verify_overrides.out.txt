@@ -1,0 +1,1 @@
+tables 51, refs 4111, slot-104 swaps 51, problems 0; clips CA's own installed bins already name but no installed pack carries (unchanged by us): ['animations/battle/horse01/deaths/hr1_matched_death_01.anim', 'animations/battle/horse01/deaths/hr1_vs_dr05_toad_dragon_matched_death_03.anim']

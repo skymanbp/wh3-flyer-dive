@@ -1590,8 +1590,9 @@ def write_pack_file(output_path, entries, pack_type, timestamp=0,
     Every payload is written verbatim. A ``StoredCompressed`` payload (PFH5+
     only) gets the index compressed flag 1; every other payload gets 0.
 
-    The one PFH byte layout behind PackWriter.write, build_pack.build_pack,
-    dbw_clone.ModPackBuilder and the N3-A spike builder. Header: magic
+    The one PFH byte layout behind PackWriter.write and this repository's
+    pack builders (pipelines/build_air_dive_minimod.py and the test-pack
+    builders). Header: magic
     ``PFH<format_version>``, u32 pack-type bitmask, ref_file_count 0,
     pack_file_index_size 0, u32 pack_file_count, u32 packed_file_index_size,
     then (PFH5+) u32 ``int(timestamp)``. Index: per entry u32 stored size, (PFH5+)
@@ -1662,8 +1663,7 @@ class PackWriter:
 
     @staticmethod
     def _canonical_vfs_path(pack_path):
-        # Mirrors build_pack.validate_pack_entries: WH3 VFS identity is
-        # separator- and case-insensitive.
+        # WH3 VFS identity is separator- and case-insensitive.
         return pack_path.replace('\\', '/').lower()
 
     def _append_exact_path(self, pack_path, data):
@@ -2015,9 +2015,8 @@ def decode_loc_rows(data, pack_path):
 
     The strict counterpart of LocReader.read: every truncation, bad UTF-16
     unit, tooltip marker outside 0/1 and trailing byte raises ValueError
-    naming ``pack_path``. The one decoder behind validate_mod's gates and
-    build_pack's LOC key-collision check. / 严格版 LOC v1 解码：任何截断、
-    非法 UTF-16、提示标志非 0/1、尾随字节都抛错；校验门与构建撞键检查共用。
+    naming ``pack_path``. / 严格版 LOC v1 解码：任何截断、
+    非法 UTF-16、提示标志非 0/1、尾随字节都抛错。
     """
     if len(data) < 14 or data[:6] != b"\xff\xfeLOC\x00":
         raise ValueError(f"Invalid LOC header: {pack_path}")

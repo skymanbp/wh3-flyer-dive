@@ -1,8 +1,7 @@
 """TEST-ONLY packs for the flyer take-off comparisons.
 
-[AIR-DIVE-TAKEOFF-W1 2026-11-12] Nothing here ships: ld_mod.pack and the
-stand-alone ld_air_dive.pack are built by build_pack.py and
-build_air_dive_minimod.py and are not touched. Each pack carries the air-dive
+[AIR-DIVE-TAKEOFF-W1 2026-11-12] Nothing here ships: ld_air_dive.pack is
+built by build_air_dive_minimod.py and is not touched. Each pack carries the air-dive
 movement recorder plus:
 
   --base probe   recorder only (vanilla flight data)

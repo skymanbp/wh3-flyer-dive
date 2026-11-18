@@ -54,18 +54,19 @@ names the game goes by (a swap test with these two packs is still to be run).
 
 ## Repository layout
 
-The files keep the paths they have in the main *Lore Disasters* mod repository,
-so the tools run unchanged in either place:
+Script paths and file names inside the pack (`script/campaign/lore_disasters/...`,
+`ld_flyer_*`, `ld_air_dive.pack`) are the names the published mod ships under; they stay
+as they are so subscribers' load order and the multiplayer agreement keep working.
 
 | path | what |
 |---|---|
 | `mod/assets/air_dive/` | renamed flight tables (`.bin`, animpack) and `air_dive_manifest.json` (sha256 of each) |
 | `mod/script/...ld_flyer_*.lua`, `lib/ld_cave_common.lua` | battle and campaign entry scripts, rule modules, generated site tables |
-| `mod/assets/vendored_scripts/memreader_plus/` | memreader Plus 0_15_2 as used by the main mod (MIT, see its `third_party_licenses.txt`); the stand-alone pack does **not** include it, it is a declared prerequisite |
+| `mod/assets/vendored_scripts/memreader_plus/` | memreader Plus 0_15_2 (MIT, see its `third_party_licenses.txt`), read by the cave-site tests; the pack does **not** include it, it is a declared prerequisite |
 | `mod/tools/pipelines/` | `build_air_dive_minimod.py` (builds the pack), `air_dive.py` (derives the tables), cave assemblers, probes and the automated battle test |
 | `mod/tools/lib/`, `mod/tools/tests/` | rule module, animation codecs, tests |
 | `mod/tools/lib/flyer_db.py`, `mod/tools/data/flyer_db_schemas.json` | DB table reader/writer and the recorded writer schemas (self-contained build) |
-| `mod/tools/sync_flyer_repo.py`, `mod/tools/data/flyer_repo_manifest.json` | the retired sync with the main repository (history only) |
+| `mod/tools/data/main_mod_flyers.json`, `mod/tools/lib/main_mod_flyers.py` | a recorded snapshot of the Lore Disasters mod's donor flyers and their riders, input for the future main-mod adapter pack; `air_dive.py` counts them when it derives the tables |
 
 ## Building the pack
 
@@ -92,18 +93,20 @@ needs `keystone-engine` and `unicorn`
 test (`tools/pipelines/air_dive_autotest.py`) needs `psutil`; its optional
 `--entity-read` reader is not part of this repository.
 
-Re-deriving the staged flight tables (`tools/pipelines/air_dive.py`, only when
-the rules or the game's tables change) still counts the Lore Disasters donor
-riders: set `LD_VENDORED_DIR=<lore_disaster>/mod/assets/vendored_chars`.
-The pack build itself does not need it.
+Re-deriving the staged flight tables (`python -P tools/pipelines/air_dive.py`,
+only when the rules or the game's tables change; `--check` compares a fresh
+derivation with the staged files) reads the installed game and the snapshot
+`mod/tools/data/main_mod_flyers.json` (the Lore Disasters mod's donor flyers and
+riders, taken 2026-11-17), nothing else.
 
 ## Development home
 
 Since 2026-11-17 this repository is where the flyer mod is developed (user
-ruling); the Lore Disasters mod no longer carries it. The old two-way sync
-(`mod/tools/sync_flyer_repo.py`, `mod/tools/data/flyer_repo_manifest.json`,
-`.sync/`) is retired and the hooks in `hooks/` do nothing; the files stay only
-as history.
+ruling). It builds, re-derives and tests on its own and reads no other
+checkout; the Lore Disasters mod no longer carries the flyer mod. Its flying
+bodies and donor flyers are kept here as recorded data (the snapshot above and
+the rows marked as adapter input in `mod/tools/lib/air_dive_rules.py`) for a
+separate main-mod adapter pack.
 
 ## Credits
 
@@ -161,8 +164,10 @@ as history.
 
 ## 开发位置
 
-用户 2026-11-17 裁定：飞兽模组从此在本仓库开发，主模组不再包含它。原来的双向同步
-（`sync_flyer_repo.py`、清单、`.sync/`）已停用，`hooks/` 里的钩子不再做事，文件只作历史保留。
+用户 2026-11-17 裁定：飞兽模组从此在本仓库开发，主模组不再包含它。本仓库自己建包、重生动作表、
+跑测试，不读任何别的仓库。主模组的飞行实体与捐赠方飞兽作为记录数据留在这里
+（`mod/tools/data/main_mod_flyers.json` 快照与 `air_dive_rules.py` 里标明「适配包输入」的几组行），
+留给将来单独的主模组适配包用。
 
 ## 鸣谢
 

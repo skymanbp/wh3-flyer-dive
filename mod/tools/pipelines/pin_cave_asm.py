@@ -84,7 +84,7 @@ runs them in Unicorn against synthetic objects (see ``check``), then runs the
 same cases against mutated sources that must each fail (``MUTANTS``).
 ``--write-site`` writes the site table when everything passed. Importing the
 module needs neither package: ``check_site_file`` / ``check_exe`` are what
-build_pack.py and build_air_dive_minimod.py call.
+build_air_dive_minimod.py calls.
 """
 import hashlib
 import json

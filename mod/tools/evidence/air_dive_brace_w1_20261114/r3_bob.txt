@@ -1,0 +1,41 @@
+== RG: type lanes | models | flips/model med max | rises/model med max | models with a rise
+bats        6 | 360 |  0.0   5 |  0.0   2 | 85/360
+carrion     6 | 144 |  0.0   5 |  0.0   2 | 29/144
+drone       6 |  72 |  0.0   4 |  0.0   1 | 11/72
+grif        6 |  24 |  0.0   8 |  0.0   1 | 1/24
+hippo       6 |  72 |  0.0   6 |  0.0   3 | 20/72
+peg         6 | 144 |  0.0   3 |  0.0   1 | 8/144
+scream      6 |  96 |  0.0   4 |  0.0   1 | 8/96
+sky         6 |  72 |  0.0   0 |  0.0   0 | 0/72
+terradon    6 |  60 |  0.0   4 |  0.0   1 | 3/60
+varg        6 |  96 |  0.0   6 |  0.0   2 | 12/96
+== RK: type lanes | models | flips/model med max | rises/model med max | models with a rise
+bats        6 | 360 |  0.0   5 |  0.0   2 | 83/360
+carrion     6 | 144 |  0.0   4 |  0.0   1 | 31/144
+drone       6 |  72 |  0.0  10 |  0.0   2 | 9/72
+grif        6 |  24 |  0.0  10 |  0.0   2 | 2/24
+hippo       6 |  72 |  0.0   5 |  0.0   3 | 22/72
+peg         6 | 144 |  0.0   4 |  0.0   1 | 4/144
+scream      6 |  96 |  0.0   4 |  0.0   2 | 8/96
+sky         6 |  72 |  0.0   6 |  0.0   3 | 3/72
+terradon    6 |  60 |  0.0   2 |  0.0   1 | 1/60
+varg        6 |  96 |  0.0   5 |  0.0   3 | 13/96
+== RL: type lanes | models | flips/model med max | rises/model med max | models with a rise
+bats        6 | 360 |  0.0   4 |  0.0   2 | 76/360
+carrion     6 | 144 |  0.0   4 |  0.0   1 | 34/144
+drone       6 |  72 |  0.0   5 |  0.0   3 | 14/72
+grif        6 |  24 |  0.0   4 |  0.0   2 | 1/24
+hippo       6 |  72 |  0.0   6 |  0.0   3 | 23/72
+peg         6 | 144 |  0.0   2 |  0.0   1 | 3/144
+scream      6 |  96 |  0.0   4 |  0.0   2 | 14/96
+sky         6 |  72 |  0.0   3 |  0.0   1 | 3/72
+terradon    6 |  60 |  0.0   6 |  0.0   2 | 3/60
+varg        6 |  96 |  0.0   5 |  0.0   3 | 13/96
+== RG: models 1140, models with a rise 177
+   at the low  (layer, flight, state): [((2, 0, 30), 116), ((2, 4, 30), 66), ((2, 0, 0), 6), ((2, 0, 33), 2), ((2, 4, 33), 1)]
+   at the top  (layer, flight, state): [((2, 0, 30), 109), ((2, 4, 30), 53), ((2, 0, 0), 20), ((2, 0, 33), 5), ((0, 0, 0), 2), ((2, 4, 16), 1)]
+   rise start, s after lead touchdown (floor): [(0, 1), (1, 61), (2, 113), (3, 3), (4, 7), (5, 5), (6, 1)]
+== RL: models 1140, models with a rise 184
+   at the low  (layer, flight, state): [((2, 0, 30), 119), ((2, 4, 30), 81), ((2, 0, 33), 6), ((2, 0, 0), 2), ((2, 4, 0), 1)]
+   at the top  (layer, flight, state): [((2, 0, 30), 108), ((2, 4, 30), 66), ((2, 0, 0), 18), ((2, 0, 33), 9), ((2, 4, 0), 4), ((2, 4, 33), 3)]
+   rise start, s after lead touchdown (floor): [(0, 2), (1, 67), (2, 113), (3, 3), (4, 15), (5, 6), (6, 2), (7, 1)]

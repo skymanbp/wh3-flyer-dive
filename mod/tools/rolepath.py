@@ -1,5 +1,9 @@
 """Role-directory import bootstrap (RESTRUCT-W1, ARCHITECTURE §A12.2).
 
+(Written for the Lore Disasters toolchain and copied here; the counts and
+gate names below are that repository's. Here it puts lib/ and pipelines/ on
+sys.path.)
+
 The toolchain imports by FLAT module name (`import unit_catalog`) from
 ~250 call sites. Classifying the 159 remaining top-level files into the
 role subdirectories the Filetree_Standard gate names

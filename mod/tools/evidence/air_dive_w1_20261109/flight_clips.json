@@ -1,0 +1,3492 @@
+{
+ "battle_bins_round_trip": 1426,
+ "bins_refused_not_v4": 0,
+ "flight_clips": 167,
+ "versions": {
+  "8": 135,
+  "7": 29,
+  "5": 3
+ },
+ "clips": [
+  {
+   "clip": "animations/battle/bigcat02/locomotion/bc2_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    3.027
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02/locomotion/bc2_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.3,
+   "fps": 20.0,
+   "frames": 107,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    28.024
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02/transitions/bc2_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    -0.083,
+    -3.99,
+    5.221
+   ],
+   "descent": {
+    "drop_m": 3.99,
+    "forward_m": 4.03,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02/transitions/bc2_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.8,
+   "fps": 20.0,
+   "frames": 57,
+   "animroot_delta_xyz": [
+    -0.006,
+    6.423,
+    9.787
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02b/locomotion/bc2b_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    5.145
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02b/locomotion/bc2b_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.3,
+   "fps": 20.0,
+   "frames": 107,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    44.838
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02b/transitions/bc2b_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    -0.141,
+    -3.604,
+    8.891
+   ],
+   "descent": {
+    "drop_m": 3.604,
+    "forward_m": 6.387,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02b/transitions/bc2b_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.6,
+   "fps": 20.0,
+   "frames": 53,
+   "animroot_delta_xyz": [
+    -0.011,
+    10.863,
+    15.542
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02c/locomotion/bc2c_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    3.027
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02c/locomotion/bc2c_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.3,
+   "fps": 20.0,
+   "frames": 107,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    28.024
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02c/transitions/bc2c_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    -0.101,
+    -3.99,
+    5.135
+   ],
+   "descent": {
+    "drop_m": 3.99,
+    "forward_m": 4.029,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat02c/transitions/bc2c_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.8,
+   "fps": 20.0,
+   "frames": 57,
+   "animroot_delta_xyz": [
+    -0.006,
+    6.423,
+    9.787
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03/locomotion/bc3_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    4.843
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03/locomotion/bc3_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.3,
+   "fps": 20.0,
+   "frames": 107,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    44.838
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03/transitions/bc3_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.034,
+    -6.12,
+    8.333
+   ],
+   "descent": {
+    "drop_m": 6.121,
+    "forward_m": 5.82,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03/transitions/bc3_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.8,
+   "fps": 20.0,
+   "frames": 57,
+   "animroot_delta_xyz": [
+    -0.01,
+    10.241,
+    15.65
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03b/locomotion/bc3b_chimera_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    4.843
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03b/locomotion/bc3b_chimera_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.3,
+   "fps": 20.0,
+   "frames": 107,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    44.838
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03b/transitions/bc3b_chimera_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.034,
+    -6.12,
+    8.291
+   ],
+   "descent": {
+    "drop_m": 6.121,
+    "forward_m": 5.842,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03b/transitions/bc3b_chimera_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.8,
+   "fps": 20.0,
+   "frames": 57,
+   "animroot_delta_xyz": [
+    0.0,
+    10.241,
+    15.65
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03ca/subset/dread_abyssal/fly_locomotions/bc3ca_dreadabyssal_fly_charge_air_to_air_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 1.3,
+   "fps": 20.0,
+   "frames": 27,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    13.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    9.8
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.034,
+    -6.12,
+    8.333
+   ],
+   "descent": {
+    "drop_m": 6.014,
+    "forward_m": 6.14,
+    "seconds": 0.3
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bigcat03ca/subset/dread_abyssal/transitions/bc3ca_dreadabyssal_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.8,
+   "fps": 20.0,
+   "frames": 57,
+   "animroot_delta_xyz": [
+    -0.01,
+    10.241,
+    15.65
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/locomotion/bi1_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 4.0,
+   "fps": 20.0,
+   "frames": 81,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/locomotion/bi1_fly_walk_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 9.1,
+   "fps": 20.0,
+   "frames": 183,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/locomotion/bi1_hawk_walk_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 9.1,
+   "fps": 20.0,
+   "frames": 183,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    54.134
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/transitions/bi1_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.3,
+   "fps": 20.0,
+   "frames": 27,
+   "animroot_delta_xyz": [
+    -0.0,
+    -4.946,
+    5.809
+   ],
+   "descent": {
+    "drop_m": 4.946,
+    "forward_m": 5.809,
+    "seconds": 0.7
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/transitions/bi1_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    0.0,
+    7.326,
+    14.662
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/transitions/bi1_hawk_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.4,
+   "fps": 20.0,
+   "frames": 29,
+   "animroot_delta_xyz": [
+    -0.003,
+    0.0,
+    4.611
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01/transitions/bi1_hawk_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    -0.001,
+    0.0,
+    13.927
+   ],
+   "descent": {
+    "drop_m": 0.092,
+    "forward_m": 2.174,
+    "seconds": 0.55
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01b/locomotion/bi1b_fly_charge_01.anim",
+   "version": 5,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ]
+  },
+  {
+   "clip": "animations/battle/bird01b/locomotion/bi1b_fly_walk_01.anim",
+   "version": 5,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ]
+  },
+  {
+   "clip": "animations/battle/bird01b/transitions/bi1b_fly_charge_land_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.3,
+   "fps": 20.0,
+   "frames": 27,
+   "animroot_delta_xyz": [
+    -0.077,
+    -4.909,
+    6.727
+   ],
+   "descent": {
+    "drop_m": 5.488,
+    "forward_m": 5.815,
+    "seconds": 0.7
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird01b/transitions/bi1b_fly_take_off_01.anim",
+   "version": 5,
+   "slots": [
+    "FLY_TAKEOFF"
+   ]
+  },
+  {
+   "clip": "animations/battle/bird02/locomotion/bi2_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.5,
+   "fps": 20.0,
+   "frames": 31,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    20.98
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird02/locomotion/bi2_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 6.0,
+   "fps": 20.0,
+   "frames": 121,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    83.92
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird02/transitions/bi2_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.6,
+   "fps": 20.0,
+   "frames": 33,
+   "animroot_delta_xyz": [
+    0.022,
+    -7.186,
+    10.105
+   ],
+   "descent": {
+    "drop_m": 7.186,
+    "forward_m": 10.105,
+    "seconds": 0.6
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird02/transitions/bi2_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.7,
+   "fps": 20.0,
+   "frames": 55,
+   "animroot_delta_xyz": [
+    0.021,
+    17.564,
+    39.441
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird03/locomotion/bi3_fly_charge_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 3.9,
+   "fps": 20.0,
+   "frames": 79,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird03/locomotion/bi3_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 9.1,
+   "fps": 20.0,
+   "frames": 183,
+   "animroot_delta_xyz": [
+    0.001,
+    0.0,
+    40.424
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird03/transitions/bi3_fly_charge_land_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.3,
+   "fps": 20.0,
+   "frames": 27,
+   "animroot_delta_xyz": [
+    -0.019,
+    0.0,
+    3.155
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird03/transitions/bi3_fly_take_off_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    9.854
+   ],
+   "descent": {
+    "drop_m": 0.036,
+    "forward_m": 1.535,
+    "seconds": 0.5
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird04/locomotion/bi04_charge_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.6,
+   "fps": 20.0,
+   "frames": 53,
+   "animroot_delta_xyz": [
+    -0.006,
+    0.0,
+    20.214
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/bird04/transitions/bi04_charge_land_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.9,
+   "fps": 20.0,
+   "frames": 59,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.336,
+    13.713
+   ],
+   "descent": {
+    "drop_m": 5.336,
+    "forward_m": 13.713,
+    "seconds": 1.25
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/bird04/transitions/bi04_fly_take_off_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.3,
+   "fps": 20.0,
+   "frames": 67,
+   "animroot_delta_xyz": [
+    0.0,
+    6.441,
+    33.311
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/cockatrice01/locomotion/co1_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/cockatrice01/transitions/co1_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.7,
+   "fps": 20.0,
+   "frames": 55,
+   "animroot_delta_xyz": [
+    0.063,
+    -9.311,
+    16.708
+   ],
+   "descent": {
+    "drop_m": 9.311,
+    "forward_m": 11.614,
+    "seconds": 1.5
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/cockatrice01/transitions/co1_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.3,
+   "fps": 20.0,
+   "frames": 67,
+   "animroot_delta_xyz": [
+    -0.926,
+    8.637,
+    29.81
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01/locomotion/dr1_fly_charge_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.6,
+   "fps": 20.0,
+   "frames": 53,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    20.16
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01/transitions/dr1_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.8,
+   "fps": 20.0,
+   "frames": 37,
+   "animroot_delta_xyz": [
+    -0.231,
+    -5.47,
+    8.871
+   ],
+   "descent": {
+    "drop_m": 5.452,
+    "forward_m": 7.754,
+    "seconds": 0.65
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01/transitions/dr1_fly_take_off_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.3,
+   "fps": 20.0,
+   "frames": 67,
+   "animroot_delta_xyz": [
+    -0.0,
+    8.775,
+    27.231
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01b/locomotion/dr1b_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.6,
+   "fps": 20.0,
+   "frames": 53,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    20.16
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01b/locomotion/dr1b_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 9.0,
+   "fps": 20.0,
+   "frames": 181,
+   "animroot_delta_xyz": [
+    0.0,
+    -0.0,
+    143.632
+   ],
+   "descent": {
+    "drop_m": 0.001,
+    "forward_m": 5.586,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01b/transitions/dr1b_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    0.046,
+    -5.47,
+    9.932
+   ],
+   "descent": {
+    "drop_m": 5.447,
+    "forward_m": 8.535,
+    "seconds": 0.65
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon01b/transitions/dr1b_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.3,
+   "fps": 20.0,
+   "frames": 67,
+   "animroot_delta_xyz": [
+    -0.0,
+    8.775,
+    27.231
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon04/locomotion/dr4_iron_charge_fly_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.2,
+   "fps": 20.0,
+   "frames": 25,
+   "animroot_delta_xyz": [
+    -0.003,
+    0.0,
+    21.501
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon04/transitions/dr4_iron_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    -0.142,
+    -7.113,
+    30.859
+   ],
+   "descent": {
+    "drop_m": 7.043,
+    "forward_m": 20.254,
+    "seconds": 1.25
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/dragon04/transitions/dr4_iron_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.4,
+   "fps": 20.0,
+   "frames": 69,
+   "animroot_delta_xyz": [
+    0.338,
+    22.72,
+    26.481
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/engine/burningchariot01/transitions/wh3_wm_burning_chariot_fly_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.6,
+   "fps": 20.0,
+   "frames": 33,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/engine/burningchariot01/transitions/wh3_wm_burning_chariot_fly_charge_land.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 3.0,
+   "fps": 20.0,
+   "frames": 61,
+   "animroot_delta_xyz": [
+    0.0,
+    -11.0,
+    9.0
+   ],
+   "descent": {
+    "drop_m": 11.354,
+    "forward_m": 8.975,
+    "seconds": 2.65
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/engine/burningchariot01/transitions/wh3_wm_burning_chariot_ground_take_off.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.0,
+   "fps": 20.0,
+   "frames": 61,
+   "animroot_delta_xyz": [
+    0.0,
+    11.15,
+    9.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/ghost03/changebringers/locomotion/gh3_dlc24_flamer_wm_disc01_changebringer_charge_1_02.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    11.5
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/ghost03/changebringers/locomotion/gh3_dlc24_flamer_wm_disc01_changebringer_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    -0.192,
+    0.0,
+    -0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/ghost03/changebringers/locomotion/gh3_dlc24_flamer_wm_disc01_changebringer_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 5.0,
+   "fps": 20.0,
+   "frames": 101,
+   "animroot_delta_xyz": [
+    -0.073,
+    10.479,
+    0.087
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/horse01/locomotion/hr1_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.4,
+   "fps": 20.0,
+   "frames": 29,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    6.886
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/horse01/locomotion/hr1_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.0,
+   "fps": 20.0,
+   "frames": 101,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    25.194
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/horse01/transitions/hr1_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.2,
+   "fps": 20.0,
+   "frames": 25,
+   "animroot_delta_xyz": [
+    0.0,
+    -2.456,
+    3.023
+   ],
+   "descent": {
+    "drop_m": 2.456,
+    "forward_m": 1.937,
+    "seconds": 0.6
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/horse01/transitions/hr1_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.0,
+   "fps": 20.0,
+   "frames": 61,
+   "animroot_delta_xyz": [
+    0.0,
+    6.664,
+    6.738
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/hu14_team01/transition/hu14_team01_blue_landing_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.9,
+   "fps": 20.0,
+   "frames": 39,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.78,
+    7.507
+   ],
+   "descent": {
+    "drop_m": 5.75,
+    "forward_m": 2.599,
+    "seconds": 0.45
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/hu14_team01/transition/hu14_team01_blue_scribes_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.3,
+   "fps": 20.0,
+   "frames": 47,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/hu14_team01/transition/hu14_team01_blue_scribes_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.8,
+   "fps": 20.0,
+   "frames": 77,
+   "animroot_delta_xyz": [
+    -1.722,
+    8.474,
+    26.523
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/knight_disc_lance_and_shield/locomotion/hu01c_knight_disc_lance_and_shield_charge_air_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    12.572
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/knight_disc_lance_and_shield/locomotion/hu01c_knight_disc_lance_and_shield_charge_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    12.567
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/knight_disc_lance_and_shield/locomotion/hu01c_knight_disc_lance_and_shield_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.86
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/knight_disc_lance_and_shield/locomotion/hu01c_knight_disc_lance_and_shield_take_off.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/knight_disc_lance_and_shield/locomotion/hu0w1c_knight_disc_lance_and_shield_charge_air_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.095,
+    12.572
+   ],
+   "descent": {
+    "drop_m": 0.025,
+    "forward_m": 6.3,
+    "seconds": 0.5
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/sorcerer_disc_staff_sword/locomotion/hu1c_tzeentch_sorcerer_disc_staff_sword_charge_air_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    12.572
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/sorcerer_disc_staff_sword/locomotion/hu1c_tzeentch_sorcerer_disc_staff_sword_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.86
+   ],
+   "descent": {
+    "drop_m": 0.951,
+    "forward_m": 2.35,
+    "seconds": 0.2
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01c/sorcerer_disc_staff_sword/locomotion/hu1c_tzeentch_sorcerer_disc_staff_sword_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01e/rider/eagle/locomotion/hu1e_dlc24_bi1_eagle_mage_hero_astromancer_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND",
+    "FLY_CHARGE_LAND",
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 1.3,
+   "fps": 20.0,
+   "frames": 27,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01m/halberd_disc/locomotion/hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd_charge_air_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.095,
+    12.572
+   ],
+   "descent": {
+    "drop_m": 0.025,
+    "forward_m": 6.3,
+    "seconds": 0.5
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01m/halberd_disc/locomotion/hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd_charge_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.095,
+    12.572
+   ],
+   "descent": {
+    "drop_m": 0.025,
+    "forward_m": 6.3,
+    "seconds": 0.5
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid01m/halberd_disc/locomotion/hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    -1.029,
+    0.095,
+    0.005
+   ],
+   "descent": {
+    "drop_m": 0.952,
+    "forward_m": 2.35,
+    "seconds": 0.2
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/humanoid01m/halberd_disc/locomotion/hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd_take_off.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 1.0,
+   "fps": 20.0,
+   "frames": 21,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06/flight_staff_and_sword/locomotion/hu6_flight_sfsw_fly_charge_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.32,
+    "forward_m": 0.395,
+    "seconds": 1.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06/flight_staff_and_sword/locomotion/hu6_flight_sfsw_fly_charge_landed_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 4.0,
+   "fps": 20.0,
+   "frames": 81,
+   "animroot_delta_xyz": [
+    0.189,
+    -2.941,
+    0.741
+   ],
+   "descent": {
+    "drop_m": 2.941,
+    "forward_m": 0.803,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/humanoid06/flight_staff_and_sword/locomotion/hu6_flight_sfsw_fly_takeoff_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.5,
+   "fps": 20.0,
+   "frames": 51,
+   "animroot_delta_xyz": [
+    0.0,
+    8.023,
+    13.643
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06/flight_staff_and_sword/locomotion/hu6_flight_sfsw_fly_walk_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 16.5,
+   "fps": 20.0,
+   "frames": 331,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    -0.005,
+    -0.004
+   ],
+   "descent": {
+    "drop_m": 0.318,
+    "forward_m": 0.386,
+    "seconds": 0.8
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_charge_landed_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 4.0,
+   "fps": 20.0,
+   "frames": 81,
+   "animroot_delta_xyz": [
+    0.189,
+    -2.941,
+    0.803
+   ],
+   "descent": {
+    "drop_m": 2.885,
+    "forward_m": 0.788,
+    "seconds": 1.05
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.5,
+   "fps": 20.0,
+   "frames": 51,
+   "animroot_delta_xyz": [
+    0.0,
+    8.023,
+    13.643
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid06g/azazel/locomotion/hu06g_azazel_fly_walk_02.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 16.5,
+   "fps": 20.0,
+   "frames": 331,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid08b/locomotion/hu8b_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    -0.006
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid08b/locomotion/hu8b_fly_walk_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    10.597
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid08b/transitions/hu8b_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.1,
+   "fps": 20.0,
+   "frames": 23,
+   "animroot_delta_xyz": [
+    0.0,
+    -4.184,
+    3.483
+   ],
+   "descent": {
+    "drop_m": 4.184,
+    "forward_m": 2.355,
+    "seconds": 0.35
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid08b/transitions/hu8b_fly_take_off_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 0.7,
+   "fps": 20.0,
+   "frames": 15,
+   "animroot_delta_xyz": [
+    0.0,
+    3.397,
+    3.552
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/2handed_axe/locomotion/hu10_2ha_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.1,
+   "fps": 20.0,
+   "frames": 23,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/2handed_axe/locomotion/hu10_2ha_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 6.8,
+   "fps": 20.0,
+   "frames": 137,
+   "animroot_delta_xyz": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.158,
+    "forward_m": 0.0,
+    "seconds": 4.1
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/humanoid10/2handed_axe/transitions/hu10_2ha_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.9,
+   "fps": 20.0,
+   "frames": 39,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.0,
+    9.5
+   ],
+   "descent": {
+    "drop_m": 5.0,
+    "forward_m": 9.5,
+    "seconds": 0.9
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/2handed_axe/transitions/hu10_2ha_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    8.675,
+    8.608
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/belakor/transition/hu10_belakor_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    8.675,
+    8.608
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/belakor_fly/locomotion/hu10_belakor_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.2,
+   "fps": 20.0,
+   "frames": 25,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    12.131
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/belakor_fly/transitions/hu10_belakor_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.3,
+   "fps": 20.0,
+   "frames": 47,
+   "animroot_delta_xyz": [
+    -0.491,
+    0.0,
+    8.75
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/locomotion/hu10_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.1,
+   "fps": 20.0,
+   "frames": 23,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/locomotion/hu10_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 6.8,
+   "fps": 20.0,
+   "frames": 137,
+   "animroot_delta_xyz": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.158,
+    "forward_m": 0.0,
+    "seconds": 4.1
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_archai/locomotion/hu10_morghast_hb_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.1,
+   "fps": 20.0,
+   "frames": 23,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    7.732
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_archai/transitions/hu10_morghast_hb_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.9,
+   "fps": 20.0,
+   "frames": 39,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.0,
+    9.661
+   ],
+   "descent": {
+    "drop_m": 5.476,
+    "forward_m": 8.435,
+    "seconds": 0.9
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_archai/transitions/hu10_morghast_hb_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    8.675,
+    8.608
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_harbringer/locomotion/hu10_morghast_ds_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.1,
+   "fps": 20.0,
+   "frames": 23,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    7.732
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_harbringer/transitions/hu10_morghast_ds_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.9,
+   "fps": 20.0,
+   "frames": 39,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.0,
+    9.661
+   ],
+   "descent": {
+    "drop_m": 5.476,
+    "forward_m": 8.435,
+    "seconds": 0.9
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/subset/morghast_harbringer/transitions/hu10_morghast_ds_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    8.675,
+    8.608
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/transitions/hu10_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.9,
+   "fps": 20.0,
+   "frames": 39,
+   "animroot_delta_xyz": [
+    -0.0,
+    -5.0,
+    9.5
+   ],
+   "descent": {
+    "drop_m": 5.0,
+    "forward_m": 9.5,
+    "seconds": 0.9
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10/transitions/hu10_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    8.675,
+    8.608
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10b/locomotion/hu10b_fly_charge_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    5.298
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10b/locomotion/hu10b_fly_charge_land_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.075,
+    0.0,
+    1.55
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10b/locomotion/hu10b_fly_take_off_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    -0.045,
+    4.162,
+    5.452
+   ],
+   "descent": {
+    "drop_m": 0.369,
+    "forward_m": 0.59,
+    "seconds": 0.3
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/humanoid10b/locomotion/hu10b_fly_walk_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    5.294
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10c/staff/locomotion/hu10c_staff_fly_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.6,
+   "fps": 20.0,
+   "frames": 33,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10c/staff/locomotion/hu10c_staff_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.8,
+   "fps": 20.0,
+   "frames": 37,
+   "animroot_delta_xyz": [
+    -0.547,
+    0.0,
+    4.053
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10c/staff/locomotion/hu10c_staff_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 3.0,
+   "fps": 20.0,
+   "frames": 61,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10c/staff/take_off/hu10c_staff_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.4,
+   "fps": 20.0,
+   "frames": 49,
+   "animroot_delta_xyz": [
+    0.184,
+    2.325,
+    7.517
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10d/fury/fly_stand/hu10d_fury_fly_take_off_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    2.388,
+    6.965
+   ],
+   "descent": {
+    "drop_m": 0.266,
+    "forward_m": 0.62,
+    "seconds": 0.3
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10d/fury/locomotion/hu10d_fury_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 2.0,
+   "fps": 20.0,
+   "frames": 41,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    24.936
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10d/fury/locomotion/hu10d_fury_charge_ground_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    5.819
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10d/fury/locomotion/hu10d_fury_charge_land_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    -0.332,
+    0.0,
+    -0.065
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10e/1h_fly/locomotion/hu10e_prince_1h_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.2,
+   "fps": 20.0,
+   "frames": 25,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    12.131
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10e/1h_fly/transitions/hu10e_1h_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.3,
+   "fps": 20.0,
+   "frames": 47,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.015,
+    8.909
+   ],
+   "descent": {
+    "drop_m": 4.942,
+    "forward_m": 8.459,
+    "seconds": 1.1
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10e/1h_fly/transitions/hu10e_prince_1h_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.102,
+    8.237,
+    8.32
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10e/2h_fly/locomotion/hu10e_prince_2h_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.2,
+   "fps": 20.0,
+   "frames": 25,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    12.131
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10e/2h_fly/take_off/hu10e_2h_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.102,
+    8.237,
+    8.32
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10e/2h_fly/transitions/hu10e_2h_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.3,
+   "fps": 20.0,
+   "frames": 47,
+   "animroot_delta_xyz": [
+    0.0,
+    -5.015,
+    8.909
+   ],
+   "descent": {
+    "drop_m": 5.015,
+    "forward_m": 8.505,
+    "seconds": 1.1
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10f/hu10f_wh3_fate_weaver_staff/locomotion/hu10f_wh3_fate_weaver_staff_fly_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.6,
+   "fps": 20.0,
+   "frames": 33,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10f/hu10f_wh3_fate_weaver_staff/locomotion/hu10f_wh3_fate_weaver_staff_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.8,
+   "fps": 20.0,
+   "frames": 37,
+   "animroot_delta_xyz": [
+    -0.55,
+    0.0,
+    5.132
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10f/hu10f_wh3_fate_weaver_staff/locomotion/hu10f_wh3_fate_weaver_staff_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 3.0,
+   "fps": 20.0,
+   "frames": 61,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid10f/hu10f_wh3_fate_weaver_staff/take_off/hu10f_wh3_fate_weaver_staff_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.4,
+   "fps": 20.0,
+   "frames": 49,
+   "animroot_delta_xyz": [
+    0.184,
+    2.325,
+    7.517
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    7.479
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/attacks/hu14_herald_disc_staff_and_book_jumping_attack_landed_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.7,
+   "fps": 20.0,
+   "frames": 35,
+   "animroot_delta_xyz": [
+    0.0,
+    -4.198,
+    7.479
+   ],
+   "descent": {
+    "drop_m": 4.16,
+    "forward_m": 7.532,
+    "seconds": 0.95
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/locomotion/hu14_herald_disc_staff_and_book_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    30.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/locomotion/hu14_herald_disc_staff_and_book_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.2,
+   "fps": 20.0,
+   "frames": 45,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid14/herald_disc_staff_and_book/transitions/hu14_herald_disc_staff_and_book_flytake_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.7,
+   "fps": 20.0,
+   "frames": 75,
+   "animroot_delta_xyz": [
+    0.0,
+    3.516,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid16c/locomotion/hu16c_sps_fly_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 6.5,
+   "fps": 20.0,
+   "frames": 131,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid16c/locomotion/hu16c_sps_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid16c/transitions/hu16c_sps_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    0.189,
+    -3.312,
+    7.544
+   ],
+   "descent": {
+    "drop_m": 3.27,
+    "forward_m": 7.346,
+    "seconds": 1.05
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid16c/transitions/hu16c_sps_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.3,
+   "fps": 20.0,
+   "frames": 67,
+   "animroot_delta_xyz": [
+    -0.0,
+    2.878,
+    8.226
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid22/onyx_crowmen/locomotion/hu22_onyx_crowmen_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 0.6,
+   "fps": 20.0,
+   "frames": 13,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    7.6
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid22/onyx_crowmen/locomotion/hu22_onyx_crowmen_fly_charge_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 0.6,
+   "fps": 20.0,
+   "frames": 13,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid22/onyx_crowmen/locomotion/hu22_onyx_crowmen_fly_charge_air_to_ground_01_02.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 3.1,
+   "fps": 20.0,
+   "frames": 63,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/humanoid22/onyx_crowmen/transitions/hu22_onyx_crowmen_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 0.9,
+   "fps": 20.0,
+   "frames": 19,
+   "animroot_delta_xyz": [
+    -0.078,
+    -2.434,
+    2.998
+   ],
+   "descent": {
+    "drop_m": 2.434,
+    "forward_m": 2.998,
+    "seconds": 0.55
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/humanoid22/onyx_crowmen/transitions/hu22_onyx_crowmen_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.3,
+   "fps": 20.0,
+   "frames": 47,
+   "animroot_delta_xyz": [
+    -0.048,
+    9.995,
+    5.648
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/insect01/locomotion/in1_fly_charge_1_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 3.6,
+   "fps": 20.0,
+   "frames": 73,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    37.8
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/insect01/locomotion/in1_fly_charge_air_to_ground_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 3.6,
+   "fps": 20.0,
+   "frames": 73,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/insect01/locomotion/in1_fly_takeoff_01.anim",
+   "version": 7,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.6,
+   "fps": 20.0,
+   "frames": 73,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    27.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/mantaray01/locomotion/mt1_fly_walk_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 4.7,
+   "fps": 20.0,
+   "frames": 95,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    26.305
+   ],
+   "descent": {
+    "drop_m": 1.253,
+    "forward_m": 13.992,
+    "seconds": 2.5
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/mantaray01/locomotion/mt1_fly_walk_02.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 4.7,
+   "fps": 20.0,
+   "frames": 95,
+   "animroot_delta_xyz": [
+    0.0,
+    -0.0,
+    26.474
+   ],
+   "descent": {
+    "drop_m": 1.687,
+    "forward_m": 18.025,
+    "seconds": 3.2
+   },
+   "bone1_cancels_animroot": true
+  },
+  {
+   "clip": "animations/battle/mantaray01/locomotion/mt1_fly_walk_03.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 5.5,
+   "fps": 20.0,
+   "frames": 111,
+   "animroot_delta_xyz": [
+    -0.0,
+    0.0,
+    31.393
+   ],
+   "descent": {
+    "drop_m": 0.11,
+    "forward_m": 15.697,
+    "seconds": 2.75
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/mantaray01/locomotion/mt1_fly_walk_04.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 4.7,
+   "fps": 20.0,
+   "frames": 95,
+   "animroot_delta_xyz": [
+    -0.0,
+    -0.0,
+    26.474
+   ],
+   "descent": {
+    "drop_m": 2.733,
+    "forward_m": 14.363,
+    "seconds": 2.55
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/mantaray01/transition/mt1_fly_air_to_ground_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 1.2,
+   "fps": 20.0,
+   "frames": 25,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/mantaray01/transition/mt1_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.7,
+   "fps": 20.0,
+   "frames": 55,
+   "animroot_delta_xyz": [
+    0.0,
+    -7.421,
+    5.587
+   ],
+   "descent": {
+    "drop_m": 7.32,
+    "forward_m": 5.534,
+    "seconds": 2.6
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/mantaray01/transition/mt1_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.7,
+   "fps": 20.0,
+   "frames": 55,
+   "animroot_delta_xyz": [
+    0.0,
+    7.421,
+    6.031
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/oxen01/locomotion/ox1_greattaurus_charge_fly_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR"
+   ],
+   "duration_s": 0.8,
+   "fps": 20.0,
+   "frames": 17,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    4.6
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/oxen01/locomotion/ox1_greattaurus_fly_glide_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 2.3,
+   "fps": 20.0,
+   "frames": 47,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/oxen01/locomotion/ox1_greattaurus_landing_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 2.9,
+   "fps": 20.0,
+   "frames": 59,
+   "animroot_delta_xyz": [
+    0.0,
+    -11.382,
+    6.78
+   ],
+   "descent": {
+    "drop_m": 11.254,
+    "forward_m": 3.95,
+    "seconds": 1.5
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/oxen01/locomotion/ox1_greattaurus_takeoff_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 3.1,
+   "fps": 20.0,
+   "frames": 63,
+   "animroot_delta_xyz": [
+    0.0,
+    3.79,
+    3.497
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/skycutter01/locomotion/skc1_fly_charge_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_AIR_TO_AIR",
+    "FLY_CHARGE_AIR_TO_GROUND"
+   ],
+   "duration_s": 4.0,
+   "fps": 20.0,
+   "frames": 81,
+   "animroot_delta_xyz": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/skycutter01/locomotion/skc1_fly_charge_land_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_CHARGE_LAND"
+   ],
+   "duration_s": 1.3,
+   "fps": 20.0,
+   "frames": 27,
+   "animroot_delta_xyz": [
+    -0.0,
+    -4.946,
+    5.809
+   ],
+   "descent": {
+    "drop_m": 5.645,
+    "forward_m": 5.809,
+    "seconds": 0.7
+   },
+   "bone1_cancels_animroot": false
+  },
+  {
+   "clip": "animations/battle/skycutter01/transitions/skc1_fly_take_off_01.anim",
+   "version": 8,
+   "slots": [
+    "FLY_TAKEOFF"
+   ],
+   "duration_s": 2.1,
+   "fps": 20.0,
+   "frames": 43,
+   "animroot_delta_xyz": [
+    0.0,
+    7.326,
+    14.662
+   ],
+   "descent": {
+    "drop_m": 0.0,
+    "forward_m": 0.0,
+    "seconds": 0.0
+   },
+   "bone1_cancels_animroot": false
+  }
+ ]
+}

@@ -75,19 +75,18 @@ source table. Canary 7 (every slot of ``dr1_dragon_ld_dive`` pointed at
 ``dr1_attack_01``) visibly changed the star dragon. The mechanism lives in
 ``lib/anim_table_rename.py``; this script emits the renamed bins (loose and in
 ``ld_air_dive_tables.animpack``) and records the rename map in the manifest's
-``tables_renamed``; ``dbw_balance.generate_air_dive_overrides`` and the
-mini-mod emit the three DB row sets from it, and every other land-unit emitter
-repoints through ``anim_table_rename.repoint``. [AIR-DIVE-W9] A MOUNTED
+``tables_renamed``; the pack build (``pipelines/build_air_dive_minimod.py``)
+emits the three DB row sets from it and repoints every installed land unit on
+a source table through ``anim_table_rename``. [AIR-DIVE-W9] A MOUNTED
 unit's body plays ``mounts_tables.animation``, not ``man_animation``, so the
-mount rows on a source table are repointed as well (``mount_rows``; build_pack
-pass 1b2 for vendored mounts).
+mount rows on a source table are repointed as well (``mount_rows``).
 
 Outputs (deterministic; ``--check`` re-derives and compares sha256):
     mod/assets/air_dive/animations/database/battle/bin/*_ld_dive.bin  renamed tables (loose)
     mod/assets/air_dive/ld_air_dive_tables.animpack             the same bins, animpacked
     mod/assets/air_dive/animations/battle/ld_air_dive/plough/*  plough clips + metas (W9)
     mod/assets/air_dive/air_dive_manifest.json                 files + measurements
-build_pack.collect_air_dive_files() ships the files the manifest names.
+``pipelines/build_air_dive_minimod.py`` ships the files the manifest names.
 
 Usage:
     python -P tools/pipelines/air_dive.py            # derive and write
@@ -112,17 +111,16 @@ import anim_codec
 import anim_meta
 import anim_table_bin
 import anim_table_rename
+import main_mod_flyers
 import rider_seat
 from animpack_codec import animpack_build, animpack_iter
 from packfile import PackFile
 
 MOD_DIR = Path(rolepath.__file__).resolve().parent.parent
 OUT_DIR = MOD_DIR / "assets" / "air_dive"
-# [AIR-DIVE-W12] staged donor closures: their land units / mounts ride flight
-# tables too (census_riders)
-# [FLYER-FIX-1117] the donor riders the census counts live in the Lore Disasters checkout since the flyer mod
-# moved to its own repository: LD_VENDORED_DIR=<lore_disaster>/mod/assets/vendored_chars to re-derive
-VENDORED_DIR = Path(os.environ.get("LD_VENDORED_DIR", str(MOD_DIR / "assets" / "vendored_chars")))
+# [AIR-DIVE-W12] the main mod's donor closures: their land units / mounts ride flight tables too
+# (census_riders). Read from the recorded snapshot data/main_mod_flyers.json (lib/main_mod_flyers.py),
+# kept as input for the future main-mod adapter pack; nothing here reads the other repository.
 MANIFEST = OUT_DIR / "air_dive_manifest.json"
 # [AIR-DIVE-W8] a non-vanilla animpack name holding non-vanilla table names:
 # vanilla tables cannot be overridden by name (module docstring)
@@ -363,39 +361,29 @@ def dive_entries(table, plough=None, levelled=None):
             "slot_489_added": added}
 
 
-def _tsv_rows(path):
-    """Rows of a staged DB TSV (header line, ``#`` metadata line, rows)."""
-    lines = Path(path).read_text(encoding="utf-8").splitlines()
-    header = lines[0].split("\t")
-    return [dict(zip(header, line.split("\t"))) for line in lines[2:] if line.strip()]
-
-
-def body_sizes(db_pack, vendored_dir=VENDORED_DIR):
+def body_sizes(db_pack, snapshot=main_mod_flyers.SNAPSHOT):
     """[AIR-DIVE-W13] ``{battle entity: size}`` from the installed
-    ``battle_entities`` table, the staged donor closures' same table and
-    ``air_dive_rules.GENERATED_ENTITY_SIZES`` (the entities only our
-    generator emits). A donor row overriding an installed key wins (the donor
+    ``battle_entities`` table, the main mod's donor flyers (the recorded
+    snapshot, ``lib/main_mod_flyers.py``) and
+    ``air_dive_rules.GENERATED_ENTITY_SIZES`` (the entities only the main mod's
+    generators emit). A donor row overriding an installed key wins (the donor
     ships it); fail-closed on a missing required input."""
     import flyer_db as installed_db_table
     rows, _h = installed_db_table.decode_round_trip(db_pack, "battle_entities_tables",
                                                     "air_dive_sizes")
     sizes = {r["key"]: r["size"] for r in rows}
-    found = sorted(Path(vendored_dir).glob("*/tsv/db/battle_entities_tables/*.tsv"))
-    if not found:
-        raise SystemExit(f"[air_dive] REFUSING: no staged donor battle_entities "
-                         f"under {vendored_dir}")
-    for path in found:
-        sizes.update((r["key"], r["size"]) for r in _tsv_rows(path))
+    sizes.update((r["key"], r["size"]) for _src, r in main_mod_flyers.entity_rows(snapshot))
     sizes.update(air_dive_rules.GENERATED_ENTITY_SIZES)
     return sizes
 
 
-def census_riders(sources, data_dir=GAME_DATA, vendored_dir=VENDORED_DIR):
+def census_riders(sources, data_dir=GAME_DATA, snapshot=main_mod_flyers.SNAPSHOT):
     """[AIR-DIVE-W12] ``({source table: {flyer entity: plough speed}},
     {source table: [non-flyer entity]}, {flyer entity: size})`` over every row that plays one of
     ``sources``: installed land units (``man_animation`` / ``man_entity``) and
-    mounts (``animation`` / ``entity``), the staged donor closures' same two
-    tables, and ``air_dive_rules.GENERATED_RIDERS``. A flyer is an entity with
+    mounts (``animation`` / ``entity``), the main mod's donor closures' same two
+    tables (the recorded snapshot, ``lib/main_mod_flyers.py``), and
+    ``air_dive_rules.GENERATED_RIDERS``. A flyer is an entity with
     a ``FLYER_CHARGE_SPEEDS`` row (the table is the coverage list of every
     shipping flyer); the rest ride a flight table without ever flying
     (measured 2026-11-11: the two varghulf units on ``hu8b_varghulf``) and are
@@ -412,14 +400,9 @@ def census_riders(sources, data_dir=GAME_DATA, vendored_dir=VENDORED_DIR):
                              ("mounts_tables", "animation", "entity")):
         rows, _h = installed_db_table.decode_round_trip(db_pack, table, "air_dive_census")
         pairs += [(r[col], r[ecol]) for r in rows]
-        found = sorted(Path(vendored_dir).glob(f"*/tsv/db/{table}/*.tsv"))
-        if not found:
-            raise SystemExit(f"[air_dive] REFUSING: no staged donor {table} "
-                             f"under {vendored_dir}")
-        for path in found:
-            pairs += [(r[col], r[ecol]) for r in _tsv_rows(path)]
+        pairs += main_mod_flyers.rider_pairs(table, snapshot)
     pairs += list(air_dive_rules.GENERATED_RIDERS)
-    sizes = body_sizes(db_pack, vendored_dir)
+    sizes = body_sizes(db_pack, snapshot)
     flyers, grounded, flyer_sizes = {}, {}, {}
     for src, ent in pairs:
         if src not in sources:

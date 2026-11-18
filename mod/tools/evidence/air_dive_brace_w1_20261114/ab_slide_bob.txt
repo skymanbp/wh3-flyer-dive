@@ -1,0 +1,38 @@
+== ABcurrent_: type n | travel_m med/max | stop_s med | stopped | depth_m med | hp1.5 med | hp5 med | v_td med
+ALL        18 | 52.73 | None | 0/18 | 34.52 | 0.05 | 0.05 | 14.99
+== ABturn_: type n | travel_m med/max | stop_s med | stopped | depth_m med | hp1.5 med | hp5 med | v_td med
+ALL        18 | 52.37 | 4.7 | 3/18 | 34.0 | 0.05 | 0.06 | 14.95
+== ABdecel_: type n | travel_m med/max | stop_s med | stopped | depth_m med | hp1.5 med | hp5 med | v_td med
+ALL        18 | 57.16 | None | 0/18 | 39.41 | 0.05 | 0.05 | 14.99
+== ABboth_: type n | travel_m med/max | stop_s med | stopped | depth_m med | hp1.5 med | hp5 med | v_td med
+ALL        18 | 55.35 | 2.0 | 1/18 | 36.86 | 0.05 | 0.05 | 14.93
+== ABvanilla_: type n | travel_m med/max | stop_s med | stopped | depth_m med | hp1.5 med | hp5 med | v_td med
+ALL        18 | 0.0 | 0.1 | 18/18 | 0.0 | 0.0 | 0.02 | 11.04
+== ABcurrent_: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        6 |  24 |  0.0   0 |  0.0   0 | 0/24
+hippo       6 |  72 |  0.0   4 |  0.0   2 | 22/72
+peg         6 | 144 |  0.0   4 |  0.0   2 | 4/144
+== ABturn_: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        6 |  24 |  0.0   0 |  0.0   0 | 0/24
+hippo       6 |  72 |  0.0   6 |  0.0   2 | 17/72
+peg         6 | 144 |  0.0   4 |  0.0   1 | 5/144
+== ABdecel_: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        6 |  24 |  0.0   0 |  0.0   0 | 0/24
+hippo       6 |  72 |  0.0   5 |  0.0   3 | 24/72
+peg         6 | 144 |  0.0   7 |  0.0   2 | 10/144
+== ABboth_: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        6 |  24 |  0.0  10 |  0.0   3 | 1/24
+hippo       6 |  72 |  0.0   4 |  0.0   2 | 23/72
+peg         6 | 144 |  0.0   7 |  0.0   1 | 11/144
+== ABvanilla_: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        6 |  24 |  0.0   1 |  0.0   0 | 0/24
+hippo       6 |  72 |  0.0   6 |  0.0   3 | 21/72
+peg         6 | 144 |  0.0   5 |  0.0   2 | 17/144
+== ABcurrent_: models 240, models with a rise 26
+   at the low  (layer, flight, state): [((2, 4, 30), 25), ((2, 0, 30), 5), ((2, 4, 33), 1)]
+   at the top  (layer, flight, state): [((2, 4, 30), 19), ((2, 0, 30), 10), ((2, 0, 0), 1), ((2, 0, 33), 1)]
+   rise start, s after lead touchdown (floor): [(1, 5), (2, 21), (4, 4), (5, 1)]
+== ABvanilla_: models 240, models with a rise 38
+   at the low  (layer, flight, state): [((2, 0, 30), 32), ((2, 0, 33), 5), ((2, 0, 0), 3), ((2, 4, 30), 3), ((2, 4, 33), 3), ((2, 6, 33), 1)]
+   at the top  (layer, flight, state): [((2, 0, 30), 18), ((2, 0, 33), 11), ((2, 0, 0), 11), ((2, 4, 30), 5), ((2, 4, 33), 2)]
+   rise start, s after lead touchdown (floor): [(1, 1), (2, 31), (3, 2), (4, 7), (5, 2), (6, 3), (7, 1)]

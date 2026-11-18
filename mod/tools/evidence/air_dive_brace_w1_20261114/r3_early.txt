@@ -1,0 +1,80 @@
+prefixes ['RG']: 16 runs (single-model lanes only)
+type       spear   halb    militia | collapse | causes
+bt         0/2     0/2     0/2     | 0 | {}
+chim       0/2     0/2     0/2     | 0 | {}
+cock       0/2     0/2     0/2     | 0 | {}
+dragon     0/2     0/2     0/2     | 0 | {}
+eagle      0/2     1/2     0/2     | 1 | {'other': 1}
+frostwyrm  0/2     0/2     0/2     | 0 | {}
+lamm       0/2     0/2     0/2     | 0 | {}
+lion       0/2     0/2     0/2     | 0 | {}
+mant       0/2     0/2     0/2     | 0 | {}
+storm      0/2     0/2     0/2     | 0 | {}
+taurus     0/2     0/2     0/2     | 0 | {}
+terror     0/2     0/2     0/2     | 0 | {}
+wyvern     0/2     0/2     1/2     | 0 | {'other': 1}
+spear+halb: 1 / 52  militia: 1 / 26  goal-collapse: 1
+prefixes ['RK']: 16 runs (single-model lanes only)
+type       spear   halb    militia | collapse | causes
+bt         0/2     0/2     0/2     | 0 | {}
+chim       0/2     0/2     0/2     | 0 | {}
+cock       0/2     0/2     0/2     | 0 | {}
+dragon     0/2     0/2     0/2     | 0 | {}
+eagle      1/2     0/2     0/2     | 0 | {'other': 1}
+frostwyrm  0/2     0/2     0/2     | 0 | {}
+lamm       0/2     0/2     0/2     | 0 | {}
+lion       1/2     1/2     0/2     | 1 | {'other': 1, 'contact-engage': 1}
+mant       0/2     0/2     0/2     | 0 | {}
+storm      0/2     0/2     0/2     | 0 | {}
+taurus     0/2     0/2     0/2     | 0 | {}
+terror     0/2     1/2     0/2     | 0 | {'other': 1}
+wyvern     0/2     0/2     1/2     | 0 | {'other': 1}
+spear+halb: 4 / 52  militia: 1 / 26  goal-collapse: 1
+prefixes ['RW']: 8 runs (single-model lanes only)
+type       spear   halb    militia | collapse | causes
+bt         0/1     0/1     0/1     | 0 | {}
+chim       0/1     0/1     0/1     | 0 | {}
+cock       0/1     0/1     0/1     | 0 | {}
+dragon     0/1     0/1     0/1     | 0 | {}
+eagle      1/1     0/1     0/1     | 0 | {'contact-engage': 1}
+frostwyrm  0/1     0/1     0/1     | 0 | {}
+lamm       0/1     0/1     0/1     | 0 | {}
+lion       0/1     0/1     0/1     | 0 | {}
+mant       0/1     0/1     0/1     | 0 | {}
+storm      0/1     0/1     0/1     | 0 | {}
+taurus     0/1     0/1     0/1     | 0 | {}
+terror     0/1     0/1     0/1     | 0 | {}
+wyvern     1/1     0/1     0/1     | 0 | {'other': 1}
+spear+halb: 2 / 26  militia: 0 / 13  goal-collapse: 0
+prefixes ['RL']: 16 runs (single-model lanes only)
+type       spear   halb    militia | collapse | causes
+bt         0/2     0/2     0/2     | 0 | {}
+chim       0/2     0/2     0/2     | 0 | {}
+cock       0/2     0/2     0/2     | 0 | {}
+dragon     0/2     0/2     0/2     | 0 | {}
+eagle      1/2     2/2     0/2     | 1 | {'other': 2, 'contact-engage': 1}
+frostwyrm  0/2     0/2     0/2     | 0 | {}
+lamm       0/2     0/2     0/2     | 0 | {}
+lion       2/2     0/2     0/2     | 0 | {'contact-engage': 2}
+mant       0/2     0/2     0/2     | 0 | {}
+storm      0/2     0/2     0/2     | 0 | {}
+taurus     0/2     0/2     0/2     | 0 | {}
+terror     0/2     0/2     0/2     | 0 | {}
+wyvern     1/2     0/2     0/2     | 0 | {'other': 1}
+spear+halb: 6 / 52  militia: 0 / 26  goal-collapse: 1
+# every early stop (early_list.py)
+RG1_g2 lane 3 wh2_twa03_grn_mon_wyvern_0 vs militia: travel 8.6 m, maxd 9.4, td t=26.5 stop t=27.4, cause other(43ADE800->43ADE800 st 30->33); slides ended over the battle n/a
+RG1_g4 lane 8 wh2_main_hef_mon_great_eagle vs halb: travel 10.6 m, maxd 10.6, td t=26.5 stop t=30.7, cause other(43ADE470->43ADE470 st 55->55); slides ended over the battle n/a
+RK1_g2 lane 5 wh_main_vmp_mon_terrorgheist vs halb: travel 6.6 m, maxd 7.1, td t=31.2 stop t=32.0, cause other(43ADE800->43ADE800 st 30->33); slides ended over the battle 7
+RK2_g2 lane 4 wh2_twa03_grn_mon_wyvern_0 vs militia: travel 6.0 m, maxd 6.0, td t=26.8 stop t=27.4, cause other(43ADE800->43ADE800 st 30->33); slides ended over the battle 5
+RK2_g3 lane 8 wh3_dlc24_cth_mon_celestial_lion vs spear: travel 10.1 m, maxd 12.8, td t=33.0 stop t=37.5, cause other(43ADE470->43ADE470 st 55->55); slides ended over the battle 13
+RK2_g3 lane 9 wh3_dlc24_cth_mon_celestial_lion vs halb: travel 13.8 m, maxd 13.8, td t=32.8 stop t=35.6, cause contact-engage; slides ended over the battle 13
+RK2_g4 lane 2 wh2_main_hef_mon_great_eagle vs spear: travel 8.8 m, maxd 8.8, td t=26.5 stop t=30.2, cause other(43ADE470->43ADE470 st 55->55); slides ended over the battle 16
+RW1_g2 lane 1 wh2_twa03_grn_mon_wyvern_0 vs spear: travel 5.3 m, maxd 5.4, td t=26.9 stop t=27.5, cause other(43ADE800->43ADE800 st 30->33); slides ended over the battle 6
+RW1_g4 lane 7 wh2_main_hef_mon_great_eagle vs spear: travel 14.5 m, maxd 14.5, td t=26.2 stop t=29.3, cause contact-engage; slides ended over the battle 20
+RL1_g3 lane 4 wh3_dlc24_cth_mon_celestial_lion vs spear: travel 14.1 m, maxd 14.4, td t=32.5 stop t=35.7, cause contact-engage; slides ended over the battle 13
+RL1_g4 lane 7 wh2_main_hef_mon_great_eagle vs spear: travel 5.2 m, maxd 5.2, td t=26.7 stop t=33.6, cause other(43ADE470->43ADE470 st 55->55); slides ended over the battle 18
+RL1_g4 lane 8 wh2_main_hef_mon_great_eagle vs halb: travel 5.9 m, maxd 5.9, td t=26.5 stop t=29.2, cause other(43ADE470->43ADE470 st 55->55); slides ended over the battle 18
+RL2_g2 lane 5 wh2_twa03_grn_mon_wyvern_0 vs spear: travel 2.7 m, maxd 5.2, td t=26.9 stop t=30.6, cause other(43ADE470->43ADE470 st 41->41); slides ended over the battle 6
+RL2_g3 lane 8 wh3_dlc24_cth_mon_celestial_lion vs spear: travel 14.7 m, maxd 15.0, td t=32.9 stop t=36.1, cause contact-engage; slides ended over the battle 15
+RL2_g4 lane 3 wh2_main_hef_mon_great_eagle vs halb: travel 12.6 m, maxd 12.6, td t=26.3 stop t=29.1, cause contact-engage; slides ended over the battle 18

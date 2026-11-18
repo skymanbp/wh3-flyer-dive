@@ -1,0 +1,33 @@
+# round 4 bobbing A/B (flat map, packed, 1x; models with a >= 1 m rise after touchdown; flicker = >= 6 flips, no rise)
+# QB/QC = shipped 7a5dfd9c0 (+ probe); PB/PC = dv_commit v1 (answer no, keep point); DB/DC = v2 (point under the model; DB1/DC1/DC3 froze in the 'behind' window test); DE/DF = v3 (point 5 m past the edge) = this commit
+== QB: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        9 |  36 |  0.0  10 |  0.0   2 | 1/36
+hippo       9 | 108 |  0.0   4 |  0.0   2 | 29/108
+peg         9 | 216 |  0.0   3 |  0.0   1 | 8/216
+== QC: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        9 |  36 |  0.0  10 |  0.0   3 | 2/36
+hippo       9 | 108 |  0.0   5 |  0.0   3 | 35/108
+peg         9 | 216 |  0.0   5 |  0.0   1 | 3/216
+== PB: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        9 |  36 |  0.0   0 |  0.0   0 | 0/36
+hippo       9 | 108 |  0.0   0 |  0.0   0 | 0/108
+peg         9 | 216 |  0.0   3 |  0.0   0 | 0/216
+== PC: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        9 |  36 |  0.0  24 |  0.0   0 | 0/36
+hippo       9 | 108 |  0.0   8 |  0.0   0 | 0/108
+peg         9 | 216 |  0.0   1 |  0.0   0 | 0/216
+== DE: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        9 |  36 |  0.0   0 |  0.0   0 | 0/36
+hippo       9 | 108 |  0.0   0 |  0.0   0 | 0/108
+peg         9 | 216 |  0.0   0 |  0.0   0 | 0/216
+== DF: type lanes | models | flips/model med max | rises/model med max | models with a rise
+grif        9 |  36 |  0.0   0 |  0.0   0 | 0/36
+hippo       9 | 108 |  0.0  14 |  0.0   0 | 0/108
+peg         9 | 216 |  0.0   3 |  0.0   1 | 1/216
+QB: models 360, flicker (>= 6 flips, no rise) 0, amplitude [], []
+QC: models 360, flicker (>= 6 flips, no rise) 0, amplitude [], []
+PB: models 360, flicker (>= 6 flips, no rise) 0, amplitude [], []
+PC: models 360, flicker (>= 6 flips, no rise) 2, amplitude [2.4, 5.71], ['PC2_g1:9:grif', 'PC3_g1:5:hippo']
+DE: models 360, flicker (>= 6 flips, no rise) 0, amplitude [], []
+DF: models 360, flicker (>= 6 flips, no rise) 1, amplitude [2.07], ['DF1_g1:7:hippo']
+## DF residuals: DF1_g1 lane 7 hippogryph: one model alternates 577.31/577.76 (0.45 m) from +0.9 s to +3.7 s after touchdown, then still; DF3_g1 lane 7 pegasus: one model 577.30 -> 578.59 -> 576.50 at +1.4..+1.8 s (single 1.3 m blip), then still; neither has any landing-abort record in the brace probe (the only re-plan-caller aborts in DF1 are owner 1010 at 45.3/47.1 s, 10 m up, past COMMIT_M)

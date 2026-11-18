@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Air dive charge -- the STANDALONE mini-mod pack. [AIR-DIVE-W1 2026-11-09]
 
-User 2026-11-09 (CONTENT_LEDGER §C8-45 item 3): the dive charge ships inside
-ld_mod.pack and "can also be its own small mod". This writes that small mod:
+User 2026-11-09 (CONTENT_LEDGER §C8-45 item 3): the dive charge, then shipped
+inside the Lore Disasters ld_mod.pack, "can also be its own small mod". This
+writes that small mod (since 2026-11-17 the only pack that carries it):
 one PFH5 mod pack holding exactly the air-dive content and nothing of ours
 besides it, built from the installed game every time (so a game patch is a
 re-run, not a hand edit):
@@ -24,8 +25,8 @@ re-run, not a hand edit):
   each under the installed fragment's GUID;
 * ``db\\battle_entities_tables\\ld_air_dive``: EVERY installed flyer the rule
   changes (``air_dive_rules.tuned_cells``), installed row + the rule's cells,
-  unchanged cells replayed byte-for-byte. Unlike ld_mod.pack there is no
-  monster lane here, so all of them ship in this one fragment. Since the
+  unchanged cells replayed byte-for-byte. This pack has no other entity
+  fragment, so all of them ship in this one fragment. Since the
   balance split (2026-11-17) no ``mass`` cell;
 * ``db\\battle_entity_locomotion_constants_tables\\ld_air_dive``: the two
   ld_flyer_* rows;
@@ -94,7 +95,7 @@ load order; that is stated, not solved.
 ``pipelines/air_dive_probe_report.py``); ``--probe-only`` writes a pack with
 the recorder and nothing else, so a vanilla control battle can be recorded
 with the dive pack disabled. Both packs carry the script at the same path,
-so enabling both loads it once. Never part of ld_mod.pack.
+so enabling both loads it once. Never part of the published packs.
 
 Usage:  python -P tools/pipelines/build_air_dive_minimod.py --out <path>/ld_air_dive.pack
         --balance-out <path>/flyer_dive_balance.pack [--probe]
@@ -324,15 +325,16 @@ def impact_entries(db_pack):
 
 # [AIR-DIVE-TAKEOFF-W1 2026-11-12] take-off from melee (user rulings
 # 2026-11-12, CONTENT_LEDGER §C8-57 / §C8-58): the battle entry, the pure rule
-# module and the generated site table, at the same paths ld_mod.pack ships them
-# (both enabled load them once). [AIR-DIVE-MP-DIVE-W1 2026-11-12] and the
+# module and the generated site table, at the paths the published pack has always
+# used (the Lore Disasters ld_mod.pack used the same while it carried the flyer
+# mod, so both enabled loaded them once). [AIR-DIVE-MP-DIVE-W1 2026-11-12] and the
 # campaign entry, which carries the multiplayer agreement: without it this pack
 # alone never got "allowed" in a multiplayer campaign battle (AIR-DIVE-MP-TEST-W1
 # found it), so the rule was single-player only. It depends on memreader Plus
 # and the rule module only.
 # memreader Plus is a declared prerequisite of this pack, not vendored into it:
-# ld_mod.pack carries its own pinned copy, and a player of the stand-alone pack
-# subscribes to memreader Plus. Without it the battle entry logs "not installed".
+# a player of this pack subscribes to memreader Plus (the Lore Disasters
+# ld_mod.pack carried its own pinned copy while it shipped the flyer mod). Without it the battle entry logs "not installed".
 # / 近战起飞：四份脚本与主包同路径（含带联机协商的战役入口）；memreader Plus 为
 #   本小模组的声明前置。
 TAKEOFF_SCRIPTS = (

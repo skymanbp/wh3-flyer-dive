@@ -1,0 +1,28 @@
+batch A: 69 runs
+type       bodies   spear halb militia | causes
+bats       multi60  3/3 3/3 3/3  | {'contact-engage': 7, 'other': 2}
+bt         single   2/3 2/3 2/3  | {'flight-ended': 5, 'contact-engage': 1}
+carrion    multi24  2/3 2/3 3/3  | {'other': 3, 'contact-engage': 3, 'flight-ended': 1}
+chim       single   0/3 0/3 0/3  | {}
+cock       single   0/3 0/3 0/3  | {}
+dragon     single   1/3 0/3 0/3  | {'contact-engage': 1}
+drone      multi12  2/3 2/3 2/3  | {'flight-ended': 4, 'other': 2}
+eagle      single   1/3 1/3 2/3  | {'contact-engage': 1, 'flight-ended': 3}
+frostwyrm  single   1/3 1/3 0/3  | {'contact-engage': 2}
+grif       multi4   3/3 3/3 3/3  | {'contact-engage': 4, 'flight-ended': 5}
+hippo      multi12  2/3 3/3 3/3  | {'flight-ended': 3, 'other': 5}
+lamm       single   0/3 0/3 0/3  | {}
+lion       single   2/3 2/3 1/3  | {'flight-ended': 4, 'contact-engage': 1}
+mant       single   0/3 1/3 0/3  | {'contact-engage': 1}
+peg        multi24  2/3 3/3 2/3  | {'other': 3, 'contact-engage': 2, 'flight-ended': 2}
+scream     multi16  3/3 3/3 0/3  | {'flight-ended': 4, 'other': 2}
+sky        multi12  1/3 3/3 1/3  | {'flight-ended': 3, 'contact-engage': 1, 'other': 1}
+storm      single   0/3 2/3 2/3  | {'flight-ended': 4}
+taurus     single   1/3 0/3 0/3  | {'other': 1}
+terradon   multi10  1/3 2/3 3/3  | {'flight-ended': 3, 'contact-engage': 2, 'other': 1}
+terror     single   1/3 1/3 1/3  | {'contact-engage': 3}
+varg       multi16  2/3 2/3 0/3  | {'flight-ended': 1, 'other': 2, 'contact-engage': 1}
+wyvern     single   1/3 1/3 1/3  | {'contact-engage': 3}
+single, spear+halb: 21 / 78
+single, militia: 9 / 39
+multi (lead model), all: 67 / 90

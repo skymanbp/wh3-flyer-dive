@@ -1,12 +1,9 @@
 """The `.animpack` container codec: one reader and one writer.
 
 An animpack is a flat list of named blobs: ``<u32 count>`` followed, per entry,
-by ``<u16 path length><ascii path><u32 size><bytes>``. The animation-closure
-gate (``gates/vendor_anim_closure.py``) reads shipped and donor containers and
-rebuilds slim ones; the vanilla oracle refresher
-(``generators/refresh_vanilla_anim_tables_index.py``) reads CA's own. Both used
-to carry a byte-identical copy of the reader (REPO-TIDY-W3b).
-/ animpack 容器编解码的唯一实现：闭包门与原版索引刷新器共用。
+by ``<u16 path length><ascii path><u32 size><bytes>``. Here it reads CA's
+animpacks and writes ``ld_air_dive_tables.animpack`` (``pipelines/air_dive.py``).
+/ animpack 容器编解码的唯一实现。
 """
 from __future__ import annotations
 

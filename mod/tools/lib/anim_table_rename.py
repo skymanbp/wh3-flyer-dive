@@ -48,9 +48,10 @@ other speed's copy.
 This module is that mechanism and nothing air-dive specific: the rename of a
 bin, the four DB row sets read from the installed db.pack, and the repoint
 of one ``man_animation`` / ``animation`` value. Every emitter that ships a
-land unit or a mount (vanilla override, our clones, our characters, the
-vendored closures, the mini-mod) repoints through this module, so a unit on
-a renamed table cannot be forgotten by one lane and remembered by another. Fail-closed throughout: a
+land unit or a mount repoints through this module (here: the pack build,
+``pipelines/build_air_dive_minimod.py``; the Lore Disasters mod's emitters did
+the same), so a unit on a renamed table cannot be forgotten by one lane and
+remembered by another. Fail-closed throughout: a
 header name that does not match its path, a registry skeleton that disagrees
 with the bin's, a culture table that does not walk to EOF, a new name that
 collides with a vanilla table -- each is a refusal, never a guess.

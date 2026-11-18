@@ -1,0 +1,277 @@
+# resid.py
+E1_wyvern lane 1 spear td 26.9 stop +4.9  melee-order at +1.1 (st 33 lay 0 fm 4)  events [(1.1, 'M'), (6.0, 'R'), (6.1, 'R'), (6.2, 'R'), (16.4, 'M'), (27.6, 'M'), (28.0, 'R'), (28.1, 'R')]
+    +4.6 st 41 sl 534 v 11.82 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.7 st 41 sl 534 v 5.93 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.8 st 41 sl 534 v 12.75 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.9 st 41 sl 534 v 7.23 s1c8 0.83 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +5.0 st 41 sl 534 v 4.73 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+E2_wyvern lane 2 spear td 46.6 stop +4.6  melee-order at +0.8 (st 33 lay 0 fm 4)  events [(0.8, 'M'), (5.8, 'R'), (5.9, 'R'), (6.0, 'R'), (13.3, 'M'), (16.8, 'M'), (18.2, 'A'), (22.3, 'R')]
+    +4.3 st 41 sl 534 v 11.82 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.4 st 41 sl 534 v 5.94 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.5 st 41 sl 534 v 12.75 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.6 st 41 sl 534 v 7.24 s1c8 0.83 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+    +4.7 st 41 sl 534 v 4.74 s1c8 0.00 lay 0 fm 4 vt 43ADE470 mst 41 mslot 534 r324 1
+E2_eagle lane 3 halb td 66.7 stop +3.6  melee-order at +2.1 (st 8 lay 0 fm 4)  events [(2.1, 'M'), (6.3, 'R'), (6.4, 'R'), (10.6, 'M'), (14.8, 'R'), (14.9, 'R'), (15.0, 'R'), (15.1, 'R')]
+    +3.3 st 55 sl 455 v 0.03 s1c8 0.00 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +3.4 st 55 sl 455 v 4.12 s1c8 4.12 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +3.5 st 55 sl 455 v 5.09 s1c8 5.09 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +3.6 st 55 sl 455 v 0.26 s1c8 0.00 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +3.7 st 55 sl 455 v 0.14 s1c8 0.00 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+E3_eagle lane 1 halb td 26.5 stop +4.1  melee-order at +2.3 (st 8 lay 0 fm 4)  events [(2.3, 'M'), (6.8, 'R'), (6.9, 'R'), (7.0, 'R'), (7.1, 'R'), (11.3, 'M'), (11.5, 'R'), (11.6, 'R')]
+    +3.8 st 55 sl 455 v 0.01 s1c8 0.01 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +3.9 st 55 sl 455 v 4.16 s1c8 4.16 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +4.0 st 55 sl 455 v 5.23 s1c8 5.23 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +4.1 st 55 sl 455 v 0.28 s1c8 0.00 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+    +4.2 st 55 sl 455 v 0.04 s1c8 0.00 lay 0 fm 0 vt 43ADE470 mst 55 mslot 455 r324 1
+E1_wyvern lane 3 militia td 68.4 stop +1.0  melee-order at +1.4 (st 33 lay 0 fm 4)  events [(1.4, 'M'), (6.3, 'R'), (6.4, 'R'), (10.5, 'M'), (13.7, 'M'), (18.6, 'M')]
+    +0.7 st 30 sl 1 v 12.67 s1c8 12.67 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.8 st 30 sl 1 v 12.65 s1c8 12.65 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.9 st 30 sl 1 v 12.60 s1c8 12.61 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +1.0 st 30 sl 1 v 8.39 s1c8 8.39 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +1.1 st 30 sl 1 v 5.39 s1c8 5.39 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+E3_wyvern lane 3 spear td 66.8 stop +0.4  melee-order at +0.5 (st 33 lay 0 fm 4)  events [(0.5, 'M'), (8.9, 'M')]
+    +0.1 st 30 sl 1 v 11.04 s1c8 11.05 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.2 st 30 sl 1 v 10.95 s1c8 10.96 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.3 st 30 sl 1 v 10.83 s1c8 10.84 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.4 st 33 sl 534 v 1.08 s1c8 0.00 lay 0 fm 4 vt 43ADE800 mst 33 mslot 534 r324 0
+    +0.5 st 33 sl 534 v 0.29 s1c8 0.28 lay 0 fm 4 vt 43ADE470 mst 33 mslot 534 r324 1
+E2_terror lane 3 halb td 71.3 stop +0.4  melee-order at +0.7 (st 33 lay 0 fm 4)  events [(0.7, 'M'), (8.7, 'M')]
+    +0.1 st 30 sl 1 v 10.89 s1c8 10.89 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.2 st 30 sl 1 v 11.16 s1c8 11.16 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.3 st 30 sl 1 v 11.00 s1c8 11.00 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.4 st 30 sl 1 v 5.44 s1c8 5.45 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.5 st 30 sl 1 v 2.45 s1c8 2.45 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+E1_eagle lane 3 militia td 68.0 stop +0.4  melee-order at +0.6 (st 16 lay 0 fm 0)  events [(0.4, 'O'), (0.6, 'M'), (5.1, 'R'), (5.2, 'R'), (5.3, 'R'), (8.2, 'M'), (9.5, 'R'), (9.6, 'R')]
+    +0.1 st 30 sl 1 v 14.05 s1c8 14.05 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.2 st 30 sl 1 v 14.85 s1c8 14.85 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.3 st 30 sl 1 v 15.48 s1c8 15.48 lay 0 fm 4 vt 43ADE800 mst 30 mslot 1 r324 0
+    +0.4 st 16 sl 1 v 8.62 s1c8 8.61 lay 0 fm 4 vt 43AED8C8 mst 16 mslot 1 r324 0
+    +0.5 st 16 sl 1 v 5.50 s1c8 5.50 lay 0 fm 4 vt 43AED8C8 mst 16 mslot 1 r324 0
+# resid2.py
+E1_wyvern 1 spear
+    +0.7 st 30 sl 1 s1c8 10.45 lay 0 fm 4 vt 43ADE800
+    +0.8 st 30 sl 1 s1c8 7.09 lay 0 fm 4 vt 43ADE800
+    +0.9 st 30 sl 1 s1c8 4.09 lay 0 fm 4 vt 43ADE800
+    +1.0 st 33 sl 534 s1c8 1.28 lay 0 fm 4 vt 43ADE800
+    +1.1 st 33 sl 534 s1c8 0.00 lay 0 fm 4 vt 43ADE470
+E2_wyvern 2 spear
+    +0.4 st 30 sl 1 s1c8 10.34 lay 0 fm 4 vt 43ADE800
+    +0.5 st 30 sl 1 s1c8 6.72 lay 0 fm 4 vt 43ADE800
+    +0.6 st 30 sl 1 s1c8 3.72 lay 0 fm 4 vt 43ADE800
+    +0.7 st 33 sl 534 s1c8 0.92 lay 0 fm 4 vt 43ADE800
+    +0.8 st 33 sl 534 s1c8 0.00 lay 0 fm 4 vt 43ADE470
+E2_eagle 3 halb
+    +1.7 st 30 sl 1 s1c8 2.81 lay 0 fm 4 vt 43ADE800
+    +1.8 st 30 sl 1 s1c8 2.68 lay 0 fm 4 vt 43ADE800
+    +1.9 st 30 sl 1 s1c8 2.43 lay 0 fm 4 vt 43ADE800
+    +2.0 st 30 sl 1 s1c8 2.37 lay 0 fm 4 vt 43ADE800
+    +2.1 st 8 sl 1 s1c8 2.27 lay 0 fm 4 vt 43ADE470
+E3_eagle 1 halb
+    +1.9 st 30 sl 1 s1c8 2.72 lay 0 fm 4 vt 43ADE800
+    +2.0 st 30 sl 1 s1c8 2.66 lay 0 fm 4 vt 43ADE800
+    +2.1 st 30 sl 1 s1c8 2.62 lay 0 fm 4 vt 43ADE800
+    +2.2 st 30 sl 1 s1c8 2.73 lay 0 fm 4 vt 43ADE800
+    +2.3 st 8 sl 1 s1c8 3.00 lay 0 fm 4 vt 43ADE470
+E2_chim 2 spear
+    +7.2 st 16 sl 484 s1c8 6.36 lay 0 fm 4 vt 43AED8C8
+    +7.3 st 16 sl 484 s1c8 6.38 lay 0 fm 4 vt 43AED8C8
+    +7.4 st 16 sl 484 s1c8 6.24 lay 0 fm 4 vt 43AED8C8
+    +7.5 st 16 sl 484 s1c8 6.23 lay 0 fm 4 vt 43AED8C8
+    +7.6 st 16 sl 484 s1c8 6.12 lay 0 fm 4 vt 43ADE470
+E3_mant 1 halb
+    +5.4 st 30 sl 484 s1c8 10.86 lay 0 fm 4 vt 43ADE800
+    +5.5 st 30 sl 484 s1c8 10.87 lay 0 fm 4 vt 43ADE800
+    +5.6 st 30 sl 484 s1c8 10.80 lay 0 fm 4 vt 43ADE800
+    +5.7 st 30 sl 484 s1c8 10.62 lay 0 fm 4 vt 43ADE800
+    +5.8 st 16 sl 484 s1c8 7.00 lay 0 fm 4 vt 43ADE470
+E1_eagle 2 halb
+    +1.8 st 30 sl 1 s1c8 4.15 lay 0 fm 4 vt 43ADE800
+    +1.9 st 30 sl 1 s1c8 4.60 lay 0 fm 4 vt 43ADE800
+    +2.0 st 30 sl 1 s1c8 5.04 lay 0 fm 4 vt 43ADE800
+    +2.1 st 30 sl 1 s1c8 5.50 lay 0 fm 4 vt 43ADE800
+    +2.2 st 8 sl 1 s1c8 5.93 lay 0 fm 4 vt 43ADE470
+# resid3.py
+E1_wyvern 1 spear
+    +0.3 st 30 s1c8 11.08 goal   48.0 g7   48.0 otgt B2C8FB10 ab0 2.8 vt 43ADE800
+    +0.4 st 30 s1c8 10.42 goal   47.0 g7   47.0 otgt B2C8FB10 ab0 3.4 vt 43ADE800
+    +0.5 st 30 s1c8 10.38 goal   45.9 g7   45.9 otgt B2C8FB10 ab0 3.0 vt 43ADE800
+    +0.6 st 30 s1c8 10.18 goal   44.9 g7   44.9 otgt B2C8FB10 ab0 3.6 vt 43ADE800
+    +0.7 st 30 s1c8 10.45 goal   43.9 g7   43.9 otgt B2C8FB10 ab0 3.2 vt 43ADE800
+    +0.8 st 30 s1c8  7.09 goal    0.7 g7   43.1 otgt B2C8FB10 ab0 2.8 vt 43ADE800
+    +0.9 st 30 s1c8  4.09 goal    0.4 g7   42.8 otgt B2C8FB10 ab0 2.4 vt 43ADE800
+    +1.0 st 33 s1c8  1.28 goal    0.6 g7   42.6 otgt B2C8FB10 ab0 3.0 vt 43ADE800
+    +1.1 st 33 s1c8  0.00 goal    0.6 g7   42.6 otgt B3467580 ab0 2.6 vt 43ADE470
+E2_wyvern 2 spear
+    +0.0 st 33 s1c8 11.06 goal   45.0 g7   45.0 otgt B4458720 ab0 0.0 vt 43ADE800
+    +0.1 st 30 s1c8 11.48 goal   43.8 g7   43.8 otgt B4458720 ab0 0.6 vt 43ADE800
+    +0.2 st 30 s1c8 11.21 goal   42.7 g7   42.7 otgt B4458720 ab0 3.2 vt 43ADE800
+    +0.3 st 30 s1c8 10.92 goal   41.6 g7   41.6 otgt B4458720 ab0 2.8 vt 43ADE800
+    +0.4 st 30 s1c8 10.34 goal   40.6 g7   40.6 otgt B4458720 ab0 3.4 vt 43ADE800
+    +0.5 st 30 s1c8  6.72 goal    0.7 g7   39.9 otgt B4458720 ab0 3.0 vt 43ADE800
+    +0.6 st 30 s1c8  3.72 goal    0.4 g7   39.6 otgt B4458720 ab0 3.6 vt 43ADE800
+    +0.7 st 33 s1c8  0.92 goal    0.5 g7   39.4 otgt B4458720 ab0 3.2 vt 43ADE800
+    +0.8 st 33 s1c8  0.00 goal    0.5 g7   39.4 otgt B4555CE0 ab0 2.8 vt 43ADE470
+E2_eagle 3 halb
+    +1.3 st 30 s1c8  3.24 goal   40.0 g7   40.0 otgt B0CF4C50 ab0 1.1 vt 43ADE800
+    +1.4 st 30 s1c8  3.28 goal   39.7 g7   39.7 otgt B0CF4C50 ab0 0.8 vt 43ADE800
+    +1.5 st 30 s1c8  3.32 goal   39.4 g7   39.4 otgt B0CF4C50 ab0 0.5 vt 43ADE800
+    +1.6 st 30 s1c8  3.14 goal   39.1 g7   39.1 otgt B0CF4C50 ab0 0.2 vt 43ADE800
+    +1.7 st 30 s1c8  2.81 goal   38.8 g7   38.8 otgt B0CF4C50 ab0 0.0 vt 43ADE800
+    +1.8 st 30 s1c8  2.68 goal   38.5 g7   38.5 otgt B0CF4C50 ab0 0.0 vt 43ADE800
+    +1.9 st 30 s1c8  2.43 goal   38.3 g7   38.3 otgt B0CF4C50 ab0 0.0 vt 43ADE800
+    +2.0 st 30 s1c8  2.37 goal   38.0 g7   38.0 otgt B0CF4C50 ab0 0.0 vt 43ADE800
+    +2.1 st 8 s1c8  2.27 goal   37.8 g7   37.8 otgt B126A3D0 ab0 0.7 vt 43ADE470
+E3_eagle 1 halb
+    +1.5 st 30 s1c8  3.07 goal   42.1 g7   42.1 otgt B13DD080 ab0 0.0 vt 43ADE800
+    +1.6 st 30 s1c8  3.01 goal   41.8 g7   41.8 otgt B13DD080 ab0 0.0 vt 43ADE800
+    +1.7 st 30 s1c8  2.89 goal   41.5 g7   41.5 otgt B13DD080 ab0 0.0 vt 43ADE800
+    +1.8 st 30 s1c8  2.79 goal   41.2 g7   41.2 otgt B13DD080 ab0 0.0 vt 43ADE800
+    +1.9 st 30 s1c8  2.72 goal   40.9 g7   40.9 otgt B13DD080 ab0 0.0 vt 43ADE800
+    +2.0 st 30 s1c8  2.66 goal   40.6 g7   40.6 otgt B13DD080 ab0 0.0 vt 43ADE800
+    +2.1 st 30 s1c8  2.62 goal   40.4 g7   40.4 otgt B13DD080 ab0 0.7 vt 43ADE800
+    +2.2 st 30 s1c8  2.73 goal   40.1 g7   40.1 otgt B13DD080 ab0 0.4 vt 43ADE800
+    +2.3 st 8 s1c8  3.00 goal   39.8 g7   39.8 otgt B11B7A40 ab0 0.1 vt 43ADE470
+# resid4.py batch_a_table.txt
+A1_bt      l2 halb    goal  46.1-> 45.2 collapse=False v_td 12.6 | flight-ended
+A1_bt      l3 militia goal  42.7-> 41.8 collapse=False v_td 12.3 | flight-ended
+A1_eagle   l3 militia goal  44.6-> 37.1 collapse=False v_td 13.8 | contact-engage
+A1_storm   l3 militia goal  46.8-> 45.9 collapse=False v_td 12.5 | flight-ended
+A1_wyvern  l1 spear   goal  44.4->  0.4 collapse=True v_td 11.0 | contact-engage
+A2_bt      l2 spear   goal  47.0-> 46.2 collapse=False v_td 11.9 | flight-ended
+A2_bt      l3 halb    goal  47.1-> 46.3 collapse=False v_td 11.8 | flight-ended
+A2_dragon  l2 spear   goal  47.1->  1.0 collapse=False v_td 11.2 | contact-engage
+A2_eagle   l1 militia goal  45.0-> 43.9 collapse=False v_td 13.9 | flight-ended
+A2_eagle   l2 spear   goal  42.4-> 41.6 collapse=False v_td 12.9 | flight-ended
+A2_eagle   l3 halb    goal  49.9-> 49.3 collapse=False v_td 10.7 | flight-ended
+A2_lion    l2 spear   goal  50.8-> 50.0 collapse=False v_td 11.0 | flight-ended
+A2_lion    l3 halb    goal  51.4-> 20.5 collapse=False v_td 10.0 | contact-engage
+A2_mant    l3 halb    goal  50.2->  0.6 collapse=True v_td 11.5 | contact-engage
+A2_storm   l3 halb    goal  46.8-> 45.9 collapse=False v_td 12.0 | flight-ended
+A2_terror  l3 halb    goal  49.2-> 20.5 collapse=False v_td 10.7 | contact-engage
+A2_wyvern  l3 halb    goal  49.8->  0.6 collapse=True v_td 11.0 | contact-engage
+A3_bt      l2 militia goal  48.6-> 45.0 collapse=False v_td 11.8 | contact-engage
+A3_bt      l3 spear   goal  43.0-> 42.2 collapse=False v_td 11.8 | flight-ended
+A3_frostwyrm l1 halb    goal  50.9->  0.6 collapse=True v_td 10.5 | contact-engage
+A3_frostwyrm l3 spear   goal  51.2->  0.6 collapse=True v_td 10.5 | contact-engage
+A3_lion    l1 halb    goal  43.4-> 42.7 collapse=False v_td 10.0 | flight-ended
+A3_lion    l2 militia goal  48.2-> 47.4 collapse=False v_td 10.9 | flight-ended
+A3_lion    l3 spear   goal  49.3-> 48.7 collapse=False v_td 10.0 | flight-ended
+A3_storm   l1 halb    goal  52.0-> 51.2 collapse=False v_td 12.0 | flight-ended
+A3_storm   l2 militia goal  46.7-> 45.8 collapse=False v_td 12.6 | flight-ended
+A3_taurus  l3 spear   goal  48.5->  1.7 collapse=False v_td 10.9 | other(43ADE800->43ADE800 st 30->30)
+A3_terror  l2 militia goal  42.0->  0.6 collapse=True v_td 11.0 | contact-engage
+A3_terror  l3 spear   goal  49.7->  0.5 collapse=True v_td 10.5 | contact-engage
+A3_wyvern  l2 militia goal  47.0-> 37.6 collapse=False v_td 11.7 | contact-engage
+# resid4.py batch_b_table.txt
+B1_bt      l1 spear   goal  41.2-> 35.9 collapse=False v_td 11.8 | contact-engage
+B1_eagle   l1 spear   goal  45.4-> 42.8 collapse=False v_td 10.7 | contact-engage
+B1_eagle   l2 halb    goal  50.4-> 47.7 collapse=False v_td 10.7 | contact-engage
+B1_eagle   l3 militia goal  51.4-> 40.9 collapse=False v_td 14.1 | contact-engage
+B1_lion    l1 spear   goal  43.2-> 38.9 collapse=False v_td 10.0 | contact-engage
+B1_lion    l2 halb    goal  51.1->  2.0 collapse=False v_td 11.0 | contact-engage
+B1_storm   l1 spear   goal  53.7-> 47.8 collapse=False v_td 12.0 | contact-engage
+B1_storm   l3 militia goal  52.8-> 46.4 collapse=False v_td 12.3 | contact-engage
+B1_wyvern  l1 spear   goal  54.7-> 49.0 collapse=False v_td 11.8 | contact-engage
+B2_bt      l3 halb    goal  41.7-> 36.4 collapse=False v_td 11.8 | contact-engage
+B2_eagle   l1 militia goal  47.9-> 39.6 collapse=False v_td 13.5 | contact-engage
+B2_eagle   l3 halb    goal  50.9->  3.6 collapse=False v_td 12.9 | other(43ADE470->43ADE470 st 55->55)
+B2_lamm    l1 militia goal  49.6->  0.6 collapse=True v_td 10.1 | contact-engage
+B2_lion    l2 spear   goal  50.8-> 46.2 collapse=False v_td 11.0 | contact-engage
+B2_lion    l3 halb    goal  48.3-> 43.9 collapse=False v_td 10.0 | contact-engage
+B2_storm   l1 militia goal  54.5->  0.6 collapse=True v_td 12.6 | contact-engage
+B2_storm   l3 halb    goal  46.8->  0.6 collapse=True v_td 12.4 | contact-engage
+B2_taurus  l1 militia goal  44.3-> 18.8 collapse=False v_td 11.0 | contact-engage
+B2_taurus  l3 halb    goal  50.2->  0.8 collapse=False v_td 10.5 | contact-engage
+B2_terror  l3 halb    goal  48.0->  0.5 collapse=True v_td 10.5 | contact-engage
+B2_wyvern  l3 halb    goal  53.4->  0.7 collapse=True v_td 11.0 | contact-engage
+B3_cock    l2 militia goal  43.2->  0.6 collapse=True v_td 10.7 | contact-engage
+B3_eagle   l1 halb    goal  43.1-> 39.2 collapse=False v_td 11.8 | contact-engage
+B3_eagle   l2 militia goal  43.2-> 37.5 collapse=False v_td 14.1 | contact-engage
+B3_eagle   l3 spear   goal  50.0->  0.7 collapse=False v_td 12.9 | contact-engage
+B3_frostwyrm l3 spear   goal  46.9-> 21.0 collapse=False v_td 10.5 | contact-engage
+B3_lion    l1 halb    goal  43.2-> 37.3 collapse=False v_td 11.0 | contact-engage
+B3_lion    l3 spear   goal  47.8->  3.0 collapse=False v_td 10.7 | contact-engage
+B3_taurus  l2 militia goal  48.4->  0.8 collapse=True v_td 11.1 | contact-engage
+B3_wyvern  l1 halb    goal  45.4->  4.5 collapse=True v_td 11.0 | other(43ADE470->43ADE470 st 41->41)
+B3_wyvern  l3 spear   goal  53.6->  0.9 collapse=False v_td 11.6 | contact-engage
+# resid4.py batch_c_table.txt
+C1_cock    l1 spear   goal  49.1->  0.4 collapse=True v_td 9.9 | contact-engage
+C1_eagle   l1 spear   goal  46.8-> 45.9 collapse=False v_td 10.7 | other(43ADE800->43ADE800 st 0->30)
+C1_eagle   l2 halb    goal  43.7-> 41.7 collapse=False v_td 10.7 | other(43ADE800->43ADE800 st 30->30)
+C1_eagle   l3 militia goal  46.6-> 39.8 collapse=False v_td 13.3 | contact-engage
+C1_lamm    l1 spear   goal  50.9-> 46.5 collapse=False v_td 9.4 | contact-engage
+C1_lion    l1 spear   goal  51.5-> 46.6 collapse=False v_td 11.0 | contact-engage
+C1_lion    l2 halb    goal  43.6-> 38.9 collapse=False v_td 11.0 | contact-engage
+C1_storm   l1 spear   goal  48.4-> 43.8 collapse=False v_td 12.0 | contact-engage
+C1_storm   l2 halb    goal  47.4-> 42.7 collapse=False v_td 12.0 | contact-engage
+C1_terror  l1 spear   goal  47.1->  0.6 collapse=True v_td 10.5 | contact-engage
+C1_wyvern  l1 spear   goal  46.9->  1.2 collapse=False v_td 11.3 | contact-engage
+C1_wyvern  l2 halb    goal  50.4->  0.7 collapse=True v_td 11.0 | contact-engage
+C2_bt      l1 militia goal  44.3->  1.6 collapse=False v_td 12.1 | contact-engage
+C2_bt      l2 spear   goal  51.9->  3.2 collapse=False v_td 12.5 | contact-engage
+C2_bt      l3 halb    goal  46.2->  3.0 collapse=False v_td 11.9 | contact-engage
+C2_eagle   l1 militia goal  47.3-> 38.0 collapse=False v_td 13.9 | contact-engage
+C2_eagle   l2 spear   goal  44.4-> 43.2 collapse=False v_td 12.9 | other(43ADE800->43ADE800 st 0->30)
+C2_frostwyrm l2 spear   goal  51.4-> 23.9 collapse=False v_td 11.1 | contact-engage
+C2_frostwyrm l3 halb    goal  45.2->  0.6 collapse=True v_td 10.5 | contact-engage
+C2_lion    l2 spear   goal  42.4->  0.7 collapse=False v_td 10.0 | contact-engage
+C2_lion    l3 halb    goal  48.6-> 45.4 collapse=False v_td 10.0 | contact-engage
+C2_mant    l2 spear   goal  47.5->  1.2 collapse=False v_td 13.1 | other(43ADE800->43ADE800 st 30->30)
+C2_storm   l1 militia goal  55.5->  1.6 collapse=False v_td 12.5 | contact-engage
+C2_terror  l3 halb    goal  44.3->  0.5 collapse=True v_td 10.5 | contact-engage
+C2_wyvern  l2 spear   goal  50.9-> 21.6 collapse=False v_td 11.6 | contact-engage
+C3_bt      l1 halb    goal  45.8-> 41.6 collapse=False v_td 11.8 | contact-engage
+C3_dragon  l3 spear   goal  47.6-> 20.6 collapse=False v_td 10.7 | contact-engage
+C3_eagle   l1 halb    goal  41.6-> 39.6 collapse=False v_td 10.7 | other(43ADE800->43ADE800 st 30->30)
+C3_eagle   l3 spear   goal  48.1-> 45.4 collapse=False v_td 10.7 | contact-engage
+C3_frostwyrm l1 halb    goal  45.6->  0.6 collapse=False v_td 10.5 | contact-engage
+C3_frostwyrm l2 militia goal  25.4-> 20.7 collapse=False v_td 10.9 | contact-engage
+C3_frostwyrm l3 spear   goal  46.0->  0.5 collapse=True v_td 10.5 | contact-engage
+C3_lion    l1 halb    goal  50.0-> 45.0 collapse=False v_td 11.0 | contact-engage
+C3_lion    l3 spear   goal  45.3-> 41.9 collapse=False v_td 10.0 | contact-engage
+C3_mant    l1 halb    goal  44.1->  2.6 collapse=False v_td 12.3 | contact-engage
+C3_storm   l2 militia goal  50.7-> 45.8 collapse=False v_td 12.3 | contact-engage
+C3_terror  l1 halb    goal  44.1->  0.5 collapse=True v_td 10.5 | contact-engage
+C3_terror  l3 spear   goal  47.9->  0.6 collapse=False v_td 10.9 | contact-engage
+C3_wyvern  l3 spear   goal  47.1->  2.4 collapse=False v_td 11.0 | contact-engage
+# resid4.py batch_e_table.txt
+E1_eagle   l2 halb    goal  47.8-> 35.8 collapse=False v_td 14.2 | contact-engage
+E1_eagle   l3 militia goal  43.3-> 20.6 collapse=False v_td 13.3 | re-order
+E1_wyvern  l1 spear   goal  51.3->  4.1 collapse=True v_td 11.0 | other(43ADE470->43ADE470 st 41->41)
+E1_wyvern  l3 militia goal  43.9->  0.8 collapse=True v_td 11.4 | other(43ADE800->43ADE800 st 30->30)
+E2_chim    l2 spear   goal  42.8-> 18.7 collapse=False v_td 10.7 | contact-engage
+E2_eagle   l3 halb    goal  46.1-> 36.9 collapse=False v_td 10.6 | other(43ADE470->43ADE470 st 55->55)
+E2_terror  l3 halb    goal  52.1->  0.5 collapse=True v_td 10.5 | other(43ADE800->43ADE800 st 30->30)
+E2_wyvern  l2 spear   goal  45.0->  4.2 collapse=True v_td 11.1 | other(43ADE470->43ADE470 st 41->41)
+E3_eagle   l1 halb    goal  49.1->  0.9 collapse=True v_td 10.7 | other(43ADE470->43ADE470 st 55->55)
+E3_mant    l1 halb    goal  50.9-> 20.9 collapse=False v_td 12.2 | contact-engage
+E3_wyvern  l3 spear   goal  46.7-> 43.5 collapse=False v_td 11.0 | other(43ADE800->43ADE800 st 30->33)
+# dis.py 14305dd80:120
+== 14305dd80
+  14305dd80 xorps xmm2, xmm2
+  14305dd83 movss dword ptr [rsp + 0x20], xmm0
+  14305dd89 mov rcx, rdi
+  14305dd8c movss xmm0, dword ptr [rax + 0x88]
+  14305dd94 movss dword ptr [rsp + 0x24], xmm1
+  14305dd9a movss xmm1, dword ptr [rax + 0x90]
+  14305dda2 movss dword ptr [rsp + 0x28], xmm0
+  14305dda8 movss dword ptr [rsp + 0x2c], xmm1
+  14305ddae call 0x143165ce0
+  14305ddb3 test al, al
+  14305ddb5 je 0x14305ddde
+  14305ddb7 mov r8, qword ptr [rdi + 0x2e8]
+  14305ddbe lea rcx, [rsp + 0x30]
+  14305ddc3 call 0x14305ad94
+  14305ddc8 mov rax, qword ptr [rbx]
+  14305ddcb lea rdx, [rsp + 0x30]
+  14305ddd0 mov rcx, rbx
+  14305ddd3 mov qword ptr [rsp + 0x48], rdi
+  14305ddd8 call qword ptr [rax + 0x4b0]
+  14305ddde lea r11, [rsp + 0x80]
+  14305dde6 mov rbx, qword ptr [r11 + 0x10]
+  14305ddea mov rsi, qword ptr [r11 + 0x18]
+  14305ddee mov rsp, r11
+  14305ddf1 pop rdi
+  14305ddf2 ret 
+  14305ddf3 int3 
+  14305ddf4 mov rax, rsp

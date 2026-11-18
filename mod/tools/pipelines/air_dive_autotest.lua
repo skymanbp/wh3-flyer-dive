@@ -7,7 +7,7 @@
 -- (game_startup_mode battle <xml>; CA's own terrain/xml_battle/
 -- battle_map_test.xml documents the mechanism) and ships this file at
 -- script/battle/mod/ld_air_dive_autotest.lua in a helper pack that is enabled
--- for that one run only. Never part of ld_mod.pack or ld_air_dive.pack.
+-- for that one run only. Never part of the published packs.
 --
 -- INERT unless ld_air_dive_autotest_cmd.txt exists in the game's working
 -- directory (the folder of Warhammer3.exe). The control file carries

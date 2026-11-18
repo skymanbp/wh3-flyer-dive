@@ -81,7 +81,7 @@ record is complete.
 
 ENTITY READ [ENGINE-ENTITY-READ-W1 2026-11-11]: ``--entity-read`` also
 builds and enables the TEST-ONLY per-soldier reader ld_entity_read.pack
-(``build_entity_read_minimod.py``, memory read-only, never in ld_mod.pack)
+(``build_entity_read_minimod.py``, memory read-only, never in a published pack)
 and adds, per lane, the target's men knocked (Derpy's knock slots 143-197)
 and per-man hit-point loss in the PLOUGH_WINDOW_S after touchdown
 (``lane["entity"]``), plus the record's own checks (``result["entity_read"]``:
@@ -148,7 +148,9 @@ XML_PACK_PATH = "terrain\\xml_battle\\ld_air_dive_autotest.xml"   # VFS: backsla
 # [ENGINE-ENTITY-READ-W1] the optional per-soldier reader (module docstring)
 ENTITY_PACK = "ld_entity_read.pack"
 ENTITY_LOG = GAME_ROOT / "ld_entity_read.txt"
-RUNS_DIR = Path(r"D:\Projects\.worktrees\lore_disaster\air-dive-autotest_runs")
+# where a run's report goes when --out-dir is not given; FLYER_AUTOTEST_RUNS_DIR overrides it
+RUNS_DIR = Path(os.environ.get("FLYER_AUTOTEST_RUNS_DIR",
+                               r"D:\Projects\.worktrees\wh3-flyer-dive\autotest_runs"))
 
 # The lanes: one flyer per lane, each charging its own swordsmen.
 FLYERS = (

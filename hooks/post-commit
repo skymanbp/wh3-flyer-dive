@@ -1,4 +1,0 @@
-#!/bin/sh
-# FLYER-REPO post-commit: retired 2026-11-17 (user ruling: the flyer mod is developed in this repository,
-# the Lore Disasters mod no longer carries it). The two-way sync no longer runs. / 双向同步已停用。
-exit 0

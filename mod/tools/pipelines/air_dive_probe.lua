@@ -6,7 +6,7 @@
 -- flyer lands at the enemy's front rank and stops. Three file-level guesses
 -- failed, so this measures what the engine actually does with the body. It
 -- ships ONLY in the standalone ld_air_dive.pack / ld_air_dive_probe.pack built
--- by tools/pipelines/build_air_dive_minimod.py --probe, never in ld_mod.pack;
+-- by tools/pipelines/build_air_dive_minimod.py --probe, never in a published pack;
 -- tools/pipelines/air_dive_probe_report.py reads what it writes.
 --
 -- WHAT IT WRITES: ld_air_dive_probe.txt in the game's working directory (the

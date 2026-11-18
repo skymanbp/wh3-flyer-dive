@@ -15,9 +15,10 @@ These checks pin that:
 * no battle bin under mod/assets (loose or inside an animpack) carries a vanilla table's name, by path stem or header ``name``;
 * the air-dive manifest's renamed tables are new names of vanilla tables,
   each bin's header names it, and the bin ships loose and animpacked;
-* every land-unit emitter repoints through the one helper;
+* the pack's emitter ships every installed land unit and mount on a renamed
+  table, repointed to the copy serving its entity (PackRepointsRiders);
 * the culture_to_battle_animation_tables schema round-trips the installed
-  fragment byte for byte (the main mod and the mini-mod write it);
+  fragment byte for byte (the pack writes it);
 * the TSV repoint touches only man_animation and keeps line endings;
 * [canary 13] no renamed table carries slot 104 FLY_CHARGE_LAND (it pins the
   landed flyer) and the flyer rule sets jump_attack_chance (100 at W8, 0 since
@@ -59,9 +60,7 @@ from packfile import PackFile  # noqa: E402 -- same reason
 MOD_DIR = TOOLS_DIR.parent
 GAME = Path(r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data")
 ANIM_PACKS = ("anim.pack", "anim2.pack", "anim_3.pack")
-# pack_extras/ is never walked by build_pack (only explicit variantmesh
-# definitions ship from it), and its untracked animpacks include three that are
-# not plain animpacks, so the shipped staging tree is mod/assets alone.
+# the pack ships staged files from mod/assets alone.
 SHIP_ROOTS = (MOD_DIR / "assets",)
 BIN_DIR = "animations/database/battle/bin/"
 
@@ -340,9 +339,10 @@ class PloughSpeedPerFlyer(unittest.TestCase):
         self.assertIn("m3\thr1_pegasus_ld_dive_v180\tb", moved)
 
     def test_generated_riders_are_served(self):
-        """Our generators' riders (dbw_clone, dbw_characters) resolve to a
-        copy at their own speed; a new one must be added to GENERATED_RIDERS
-        and the pipeline rerun, else dive_table refuses."""
+        """Adapter input: the Lore Disasters generators' riders
+        (GENERATED_RIDERS) resolve to a copy at their own speed; a new one must
+        be added to GENERATED_RIDERS and the pipeline rerun, else dive_table
+        refuses."""
         records, renames = air_dive_rules.table_renames()
         speed_of = {r["renamed"]: r["speed"] for r in records}
         size_of = {e: s for r in records for e, s in r["body_sizes"].items()}
@@ -377,34 +377,69 @@ class FlyerJumpAttack(unittest.TestCase):
         self.assertEqual(air_dive_rules.tuned_cells(
             dict(self.ROW, fly_speed=0.0)), {})
 
-    def test_every_land_unit_emitter_repoints(self):
-        """One helper, every lane: a lane that forgets it ships a flyer that
-        never dives (it names the vanilla table, which still plays)."""
-        sources = {
-            "generators/dbw_clone.py": "air_dive_rules.dive_table(",
-            "generators/dbw_characters.py": "air_dive_rules.dive_table(",
-            "generators/dbw_balance.py": "_atr.land_unit_rows(",
-            "pipelines/build_air_dive_minimod.py": "anim_table_rename.land_unit_rows(",
-        }
-        for rel, call in sources.items():
-            with self.subTest(file=rel):
-                self.assertIn(call, (TOOLS_DIR / rel).read_text(encoding="utf-8"))
-        self.assertIn("anim_table_rename.repoint_land_units_tsv",
-                      (MOD_DIR / "build_pack.py").read_text(encoding="utf-8"))
 
-    def test_every_mount_emitter_repoints(self):
+
+class PackRepointsRiders(unittest.TestCase):
+    """The pack's emitter (``pipelines/build_air_dive_minimod.rename_entries``) ships every installed
+    land unit and mount that rides a renamed source table, repointed to the copy serving its entity: a
+    row left out keeps naming the vanilla table, which still plays, and that flyer never dives. The
+    expected rows come from the installed tables and the manifest's records, not from the emitter's
+    helpers; every other cell is the installed row's (DB merge is whole-row replacement).
+    [FLYER-DECOUPLE 2026-11-17] These checks used to read the source text of the main mod's emitters
+    (``generators/dbw_*.py``, ``build_pack.py``), which this repository does not have; its one emitter
+    is checked here by what it emits."""
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        import build_air_dive_minimod as mini
+        _require_game()
+        manifest = json.loads((MOD_DIR / "assets" / "air_dive" / "air_dive_manifest.json")
+                              .read_text(encoding="utf-8"))
+        cls.records = manifest["tables_renamed"]
+        cls.riders = manifest["riders_renamed"]
+        entries, _counts = mini.rename_entries(GAME / "db.pack")
+        cls.emitted = {}
+        for path, data in entries:
+            table = path.split("\\")[1]
+            if table in (anim_table_rename.LAND_TABLE, anim_table_rename.MOUNTS_TABLE):
+                rows = db_writer._decode_db_table_bytes(data, table, path)
+                cls.emitted[table] = {r["key"]: r for r in rows}
+
+    def _expected(self, table, column, entity_column):
+        rows, _h = installed_db_table.decode_round_trip(GAME / "db.pack", table, "test_anim_table_rename")
+        copy_of = {}
+        for rec in self.records:
+            for ent in rec["entities"]:
+                copy_of[(rec["source"], ent)] = rec["renamed"]
+        want = {}
+        for row in rows:
+            new = copy_of.get((row[column], row[entity_column]))
+            if new is not None:
+                want[row["key"]] = dict(row, **{column: new})
+        return want, {r["key"]: r for r in rows}
+
+    def _assert_ships(self, table, want):
+        self.assertTrue(want)
+        got = self.emitted[table]
+        self.assertEqual(sorted(set(want) - set(got)), [], "rows on a renamed table not shipped")
+        self.assertEqual(sorted(set(got) - set(want)), [], "rows shipped that ride no renamed table")
+        for key, row in sorted(want.items()):
+            with self.subTest(key=key):
+                self.assertEqual(got[key], row)
+
+    def test_every_land_unit_on_a_renamed_table_ships_repointed(self):
+        want, installed = self._expected(anim_table_rename.LAND_TABLE, "man_animation", "man_entity")
+        for rec in self.riders:      # [FLYER-SEAT-1117] a rider unit names its rider table copy instead
+            for unit in rec["land_units"]:
+                want[unit] = dict(installed[unit], man_animation=rec["renamed"])
+        self._assert_ships(anim_table_rename.LAND_TABLE, want)
+
+    def test_every_mount_on_a_renamed_table_ships_repointed(self):
         """[AIR-DIVE-W9] A mounted unit's body plays its mount row's table
-        (griffon knights -> bc2_griffon); a lane that ships mount rows
-        without the repoint leaves every ridden flyer on the vanilla table."""
-        sources = {
-            "generators/dbw_balance.py": "_atr.mount_rows(",
-            "pipelines/build_air_dive_minimod.py": "anim_table_rename.mount_rows(",
-        }
-        for rel, call in sources.items():
-            with self.subTest(file=rel):
-                self.assertIn(call, (TOOLS_DIR / rel).read_text(encoding="utf-8"))
-        self.assertIn("anim_table_rename.repoint_mounts_tsv",
-                      (MOD_DIR / "build_pack.py").read_text(encoding="utf-8"))
+        (griffon knights -> bc2_griffon)."""
+        want, _installed = self._expected(anim_table_rename.MOUNTS_TABLE, "animation", "entity")
+        self._assert_ships(anim_table_rename.MOUNTS_TABLE, want)
 
 
 class CultureSchema(unittest.TestCase):
@@ -422,8 +457,8 @@ class CultureSchema(unittest.TestCase):
 
 class MountsSchema(unittest.TestCase):
     def test_installed_fragment_round_trips(self):
-        """[AIR-DIVE-W9] Both the main mod and the mini-mod write the 67
-        repointed mount rows with this schema."""
+        """[AIR-DIVE-W9] The pack writes the repointed mount rows with this
+        schema."""
         _require_game()
         table = anim_table_rename.MOUNTS_TABLE
         schema = db_writer.SCHEMAS[table]

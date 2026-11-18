@@ -3,9 +3,12 @@
 User 2026-11-09 (CONTENT_LEDGER §C8-45 item 3): flyers go straight up and
 down, charge feebly and hover in place when chasing. This module owns the
 DATA half of the fix -- every emitter that ships a flying ``battle_entities``
-row (vanilla rows we override, the monster/infantry lane that already owns
-some of them, our characters' own entities, and the standalone mini-mod)
-calls :func:`tuned_cells` and nothing else, so the rule lives in one place.
+row calls :func:`tuned_cells` and nothing else, so the rule lives in one
+place. In this repository that emitter is the pack build
+(``pipelines/build_air_dive_minimod.py``). The Lore Disasters mod's own
+emitters called the same rule for its bodies; the rows here that name those
+bodies are marked ADAPTER INPUT (kept for the future main-mod adapter pack,
+never shipped by this one).
 The ANIMATION half (the renamed flight tables without slot 104, slot 489
 playing the plough clip whose size-class table lives here as
 ``PLOUGH_PROFILES``) is ``pipelines/air_dive.py`` and
@@ -155,6 +158,9 @@ MASS_SIZE_OVERRIDE = {
 # flying war machines and chariots keep their mass: every fielded unit on the body is caste warmachine /
 # chariot (thunderbarges, sky junk, Cathay sky ark, skycutters), or the machine is one a lord or hero
 # also rides (gyrocopter, gyrobomber, sky lantern, burning chariot) -- 11 bodies, measured 2026-11-14
+# ADAPTER INPUT: ld_dwf_flying_thunderbarge and ld_cth_flying_sky_ark are Lore Disasters donor bodies
+# (data/main_mod_flyers.json) that this pack does not ship; they cut nothing here (no installed entity
+# has those keys) and stay so the future main-mod adapter pack keeps the same machine set.
 MASS_CUT_MACHINES = frozenset({
     "wh3_dlc25_dwf_mnt_veh_thunderbarge", "wh3_dlc25_dwf_mnt_veh_thunderbarge_grungni",
     "ld_dwf_flying_thunderbarge", "wh3_main_cth_flying_sky_junk", "ld_cth_flying_sky_ark",
@@ -175,11 +181,17 @@ JUMP_ATTACK_CHANCE = 0
 
 # [AIR-DIVE-W10 2026-11-11] Charge speed per flyer, by role and lore (user
 # ruling 2026-11-11: "不要全部一样，根据定位和背景逐个调整" -- no single
-# formula). One row per battle entity that ships with fly_speed > 0: the 137
-# vanilla rows we override, our three own bodies, the 17 vendored donor rows.
-# A shipping flyer with no row is a refusal in tuned_cells, so every emitter
-# (monster lane, ld_air_dive fragment, characters, balance overrides,
-# vendored closures, the mini-mod) fails closed on a new flyer.
+# formula). One row per flying battle entity (fly_speed > 0, not fauna): the
+# installed flyers this pack overrides, and ADAPTER INPUT: every ``ld_`` key
+# below -- the Lore Disasters mod's three own bodies (ld_chr_galrauch,
+# ld_chr_kabandha, ld_moncav_tze_disc) and its 17 donor flyers
+# (data/main_mod_flyers.json). This pack ships none of those 20 rows. They stay
+# because pipelines/air_dive.py counts the bodies that ride a flight table (one
+# renamed copy per charge speed, so the staged tables depend on them) and the
+# future main-mod adapter pack needs the same rule rows;
+# tests/test_air_dive_charge_speeds.py pins all three sets, no stale row.
+# A flyer with no row is a refusal in tuned_cells, so every emitter fails
+# closed on a new flyer.
 # Anchor: the installed flying_charge_speed (flyers 3.2 .. 20, common
 # 10.5 .. 15; the boss Terrorgheist's 20 is CA's maximum and the engine's
 # observed displacement cap). Bands, so a role reads the same everywhere:
@@ -467,15 +479,17 @@ def speed_tag(speed):
     return f"v{tenths}"
 
 
-# [AIR-DIVE-W12 2026-11-11] Land units and mounts OUR generators emit on a
-# flight table the dive renames, as (source table, battle entity): the air
-# dive needs every rider of a table to give each speed its own renamed copy
-# (pipelines/air_dive.py; installed rows and donor TSVs are read there).
-# Measured on the built ld_mod.pack 2026-11-11: lore_disasters (unit clones,
-# dbw_clone) 6, lore_disasters_characters (dbw_characters) 2. An emitter
-# whose (table, entity) is missing here is refused by :func:`dive_table`.
-# [AIR-DIVE-W13] The two entities only our generator emits carry their
-# battle_entities ``size`` here (read from that built pack's
+# ADAPTER INPUT [AIR-DIVE-W12 2026-11-11]: land units and mounts the Lore
+# Disasters mod's generators emit on a flight table the dive renames, as
+# (source table, battle entity). This pack ships none of these rows; the air
+# dive still counts them (pipelines/air_dive.py census_riders: every rider of
+# a table gives its speed a renamed copy, so the staged tables depend on
+# them), and :func:`dive_table` is the repoint the future main-mod adapter
+# pack will call (it refuses a (table, entity) missing here).
+# Measured on that mod's built ld_mod.pack 2026-11-11: its fragments
+# lore_disasters (unit clones) 6, lore_disasters_characters (characters) 2.
+# [AIR-DIVE-W13] GENERATED_ENTITY_SIZES: the battle_entities ``size`` of the
+# two entities only that mod's generator emits (read from that built pack's
 # lore_disasters_characters fragment 2026-11-11: both very_large); the
 # installed entities' size is read from the installed table, never here.
 GENERATED_RIDERS = (
@@ -581,10 +595,12 @@ def _tsv_format(old, value):
 def rewrite_vendored_entities_tsv(text):
     """[AIR-DIVE-W10] ``(text, rows changed)``: :func:`tuned_cells` on every
     flyer row of one staged ``battle_entities_tables`` TSV (RPFM's format:
-    column names, ``#table;version`` marker, one row per line). The donor
-    closures ship their own flying bodies (17 rows in 11 closures, measured
-    on ld_mod.pack 2026-11-11) that no generator touches; build_pack applies
-    this on the in-memory copy, so the staged TSV stays donor-faithful. A
+    column names, ``#table;version`` marker, one row per line). ADAPTER
+    INPUT: the Lore Disasters mod's donor closures carry their own flying
+    bodies (17 rows in 11 closures, data/main_mod_flyers.json), and that mod's
+    build applied this to the in-memory copy so the staged TSV stayed
+    donor-faithful. This repository's build does not call it;
+    tests/test_air_dive_charge_speeds.py runs it on the snapshot rows. A
     donor flyer without a FLYER_CHARGE_SPEEDS row is a refusal.
     / 捐赠方闭包自带的飞兽实体行同样套俯冲规则（内存中改，暂存 TSV 不动）。"""
     lines = text.split("\n")
@@ -768,7 +784,9 @@ def breath_misses(breath, unit_abilities, special_abilities, marker_icons):
     """``{key: why}``: abilities of these rows (donor or generated, whose text
     is not CA's) that emit something and carry a breath-only icon
     (:func:`breath_icons` over the installed rows) but are not in
-    ``breath``; build_pack refuses a non-empty answer."""
+    ``breath``. ADAPTER INPUT: the Lore Disasters build refused a non-empty
+    answer for its donor and generated abilities; this pack ships only
+    installed abilities, so only tests/test_air_dive_breath.py calls it."""
     emits = {r["key"] for r in special_abilities
              if r.get("activated_projectile") or r.get("vortex")}
     icons = {r["key"]: r.get("icon_name") for r in unit_abilities}
@@ -791,8 +809,9 @@ def breath_usage_rows(rows, breath, flags=BREATH_BLOCK_FLAGS):
 def rewrite_vendored_usage_flags_tsv(text, breath, flags=BREATH_BLOCK_FLAGS):
     """``(text, rows removed)``: :func:`breath_usage_rows` on one staged
     ``special_ability_to_invalid_usage_flags_tables`` TSV (column names,
-    ``#table;version`` marker, one row per line). build_pack applies it on
-    the in-memory copy; the staged TSV stays donor-faithful."""
+    ``#table;version`` marker, one row per line). ADAPTER INPUT: the Lore
+    Disasters build applied it to its donor TSVs in memory (the staged TSV
+    stayed donor-faithful); here only tests/test_air_dive_breath.py calls it."""
     lines = text.split("\n")
     header = lines[0].rstrip("\r").split("\t")
     fi, ai = header.index("invalid_usage_flag"), header.index("special_ability")
@@ -1255,6 +1274,9 @@ def weapon_repointed_land_rows(land_rows, repoint, db_pack, tag="air_dive_impact
 
 
 # [AIR-DIVE-W16] ld_mod.pack: the impact over everything the pack ships.
+# ADAPTER INPUT: impact_assembly is the Lore Disasters build's final-assembly
+# pass; this repository's build applies the impact to installed rows only
+# (installed_impact) and does not call it.
 # A flyer's weapon and land unit can be shipped by any lane (measured on the
 # built ld_mod.pack 2026-11-12: 516 of 519 flyer land units are shipped by us,
 # 314 of them whole in ld_resist_both, 117 in ld_air_dive, the rest by our

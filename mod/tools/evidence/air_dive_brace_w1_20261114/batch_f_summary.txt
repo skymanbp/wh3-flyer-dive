@@ -1,0 +1,5 @@
+prefixes ['F']: 12 runs (single-model lanes only)
+type       spear   halb    militia | collapse | causes
+terror     2/6     4/6     0/6     | 2 | {'other': 4, 'contact-engage': 2}
+wyvern     4/6     5/6     1/6     | 5 | {'other': 9, 're-order': 1}
+spear+halb: 15 / 24  militia: 1 / 12  goal-collapse: 7

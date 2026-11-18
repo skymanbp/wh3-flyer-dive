@@ -1,0 +1,11 @@
+# lion-only mass A/B (user ruling 2026-11-15): LZ = no mass cut, LK = celestial lion x0.85 (2000 -> 1700); same lanes, 9 lion lanes per battle, 3 battles each, spear/halberd alternating
+type      | mass A/B | early A B | d<2m/s med A -> B (lanes slowed below 2 m/s within 15 m) | v0.5 A -> B | v1.0 A -> B | enemies within 6 m at 0.5 s A -> B
+lion      | 2000.0/1700.0 | 0/27 6/27 | 23.2 -> 13.95 (2 -> 12) | 9.29 -> 7.76 | 7.44 -> 4.75 | 35 -> 33
+ALL       | early 0/27 -> 6/27 | slowed below 2 m/s within 15 m 2 -> 12 | v1.0 7.44 -> 4.75
+## early stops
+LK1_g1 lane 5 wh3_dlc24_cth_mon_celestial_lion vs spear: travel 13.7 m, maxd 13.7, td t=33.0 stop t=35.4, cause contact-engage; slides ended over the battle 0
+LK1_g1 lane 6 wh3_dlc24_cth_mon_celestial_lion vs halb: travel 13.4 m, maxd 13.4, td t=33.0 stop t=35.4, cause contact-engage; slides ended over the battle 0
+LK1_g1 lane 9 wh3_dlc24_cth_mon_celestial_lion vs spear: travel 12.9 m, maxd 12.9, td t=32.8 stop t=35.0, cause contact-engage; slides ended over the battle 0
+LK2_g1 lane 3 wh3_dlc24_cth_mon_celestial_lion vs halb: travel 14.0 m, maxd 14.0, td t=33.0 stop t=35.6, cause contact-engage; slides ended over the battle 1
+LK2_g1 lane 7 wh3_dlc24_cth_mon_celestial_lion vs halb: travel 12.9 m, maxd 12.9, td t=32.9 stop t=35.4, cause contact-engage; slides ended over the battle 1
+LK3_g1 lane 3 wh3_dlc24_cth_mon_celestial_lion vs spear: travel 14.4 m, maxd 14.4, td t=32.8 stop t=35.4, cause contact-engage; slides ended over the battle 2

@@ -36,7 +36,7 @@ These checks pin:
 * the levelled dive is level (the original FLYER-FIX-1117 defect, the body
   pitched 32 deg off level at ground level, stays fixed) and its seat bone
   did not move.
-Vendored donor riders (Lore Disasters) on these mounts play the same vanilla
+Lore Disasters donor riders (adapter input) on these mounts play the same vanilla
 rider clips (hu1_hr1_sps_rider1_fly_charge_01), so they are covered by the
 installed riders' measurement. The installed game is a required input: without
 it nothing can be measured and the check refuses (§A14.4).

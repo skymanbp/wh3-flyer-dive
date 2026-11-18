@@ -1,7 +1,7 @@
 """AIR-DIVE-W8 (2026-11-10): no shipped battle bin may reuse a vanilla table name.
 
 WHAT WOULD GO WRONG WITHOUT THIS. W1-W7 shipped the air dive's changed flight
-tables as same-named bins in ``@ld_air_dive.animpack``, believing a mod bin
+tables as same-named bins in the W1-W7 builds' own animpack, believing a mod bin
 overrides the vanilla table of the same name. It does not: seven in-game
 canaries (user-confirmed 2026-11-10) showed the vanilla table keep playing for
 a same-named bin in our animpack, by-path copies of the vanilla table
@@ -187,7 +187,7 @@ class AirDiveRenames(unittest.TestCase):
         """Slot 104 pins the landed flyer (canary 8: 0.0 m); canary 13 ran on
         24 m only with it gone from every renamed table."""
         base = MOD_DIR / "assets" / "air_dive"
-        bins = sorted(base.rglob("*_ld_dive*.bin"))
+        bins = sorted(p for p in base.rglob("*_dive*.bin") if "_dive_rider" not in p.name)
         self.assertTrue(bins)
         for path in bins:
             with self.subTest(table=path.name):
@@ -217,7 +217,7 @@ class AirDiveRenames(unittest.TestCase):
         self.assertTrue(level)
         self.assertEqual(staged, level)
         recs = {rec["bin"]: rec for rec in manifest["tables_renamed"]}
-        bins = sorted(base.rglob("*_ld_dive*.bin"))
+        bins = sorted(p for p in base.rglob("*_dive*.bin") if "_dive_rider" not in p.name)
         self.assertTrue(bins)
         self.assertEqual({p.relative_to(base).as_posix() for p in bins},
                          set(recs))
@@ -239,7 +239,7 @@ class AirDiveRenames(unittest.TestCase):
                     for r in e["refs"]:
                         if e["slot"] == 103 and r[0] in ours:
                             continue
-                        self.assertNotIn("_ld_", r[0], f"slot {e['slot']}")
+                        self.assertNotIn("flyer_dive", r[0], f"slot {e['slot']}")
 
 
 class PloughSpeedPerFlyer(unittest.TestCase):
@@ -297,7 +297,7 @@ class PloughSpeedPerFlyer(unittest.TestCase):
                 table = anim_table_bin.parse((self.base / rec["bin"]).read_bytes())
                 refs = [r[0] for e in table["entries"] for r in e["refs"]]
                 self.assertTrue(refs)
-                self.assertFalse([r for r in refs if "_ld_plough" in r])
+                self.assertFalse([r for r in refs if "_dive_plough" in r])
 
     def test_plough_profile_scales_travel_with_speed(self):
         v_l, d_l = air_dive_rules.PLOUGH_PROFILES["L"]
@@ -316,27 +316,27 @@ class PloughSpeedPerFlyer(unittest.TestCase):
             air_dive_rules.speed_tag(16.55)
 
     def test_repoint_by_entity(self):
-        renames = {"hr1_pegasus": {"a": "hr1_pegasus_ld_dive_v170",
-                                   "b": "hr1_pegasus_ld_dive_v180",
+        renames = {"hr1_pegasus": {"a": "hr1_pegasus_dive_v170",
+                                   "b": "hr1_pegasus_dive_v180",
                                    "ground": "hr1_pegasus"},
-                   "dr1_dragon": "dr1_dragon_ld_dive"}
+                   "dr1_dragon": "dr1_dragon_dive"}
         rp = anim_table_rename.repoint
-        self.assertEqual(rp("hr1_pegasus", renames, "a"), "hr1_pegasus_ld_dive_v170")
-        self.assertEqual(rp("hr1_pegasus", renames, "b"), "hr1_pegasus_ld_dive_v180")
+        self.assertEqual(rp("hr1_pegasus", renames, "a"), "hr1_pegasus_dive_v170")
+        self.assertEqual(rp("hr1_pegasus", renames, "b"), "hr1_pegasus_dive_v180")
         self.assertEqual(rp("hr1_pegasus", renames, "ground"), "hr1_pegasus")
-        self.assertEqual(rp("dr1_dragon", renames, "anything"), "dr1_dragon_ld_dive")
+        self.assertEqual(rp("dr1_dragon", renames, "anything"), "dr1_dragon_dive")
         self.assertEqual(rp("hu1_x", renames, "a"), "hu1_x")
         with self.assertRaises(anim_table_rename.Refused):
             rp("hr1_pegasus", renames, "unknown")
         self.assertEqual(anim_table_rename.targets(renames, "hr1_pegasus"),
-                         ["hr1_pegasus_ld_dive_v170", "hr1_pegasus_ld_dive_v180"])
+                         ["hr1_pegasus_dive_v170", "hr1_pegasus_dive_v180"])
         text = ("key\tanimation\tentity\n#meta\n"
                 "m1\thr1_pegasus\ta\nm2\thr1_pegasus\tground\nm3\thr1_pegasus\tb\n")
         moved, count = anim_table_rename.repoint_mounts_tsv(text, renames)
         self.assertEqual(count, 2)
-        self.assertIn("m1\thr1_pegasus_ld_dive_v170\ta", moved)
+        self.assertIn("m1\thr1_pegasus_dive_v170\ta", moved)
         self.assertIn("m2\thr1_pegasus\tground", moved)
-        self.assertIn("m3\thr1_pegasus_ld_dive_v180\tb", moved)
+        self.assertIn("m3\thr1_pegasus_dive_v180\tb", moved)
 
     def test_generated_riders_are_served(self):
         """Adapter input: the Lore Disasters generators' riders
@@ -362,7 +362,7 @@ class FlyerJumpAttack(unittest.TestCase):
            "charge_distance_commence_run": 60.0,
            "charge_distance_adopt_charge_pose": 45.0,
            "charge_distance_pick_target": 60.0,
-           "locomotion_constants": "ld_flyer_large_entity",
+           "locomotion_constants": "flyer_dive_large_entity",
            "allow_turn_to_move_anim": False, "allow_static_turn_anim": False,
            "jump_attack_chance": 20}
 
@@ -474,10 +474,10 @@ class TsvRepoint(unittest.TestCase):
         text = ("key\tman_animation\tman_entity\r\n#meta\r\n"
                 "u1\tdr1_dragon\tdr1_dragon\r\nu2\thu1_x\thu1_x\r\n")
         moved, count = anim_table_rename.repoint_land_units_tsv(
-            text, {"dr1_dragon": "dr1_dragon_ld_dive"})
+            text, {"dr1_dragon": "dr1_dragon_dive"})
         self.assertEqual(count, 1)
         self.assertEqual(moved, text.replace("u1\tdr1_dragon\t",
-                                             "u1\tdr1_dragon_ld_dive\t"))
+                                             "u1\tdr1_dragon_dive\t"))
         same, zero = anim_table_rename.repoint_land_units_tsv(text, {"x": "y"})
         self.assertIs(same, text)
         self.assertEqual(zero, 0)
@@ -486,10 +486,10 @@ class TsvRepoint(unittest.TestCase):
         text = ("key\tanimation\tentity\n#meta\n"
                 "m1\tbc2_griffon\tbc2_griffon\nm2\thr1_horse\thr1_horse\n")
         moved, count = anim_table_rename.repoint_mounts_tsv(
-            text, {"bc2_griffon": "bc2_griffon_ld_dive"})
+            text, {"bc2_griffon": "bc2_griffon_dive"})
         self.assertEqual(count, 1)
         self.assertEqual(moved, text.replace("m1\tbc2_griffon\t",
-                                             "m1\tbc2_griffon_ld_dive\t"))
+                                             "m1\tbc2_griffon_dive\t"))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # 现状与待办
 
-每批收尾时更新。上次更新：2026-11-17 夜（搬家当晚）。
+每批收尾时更新。上次更新：2026-11-18（RENAME-1118，D9）。
 
 ## 已发布
 
@@ -8,13 +8,15 @@
 |---|---|---|
 | 主模组，创意工坊 3840651516 | 提交 `34dfbf3`，2026-11-17 13:11 上传 | `ld_air_dive.pack` 2,597,312 字节，sha256 `e5208882ce11fc4e76a6e5993ff66e4f902728793e2fe3e3cc41fd585f3419ad` |
 
-- `main` 分支的代码 ＝ 这一版。联机协商标记 `LDFLYPN2`。
+- `main` 分支的代码 ＝ 这一版。联机协商标记 `LDFLYPN2`（下一版改名后为 `FLYPINS3` / `FLYDIVE3`，D9）。
 - 这一版有一个已知问题：天马类坐骑（飞马、地狱战马、玉龙马）俯冲时骑手和坐骑分离。修复在下一版里，还没发。
 - 真人联机从来没跑过（主人 2026-11-13 定为可选、不挡发布）。
 
-## 下一版：分支 `update-1117`（没做实机核对，没发布）
+## 下一版：分支 `update-1117`，改名在其上的 `rename-1118`（都没做实机核对，没发布）
 
 工作树：`D:/Projects/.worktrees/wh3-flyer-dive/update-1117/wt`。内容与数字见 `docs/HISTORY.md` 的 UPDATE-1117。
+改名（D9）在分支 `rename-1118`，工作树 `D:/Projects/.worktrees/wh3-flyer-dive/rename-1118/wt`，建出来的包在同目录 `build1/`；
+经过与核对见 `docs/HISTORY.md` 的 RENAME-1118。没提交，等主管审。
 
 | 项 | 裁定 | 状态 |
 |---|---|---|
@@ -49,11 +51,12 @@
 4. **飞兽三种目标各三局**：`--flyers wh2_main_hef_mon_star_dragon,wh2_dlc10_def_mon_feral_manticore_0,wh2_dlc15_hef_inf_mistwalkers_griffon_knights_0,wh_main_brt_cav_pegasus_knights`，
    `--target` 分别为 `wh_main_emp_inf_spearmen_1`、`wh_main_emp_inf_halberdiers`、`wh_main_emp_inf_swordsmen`。
 5. **侧面接近三局**：同第 4 项对长矛兵，加 `--cmd target_turn_1=90,target_turn_2=90,target_turn_3=90,target_turn_4=90`。
-6. **子模组换序**：两个包都开，量战斗里的质量；再把子模组改名排到主包之后，再量。
+6. **子模组换序**：两个包都开，量战斗里的质量；再把子模组改名排到主包之后，再量。用 `rename-1118` 建的包
+   （`flyer_dive_takeoff.pack` + `flyer_dive_balance.pack`）跑；改名后的脚本路径、所有者、日志名也在这一局里第一次实机加载。
 
 ### 测完之后
 
-- 第 2 项成立 → 实现 D3（新的起飞代码洞，协商标记换成 `LDFLYPN3`，删掉旧的两个常数和 README 里旧规则的描述）。
+- 第 2 项成立 → 实现 D3（新的起飞代码洞，协商标记换成 `FLYPINS4`，删掉旧的两个常数和 README 里旧规则的描述）。
 - 第 3–5 项 → 选定 D4 的做法并实现。做不到「受伤但不被弹回」就回去问主人。
   若量出俯冲的那一下和飞兽平常的地面冲锋走的是同一条引擎路径，先告诉主人再发。
 - 全部实机核对过 → 合进 `main`，然后**问主人**：推送、上传新版、建子模组的工坊条目、把页面换成分语言版本。
@@ -66,9 +69,9 @@
 | 俯冲时兵模忽上忽下 | 主人 2026-11-14 在皇家马鹫测试里看到 | 引擎侧已修（720 次里 78 次降到 1 次），等主人在游戏里看一眼 |
 | 评论区两条回复 | 2026-11-17 | 起草后交主人自己发：①「是不是所有飞兽都免疫架矛」——不是，大型单体不被早停，飞马骑士 6 局里 5 次被拦停；②骑手分离——下一版修 |
 | 主模组适配包 | D6 | 等主模组改完名。输入是 `mod/tools/data/` 里的快照；包里现在不含主模组的飞兽 |
-| 已发布名字里的 `ld_` | 主模组那边在全面改名 | 没动。改名会打乱订阅者的加载顺序和联机配对，要主人下令 |
-| 随包脚本里的「Lore Disasters」字样 | 断开时留下 | 两个战役入口脚本交给联机协商的标题（`title = "Lore Disasters flyer …"`，联机时可能显示给玩家）和一处注释。改它会改变包的字节，下一版重建包时一起改 |
-| 开发用环境变量名 `LD_*` | 断开时留下 | 五个（`LD_WH3_DATA`、`LD_WH3_ROOT`、`LD_MEMREADER_DIR`、`LD_VANILLA_DB_PACK`、`LD_GAME_EXE`）。不进包，不影响玩家；要改就五个一起改 |
+| 已发布名字里的 `ld_` | D9（2026-11-18「这一版就改」） | 分支 `rename-1118`（建在 `update-1117` 上）已改完并离线核对，没实机跑过（`docs/HISTORY.md` RENAME-1118）。主包改叫 `flyer_dive_takeoff.pack` |
+| 随包脚本里的「Lore Disasters」字样 | 断开时留下 | 已随 D9 在 `rename-1118` 改掉（协商标题改为 `Flyer Dive: …`）。原记：两个战役入口脚本交给联机协商的标题（`title = "Lore Disasters flyer …"`，联机时可能显示给玩家）和一处注释。改它会改变包的字节，下一版重建包时一起改 |
+| 开发用环境变量名 `LD_*` | 断开时留下 | 已随 D9 在 `rename-1118` 改为 `WH3_DATA`、`WH3_ROOT`、`MEMREADER_DIR`、`WH3_DB_PACK`、`WH3_GAME_EXE`。原记：五个（`LD_WH3_DATA`、`LD_WH3_ROOT`、`LD_MEMREADER_DIR`、`LD_VANILLA_DB_PACK`、`LD_GAME_EXE`）。不进包，不影响玩家；要改就五个一起改 |
 | 许可证文件 | 建仓库时留给主人定 | 没加 |
 | 真人联机实测 | 可选 | 没跑过 |
 
@@ -87,4 +90,5 @@
 - `main` 已推到 GitHub（2026-11-17 夜，主人同意，`docs/DECISIONS.md` D8）：内容是已发布的那一版代码，加上搬进来的
   规矩与记录。
 - `rider-seat-1117`（`c658e17`）、`update-1117`（`e0018f5`、`d635f71` 及其后的搬家提交）只在本机，等实机核对完再问。
+- `rename-1118`：只在本机，未提交。
 - 以后每次推送都要主人同意。

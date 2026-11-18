@@ -217,3 +217,28 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - `update-1117` and `rider-seat-1117` stay local until the owed in-game checks are done; pushing them is
   asked again then.
 - The go-ahead covers this one push. Later pushes are asked each time (D6).
+
+## 2026-11-18
+
+### D9 · The next version drops `ld` from every name the mod ships
+
+> 问：「飞行模组的包现在叫 ld_air_dive.pack，名字里带 ld。新版要不要顺手改掉包名？」答：「这一版就改」
+> (owner, 2026-11-18, while the mod was four days old on the Workshop)
+
+- Covers every name the mod ships or writes: the main pack's file name, the script paths and file names
+  inside it, the DB fragment names, the keys the mod mints (renamed flight tables, rider tables, the
+  levelled clip, the cloned melee weapons, the two locomotion rows), the memreader Plus owners, the cave
+  buffers' marks, the log files written next to `Warhammer3.exe`, the agreement titles shown in
+  multiplayer, and the comments inside the shipped scripts. Also the development environment variables
+  `LD_*` and the test probes' names. The old → new table is in `docs/HISTORY.md` RENAME-1118.
+- New names carry no `ld`, `LD` or "lore disaster". The main pack becomes `flyer_dive_takeoff.pack`: it
+  still sorts after `flyer_dive_balance.pack`, so the submod keeps winning the rows both ship (D1).
+- Not renamed: keys of the base game; keys and names of the Lore Disasters mod kept as adapter input
+  (`mod/tools/data/main_mod_flyers.json`, the adapter rows of `air_dive_rules.py`); the external test-only
+  reader `ld_entity_read`; vendored memreader Plus; the historical records (E1–E8 above,
+  `docs/HISTORY.md`, `docs/research/`, `mod/tools/evidence/`).
+- **Subscribers may have to tick the mod again once** after the update (the launcher remembers the pack by
+  its file name). This goes into the release's change notes, together with: an old copy of
+  `ld_air_dive.pack` left in the game's `data` folder must be deleted, or both versions load.
+- Old and new versions do not pair in a multiplayer campaign (the memreader Plus owners changed); the
+  change notes say so, as they do whenever the agreement changes.

@@ -2,7 +2,7 @@
 
 全面战争：战锤 3 的独立模组。创意工坊 3840651516，GitHub `skymanbp/wh3-flyer-dive`（公开仓库）。
 
-- 主包 `ld_air_dive.pack`：物理俯冲、近战起飞、每种飞兽各自的冲锋速度、冲撞攻击。
+- 主包 `flyer_dive_takeoff.pack`（2026-11-18 以前叫 `ld_air_dive.pack`，D9）：物理俯冲、近战起飞、每种飞兽各自的冲锋速度、冲撞攻击。
 - 可选子模组 `flyer_dive_balance.pack`（需要主包）：接战时可用吹息、大型飞兽质量下调。
 - 前置：memreader Plus（创意工坊 3811098873）。没装时两条引擎规则不生效，游戏按原版运行。
 
@@ -49,7 +49,7 @@
 
 ```
 cd mod
-python -P tools/pipelines/build_air_dive_minimod.py --out <目录>/ld_air_dive.pack --balance-out <目录>/flyer_dive_balance.pack
+python -P tools/pipelines/build_air_dive_minimod.py --out <目录>/flyer_dive_takeoff.pack --balance-out <目录>/flyer_dive_balance.pack
 python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 ```
 
@@ -63,7 +63,7 @@ python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 - 重活（实机测试、成批建包）一次只跑一件，跑之前先说一声。
 - 结论要有探针证据：读日志、读包里的字节、读运行时记录。车道自己的报告不算证据，主管要自己重跑一遍。
   每条检查都要做反向验证（把它弄坏，看它变红，再还原）。输入缺失时要报错，不许当成通过。
-- 改了会影响战斗模拟的规则（代码洞、起飞判定、俯冲判定），联机协商标记必须换新（现为 `LDFLYPN2`），
+- 改了会影响战斗模拟的规则（代码洞、起飞判定、俯冲判定），联机协商标记必须换新（现为起飞 `FLYPINS3`、俯冲 `FLYDIVE3`），
   让新旧版本联机时互不配对。
 
 ## 写代码的规矩
@@ -75,8 +75,10 @@ python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 - `if 0 then` 为真；只有 `nil` 和 `false` 为假。
 - 游戏里的键、表名、偏移一律查证后再写，不猜。查不到就在同一句里说没查到。
 - 改数值先量原版自己（同一把尺子），强度按整体判断，不只比某一项。
-- 新文件、新标识符不带 `ld_`、不带 "lore disaster"。已经发布出去的名字（包名、脚本路径、`*_ld_dive` /
-  `*_ld_rider*` 动作表、DB 片段名）先不动：改名会打乱订阅者的加载顺序和联机配对，要主人下令才改。
+- 任何名字都不带 `ld`、不带 "lore disaster"（D9，2026-11-18 起包名、脚本路径、动作表、片段名、键都已改；
+  旧 → 新见 `docs/HISTORY.md` RENAME-1118）。主模组的键（适配包输入）照原样留着，它们是别人的名字。
+  `python -P tools/rename_1118.py check --pack <主包> --pack <子模组>` 查树与包里有没有旧名字。
+- 主包名必须排在 `flyer_dive_balance.pack` 之后（子模组要赢同一行）；`flyer_dive.pack` 不行，`.` 排在 `_` 前面。
 
 ## 给玩家看的文字
 

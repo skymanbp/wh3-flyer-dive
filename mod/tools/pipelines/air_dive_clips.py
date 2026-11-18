@@ -62,7 +62,7 @@ idle`` in the manifest). Every other skeleton uses its own poses.
 ``pipelines/air_dive.py`` calls :func:`author` once per distinct (skeleton,
 strike ref, speed) and puts the clip in slot 489 of each renamed table
 (``air_dive.dive_entries``); the clips ship from ``mod/assets/air_dive``
-under ``animations/battle/ld_air_dive/plough/`` with the manifest's sha256.
+under ``animations/battle/flyer_dive/plough/`` with the manifest's sha256.
 Deterministic: ``air_dive.py --check`` re-authors and compares bytes.
 / 俯冲冲锋：按骨架从零生成 489 号跳击动作（落地后冲进敌阵）。
 """

@@ -10,7 +10,7 @@ An optional submod for [url=https://steamcommunity.com/sharedfiles/filedetails/?
 
 [h2]Requirements[/h2]
 [list]
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3840651516]Flyer Dive & Take-off[/url] (required). This submod is built from the same build as the main mod and only works together with it. Update both together; if their versions differ, the battle log ld_flyer_dive.txt says so.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3840651516]Flyer Dive & Take-off[/url] (required). This submod is built from the same build as the main mod and only works together with it. Update both together; if their versions differ, the battle log flyer_dive.txt says so.
 [/list]
 
 [h2]Load order[/h2]

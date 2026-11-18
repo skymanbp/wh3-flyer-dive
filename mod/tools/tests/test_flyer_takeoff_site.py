@@ -6,7 +6,7 @@ living models were struck within the last 15 battle ticks -- is two code
 caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
 replaced the two inside the hit processor). Their source, emulator check, sites and field anchors live in
 ``pipelines/pin_cave_asm.py``; what ships is the generated data module
-``data/ld_flyer_takeoff_site.lua``. These checks pin the join between the two:
+``data/takeoff_site.lua``. These checks pin the join between the two:
 
 * the committed table was generated from the current cave source (a cave edit
   without ``--write-site`` would ship bytes the emulator never saw);
@@ -38,7 +38,7 @@ from cave_site_cases import loader_pattern_limit, read_site_text  # noqa: E402 -
 MOD_DIR = TOOLS_DIR.parent
 SITE_FILE = MOD_DIR / air_dive_rules.TAKEOFF_SITE_LUA_PATH
 GAME_EXE = Path(os.environ.get(
-    "LD_GAME_EXE",
+    "WH3_GAME_EXE",
     r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\Warhammer3.exe"))
 
 

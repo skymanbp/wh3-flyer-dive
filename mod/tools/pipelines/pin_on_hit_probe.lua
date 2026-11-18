@@ -1,17 +1,17 @@
--- ld_pin_on_hit_probe.lua — TEST-ONLY recorder for the flyer take-off rule
+-- pin_on_hit_probe.lua — TEST-ONLY recorder for the flyer take-off rule
 -- 测试专用：记录飞兽近战起飞规则在一场战斗里记下了什么、回答了什么
 --
 -- [AIR-DIVE-TAKEOFF-W1 2026-11-12] Never in a player's pack: packed only by
 -- tools/pipelines/build_pin_on_hit_probe.py, next to the shipped take-off
--- scripts (battle/mod/ld_flyer_takeoff.lua installs the caves and starts the
+-- scripts (battle/mod/flyer_takeoff.lua installs the caves and starts the
 -- rule; this script only reads the caves' buffer through
--- lib/ld_flyer_takeoff.lua and, when asked, restarts the rule with another
+-- lib/takeoff.lua and, when asked, restarts the rule with another
 -- window or mode).
--- CONFIG ld_pin_probe.cfg next to Warhammer3.exe, "key value" lines:
+-- CONFIG pin_probe.cfg next to Warhammer3.exe, "key value" lines:
 --   window <ticks>   default: the shipped window
 --   mode <1|2>       default 1; 2 = hits recorded, the game's own engaged
 --                    check still answers (the vanilla arm, with the record)
--- WRITES ld_pin_probe.txt next to Warhammer3.exe:
+-- WRITES pin_probe.txt next to Warhammer3.exe:
 --   BATTLE <stamp> window=<n> mode=<m> table=<entries>
 --   UNIT <uid> <alliance> <key> obj=<id> flyer=<0|1>
 --   L <ms> <uid> <n> <id> ...     a flyer's living flight entities (unit +0x184
@@ -26,8 +26,8 @@
 --   END | FAIL <why>
 -- id = the low 8 hex digits of a pointer.
 
-local LOG_FILE, CFG_FILE = "ld_pin_probe.txt", "ld_pin_probe.cfg"
-local CALLBACK_NAME = "ld_pin_on_hit_probe_tick"
+local LOG_FILE, CFG_FILE = "pin_probe.txt", "pin_probe.cfg"
+local CALLBACK_NAME = "pin_on_hit_probe_tick"
 local SAMPLE_MS, SUMMARY_MS = 200, 2000
 local U_ENT_N, U_ENT, U_CTL = 0x184, 0x188, 0x3e30
 local BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
@@ -188,7 +188,7 @@ end
 
 local function start()
     if not mr then emit("FAIL memreader_plus not loaded"); flush(); return end
-    local ok, lib = pcall(require, "script/campaign/lore_disasters/lib/ld_flyer_takeoff")
+    local ok, lib = pcall(require, "script/campaign/flyer_dive/lib/takeoff")
     if not ok or type(lib) ~= "table" then emit("FAIL the take-off module did not load: " .. tostring(lib)); flush(); return end
     takeoff = lib
     local complete

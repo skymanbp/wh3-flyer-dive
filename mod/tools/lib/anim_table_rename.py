@@ -5,7 +5,7 @@ battle animation table by shipping something under the table's own name.
 Measured in game over seven canary packs (user-confirmed 2026-11-10), each of
 these was ignored and the vanilla table kept playing:
 
-* a same-named bin inside a mod animpack (``@ld_air_dive.animpack``, the W1-W7
+* a same-named bin inside a mod animpack (the W1-W7 builds' own animpack,
   delivery of the air dive);
 * by-path copies of the whole ``animation_tables.animpack`` and
   ``animation_tables__.animpack``;
@@ -14,7 +14,7 @@ these was ignored and the vanilla table kept playing:
 
 What does take effect is the method Workshop 3120190274 (storm_dargon_anim)
 and the Community Bug Fix Mod's land_units "animchange" fragment use, and
-canary 7 proved it (every slot of ``dr1_dragon_ld_dive`` pointed at
+canary 7 proved it (every slot of ``dr1_dragon_dive`` pointed at
 ``dr1_attack_01``; the star dragon visibly changed):
 
 1. ship a copy of the table whose header ``name`` is new (nothing else in

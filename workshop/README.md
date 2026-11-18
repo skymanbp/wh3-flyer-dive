@@ -6,8 +6,8 @@ one language slot of one item. Descriptions are Steam BBCode, not Markdown.
 
 | item | Workshop id | language slot | title | description |
 |---|---|---|---|---|
-| Flyer Dive & Take-off (`ld_air_dive.pack`) | 3840651516 | English | `flyer_dive/en/title.txt` | `flyer_dive/en/description.txt` |
-| Flyer Dive & Take-off (`ld_air_dive.pack`) | 3840651516 | Simplified Chinese | `flyer_dive/zh/title.txt` | `flyer_dive/zh/description.txt` |
+| Flyer Dive & Take-off (`flyer_dive_takeoff.pack`) | 3840651516 | English | `flyer_dive/en/title.txt` | `flyer_dive/en/description.txt` |
+| Flyer Dive & Take-off (`flyer_dive_takeoff.pack`) | 3840651516 | Simplified Chinese | `flyer_dive/zh/title.txt` | `flyer_dive/zh/description.txt` |
 | Balance submod (`flyer_dive_balance.pack`) | not published yet | English | `flyer_dive_balance/en/title.txt` | `flyer_dive_balance/en/description.txt` |
 | Balance submod (`flyer_dive_balance.pack`) | not published yet | Simplified Chinese | `flyer_dive_balance/zh/title.txt` | `flyer_dive_balance/zh/description.txt` |
 

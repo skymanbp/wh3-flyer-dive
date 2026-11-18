@@ -20,9 +20,9 @@
  "tables_renamed": [
   {
    "source": "bc2_deathclaw",
-   "renamed": "bc2_deathclaw_ld_dive_v135",
+   "renamed": "bc2_deathclaw_dive_v135",
    "skeleton": "bigcat02",
-   "bin": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v135.bin",
+   "bin": "animations/database/battle/bin/bc2_deathclaw_dive_v135.bin",
    "entities": [
     "wh3_dlc24_cth_mon_celestial_lion",
     "wh3_dlc27_cth_mon_celestial_lion_boss"
@@ -54,9 +54,9 @@
   },
   {
    "source": "bc2_deathclaw",
-   "renamed": "bc2_deathclaw_ld_dive_v148",
+   "renamed": "bc2_deathclaw_dive_v148",
    "skeleton": "bigcat02",
-   "bin": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v148.bin",
+   "bin": "animations/database/battle/bin/bc2_deathclaw_dive_v148.bin",
    "entities": [
     "wh_main_flying_griffon_legendary_blood"
    ],
@@ -86,9 +86,9 @@
   },
   {
    "source": "bc2_griffon",
-   "renamed": "bc2_griffon_ld_dive_v144",
+   "renamed": "bc2_griffon_dive_v144",
    "skeleton": "bigcat02",
-   "bin": "animations/database/battle/bin/bc2_griffon_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/bc2_griffon_dive_v144.bin",
    "entities": [
     "ld_emp_griffon_blood",
     "wh_main_flying_griffon_blood"
@@ -120,9 +120,9 @@
   },
   {
    "source": "bc2_griffon",
-   "renamed": "bc2_griffon_ld_dive_v148",
+   "renamed": "bc2_griffon_dive_v148",
    "skeleton": "bigcat02",
-   "bin": "animations/database/battle/bin/bc2_griffon_ld_dive_v148.bin",
+   "bin": "animations/database/battle/bin/bc2_griffon_dive_v148.bin",
    "entities": [
     "wh_main_flying_griffon_legendary_blood"
    ],
@@ -152,9 +152,9 @@
   },
   {
    "source": "bc2_griffon_draught",
-   "renamed": "bc2_griffon_draught_ld_dive",
+   "renamed": "bc2_griffon_draught_dive",
    "skeleton": "bigcat02",
-   "bin": "animations/database/battle/bin/bc2_griffon_draught_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bc2_griffon_draught_dive.bin",
    "entities": [
     "wh_main_flying_griffon_blood"
    ],
@@ -184,9 +184,9 @@
   },
   {
    "source": "bc2b_hippogryph",
-   "renamed": "bc2b_hippogryph_ld_dive_v144",
+   "renamed": "bc2b_hippogryph_dive_v144",
    "skeleton": "bigcat02b",
-   "bin": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/bc2b_hippogryph_dive_v144.bin",
    "entities": [
     "ld_black_grail_hippo"
    ],
@@ -225,9 +225,9 @@
   },
   {
    "source": "bc2b_hippogryph",
-   "renamed": "bc2b_hippogryph_ld_dive_v153",
+   "renamed": "bc2b_hippogryph_dive_v153",
    "skeleton": "bigcat02b",
-   "bin": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v153.bin",
+   "bin": "animations/database/battle/bin/bc2b_hippogryph_dive_v153.bin",
    "entities": [
     "wh_dlc07_brt_mnt_hippogryph_blood",
     "wh_main_brt_mnt_hippogryph_hero_blood"
@@ -268,9 +268,9 @@
   },
   {
    "source": "bc2b_hippogryph",
-   "renamed": "bc2b_hippogryph_ld_dive_v158",
+   "renamed": "bc2b_hippogryph_dive_v158",
    "skeleton": "bigcat02b",
-   "bin": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v158.bin",
+   "bin": "animations/database/battle/bin/bc2b_hippogryph_dive_v158.bin",
    "entities": [
     "wh_main_brt_mnt_hippogryph_beaquis_blood"
    ],
@@ -309,9 +309,9 @@
   },
   {
    "source": "bc2c_dlc23_lammasu_feral",
-   "renamed": "bc2c_dlc23_lammasu_feral_ld_dive",
+   "renamed": "bc2c_dlc23_lammasu_feral_dive",
    "skeleton": "bigcat02c",
-   "bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral_dive.bin",
    "entities": [
     "wh3_dlc23_chd_mon_lammasu",
     "wh3_dlc27_chd_mon_lammasu_boss"
@@ -343,9 +343,9 @@
   },
   {
    "source": "bc2c_dlc23_lammasu_mount",
-   "renamed": "bc2c_dlc23_lammasu_mount_ld_dive",
+   "renamed": "bc2c_dlc23_lammasu_mount_dive",
    "skeleton": "bigcat02c",
-   "bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount_dive.bin",
    "entities": [
     "wh3_dlc23_chd_mnt_lammasu"
    ],
@@ -375,9 +375,9 @@
   },
   {
    "source": "bc3_manticore",
-   "renamed": "bc3_manticore_ld_dive",
+   "renamed": "bc3_manticore_dive",
    "skeleton": "bigcat03",
-   "bin": "animations/database/battle/bin/bc3_manticore_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bc3_manticore_dive.bin",
    "entities": [
     "wh3_dlc27_chs_feral_manticore_boss",
     "wh3_main_flying_manticore_blood",
@@ -422,9 +422,9 @@
   },
   {
    "source": "bc3b_dlc27_chimera",
-   "renamed": "bc3b_dlc27_chimera_ld_dive",
+   "renamed": "bc3b_dlc27_chimera_dive",
    "skeleton": "bigcat03b",
-   "bin": "animations/database/battle/bin/bc3b_dlc27_chimera_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bc3b_dlc27_chimera_dive.bin",
    "entities": [
     "wh3_dlc27_nor_mon_chimera",
     "wh3_dlc27_nor_mon_chimera_boss"
@@ -465,9 +465,9 @@
   },
   {
    "source": "bc3ca_dlc29_mnt_dread_abyssal",
-   "renamed": "bc3ca_dlc29_mnt_dread_abyssal_ld_dive",
+   "renamed": "bc3ca_dlc29_mnt_dread_abyssal_dive",
    "skeleton": "bigcat03ca",
-   "bin": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal_dive.bin",
    "entities": [
     "wh3_dlc29_vmp_mnt_dread_abyssal_arkhan",
     "wh3_dlc29_vmp_mnt_dread_abyssal_mannfred",
@@ -510,9 +510,9 @@
   },
   {
    "source": "bi1_dlc15_phoenix",
-   "renamed": "bi1_dlc15_phoenix_ld_dive",
+   "renamed": "bi1_dlc15_phoenix_dive",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_dlc15_phoenix_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi1_dlc15_phoenix_dive.bin",
    "entities": [
     "wh2_dlc15_hef_mon_arcane_phoenix_0",
     "wh3_dlc27_hef_mnt_ashtari"
@@ -553,9 +553,9 @@
   },
   {
    "source": "bi1_dlc24_moon_bird",
-   "renamed": "bi1_dlc24_moon_bird_ld_dive",
+   "renamed": "bi1_dlc24_moon_bird_dive",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_dlc24_moon_bird_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi1_dlc24_moon_bird_dive.bin",
    "entities": [
     "wh3_dlc24_cth_mon_great_moon_bird"
    ],
@@ -594,9 +594,9 @@
   },
   {
    "source": "bi1_eagle",
-   "renamed": "bi1_eagle_ld_dive_v135",
+   "renamed": "bi1_eagle_dive_v135",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_eagle_ld_dive_v135.bin",
+   "bin": "animations/database/battle/bin/bi1_eagle_dive_v135.bin",
    "entities": [
     "wh2_main_hef_mon_phoenix_frostheart"
    ],
@@ -635,9 +635,9 @@
   },
   {
    "source": "bi1_eagle",
-   "renamed": "bi1_eagle_ld_dive_v153",
+   "renamed": "bi1_eagle_dive_v153",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_eagle_ld_dive_v153.bin",
+   "bin": "animations/database/battle/bin/bi1_eagle_dive_v153.bin",
    "entities": [
     "wh2_dlc15_hef_mon_arcane_phoenix_0",
     "wh2_main_hef_mon_phoenix"
@@ -678,9 +678,9 @@
   },
   {
    "source": "bi1_eagle",
-   "renamed": "bi1_eagle_ld_dive_v171",
+   "renamed": "bi1_eagle_dive_v171",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_eagle_ld_dive_v171.bin",
+   "bin": "animations/database/battle/bin/bi1_eagle_dive_v171.bin",
    "entities": [
     "wh_dlc05_wef_mon_great_eagle_blood"
    ],
@@ -719,9 +719,9 @@
   },
   {
    "source": "bi1_eagle_boss",
-   "renamed": "bi1_eagle_boss_ld_dive",
+   "renamed": "bi1_eagle_boss_dive",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_eagle_boss_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi1_eagle_boss_dive.bin",
    "entities": [
     "wh2_dlc10_hef_mon_phoenix_boss"
    ],
@@ -760,9 +760,9 @@
   },
   {
    "source": "bi1_eagle_sisters_of_twilight",
-   "renamed": "bi1_eagle_sisters_of_twilight_ld_dive",
+   "renamed": "bi1_eagle_sisters_of_twilight_dive",
    "skeleton": "bird01",
-   "bin": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight_dive.bin",
    "entities": [
     "wh_dlc05_wef_mon_great_eagle_blood"
    ],
@@ -801,9 +801,9 @@
   },
   {
    "source": "bi1b_carrion",
-   "renamed": "bi1b_carrion_ld_dive_v135",
+   "renamed": "bi1b_carrion_dive_v135",
    "skeleton": "bird01b",
-   "bin": "animations/database/battle/bin/bi1b_carrion_ld_dive_v135.bin",
+   "bin": "animations/database/battle/bin/bi1b_carrion_dive_v135.bin",
    "entities": [
     "wh2_dlc09_tmb_flying_carrion",
     "wh3_dlc26_ogr_blood_vultures"
@@ -844,9 +844,9 @@
   },
   {
    "source": "bi1b_carrion",
-   "renamed": "bi1b_carrion_ld_dive_v144",
+   "renamed": "bi1b_carrion_dive_v144",
    "skeleton": "bird01b",
-   "bin": "animations/database/battle/bin/bi1b_carrion_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/bi1b_carrion_dive_v144.bin",
    "entities": [
     "wh2_dlc09_tmb_flying_carrion_ror"
    ],
@@ -885,9 +885,9 @@
   },
   {
    "source": "bi1b_carrion",
-   "renamed": "bi1b_carrion_ld_dive_v153",
+   "renamed": "bi1b_carrion_dive_v153",
    "skeleton": "bird01b",
-   "bin": "animations/database/battle/bin/bi1b_carrion_ld_dive_v153.bin",
+   "bin": "animations/database/battle/bin/bi1b_carrion_dive_v153.bin",
    "entities": [
     "wh3_dlc27_tmb_mon_carrion_boss"
    ],
@@ -926,9 +926,9 @@
   },
   {
    "source": "bi2_dlc27_preyton",
-   "renamed": "bi2_dlc27_preyton_ld_dive",
+   "renamed": "bi2_dlc27_preyton_dive",
    "skeleton": "bird02",
-   "bin": "animations/database/battle/bin/bi2_dlc27_preyton_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi2_dlc27_preyton_dive.bin",
    "entities": [
     "wh3_dlc27_sla_mon_preyton",
     "wh3_dlc27_sla_mon_preyton_boss",
@@ -971,9 +971,9 @@
   },
   {
    "source": "bi2_terrorgheist",
-   "renamed": "bi2_terrorgheist_ld_dive",
+   "renamed": "bi2_terrorgheist_dive",
    "skeleton": "bird02",
-   "bin": "animations/database/battle/bin/bi2_terrorgheist_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi2_terrorgheist_dive.bin",
    "entities": [
     "wh2_dlc11_cst_terrorgheist_blood",
     "wh_main_flying_terrorgheist_blood"
@@ -1014,9 +1014,9 @@
   },
   {
    "source": "bi2_terrorgheist_boss",
-   "renamed": "bi2_terrorgheist_boss_ld_dive",
+   "renamed": "bi2_terrorgheist_boss_dive",
    "skeleton": "bird02",
-   "bin": "animations/database/battle/bin/bi2_terrorgheist_boss_ld_dive.bin",
+   "bin": "animations/database/battle/bin/bi2_terrorgheist_boss_dive.bin",
    "entities": [
     "wh_dlc08_vmp_mon_terrorgheist_boss"
    ],
@@ -1055,9 +1055,9 @@
   },
   {
    "source": "bi2_wyvern",
-   "renamed": "bi2_wyvern_ld_dive_v126",
+   "renamed": "bi2_wyvern_dive_v126",
    "skeleton": "bird02",
-   "bin": "animations/database/battle/bin/bi2_wyvern_ld_dive_v126.bin",
+   "bin": "animations/database/battle/bin/bi2_wyvern_dive_v126.bin",
    "entities": [
     "ld_bm_wf_obsidian_great_wyrm"
    ],
@@ -1096,9 +1096,9 @@
   },
   {
    "source": "bi2_wyvern",
-   "renamed": "bi2_wyvern_ld_dive_v144",
+   "renamed": "bi2_wyvern_dive_v144",
    "skeleton": "bird02",
-   "bin": "animations/database/battle/bin/bi2_wyvern_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/bi2_wyvern_dive_v144.bin",
    "entities": [
     "wh_main_flying_wyvern_blood"
    ],
@@ -1137,9 +1137,9 @@
   },
   {
    "source": "co1_dlc22_cockatrice",
-   "renamed": "co1_dlc22_cockatrice_ld_dive",
+   "renamed": "co1_dlc22_cockatrice_dive",
    "skeleton": "cockatrice01",
-   "bin": "animations/database/battle/bin/co1_dlc22_cockatrice_ld_dive.bin",
+   "bin": "animations/database/battle/bin/co1_dlc22_cockatrice_dive.bin",
    "entities": [
     "wh3_dlc22_tze_mon_cockatrice",
     "wh3_dlc27_tze_mon_cockatrice_boss"
@@ -1171,9 +1171,9 @@
   },
   {
    "source": "dr04_dlc24_dragon_jade",
-   "renamed": "dr04_dlc24_dragon_jade_ld_dive",
+   "renamed": "dr04_dlc24_dragon_jade_dive",
    "skeleton": "dragon04",
-   "bin": "animations/database/battle/bin/dr04_dlc24_dragon_jade_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr04_dlc24_dragon_jade_dive.bin",
    "entities": [
     "wh3_dlc24_cth_cha_yuan_bo_dragon_blood"
    ],
@@ -1212,9 +1212,9 @@
   },
   {
    "source": "dr04_dragon_iron",
-   "renamed": "dr04_dragon_iron_ld_dive",
+   "renamed": "dr04_dragon_iron_dive",
    "skeleton": "dragon04",
-   "bin": "animations/database/battle/bin/dr04_dragon_iron_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr04_dragon_iron_dive.bin",
    "entities": [
     "wh3_main_cth_mon_iron_dragon_blood"
    ],
@@ -1253,9 +1253,9 @@
   },
   {
    "source": "dr04_dragon_storm",
-   "renamed": "dr04_dragon_storm_ld_dive",
+   "renamed": "dr04_dragon_storm_dive",
    "skeleton": "dragon04",
-   "bin": "animations/database/battle/bin/dr04_dragon_storm_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr04_dragon_storm_dive.bin",
    "entities": [
     "wh3_main_cth_mon_storm_dragon_blood"
    ],
@@ -1294,9 +1294,9 @@
   },
   {
    "source": "dr1_dragon",
-   "renamed": "dr1_dragon_ld_dive_v135",
+   "renamed": "dr1_dragon_dive_v135",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_ld_dive_v135.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_dive_v135.bin",
    "entities": [
     "wh2_main_hef_mon_star_dragon",
     "wh3_dlc27_def_mon_black_dragon_boss"
@@ -1328,9 +1328,9 @@
   },
   {
    "source": "dr1_dragon",
-   "renamed": "dr1_dragon_ld_dive_v144",
+   "renamed": "dr1_dragon_dive_v144",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_dive_v144.bin",
    "entities": [
     "ld_hef_mnt_dragon",
     "wh2_dlc11_def_black_dragon_lokhir_blood",
@@ -1370,9 +1370,9 @@
   },
   {
    "source": "dr1_dragon",
-   "renamed": "dr1_dragon_ld_dive_v153",
+   "renamed": "dr1_dragon_dive_v153",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_ld_dive_v153.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_dive_v153.bin",
    "entities": [
     "wh2_main_hef_mon_sun_dragon_blood"
    ],
@@ -1402,9 +1402,9 @@
   },
   {
    "source": "dr1_dragon_boss",
-   "renamed": "dr1_dragon_boss_ld_dive",
+   "renamed": "dr1_dragon_boss_dive",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_boss_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_boss_dive.bin",
    "entities": [
     "wh2_main_hef_mon_star_dragon",
     "wh_main_flying_dragon_blood_boss"
@@ -1436,9 +1436,9 @@
   },
   {
    "source": "dr1_dragon_carmine",
-   "renamed": "dr1_dragon_carmine_ld_dive",
+   "renamed": "dr1_dragon_carmine_dive",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_carmine_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_carmine_dive.bin",
    "entities": [
     "wh3_dlc25_emp_mnt_carmine_dragon"
    ],
@@ -1468,9 +1468,9 @@
   },
   {
    "source": "dr1_dragon_zombie",
-   "renamed": "dr1_dragon_zombie_ld_dive_v126",
+   "renamed": "dr1_dragon_zombie_dive_v126",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v126.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_zombie_dive_v126.bin",
    "entities": [
     "wh3_dlc29_flying_zombie_dragon_blood"
    ],
@@ -1500,9 +1500,9 @@
   },
   {
    "source": "dr1_dragon_zombie",
-   "renamed": "dr1_dragon_zombie_ld_dive_v144",
+   "renamed": "dr1_dragon_zombie_dive_v144",
    "skeleton": "dragon01",
-   "bin": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/dr1_dragon_zombie_dive_v144.bin",
    "entities": [
     "wh_main_flying_dragon_blood"
    ],
@@ -1532,9 +1532,9 @@
   },
   {
    "source": "dr1b_chaos_dragon",
-   "renamed": "dr1b_chaos_dragon_ld_dive_v135",
+   "renamed": "dr1b_chaos_dragon_dive_v135",
    "skeleton": "dragon01b",
-   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v135.bin",
+   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_dive_v135.bin",
    "entities": [
     "ld_chr_galrauch",
     "wh_dlc08_flying_chaos_frost_dragon_blood"
@@ -1569,9 +1569,9 @@
   },
   {
    "source": "dr1b_chaos_dragon",
-   "renamed": "dr1b_chaos_dragon_ld_dive_v144",
+   "renamed": "dr1b_chaos_dragon_dive_v144",
    "skeleton": "dragon01b",
-   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_dive_v144.bin",
    "entities": [
     "wh_main_flying_dragon_blood"
    ],
@@ -1604,9 +1604,9 @@
   },
   {
    "source": "dr1b_chaos_dragon_boss",
-   "renamed": "dr1b_chaos_dragon_boss_ld_dive",
+   "renamed": "dr1b_chaos_dragon_boss_dive",
    "skeleton": "dragon01b",
-   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_boss_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr1b_chaos_dragon_boss_dive.bin",
    "entities": [
     "wh_main_flying_dragon_blood_boss"
    ],
@@ -1639,9 +1639,9 @@
   },
   {
    "source": "dr1b_wyrm_dragon",
-   "renamed": "dr1b_wyrm_dragon_ld_dive",
+   "renamed": "dr1b_wyrm_dragon_dive",
    "skeleton": "dragon01b",
-   "bin": "animations/database/battle/bin/dr1b_wyrm_dragon_ld_dive.bin",
+   "bin": "animations/database/battle/bin/dr1b_wyrm_dragon_dive.bin",
    "entities": [
     "wh_dlc08_flying_chaos_frost_dragon_blood"
    ],
@@ -1674,9 +1674,9 @@
   },
   {
    "source": "hr1_pegasus",
-   "renamed": "hr1_pegasus_ld_dive_v153",
+   "renamed": "hr1_pegasus_dive_v153",
    "skeleton": "horse01",
-   "bin": "animations/database/battle/bin/hr1_pegasus_ld_dive_v153.bin",
+   "bin": "animations/database/battle/bin/hr1_pegasus_dive_v153.bin",
    "entities": [
     "ld_dread_flying_pegasus_hero",
     "wh_main_vmp_cavalry_flying_hellsteed_blood"
@@ -1717,16 +1717,16 @@
     "clips": [
      {
       "from": "animations/battle/horse01/locomotion/hr1_fly_charge_01.anim",
-      "to": "animations/battle/ld_air_dive/level/hr1_fly_charge_01_ld_level.anim"
+      "to": "animations/battle/flyer_dive/level/hr1_fly_charge_01_dive_level.anim"
      }
     ]
    }
   },
   {
    "source": "hr1_pegasus",
-   "renamed": "hr1_pegasus_ld_dive_v162",
+   "renamed": "hr1_pegasus_dive_v162",
    "skeleton": "horse01",
-   "bin": "animations/database/battle/bin/hr1_pegasus_ld_dive_v162.bin",
+   "bin": "animations/database/battle/bin/hr1_pegasus_dive_v162.bin",
    "entities": [
     "wh2_main_def_mnt_dark_pegasus",
     "wh2_main_def_mnt_dark_pegasus_sulephet",
@@ -1771,16 +1771,16 @@
     "clips": [
      {
       "from": "animations/battle/horse01/locomotion/hr1_fly_charge_01.anim",
-      "to": "animations/battle/ld_air_dive/level/hr1_fly_charge_01_ld_level.anim"
+      "to": "animations/battle/flyer_dive/level/hr1_fly_charge_01_dive_level.anim"
      }
     ]
    }
   },
   {
    "source": "hr1_wh3_longma",
-   "renamed": "hr1_wh3_longma_ld_dive",
+   "renamed": "hr1_wh3_longma_dive",
    "skeleton": "horse01",
-   "bin": "animations/database/battle/bin/hr1_wh3_longma_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hr1_wh3_longma_dive.bin",
    "entities": [
     "wh3_main_flying_jade_longma_blood",
     "wh_main_flying_pegasus_hero_blood"
@@ -1821,16 +1821,16 @@
     "clips": [
      {
       "from": "animations/battle/horse01/locomotion/hr1_fly_charge_01.anim",
-      "to": "animations/battle/ld_air_dive/level/hr1_fly_charge_01_ld_level.anim"
+      "to": "animations/battle/flyer_dive/level/hr1_fly_charge_01_dive_level.anim"
      }
     ]
    }
   },
   {
    "source": "hu10_dlc29_morghast_archai_halberd",
-   "renamed": "hu10_dlc29_morghast_archai_halberd_ld_dive",
+   "renamed": "hu10_dlc29_morghast_archai_halberd_dive",
    "skeleton": "humanoid10",
-   "bin": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_dive.bin",
    "entities": [
     "wh3_dlc29_vmp_mon_morghast",
     "wh3_dlc29_vmp_mon_morghast_ror"
@@ -1871,9 +1871,9 @@
   },
   {
    "source": "hu10_dlc29_morghast_harbingers_dual_swords",
-   "renamed": "hu10_dlc29_morghast_harbingers_dual_swords_ld_dive",
+   "renamed": "hu10_dlc29_morghast_harbingers_dual_swords_dive",
    "skeleton": "humanoid10",
-   "bin": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords_dive.bin",
    "entities": [
     "wh3_dlc29_vmp_mon_morghast"
    ],
@@ -1912,9 +1912,9 @@
   },
   {
    "source": "hu10_wh3_bloodthirster_axe_and_whip",
-   "renamed": "hu10_wh3_bloodthirster_axe_and_whip_ld_dive",
+   "renamed": "hu10_wh3_bloodthirster_axe_and_whip_dive",
    "skeleton": "humanoid10",
-   "bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip_dive.bin",
    "entities": [
     "ld_chr_kabandha",
     "wh3_main_kho_cha_exalted_bloodthirster"
@@ -1955,9 +1955,9 @@
   },
   {
    "source": "hu10_wh3_bloodthirster_great_axe",
-   "renamed": "hu10_wh3_bloodthirster_great_axe_ld_dive",
+   "renamed": "hu10_wh3_bloodthirster_great_axe_dive",
    "skeleton": "humanoid10",
-   "bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe_dive.bin",
    "entities": [
     "wh3_main_kho_cha_exalted_bloodthirster",
     "wh3_main_kho_mon_bloodthirster",
@@ -2000,9 +2000,9 @@
   },
   {
    "source": "hu10e_dlc20_daemon_prince_1h_noarmoury",
-   "renamed": "hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144",
+   "renamed": "hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v144",
    "skeleton": "humanoid10e",
-   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144.bin",
+   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v144.bin",
    "entities": [
     "wh3_dlc20_chs_cha_daemon_prince",
     "wh3_dlc20_chs_cha_daemon_prince_mkho",
@@ -2047,9 +2047,9 @@
   },
   {
    "source": "hu10e_dlc20_daemon_prince_1h_noarmoury",
-   "renamed": "hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153",
+   "renamed": "hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v153",
    "skeleton": "humanoid10e",
-   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153.bin",
+   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v153.bin",
    "entities": [
     "wh3_dlc20_chs_cha_daemon_prince_msla"
    ],
@@ -2088,9 +2088,9 @@
   },
   {
    "source": "hu10e_dlc20_daemon_prince_2h_noarmoury",
-   "renamed": "hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive",
+   "renamed": "hu10e_dlc20_daemon_prince_2h_noarmoury_dive",
    "skeleton": "humanoid10e",
-   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury_dive.bin",
    "entities": [
     "wh3_dlc20_chs_cha_daemon_prince_mkho",
     "wh3_dlc20_chs_cha_daemon_prince_mnur"
@@ -2131,9 +2131,9 @@
   },
   {
    "source": "hu10e_wh3_daemon_prince_1h",
-   "renamed": "hu10e_wh3_daemon_prince_1h_ld_dive",
+   "renamed": "hu10e_wh3_daemon_prince_1h_dive",
    "skeleton": "humanoid10e",
-   "bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h_dive.bin",
    "entities": [
     "wh3_main_dae_cha_daemon_prince",
     "wh3_main_dae_cha_daemon_prince_generic"
@@ -2174,9 +2174,9 @@
   },
   {
    "source": "hu10e_wh3_daemon_prince_2h",
-   "renamed": "hu10e_wh3_daemon_prince_2h_ld_dive",
+   "renamed": "hu10e_wh3_daemon_prince_2h_dive",
    "skeleton": "humanoid10e",
-   "bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_dive.bin",
    "entities": [
     "wh3_main_dae_cha_daemon_prince_generic"
    ],
@@ -2215,9 +2215,9 @@
   },
   {
    "source": "hu14_t1_dlc21_blue_scribes",
-   "renamed": "hu14_t1_dlc21_blue_scribes_ld_dive",
+   "renamed": "hu14_t1_dlc21_blue_scribes_dive",
    "skeleton": "hu14_team01",
-   "bin": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes_dive.bin",
    "entities": [
     "wh3_dlc24_tze_cha_blue_scribes_rider_blood"
    ],
@@ -2241,9 +2241,9 @@
   },
   {
    "source": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book",
-   "renamed": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive",
+   "renamed": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_dive",
    "skeleton": "humanoid14",
-   "bin": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_dive.bin",
    "entities": [
     "wh3_main_tze_herald_disc_blood"
    ],
@@ -2273,9 +2273,9 @@
   },
   {
    "source": "hu16c_wh3_dlc20_valkia_spear_shield",
-   "renamed": "hu16c_wh3_dlc20_valkia_spear_shield_ld_dive",
+   "renamed": "hu16c_wh3_dlc20_valkia_spear_shield_dive",
    "skeleton": "humanoid16c",
-   "bin": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield_dive.bin",
    "entities": [
     "wh3_dlc20_kho_cha_valkia"
    ],
@@ -2305,9 +2305,9 @@
   },
   {
    "source": "hu6g_wh3_dlc20_azazel_sword",
-   "renamed": "hu6g_wh3_dlc20_azazel_sword_ld_dive",
+   "renamed": "hu6g_wh3_dlc20_azazel_sword_dive",
    "skeleton": "humanoid06g",
-   "bin": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword_dive.bin",
    "entities": [
     "wh3_dlc20_sla_cha_azazel"
    ],
@@ -2337,9 +2337,9 @@
   },
   {
    "source": "hu8b_vargheist",
-   "renamed": "hu8b_vargheist_ld_dive",
+   "renamed": "hu8b_vargheist_dive",
    "skeleton": "humanoid08b",
-   "bin": "animations/database/battle/bin/hu8b_vargheist_ld_dive.bin",
+   "bin": "animations/database/battle/bin/hu8b_vargheist_dive.bin",
    "entities": [
     "wh_main_flying_vargheists_blood"
    ],
@@ -2378,9 +2378,9 @@
   },
   {
    "source": "mt1_wh3_screamers",
-   "renamed": "mt1_wh3_screamers_ld_dive",
+   "renamed": "mt1_wh3_screamers_dive",
    "skeleton": "mantaray01",
-   "bin": "animations/database/battle/bin/mt1_wh3_screamers_ld_dive.bin",
+   "bin": "animations/database/battle/bin/mt1_wh3_screamers_dive.bin",
    "entities": [
     "wh3_dlc24_tze_mon_flying_screamer_ror",
     "wh3_main_tze_flying_screamer"
@@ -2421,9 +2421,9 @@
   },
   {
    "source": "ox1_dlc23_taurus_cages",
-   "renamed": "ox1_dlc23_taurus_cages_ld_dive",
+   "renamed": "ox1_dlc23_taurus_cages_dive",
    "skeleton": "oxen01",
-   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_cages_ld_dive.bin",
+   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_cages_dive.bin",
    "entities": [
     "wh3_dlc23_chd_mnt_bale_taurus_cinderbreath"
    ],
@@ -2462,9 +2462,9 @@
   },
   {
    "source": "ox1_dlc23_taurus_feral",
-   "renamed": "ox1_dlc23_taurus_feral_ld_dive",
+   "renamed": "ox1_dlc23_taurus_feral_dive",
    "skeleton": "oxen01",
-   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_feral_ld_dive.bin",
+   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_feral_dive.bin",
    "entities": [
     "wh3_dlc23_chd_mon_bale_taurus",
     "wh3_dlc23_chd_mon_great_taurus",
@@ -2507,9 +2507,9 @@
   },
   {
    "source": "ox1_dlc23_taurus_mount",
-   "renamed": "ox1_dlc23_taurus_mount_ld_dive",
+   "renamed": "ox1_dlc23_taurus_mount_dive",
    "skeleton": "oxen01",
-   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_mount_ld_dive.bin",
+   "bin": "animations/database/battle/bin/ox1_dlc23_taurus_mount_dive.bin",
    "entities": [
     "wh3_dlc23_chd_mnt_bale_taurus",
     "wh3_dlc23_chd_mnt_great_taurus"
@@ -2550,9 +2550,9 @@
   },
   {
    "source": "sky1_dlc27_skycutter01",
-   "renamed": "sky1_dlc27_skycutter01_ld_dive",
+   "renamed": "sky1_dlc27_skycutter01_dive",
    "skeleton": "skycutter01",
-   "bin": "animations/database/battle/bin/sky1_dlc27_skycutter01_ld_dive.bin",
+   "bin": "animations/database/battle/bin/sky1_dlc27_skycutter01_dive.bin",
    "entities": [
     "wh3_dlc27_hef_mnt_skycutter",
     "wh3_dlc27_hef_mnt_skycutter_bolt",
@@ -2588,10 +2588,10 @@
  "riders_renamed": [
   {
    "source": "hu1_bretonnian_alberic_hr1_pegasus_lancer",
-   "renamed": "hu1_bretonnian_alberic_hr1_pegasus_lancer_ld_rider_v162",
+   "renamed": "hu1_bretonnian_alberic_hr1_pegasus_lancer_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_bretonnian_alberic_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_bretonnian_alberic_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_dlc07_brt_cha_alberic_bordeleaux_2"
@@ -2614,10 +2614,10 @@
   },
   {
    "source": "hu1_bretonnian_bc2b_hippogryph_wb_alberic",
-   "renamed": "hu1_bretonnian_bc2b_hippogryph_wb_alberic_ld_rider_v153",
+   "renamed": "hu1_bretonnian_bc2b_hippogryph_wb_alberic_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_alberic_ld_rider_v153.bin",
-   "s1": "bc2b_hippogryph_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_alberic_dive_rider_v153.bin",
+   "s1": "bc2b_hippogryph_dive_v153",
    "mount_source": "bc2b_hippogryph",
    "land_units": [
     "wh_dlc07_brt_cha_alberic_bordeleaux_3"
@@ -2627,10 +2627,10 @@
   },
   {
    "source": "hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield",
-   "renamed": "hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_ld_rider_v153",
+   "renamed": "hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_ld_rider_v153.bin",
-   "s1": "bc2b_hippogryph_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_dive_rider_v153.bin",
+   "s1": "bc2b_hippogryph_dive_v153",
    "mount_source": "bc2b_hippogryph",
    "land_units": [
     "wh_dlc07_brt_cav_royal_hippogryph_knights_0"
@@ -2640,10 +2640,10 @@
   },
   {
    "source": "hu1_bretonnian_bc2b_hippogryph_wb_sword_shield",
-   "renamed": "hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_ld_rider_v153",
+   "renamed": "hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_ld_rider_v153.bin",
-   "s1": "bc2b_hippogryph_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_dive_rider_v153.bin",
+   "s1": "bc2b_hippogryph_dive_v153",
    "mount_source": "bc2b_hippogryph",
    "land_units": [
     "wh2_dlc14_brt_cha_henri_le_massif_3",
@@ -2654,10 +2654,10 @@
   },
   {
    "source": "hu1_bretonnian_hr1_pegasus_lancer",
-   "renamed": "hu1_bretonnian_hr1_pegasus_lancer_ld_rider_v162",
+   "renamed": "hu1_bretonnian_hr1_pegasus_lancer_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_bretonnian_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_bretonnian_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_main_brt_cav_pegasus_knights"
@@ -2680,10 +2680,10 @@
   },
   {
    "source": "hu1_bretonnian_hr1_royal_pegasus_lancer",
-   "renamed": "hu1_bretonnian_hr1_royal_pegasus_lancer_ld_rider_v162",
+   "renamed": "hu1_bretonnian_hr1_royal_pegasus_lancer_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_bretonnian_hr1_royal_pegasus_lancer_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_bretonnian_hr1_royal_pegasus_lancer_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_dlc07_brt_cav_royal_pegasus_knights_0"
@@ -2706,10 +2706,10 @@
   },
   {
    "source": "hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol",
-   "renamed": "hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_ld_rider",
+   "renamed": "hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_dive_rider",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_ld_rider.bin",
-   "s1": "bi2_terrorgheist_ld_dive",
+   "bin": "animations/database/battle/bin/hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_dive_rider.bin",
+   "s1": "bi2_terrorgheist_dive",
    "mount_source": "bi2_terrorgheist",
    "land_units": [
     "wh2_dlc11_cst_cha_luthor_harkon_1"
@@ -2719,10 +2719,10 @@
   },
   {
    "source": "hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword",
-   "renamed": "hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_ld_rider",
+   "renamed": "hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_dive_rider",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_ld_rider.bin",
-   "s1": "bc3ca_dlc29_mnt_dread_abyssal_ld_dive",
+   "bin": "animations/database/battle/bin/hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_dive_rider.bin",
+   "s1": "bc3ca_dlc29_mnt_dread_abyssal_dive",
    "mount_source": "bc3ca_dlc29_mnt_dread_abyssal",
    "land_units": [
     "wh3_dlc29_tmb_cha_arkhan_dread_abyssal",
@@ -2733,10 +2733,10 @@
   },
   {
    "source": "hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword",
-   "renamed": "hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_ld_rider",
+   "renamed": "hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_dive_rider",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "s1": "bc3_manticore_ld_dive",
+   "bin": "animations/database/battle/bin/hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "s1": "bc3_manticore_dive",
    "mount_source": "bc3_manticore",
    "land_units": [
     "wh3_dlc29_vmp_cha_dieter_helsnicht_undead_manticore"
@@ -2746,10 +2746,10 @@
   },
   {
    "source": "hu1_empire_bc2_boris_griffon_wb_sword_shield",
-   "renamed": "hu1_empire_bc2_boris_griffon_wb_sword_shield_ld_rider",
+   "renamed": "hu1_empire_bc2_boris_griffon_wb_sword_shield_dive_rider",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_bc2_boris_griffon_wb_sword_shield_ld_rider.bin",
-   "s1": "bc2_griffon_draught_ld_dive",
+   "bin": "animations/database/battle/bin/hu1_empire_bc2_boris_griffon_wb_sword_shield_dive_rider.bin",
+   "s1": "bc2_griffon_draught_dive",
    "mount_source": "bc2_griffon_draught",
    "land_units": [
     "wh3_dlc29_emp_cha_boris_todbringer_toddy_3",
@@ -2760,10 +2760,10 @@
   },
   {
    "source": "hu1_empire_bc2_griffon_wb_staff_and_sword",
-   "renamed": "hu1_empire_bc2_griffon_wb_staff_and_sword_ld_rider_v144",
+   "renamed": "hu1_empire_bc2_griffon_wb_staff_and_sword_dive_rider_v144",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_bc2_griffon_wb_staff_and_sword_ld_rider_v144.bin",
-   "s1": "bc2_griffon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1_empire_bc2_griffon_wb_staff_and_sword_dive_rider_v144.bin",
+   "s1": "bc2_griffon_dive_v144",
    "mount_source": "bc2_griffon",
    "land_units": [
     "wh_dlc03_emp_cha_wizard_beasts_3"
@@ -2773,10 +2773,10 @@
   },
   {
    "source": "hu1_empire_hr1_pegasus_hammer",
-   "renamed": "hu1_empire_hr1_pegasus_hammer_ld_rider_v162",
+   "renamed": "hu1_empire_hr1_pegasus_hammer_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_hammer_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_hammer_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_main_emp_cha_karl_franz_2"
@@ -2799,10 +2799,10 @@
   },
   {
    "source": "hu1_empire_hr1_pegasus_staff_and_sword",
-   "renamed": "hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v153",
+   "renamed": "hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_blood_dragon_lord_2",
@@ -2827,10 +2827,10 @@
   },
   {
    "source": "hu1_empire_hr1_pegasus_staff_and_sword",
-   "renamed": "hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v162",
+   "renamed": "hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_pro07_emp_cha_wizard_death_2",
@@ -2861,10 +2861,10 @@
   },
   {
    "source": "hu1_empire_hr1_pegasus_sword_and_shield",
-   "renamed": "hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v153",
+   "renamed": "hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_von_carstein_lord_2",
@@ -2890,10 +2890,10 @@
   },
   {
    "source": "hu1_empire_hr1_pegasus_sword_and_shield",
-   "renamed": "hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v162",
+   "renamed": "hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh3_dlc29_emp_cha_boris_todbringer_toddy_2",
@@ -2920,10 +2920,10 @@
   },
   {
    "source": "hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield",
-   "renamed": "hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v153",
+   "renamed": "hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v153.bin",
-   "s1": "bc2b_hippogryph_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v153.bin",
+   "s1": "bc2b_hippogryph_dive_v153",
    "mount_source": "bc2b_hippogryph",
    "land_units": [
     "wh_main_brt_cha_king_louen_leoncoeur_4"
@@ -2933,10 +2933,10 @@
   },
   {
    "source": "hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield",
-   "renamed": "hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v158",
+   "renamed": "hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v158",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v158.bin",
-   "s1": "bc2b_hippogryph_ld_dive_v158",
+   "bin": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v158.bin",
+   "s1": "bc2b_hippogryph_dive_v158",
    "mount_source": "bc2b_hippogryph",
    "land_units": [
     "wh_main_brt_cha_king_louen_leoncoeur_1"
@@ -2946,10 +2946,10 @@
   },
   {
    "source": "hu1_leoncoeur_hr1_pegasus_sword_and_shield",
-   "renamed": "hu1_leoncoeur_hr1_pegasus_sword_and_shield_ld_rider_v162",
+   "renamed": "hu1_leoncoeur_hr1_pegasus_sword_and_shield_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_leoncoeur_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_leoncoeur_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_main_brt_cha_king_louen_leoncoeur_3"
@@ -2972,10 +2972,10 @@
   },
   {
    "source": "hu1_mannfred_hr1_pegasus_staff_and_sword",
-   "renamed": "hu1_mannfred_hr1_pegasus_staff_and_sword_ld_rider_v153",
+   "renamed": "hu1_mannfred_hr1_pegasus_staff_and_sword_dive_rider_v153",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_mannfred_hr1_pegasus_staff_and_sword_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1_mannfred_hr1_pegasus_staff_and_sword_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh3_dlc29_vmp_cha_mannfred_von_carstein_hellsteed_mp",
@@ -2999,10 +2999,10 @@
   },
   {
    "source": "hu1_paladin_hr1_pegasus_lancer",
-   "renamed": "hu1_paladin_hr1_pegasus_lancer_ld_rider_v162",
+   "renamed": "hu1_paladin_hr1_pegasus_lancer_dive_rider_v162",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_paladin_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1_paladin_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_main_brt_cha_paladin_3"
@@ -3025,10 +3025,10 @@
   },
   {
    "source": "hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield",
-   "renamed": "hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_ld_rider_v126",
+   "renamed": "hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_dive_rider_v126",
    "skeleton": "humanoid01",
-   "bin": "animations/database/battle/bin/hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_ld_rider_v126.bin",
-   "s1": "dr1_dragon_zombie_ld_dive_v126",
+   "bin": "animations/database/battle/bin/hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_dive_rider_v126.bin",
+   "s1": "dr1_dragon_zombie_dive_v126",
    "mount_source": "dr1_dragon_zombie",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_blood_dragon_lord_3",
@@ -3044,10 +3044,10 @@
   },
   {
    "source": "hu1b_dlc15_archmage_phoenix_wb_staff_sword",
-   "renamed": "hu1b_dlc15_archmage_phoenix_wb_staff_sword_ld_rider_v171",
+   "renamed": "hu1b_dlc15_archmage_phoenix_wb_staff_sword_dive_rider_v171",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_dlc15_archmage_phoenix_wb_staff_sword_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1b_dlc15_archmage_phoenix_wb_staff_sword_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_dlc15_hef_cha_archmage_beasts_3",
@@ -3065,10 +3065,10 @@
   },
   {
    "source": "hu1b_dlc15_princess_bc2_griffon_wb_sword_bow",
-   "renamed": "hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_ld_rider_v144",
+   "renamed": "hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_dive_rider_v144",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_ld_rider_v144.bin",
-   "s1": "bc2_griffon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_dive_rider_v144.bin",
+   "s1": "bc2_griffon_dive_v144",
    "mount_source": "bc2_griffon",
    "land_units": [
     "wh2_dlc15_hef_cha_princess_6"
@@ -3078,10 +3078,10 @@
   },
   {
    "source": "hu1b_dlc16_arahan_bi1_wb_bow",
-   "renamed": "hu1b_dlc16_arahan_bi1_wb_bow_ld_rider",
+   "renamed": "hu1b_dlc16_arahan_bi1_wb_bow_dive_rider",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_dlc16_arahan_bi1_wb_bow_ld_rider.bin",
-   "s1": "bi1_eagle_sisters_of_twilight_ld_dive",
+   "bin": "animations/database/battle/bin/hu1b_dlc16_arahan_bi1_wb_bow_dive_rider.bin",
+   "s1": "bi1_eagle_sisters_of_twilight_dive",
    "mount_source": "bi1_eagle_sisters_of_twilight",
    "land_units": [
     "wh2_dlc16_wef_cha_sisters_of_twilight_0"
@@ -3091,10 +3091,10 @@
   },
   {
    "source": "hu1b_dlc16_arahan_dr1_wb_bow",
-   "renamed": "hu1b_dlc16_arahan_dr1_wb_bow_ld_rider_v144",
+   "renamed": "hu1b_dlc16_arahan_dr1_wb_bow_dive_rider_v144",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_dlc16_arahan_dr1_wb_bow_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1b_dlc16_arahan_dr1_wb_bow_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_dlc16_wef_cha_sisters_of_twilight_1"
@@ -3104,10 +3104,10 @@
   },
   {
    "source": "hu1b_dlc16_bi1_eagle_wb_spear_bow",
-   "renamed": "hu1b_dlc16_bi1_eagle_wb_spear_bow_ld_rider_v171",
+   "renamed": "hu1b_dlc16_bi1_eagle_wb_spear_bow_dive_rider_v171",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_dlc16_bi1_eagle_wb_spear_bow_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1b_dlc16_bi1_eagle_wb_spear_bow_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_twa02_wef_cha_glade_captain_2"
@@ -3117,10 +3117,10 @@
   },
   {
    "source": "hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword",
-   "renamed": "hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_ld_rider_v171",
+   "renamed": "hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_dive_rider_v171",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_dlc16_wef_cha_spellweaver_beasts_3",
@@ -3134,10 +3134,10 @@
   },
   {
    "source": "hu1b_elf_bc3_manticore_wb_dual_sword",
-   "renamed": "hu1b_elf_bc3_manticore_wb_dual_sword_ld_rider",
+   "renamed": "hu1b_elf_bc3_manticore_wb_dual_sword_dive_rider",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_dual_sword_ld_rider.bin",
-   "s1": "bc3_manticore_ld_dive",
+   "bin": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_dual_sword_dive_rider.bin",
+   "s1": "bc3_manticore_dive",
    "mount_source": "bc3_manticore",
    "land_units": [
     "wh2_dlc10_def_cha_crone_5"
@@ -3147,10 +3147,10 @@
   },
   {
    "source": "hu1b_elf_bc3_manticore_wb_staff_and_sword",
-   "renamed": "hu1b_elf_bc3_manticore_wb_staff_and_sword_ld_rider",
+   "renamed": "hu1b_elf_bc3_manticore_wb_staff_and_sword_dive_rider",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "s1": "bc3_manticore_ld_dive",
+   "bin": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "s1": "bc3_manticore_dive",
    "mount_source": "bc3_manticore",
    "land_units": [
     "wh2_dlc10_def_cha_supreme_sorceress_beasts_4",
@@ -3164,10 +3164,10 @@
   },
   {
    "source": "hu1b_elf_bi1_alarielle_wb_staff_and_sword",
-   "renamed": "hu1b_elf_bi1_alarielle_wb_staff_and_sword_ld_rider_v171",
+   "renamed": "hu1b_elf_bi1_alarielle_wb_staff_and_sword_dive_rider_v171",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_bi1_alarielle_wb_staff_and_sword_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1b_elf_bi1_alarielle_wb_staff_and_sword_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_dlc10_hef_cha_alarielle_the_radiant_3"
@@ -3177,10 +3177,10 @@
   },
   {
    "source": "hu1b_elf_bi1_eagle_wb_sword",
-   "renamed": "hu1b_elf_bi1_eagle_wb_sword_ld_rider_v171",
+   "renamed": "hu1b_elf_bi1_eagle_wb_sword_dive_rider_v171",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh_dlc05_wef_cha_female_glade_lord_2",
@@ -3193,10 +3193,10 @@
   },
   {
    "source": "hu1b_elf_bi1_eagle_wb_sword_and_bow",
-   "renamed": "hu1b_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171",
+   "renamed": "hu1b_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_main_hef_cha_princess_3",
@@ -3207,10 +3207,10 @@
   },
   {
    "source": "hu1b_elf_dr1_dragon_wb_staff_and_sword",
-   "renamed": "hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v144",
+   "renamed": "hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v144",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_dlc10_def_cha_supreme_sorceress_beasts_5",
@@ -3233,10 +3233,10 @@
   },
   {
    "source": "hu1b_elf_dr1_dragon_wb_staff_and_sword",
-   "renamed": "hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v153",
+   "renamed": "hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v153",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v153.bin",
-   "s1": "dr1_dragon_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v153.bin",
+   "s1": "dr1_dragon_dive_v153",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_dlc15_hef_cha_mage_fire_3"
@@ -3246,10 +3246,10 @@
   },
   {
    "source": "hu1b_elf_dr1_dragon_wb_sword_and_bow",
-   "renamed": "hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v135",
+   "renamed": "hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v135",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v135.bin",
-   "s1": "dr1_dragon_ld_dive_v135",
+   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v135.bin",
+   "s1": "dr1_dragon_dive_v135",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_hef_cha_princess_5"
@@ -3259,10 +3259,10 @@
   },
   {
    "source": "hu1b_elf_dr1_dragon_wb_sword_and_bow",
-   "renamed": "hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144",
+   "renamed": "hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_hef_cha_princess_4",
@@ -3273,10 +3273,10 @@
   },
   {
    "source": "hu1b_elf_dr1_dragon_wb_sword_and_shield",
-   "renamed": "hu1b_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144",
+   "renamed": "hu1b_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_def_cha_dreadlord_female_4"
@@ -3286,10 +3286,10 @@
   },
   {
    "source": "hu1b_elf_hr1_pegasus_staff_and_sword",
-   "renamed": "hu1b_elf_hr1_pegasus_staff_and_sword_ld_rider_v162",
+   "renamed": "hu1b_elf_hr1_pegasus_staff_and_sword_dive_rider_v162",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_staff_and_sword_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_staff_and_sword_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc10_def_cha_sorceress_beasts_3",
@@ -3326,10 +3326,10 @@
   },
   {
    "source": "hu1b_elf_hr1_pegasus_sword_and_shield",
-   "renamed": "hu1b_elf_hr1_pegasus_sword_and_shield_ld_rider_v162",
+   "renamed": "hu1b_elf_hr1_pegasus_sword_and_shield_dive_rider_v162",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_main_def_cha_dreadlord_female_5"
@@ -3353,10 +3353,10 @@
   },
   {
    "source": "hu1b_vampire_hr1_pegasus_sword",
-   "renamed": "hu1b_vampire_hr1_pegasus_sword_ld_rider_v153",
+   "renamed": "hu1b_vampire_hr1_pegasus_sword_dive_rider_v153",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh3_dlc29_vmp_cha_lahmian_vampire_hellsteed",
@@ -3382,10 +3382,10 @@
   },
   {
    "source": "hu1b_vampire_hr1_pegasus_sword_and_chalice",
-   "renamed": "hu1b_vampire_hr1_pegasus_sword_and_chalice_ld_rider_v153",
+   "renamed": "hu1b_vampire_hr1_pegasus_sword_and_chalice_dive_rider_v153",
    "skeleton": "humanoid01b",
-   "bin": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_and_chalice_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_and_chalice_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh_pro02_vmp_cha_isabella_von_carstein_2"
@@ -3409,10 +3409,10 @@
   },
   {
    "source": "hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword",
-   "renamed": "hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_ld_rider",
+   "renamed": "hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_dive_rider",
    "skeleton": "humanoid01ba",
-   "bin": "animations/database/battle/bin/hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_ld_rider.bin",
-   "s1": "bc3ca_dlc29_mnt_dread_abyssal_ld_dive",
+   "bin": "animations/database/battle/bin/hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_dive_rider.bin",
+   "s1": "bc3ca_dlc29_mnt_dread_abyssal_dive",
    "mount_source": "bc3ca_dlc29_mnt_dread_abyssal",
    "land_units": [
     "wh3_dlc29_vmp_cha_neferata_dread_abyssal"
@@ -3433,10 +3433,10 @@
   },
   {
    "source": "hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff",
-   "renamed": "hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_ld_rider_v126",
+   "renamed": "hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_dive_rider_v126",
    "skeleton": "humanoid01ba",
-   "bin": "animations/database/battle/bin/hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_ld_rider_v126.bin",
-   "s1": "dr1_dragon_zombie_ld_dive_v126",
+   "bin": "animations/database/battle/bin/hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_dive_rider_v126.bin",
+   "s1": "dr1_dragon_zombie_dive_v126",
    "mount_source": "dr1_dragon_zombie",
    "land_units": [
     "wh3_dlc29_vmp_cha_neferata_zombie_dragon",
@@ -3447,10 +3447,10 @@
   },
   {
    "source": "hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff",
-   "renamed": "hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_ld_rider_v153",
+   "renamed": "hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_dive_rider_v153",
    "skeleton": "humanoid01ba",
-   "bin": "animations/database/battle/bin/hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh3_dlc29_vmp_cha_neferata_hellsteed",
@@ -3472,10 +3472,10 @@
   },
   {
    "source": "hu1c_chaos_bc3_manticore_wb_staff_and_sword",
-   "renamed": "hu1c_chaos_bc3_manticore_wb_staff_and_sword_ld_rider",
+   "renamed": "hu1c_chaos_bc3_manticore_wb_staff_and_sword_dive_rider",
    "skeleton": "humanoid01c",
-   "bin": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "s1": "bc3_manticore_ld_dive",
+   "bin": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "s1": "bc3_manticore_dive",
    "mount_source": "bc3_manticore",
    "land_units": [
     "wh_dlc01_chs_cha_chaos_sorcerer_lord_death_9",
@@ -3492,10 +3492,10 @@
   },
   {
    "source": "hu1c_chaos_bc3_manticore_wb_sword_and_shield",
-   "renamed": "hu1c_chaos_bc3_manticore_wb_sword_and_shield_ld_rider",
+   "renamed": "hu1c_chaos_bc3_manticore_wb_sword_and_shield_dive_rider",
    "skeleton": "humanoid01c",
-   "bin": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_sword_and_shield_ld_rider.bin",
-   "s1": "bc3_manticore_ld_dive",
+   "bin": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_sword_and_shield_dive_rider.bin",
+   "s1": "bc3_manticore_dive",
    "mount_source": "bc3_manticore",
    "land_units": [
     "wh_dlc01_chs_cha_chaos_lord_10",
@@ -3506,10 +3506,10 @@
   },
   {
    "source": "hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield",
-   "renamed": "hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_ld_rider_v144",
+   "renamed": "hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_dive_rider_v144",
    "skeleton": "humanoid01c",
-   "bin": "animations/database/battle/bin/hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "s1": "dr1b_chaos_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "s1": "dr1b_chaos_dragon_dive_v144",
    "mount_source": "dr1b_chaos_dragon",
    "land_units": [
     "wh3_dlc25_nur_cha_exalted_hero_chieftain_chaos_dragon",
@@ -3526,10 +3526,10 @@
   },
   {
    "source": "hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip",
-   "renamed": "hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_ld_rider",
+   "renamed": "hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_dive_rider",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_ld_rider.bin",
-   "s1": "bc3_manticore_ld_dive",
+   "bin": "animations/database/battle/bin/hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_dive_rider.bin",
+   "s1": "bc3_manticore_dive",
    "mount_source": "bc3_manticore",
    "land_units": [
     "wh2_dlc14_def_cha_high_beastmaster_2",
@@ -3540,10 +3540,10 @@
   },
   {
    "source": "hu1d_dlc14_hr1_pegasus_master_spear_shield",
-   "renamed": "hu1d_dlc14_hr1_pegasus_master_spear_shield_ld_rider_v162",
+   "renamed": "hu1d_dlc14_hr1_pegasus_master_spear_shield_dive_rider_v162",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_dlc14_hr1_pegasus_master_spear_shield_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1d_dlc14_hr1_pegasus_master_spear_shield_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc14_def_cha_master_3"
@@ -3553,10 +3553,10 @@
   },
   {
    "source": "hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword",
-   "renamed": "hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_ld_rider_v148",
+   "renamed": "hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_dive_rider_v148",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_ld_rider_v148.bin",
-   "s1": "bc2_griffon_ld_dive_v148",
+   "bin": "animations/database/battle/bin/hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_dive_rider_v148.bin",
+   "s1": "bc2_griffon_dive_v148",
    "mount_source": "bc2_griffon",
    "land_units": [
     "wh2_dlc15_hef_cha_eltharion_the_grim_2"
@@ -3566,10 +3566,10 @@
   },
   {
    "source": "hu1d_dlc15_prince_bc2_griffon_wb_sword_shield",
-   "renamed": "hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_ld_rider_v144",
+   "renamed": "hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_dive_rider_v144",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_ld_rider_v144.bin",
-   "s1": "bc2_griffon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_dive_rider_v144.bin",
+   "s1": "bc2_griffon_dive_v144",
    "mount_source": "bc2_griffon",
    "land_units": [
     "wh2_dlc15_hef_cha_prince_6",
@@ -3580,10 +3580,10 @@
   },
   {
    "source": "hu1d_elf_bi1_eagle_wb_2handed_axe",
-   "renamed": "hu1d_elf_bi1_eagle_wb_2handed_axe_ld_rider_v171",
+   "renamed": "hu1d_elf_bi1_eagle_wb_2handed_axe_dive_rider_v171",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_2handed_axe_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_2handed_axe_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_main_hef_cha_alastar_3"
@@ -3593,10 +3593,10 @@
   },
   {
    "source": "hu1d_elf_bi1_eagle_wb_halberd",
-   "renamed": "hu1d_elf_bi1_eagle_wb_halberd_ld_rider_v171",
+   "renamed": "hu1d_elf_bi1_eagle_wb_halberd_dive_rider_v171",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_halberd_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_halberd_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_main_hef_cha_noble_3"
@@ -3606,10 +3606,10 @@
   },
   {
    "source": "hu1d_elf_bi1_eagle_wb_sword_and_bow",
-   "renamed": "hu1d_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171",
+   "renamed": "hu1d_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh_dlc05_wef_cha_glade_lord_2"
@@ -3619,10 +3619,10 @@
   },
   {
    "source": "hu1d_elf_bi1_eagle_wb_sword_and_shield",
-   "renamed": "hu1d_elf_bi1_eagle_wb_sword_and_shield_ld_rider_v171",
+   "renamed": "hu1d_elf_bi1_eagle_wb_sword_and_shield_dive_rider_v171",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_shield_ld_rider_v171.bin",
-   "s1": "bi1_eagle_ld_dive_v171",
+   "bin": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_shield_dive_rider_v171.bin",
+   "s1": "bi1_eagle_dive_v171",
    "mount_source": "bi1_eagle",
    "land_units": [
     "wh2_main_hef_cha_prince_3",
@@ -3633,10 +3633,10 @@
   },
   {
    "source": "hu1d_elf_bi1_teclis_wb_staff_and_sword",
-   "renamed": "hu1d_elf_bi1_teclis_wb_staff_and_sword_ld_rider",
+   "renamed": "hu1d_elf_bi1_teclis_wb_staff_and_sword_dive_rider",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_bi1_teclis_wb_staff_and_sword_ld_rider.bin",
-   "s1": "bi1_dlc15_phoenix_ld_dive",
+   "bin": "animations/database/battle/bin/hu1d_elf_bi1_teclis_wb_staff_and_sword_dive_rider.bin",
+   "s1": "bi1_dlc15_phoenix_dive",
    "mount_source": "bi1_dlc15_phoenix",
    "land_units": [
     "wh2_dlc15_hef_cha_teclis_2"
@@ -3646,10 +3646,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_2handed_axe",
-   "renamed": "hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v135",
+   "renamed": "hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v135",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v135.bin",
-   "s1": "dr1_dragon_ld_dive_v135",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v135.bin",
+   "s1": "dr1_dragon_dive_v135",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_hef_cha_alastar_5"
@@ -3659,10 +3659,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_2handed_axe",
-   "renamed": "hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v153",
+   "renamed": "hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v153",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v153.bin",
-   "s1": "dr1_dragon_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v153.bin",
+   "s1": "dr1_dragon_dive_v153",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_hef_cha_alastar_4"
@@ -3672,10 +3672,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield",
-   "renamed": "hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_ld_rider_v144",
+   "renamed": "hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_dive_rider_v144",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_def_cha_malekith_3"
@@ -3685,10 +3685,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_sword_and_bow",
-   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144",
+   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh_dlc05_wef_cha_glade_lord_3"
@@ -3698,10 +3698,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_sword_and_crossbow",
-   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_crossbow_ld_rider_v144",
+   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_crossbow_dive_rider_v144",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_crossbow_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_crossbow_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_def_cha_dreadlord_4"
@@ -3711,10 +3711,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_sword_and_shield",
-   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v135",
+   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v135",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v135.bin",
-   "s1": "dr1_dragon_ld_dive_v135",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v135.bin",
+   "s1": "dr1_dragon_dive_v135",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_hef_cha_prince_5",
@@ -3725,10 +3725,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_sword_and_shield",
-   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144",
+   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_dlc11_def_cha_lokhir_fellheart_1"
@@ -3738,10 +3738,10 @@
   },
   {
    "source": "hu1d_elf_dr1_dragon_wb_sword_and_shield",
-   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v153",
+   "renamed": "hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v153",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v153.bin",
-   "s1": "dr1_dragon_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v153.bin",
+   "s1": "dr1_dragon_dive_v153",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_main_hef_cha_prince_4"
@@ -3751,10 +3751,10 @@
   },
   {
    "source": "hu1d_elf_hr1_pegasus_sword_crossbow",
-   "renamed": "hu1d_elf_hr1_pegasus_sword_crossbow_ld_rider_v162",
+   "renamed": "hu1d_elf_hr1_pegasus_sword_crossbow_dive_rider_v162",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_elf_hr1_pegasus_sword_crossbow_ld_rider_v162.bin",
-   "s1": "hr1_pegasus_ld_dive_v162",
+   "bin": "animations/database/battle/bin/hu1d_elf_hr1_pegasus_sword_crossbow_dive_rider_v162.bin",
+   "s1": "hr1_pegasus_dive_v162",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc10_def_cav_raven_heralds_ror_0",
@@ -3765,10 +3765,10 @@
   },
   {
    "source": "hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn",
-   "renamed": "hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_ld_rider_v135",
+   "renamed": "hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_dive_rider_v135",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_ld_rider_v135.bin",
-   "s1": "dr1_dragon_ld_dive_v135",
+   "bin": "animations/database/battle/bin/hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_dive_rider_v135.bin",
+   "s1": "dr1_dragon_dive_v135",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_dlc15_hef_cha_imrik_2"
@@ -3778,10 +3778,10 @@
   },
   {
    "source": "hu1d_twa03_wb_dr1_rakarth_spear_whip",
-   "renamed": "hu1d_twa03_wb_dr1_rakarth_spear_whip_ld_rider_v144",
+   "renamed": "hu1d_twa03_wb_dr1_rakarth_spear_whip_dive_rider_v144",
    "skeleton": "humanoid01d",
-   "bin": "animations/database/battle/bin/hu1d_twa03_wb_dr1_rakarth_spear_whip_ld_rider_v144.bin",
-   "s1": "dr1_dragon_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu1d_twa03_wb_dr1_rakarth_spear_whip_dive_rider_v144.bin",
+   "s1": "dr1_dragon_dive_v144",
    "mount_source": "dr1_dragon",
    "land_units": [
     "wh2_twa03_def_cha_rakarth_3"
@@ -3791,10 +3791,10 @@
   },
   {
    "source": "hu1e_dlc24_bc2_celestial_lion_celestial_general",
-   "renamed": "hu1e_dlc24_bc2_celestial_lion_celestial_general_ld_rider_v135",
+   "renamed": "hu1e_dlc24_bc2_celestial_lion_celestial_general_dive_rider_v135",
    "skeleton": "humanoid01e",
-   "bin": "animations/database/battle/bin/hu1e_dlc24_bc2_celestial_lion_celestial_general_ld_rider_v135.bin",
-   "s1": "bc2_deathclaw_ld_dive_v135",
+   "bin": "animations/database/battle/bin/hu1e_dlc24_bc2_celestial_lion_celestial_general_dive_rider_v135.bin",
+   "s1": "bc2_deathclaw_dive_v135",
    "mount_source": "bc2_deathclaw",
    "land_units": [
     "wh3_dlc24_cth_cha_celestial_general_yang_celestial_lion"
@@ -3804,10 +3804,10 @@
   },
   {
    "source": "hu1e_dlc24_hr1_longma_celestial_general",
-   "renamed": "hu1e_dlc24_hr1_longma_celestial_general_ld_rider",
+   "renamed": "hu1e_dlc24_hr1_longma_celestial_general_dive_rider",
    "skeleton": "humanoid01e",
-   "bin": "animations/database/battle/bin/hu1e_dlc24_hr1_longma_celestial_general_ld_rider.bin",
-   "s1": "hr1_wh3_longma_ld_dive",
+   "bin": "animations/database/battle/bin/hu1e_dlc24_hr1_longma_celestial_general_dive_rider.bin",
+   "s1": "hr1_wh3_longma_dive",
    "mount_source": "hr1_wh3_longma",
    "land_units": [
     "wh3_dlc24_cth_cha_celestial_general_yang_longma"
@@ -3830,10 +3830,10 @@
   },
   {
    "source": "hu1e_wh3_cathay_hr1_longma_halberd_and_shield",
-   "renamed": "hu1e_wh3_cathay_hr1_longma_halberd_and_shield_ld_rider",
+   "renamed": "hu1e_wh3_cathay_hr1_longma_halberd_and_shield_dive_rider",
    "skeleton": "humanoid01e",
-   "bin": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_halberd_and_shield_ld_rider.bin",
-   "s1": "hr1_wh3_longma_ld_dive",
+   "bin": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_halberd_and_shield_dive_rider.bin",
+   "s1": "hr1_wh3_longma_dive",
    "mount_source": "hr1_wh3_longma",
    "land_units": [
     "wh3_main_cth_cav_jade_longma_riders_0",
@@ -3857,10 +3857,10 @@
   },
   {
    "source": "hu1e_wh3_cathay_hr1_longma_mage_lord",
-   "renamed": "hu1e_wh3_cathay_hr1_longma_mage_lord_ld_rider",
+   "renamed": "hu1e_wh3_cathay_hr1_longma_mage_lord_dive_rider",
    "skeleton": "humanoid01e",
-   "bin": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_mage_lord_ld_rider.bin",
-   "s1": "hr1_wh3_longma_ld_dive",
+   "bin": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_mage_lord_dive_rider.bin",
+   "s1": "hr1_wh3_longma_dive",
    "mount_source": "hr1_wh3_longma",
    "land_units": [
     "wh3_main_cth_cha_dragon_blooded_shugengan_lord_yang_2",
@@ -3882,10 +3882,10 @@
   },
   {
    "source": "hu1j_dlc25_elspeth_dr1_dragon_wb_scythe",
-   "renamed": "hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_ld_rider",
+   "renamed": "hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_dive_rider",
    "skeleton": "humanoid01j",
-   "bin": "animations/database/battle/bin/hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_ld_rider.bin",
-   "s1": "dr1_dragon_carmine_ld_dive",
+   "bin": "animations/database/battle/bin/hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_dive_rider.bin",
+   "s1": "dr1_dragon_carmine_dive",
    "mount_source": "dr1_dragon_carmine",
    "land_units": [
     "wh3_dlc25_emp_cha_elspeth_von_draken_carmine_dragon"
@@ -3895,10 +3895,10 @@
   },
   {
    "source": "hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull",
-   "renamed": "hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_ld_rider_v126",
+   "renamed": "hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_dive_rider_v126",
    "skeleton": "humanoid01k",
-   "bin": "animations/database/battle/bin/hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_ld_rider_v126.bin",
-   "s1": "dr1_dragon_zombie_ld_dive_v126",
+   "bin": "animations/database/battle/bin/hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_dive_rider_v126.bin",
+   "s1": "dr1_dragon_zombie_dive_v126",
    "mount_source": "dr1_dragon_zombie",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_necrarch_lord_3"
@@ -3908,10 +3908,10 @@
   },
   {
    "source": "hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull",
-   "renamed": "hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_ld_rider_v153",
+   "renamed": "hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_dive_rider_v153",
    "skeleton": "humanoid01k",
-   "bin": "animations/database/battle/bin/hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_necrarch_lord_2"
@@ -3932,10 +3932,10 @@
   },
   {
    "source": "hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic",
-   "renamed": "hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_ld_rider_v126",
+   "renamed": "hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_dive_rider_v126",
    "skeleton": "humanoid01o",
-   "bin": "animations/database/battle/bin/hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_ld_rider_v126.bin",
-   "s1": "dr1_dragon_zombie_ld_dive_v126",
+   "bin": "animations/database/battle/bin/hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_dive_rider_v126.bin",
+   "s1": "dr1_dragon_zombie_dive_v126",
    "mount_source": "dr1_dragon_zombie",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_lahmian_lord_3"
@@ -3945,10 +3945,10 @@
   },
   {
    "source": "hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic",
-   "renamed": "hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_ld_rider_v153",
+   "renamed": "hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_dive_rider_v153",
    "skeleton": "humanoid01o",
-   "bin": "animations/database/battle/bin/hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_ld_rider_v153.bin",
-   "s1": "hr1_pegasus_ld_dive_v153",
+   "bin": "animations/database/battle/bin/hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_dive_rider_v153.bin",
+   "s1": "hr1_pegasus_dive_v153",
    "mount_source": "hr1_pegasus",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_lahmian_lord_2"
@@ -3971,10 +3971,10 @@
   },
   {
    "source": "hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword",
-   "renamed": "hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_ld_rider_v144",
+   "renamed": "hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_dive_rider_v144",
    "skeleton": "humanoid02",
-   "bin": "animations/database/battle/bin/hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_ld_rider_v144.bin",
-   "s1": "bi2_wyvern_ld_dive_v144",
+   "bin": "animations/database/battle/bin/hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_dive_rider_v144.bin",
+   "s1": "bi2_wyvern_dive_v144",
    "mount_source": "bi2_wyvern",
    "land_units": [
     "wh3_dlc26_grn_cha_savage_orc_great_shaman_wyvern"
@@ -3984,10 +3984,10 @@
   },
   {
    "source": "hu3_dlc23_bc2_lammasu_wb1_axe_pistol",
-   "renamed": "hu3_dlc23_bc2_lammasu_wb1_axe_pistol_ld_rider",
+   "renamed": "hu3_dlc23_bc2_lammasu_wb1_axe_pistol_dive_rider",
    "skeleton": "humanoid03",
-   "bin": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_pistol_ld_rider.bin",
-   "s1": "bc2c_dlc23_lammasu_mount_ld_dive",
+   "bin": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_pistol_dive_rider.bin",
+   "s1": "bc2c_dlc23_lammasu_mount_dive",
    "mount_source": "bc2c_dlc23_lammasu_mount",
    "land_units": [
     "wh3_dlc23_chd_cha_daemonsmith_sorcerer_death_lammasu",
@@ -4004,10 +4004,10 @@
   },
   {
    "source": "hu3_dlc23_bc2_lammasu_wb1_axe_shield",
-   "renamed": "hu3_dlc23_bc2_lammasu_wb1_axe_shield_ld_rider",
+   "renamed": "hu3_dlc23_bc2_lammasu_wb1_axe_shield_dive_rider",
    "skeleton": "humanoid03",
-   "bin": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_shield_ld_rider.bin",
-   "s1": "bc2c_dlc23_lammasu_mount_ld_dive",
+   "bin": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_shield_dive_rider.bin",
+   "s1": "bc2c_dlc23_lammasu_mount_dive",
    "mount_source": "bc2c_dlc23_lammasu_mount",
    "land_units": [
     "wh3_dlc23_chd_cha_overseer_lammasu",
@@ -4018,10 +4018,10 @@
   },
   {
    "source": "hu3_dlc23_ox1_taurus_wb1_axe_pistol",
-   "renamed": "hu3_dlc23_ox1_taurus_wb1_axe_pistol_ld_rider",
+   "renamed": "hu3_dlc23_ox1_taurus_wb1_axe_pistol_dive_rider",
    "skeleton": "humanoid03",
-   "bin": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_pistol_ld_rider.bin",
-   "s1": "ox1_dlc23_taurus_mount_ld_dive",
+   "bin": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_pistol_dive_rider.bin",
+   "s1": "ox1_dlc23_taurus_mount_dive",
    "mount_source": "ox1_dlc23_taurus_mount",
    "land_units": [
     "wh3_dlc23_chd_cha_daemonsmith_sorcerer_death_bale_taurus",
@@ -4057,10 +4057,10 @@
   },
   {
    "source": "hu3_dlc23_ox1_taurus_wb1_axe_sceptre",
-   "renamed": "hu3_dlc23_ox1_taurus_wb1_axe_sceptre_ld_rider",
+   "renamed": "hu3_dlc23_ox1_taurus_wb1_axe_sceptre_dive_rider",
    "skeleton": "humanoid03",
-   "bin": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_sceptre_ld_rider.bin",
-   "s1": "ox1_dlc23_taurus_cages_ld_dive",
+   "bin": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_sceptre_dive_rider.bin",
+   "s1": "ox1_dlc23_taurus_cages_dive",
    "mount_source": "ox1_dlc23_taurus_cages",
    "land_units": [
     "wh3_dlc23_chd_cha_drazhoath_the_ashen_bale_taurus_cinderbreath"
@@ -4081,10 +4081,10 @@
   },
   {
    "source": "hu3_dlc23_ox1_taurus_wb1_axe_shield",
-   "renamed": "hu3_dlc23_ox1_taurus_wb1_axe_shield_ld_rider",
+   "renamed": "hu3_dlc23_ox1_taurus_wb1_axe_shield_dive_rider",
    "skeleton": "humanoid03",
-   "bin": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_shield_ld_rider.bin",
-   "s1": "ox1_dlc23_taurus_mount_ld_dive",
+   "bin": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_shield_dive_rider.bin",
+   "s1": "ox1_dlc23_taurus_mount_dive",
    "mount_source": "ox1_dlc23_taurus_mount",
    "land_units": [
     "wh3_dlc23_chd_cha_overseer_great_taurus",
@@ -4106,10 +4106,10 @@
   },
   {
    "source": "hu8_strigoi_bi2_terrorgheist_wb",
-   "renamed": "hu8_strigoi_bi2_terrorgheist_wb_ld_rider",
+   "renamed": "hu8_strigoi_bi2_terrorgheist_wb_dive_rider",
    "skeleton": "humanoid08",
-   "bin": "animations/database/battle/bin/hu8_strigoi_bi2_terrorgheist_wb_ld_rider.bin",
-   "s1": "bi2_terrorgheist_ld_dive",
+   "bin": "animations/database/battle/bin/hu8_strigoi_bi2_terrorgheist_wb_dive_rider.bin",
+   "s1": "bi2_terrorgheist_dive",
    "mount_source": "bi2_terrorgheist",
    "land_units": [
     "wh2_dlc11_vmp_cha_bloodline_strigoi_lord_1",
@@ -4199,7 +4199,7 @@
  "plough_clips": [],
  "level_clips": [
   {
-   "clip": "animations/battle/ld_air_dive/level/hr1_fly_charge_01_ld_level.anim",
+   "clip": "animations/battle/flyer_dive/level/hr1_fly_charge_01_dive_level.anim",
    "source": "animations/battle/horse01/locomotion/hr1_fly_charge_01.anim",
    "pitch_target_from": "animations/battle/horse01/locomotion/hr1_fly_walk_01.anim",
    "pitch_deg": {
@@ -4210,9 +4210,9 @@
    "seat_bone": "spine_1",
    "seat_moved_m": 0.0,
    "tables": [
-    "hr1_pegasus_ld_dive_v153",
-    "hr1_pegasus_ld_dive_v162",
-    "hr1_wh3_longma_ld_dive"
+    "hr1_pegasus_dive_v153",
+    "hr1_pegasus_dive_v162",
+    "hr1_wh3_longma_dive"
    ]
   }
  ],
@@ -4594,910 +4594,910 @@
  ],
  "files": [
   {
-   "staged": "animations/battle/ld_air_dive/level/hr1_fly_charge_01_ld_level.anim",
-   "pack_path": "animations\\battle\\ld_air_dive\\level\\hr1_fly_charge_01_ld_level.anim",
+   "staged": "animations/battle/flyer_dive/level/hr1_fly_charge_01_dive_level.anim",
+   "pack_path": "animations\\battle\\flyer_dive\\level\\hr1_fly_charge_01_dive_level.anim",
    "sha256": "3913b8cc8ddf0b6258c1e31974fcc97f1fd533b417b911bdc0ecc4a93f09858d",
    "bytes": 23373
   },
   {
-   "staged": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2_deathclaw_ld_dive_v135.bin",
-   "sha256": "e375cf914f5ce5e4dc083f1f30614058a579185e264da864f96ea96735fd485f",
-   "bytes": 13657
+   "staged": "animations/database/battle/bin/bc2_deathclaw_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_deathclaw_dive_v135.bin",
+   "sha256": "770b8f026663b67ddf238edef665490c89f58e3cfe8150f41d48986b34a11def",
+   "bytes": 13654
   },
   {
-   "staged": "animations/database/battle/bin/bc2_deathclaw_ld_dive_v148.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2_deathclaw_ld_dive_v148.bin",
-   "sha256": "692c315605f264ef3e629ec56c496ee0cbd7b1e9ba68e6af84ece43ba86e1344",
-   "bytes": 13657
+   "staged": "animations/database/battle/bin/bc2_deathclaw_dive_v148.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_deathclaw_dive_v148.bin",
+   "sha256": "2a48dea60157b005c970ed126324152e191f51266421b72cc3a625d2fa73bee8",
+   "bytes": 13654
   },
   {
-   "staged": "animations/database/battle/bin/bc2_griffon_draught_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_draught_ld_dive.bin",
-   "sha256": "a771bffb49ec40878d20f0e1c00f972aa0595a9f0dfaf93165c148661508aa88",
-   "bytes": 13630
+   "staged": "animations/database/battle/bin/bc2_griffon_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_dive_v144.bin",
+   "sha256": "fb536918c6d5de47e5f6248649d270c64b8aec45c1dd8066222769518518b375",
+   "bytes": 13504
   },
   {
-   "staged": "animations/database/battle/bin/bc2_griffon_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_ld_dive_v144.bin",
-   "sha256": "9fa7906697797fb304271649b3732cca316101fe6b8d54ce7a0708d50830d48f",
-   "bytes": 13507
+   "staged": "animations/database/battle/bin/bc2_griffon_dive_v148.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_dive_v148.bin",
+   "sha256": "a6ffe1b688aa126b46c6e7542246c773a6ee3b39c513ed7d36d47dbb8bd6596c",
+   "bytes": 13504
   },
   {
-   "staged": "animations/database/battle/bin/bc2_griffon_ld_dive_v148.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_ld_dive_v148.bin",
-   "sha256": "9caaecc06314f8bac4a47711bc9c57a7ea31621b4e1e4f71ff5c5a7d2c2767e0",
-   "bytes": 13507
+   "staged": "animations/database/battle/bin/bc2_griffon_draught_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2_griffon_draught_dive.bin",
+   "sha256": "47d19011bb3e52dc2e658a0705074e8933cb896e5eed441e7d1f358026dbe8bd",
+   "bytes": 13627
   },
   {
-   "staged": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_ld_dive_v144.bin",
-   "sha256": "059abf3964ba2223fedef9c3892378965f38cbae1199de0b61b3f2806eb5595c",
-   "bytes": 13428
+   "staged": "animations/database/battle/bin/bc2b_hippogryph_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_dive_v144.bin",
+   "sha256": "f8313a74b9a10e0516d116d19a4ca2cb1d7719ddf526ef6a67124fe7909f067d",
+   "bytes": 13425
   },
   {
-   "staged": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_ld_dive_v153.bin",
-   "sha256": "573b96f093de235d4128531528f10ce6b7dc215d8c647d416950daa9996be336",
-   "bytes": 13428
+   "staged": "animations/database/battle/bin/bc2b_hippogryph_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_dive_v153.bin",
+   "sha256": "2bc465399948d61748149430ef6aed0884c3c2f6aebe34d856d76bff9df84799",
+   "bytes": 13425
   },
   {
-   "staged": "animations/database/battle/bin/bc2b_hippogryph_ld_dive_v158.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_ld_dive_v158.bin",
-   "sha256": "b2b1bbdae9e366be2b93604f0c3b01c2a8d141ec8f3aed2ea677378bc930703c",
-   "bytes": 13428
+   "staged": "animations/database/battle/bin/bc2b_hippogryph_dive_v158.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2b_hippogryph_dive_v158.bin",
+   "sha256": "939aee78f6c6f4f0b9b6c1fe2a59158a0b03b751f1ffeaeb5a55ef9caf0f3798",
+   "bytes": 13425
   },
   {
-   "staged": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2c_dlc23_lammasu_feral_ld_dive.bin",
-   "sha256": "59c9b5be1ab2bad5a3017b1443ead0ffdec20a0f3caa305e537a2b91da5ba2ca",
-   "bytes": 15912
+   "staged": "animations/database/battle/bin/bc2c_dlc23_lammasu_feral_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2c_dlc23_lammasu_feral_dive.bin",
+   "sha256": "26f6e4f4ad1905897c95a1857c5836a633087fc0228d93002c9d106a67893e65",
+   "bytes": 15909
   },
   {
-   "staged": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc2c_dlc23_lammasu_mount_ld_dive.bin",
-   "sha256": "5f89df0c508d8e61dbbb6bec18df2dce7acd70205bb8fb5c40492c1e65f07284",
-   "bytes": 15659
+   "staged": "animations/database/battle/bin/bc2c_dlc23_lammasu_mount_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc2c_dlc23_lammasu_mount_dive.bin",
+   "sha256": "e02cd2a596019ed6bd7ba71accb580b0aea8dcfefc78741becf0355c47052016",
+   "bytes": 15656
   },
   {
-   "staged": "animations/database/battle/bin/bc3_manticore_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc3_manticore_ld_dive.bin",
-   "sha256": "166f063ec6f559337c99a4d1a5defd0b3c3cba24e461f94b6cbb4d634fad838b",
-   "bytes": 11844
+   "staged": "animations/database/battle/bin/bc3_manticore_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc3_manticore_dive.bin",
+   "sha256": "85e19117123bc53ddad681707e06f942e89f3500551397e60bba6b6386f77108",
+   "bytes": 11841
   },
   {
-   "staged": "animations/database/battle/bin/bc3b_dlc27_chimera_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc3b_dlc27_chimera_ld_dive.bin",
-   "sha256": "e37254213c24f07d687eed39898d8d9eb139c2f0c6e7f2650d89e658ca3d0109",
-   "bytes": 19884
+   "staged": "animations/database/battle/bin/bc3b_dlc27_chimera_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc3b_dlc27_chimera_dive.bin",
+   "sha256": "769355982ea7b7749ad34cf175eb2c02341676e8729d2e34773bdf612d0f8989",
+   "bytes": 19881
   },
   {
-   "staged": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bc3ca_dlc29_mnt_dread_abyssal_ld_dive.bin",
-   "sha256": "392bcca3d3baf56ecd95209d3f03f48ec41817be46987094af44d2e396b6329d",
-   "bytes": 27061
+   "staged": "animations/database/battle/bin/bc3ca_dlc29_mnt_dread_abyssal_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bc3ca_dlc29_mnt_dread_abyssal_dive.bin",
+   "sha256": "e0f73b6ce1f3410f37d884b5a5122a532e3a373b91fea7bbe877a1bfd37b8099",
+   "bytes": 27058
   },
   {
-   "staged": "animations/database/battle/bin/bi1_dlc15_phoenix_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_dlc15_phoenix_ld_dive.bin",
-   "sha256": "e9676f3760451ded35d184e753df8402ba8678c3fffa30d3103ba5e06c2bb416",
-   "bytes": 13867
+   "staged": "animations/database/battle/bin/bi1_dlc15_phoenix_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_dlc15_phoenix_dive.bin",
+   "sha256": "61fd8ae65289cc3a0b00cd015ea4229bec6a11d51b977d55c4bbaf96ae0a9167",
+   "bytes": 13864
   },
   {
-   "staged": "animations/database/battle/bin/bi1_dlc24_moon_bird_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_dlc24_moon_bird_ld_dive.bin",
-   "sha256": "5e88811ef7490f316476d29eaecfb7486303ba5968c4c2a5ef25e11543d2f919",
-   "bytes": 13653
+   "staged": "animations/database/battle/bin/bi1_dlc24_moon_bird_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_dlc24_moon_bird_dive.bin",
+   "sha256": "79c05c4d48b39c83d18802f97aa46df2670f386e266c4873103dce7facbcd621",
+   "bytes": 13650
   },
   {
-   "staged": "animations/database/battle/bin/bi1_eagle_boss_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_boss_ld_dive.bin",
-   "sha256": "ee5deb26a38a2395d4d3d0461818a586c84a4d409a0af5d47ddeae848f328d02",
-   "bytes": 13628
+   "staged": "animations/database/battle/bin/bi1_eagle_boss_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_boss_dive.bin",
+   "sha256": "65a671a7ba42fa53a4bff1d2a60f53c4641de9650b6fef82da0599dd374f48c8",
+   "bytes": 13625
   },
   {
-   "staged": "animations/database/battle/bin/bi1_eagle_ld_dive_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_ld_dive_v135.bin",
-   "sha256": "c0cd117a0c72e9030082a30db92274696bdc7932cc18dea4286ee7a1bfb01dfb",
-   "bytes": 13848
+   "staged": "animations/database/battle/bin/bi1_eagle_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_dive_v135.bin",
+   "sha256": "d8e771e9e6422de196273f6535dfb4bb45baa3540665c5fb5aed00af2b90e912",
+   "bytes": 13845
   },
   {
-   "staged": "animations/database/battle/bin/bi1_eagle_ld_dive_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_ld_dive_v153.bin",
-   "sha256": "393d8a77020e6d8cb357015db30b80ab8d551a108fd21f64cfe14231a032bcd9",
-   "bytes": 13848
+   "staged": "animations/database/battle/bin/bi1_eagle_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_dive_v153.bin",
+   "sha256": "f9f1ccdf777eb637debbed33b0e4cf86452e468976ae81de62e6b2bfb58d8bf3",
+   "bytes": 13845
   },
   {
-   "staged": "animations/database/battle/bin/bi1_eagle_ld_dive_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_ld_dive_v171.bin",
-   "sha256": "8cf5937f723896e27fd784edd52370663d558e08d6e4914f97d2e347cbcbab0e",
-   "bytes": 13848
+   "staged": "animations/database/battle/bin/bi1_eagle_dive_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_dive_v171.bin",
+   "sha256": "accf7fcb50c604a64ab0cccce3cf3217dee865be71159e229d08c475aec11a48",
+   "bytes": 13845
   },
   {
-   "staged": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_sisters_of_twilight_ld_dive.bin",
-   "sha256": "8818e55e103d3e9fbc67758d9712c2eb15fafe8aff7f2591d8b100e52d5f8f7d",
-   "bytes": 13048
+   "staged": "animations/database/battle/bin/bi1_eagle_sisters_of_twilight_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1_eagle_sisters_of_twilight_dive.bin",
+   "sha256": "e8951ef24a51278dfe153cd975a1a110839c7185526d764312c212ad729bec03",
+   "bytes": 13045
   },
   {
-   "staged": "animations/database/battle/bin/bi1b_carrion_ld_dive_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_ld_dive_v135.bin",
-   "sha256": "79c41366cbeb940d463f08a43e94ffff1fc0451eda1927e9b933e712cd5e52f0",
-   "bytes": 9147
+   "staged": "animations/database/battle/bin/bi1b_carrion_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_dive_v135.bin",
+   "sha256": "ba9ff7f603a7a09b50620c1e3c49ad0bc834cfaa14869966e8e4c178cfcfab87",
+   "bytes": 9144
   },
   {
-   "staged": "animations/database/battle/bin/bi1b_carrion_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_ld_dive_v144.bin",
-   "sha256": "8faf616f1c1a2988b922a5bd0a4ac2088494096f24cccd4beabc5ede1a161b97",
-   "bytes": 9147
+   "staged": "animations/database/battle/bin/bi1b_carrion_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_dive_v144.bin",
+   "sha256": "3194527fa6520330e66b9dd03a12cd156d967e28e56f77ce957a2585dacc621f",
+   "bytes": 9144
   },
   {
-   "staged": "animations/database/battle/bin/bi1b_carrion_ld_dive_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_ld_dive_v153.bin",
-   "sha256": "59e222f762782a7afb28b58e66584096407cb327127769cc62d829c9f4c7c9cc",
-   "bytes": 9147
+   "staged": "animations/database/battle/bin/bi1b_carrion_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi1b_carrion_dive_v153.bin",
+   "sha256": "c3e0c8f2bf5b48f43568d83c71afccf8f641f90520434d9a5d54a4ebbe1ad838",
+   "bytes": 9144
   },
   {
-   "staged": "animations/database/battle/bin/bi2_dlc27_preyton_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi2_dlc27_preyton_ld_dive.bin",
-   "sha256": "c8d215906eb9ab99d563ec50894faa2e6f36e5b5563080637571219ddabe0226",
-   "bytes": 18709
+   "staged": "animations/database/battle/bin/bi2_dlc27_preyton_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_dlc27_preyton_dive.bin",
+   "sha256": "0323ecc5ee275483039bd3414755a70c78f946cd02236e38583ef5ffe4aa8217",
+   "bytes": 18706
   },
   {
-   "staged": "animations/database/battle/bin/bi2_terrorgheist_boss_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi2_terrorgheist_boss_ld_dive.bin",
-   "sha256": "00661a7eb316e712904eb4cfded40d2e4544d38083a313914bc649b7b94e1ebb",
-   "bytes": 15407
+   "staged": "animations/database/battle/bin/bi2_terrorgheist_boss_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_terrorgheist_boss_dive.bin",
+   "sha256": "4c5b6000db96449b795db07db2d7f5b6cdec5aa455b6c37ab11bd314a3e0cc1e",
+   "bytes": 15404
   },
   {
-   "staged": "animations/database/battle/bin/bi2_terrorgheist_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi2_terrorgheist_ld_dive.bin",
-   "sha256": "5d99a1d294dfcc09ebe997ad655ccdb025c71f66c510987e4f1206f5af2dc128",
-   "bytes": 15163
+   "staged": "animations/database/battle/bin/bi2_terrorgheist_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_terrorgheist_dive.bin",
+   "sha256": "d6702f2847eff269eff166aadf68cbfcd2dd05e60b7a4d3ea9af741d4a14556b",
+   "bytes": 15160
   },
   {
-   "staged": "animations/database/battle/bin/bi2_wyvern_ld_dive_v126.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi2_wyvern_ld_dive_v126.bin",
-   "sha256": "69f2ddd83687f310c05722117b7a3710edca5da32b210df81560db3b38c88e8f",
-   "bytes": 15142
+   "staged": "animations/database/battle/bin/bi2_wyvern_dive_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_wyvern_dive_v126.bin",
+   "sha256": "48bbefb6a2c0c551e25a2a89d10f31b99482e551cbf65e08a63c9f89c67eb995",
+   "bytes": 15139
   },
   {
-   "staged": "animations/database/battle/bin/bi2_wyvern_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\bi2_wyvern_ld_dive_v144.bin",
-   "sha256": "ac49ed3a90bc2f5abb13b28120448bd4471da0bd65cc5005d6f0d0527f4b00b9",
-   "bytes": 15142
+   "staged": "animations/database/battle/bin/bi2_wyvern_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\bi2_wyvern_dive_v144.bin",
+   "sha256": "3759964470f21668abbd81deff04173d0d380381e7e193449dfb7b7206eaa9e9",
+   "bytes": 15139
   },
   {
-   "staged": "animations/database/battle/bin/co1_dlc22_cockatrice_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\co1_dlc22_cockatrice_ld_dive.bin",
-   "sha256": "e2f56f2fef34081af0ebdea92ebfd64ad65ee019dd3618ab3f2ef051bafb86ed",
-   "bytes": 16847
+   "staged": "animations/database/battle/bin/co1_dlc22_cockatrice_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\co1_dlc22_cockatrice_dive.bin",
+   "sha256": "8e6ae68a919e8831c90dec24d6a6ac45a49104b5011cc66e88a331a3e874045e",
+   "bytes": 16844
   },
   {
-   "staged": "animations/database/battle/bin/dr04_dlc24_dragon_jade_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr04_dlc24_dragon_jade_ld_dive.bin",
-   "sha256": "d725cb680f4c5f0ed88f50f3988d482201b3c4e98484ee2a30cc0be8ce5871dd",
-   "bytes": 20716
+   "staged": "animations/database/battle/bin/dr04_dlc24_dragon_jade_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr04_dlc24_dragon_jade_dive.bin",
+   "sha256": "7bb8fe82e2d2c0916d16a955862b359f502413c2f701abad0982e337d042db95",
+   "bytes": 20713
   },
   {
-   "staged": "animations/database/battle/bin/dr04_dragon_iron_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr04_dragon_iron_ld_dive.bin",
-   "sha256": "caf0029f5ae1dd2a8d9db9cc285f000c70703e4758b2f1ff455f1d163c307c04",
-   "bytes": 18663
+   "staged": "animations/database/battle/bin/dr04_dragon_iron_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr04_dragon_iron_dive.bin",
+   "sha256": "967127bf63f397fbf34faafc86a11a745acd73403dcded177018c913eb6f887c",
+   "bytes": 18660
   },
   {
-   "staged": "animations/database/battle/bin/dr04_dragon_storm_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr04_dragon_storm_ld_dive.bin",
-   "sha256": "678114f89ec3d212347394a35d6f580757fb0899209a9f87a5eaf454380d0c24",
-   "bytes": 18904
+   "staged": "animations/database/battle/bin/dr04_dragon_storm_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr04_dragon_storm_dive.bin",
+   "sha256": "5d3ef89c25507e135cdb71f201859bd2a53a7f29264d16389f91002f20268db2",
+   "bytes": 18901
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_boss_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_boss_ld_dive.bin",
-   "sha256": "76e9ea36b27fabe7fe51fcb8fbd8ba051e2ed4ceb09a1203acaeebd3173a7c27",
-   "bytes": 17789
+   "staged": "animations/database/battle/bin/dr1_dragon_boss_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_boss_dive.bin",
+   "sha256": "25f9d4b838b9ddacaab04ef77fe48962bc792f75f0e23cd70851fda2a3a560bc",
+   "bytes": 17786
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_carmine_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_carmine_ld_dive.bin",
-   "sha256": "e9c06b651d9733e7e07de0fd81bcf2253300a15805ec63103d2e6d81f76aab7e",
-   "bytes": 18425
+   "staged": "animations/database/battle/bin/dr1_dragon_carmine_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_carmine_dive.bin",
+   "sha256": "02329eb9daf01fb0de2ea521ef5d7faa411f80005119f61efce4798264fd507f",
+   "bytes": 18422
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_ld_dive_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_ld_dive_v135.bin",
-   "sha256": "b95baec6f74d2a9887b34e2702b3166cff24aac43f3418e464974ca9f2ed72ff",
-   "bytes": 20869
+   "staged": "animations/database/battle/bin/dr1_dragon_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_dive_v135.bin",
+   "sha256": "cdbf93757ea3a7c7c9119b4424e6e80f754b6abe9d383ab68691b8e5a87c82f6",
+   "bytes": 20866
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_ld_dive_v144.bin",
-   "sha256": "dddfd0c6bd7c1ab4a316a86614d08d7205bdd0c28294bca3c114bfdef90dd5d3",
-   "bytes": 20869
+   "staged": "animations/database/battle/bin/dr1_dragon_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_dive_v144.bin",
+   "sha256": "fe481a0527b7ea04fe7be8b802e9a7991140ad15f001def166f73fb34c053544",
+   "bytes": 20866
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_ld_dive_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_ld_dive_v153.bin",
-   "sha256": "0a536373fddeab75978bba2ff8b274d01c75494cf38e0b885f6c1cb937b07f85",
-   "bytes": 20869
+   "staged": "animations/database/battle/bin/dr1_dragon_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_dive_v153.bin",
+   "sha256": "387a849804a951441f488c96800c26aa8885b826e9adafa2086ee8b54d4c9bbd",
+   "bytes": 20866
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v126.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_zombie_ld_dive_v126.bin",
-   "sha256": "7bd88d31f31b4e18a0d625c3dcb59926aaf48cb28e05042884ae8b5280161bb7",
-   "bytes": 20935
+   "staged": "animations/database/battle/bin/dr1_dragon_zombie_dive_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_zombie_dive_v126.bin",
+   "sha256": "966224adece7acfababc7ba759d98da57336d0ab620f3cda84aaa62b9fbebef9",
+   "bytes": 20932
   },
   {
-   "staged": "animations/database/battle/bin/dr1_dragon_zombie_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_zombie_ld_dive_v144.bin",
-   "sha256": "21e9485f3306e13eda1f1b59f7ffefb0564d6d3020864527e11e155d14463b61",
-   "bytes": 20935
+   "staged": "animations/database/battle/bin/dr1_dragon_zombie_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1_dragon_zombie_dive_v144.bin",
+   "sha256": "d96fe16d03c552dd21456ce33caca6bcf4d361ef159b819897e716e65ea3256a",
+   "bytes": 20932
   },
   {
-   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_boss_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_boss_ld_dive.bin",
-   "sha256": "93ffa913af703a4df48b27352503819016cb3b1666f104cf99da3425dd400add",
-   "bytes": 13778
+   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_boss_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_boss_dive.bin",
+   "sha256": "e12d90f8f0bf970fd40760e856f5bc48f8e52ff80788c9866931f1a7baa0254b",
+   "bytes": 13775
   },
   {
-   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_ld_dive_v135.bin",
-   "sha256": "3e0667f74d865b4ea2ba5a7d37508d2170ee40ff012ff86c1948346e093b299f",
-   "bytes": 14010
+   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_dive_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_dive_v135.bin",
+   "sha256": "c9223df420f7653015637df30df0908573fdc0ceda1bf8fea1a468866ac9b874",
+   "bytes": 14007
   },
   {
-   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_ld_dive_v144.bin",
-   "sha256": "be8aba9d8837584aeed5921dab0bf6f3c6f9c1f1f7afb4b0171b6063972fbb82",
-   "bytes": 14010
+   "staged": "animations/database/battle/bin/dr1b_chaos_dragon_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_chaos_dragon_dive_v144.bin",
+   "sha256": "321da0668a030b3998982076dcd303418ae661f7512599f4d399df04f528c54e",
+   "bytes": 14007
   },
   {
-   "staged": "animations/database/battle/bin/dr1b_wyrm_dragon_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\dr1b_wyrm_dragon_ld_dive.bin",
-   "sha256": "2d3b1c6b1e5a4e885f73c29fc53107bb9207e2fee73493f0e6a53845c0bdbd68",
-   "bytes": 14032
+   "staged": "animations/database/battle/bin/dr1b_wyrm_dragon_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\dr1b_wyrm_dragon_dive.bin",
+   "sha256": "da684b10b43572a359e08ce0df4a63218d67996fae0b7a2fc784d96adaeb68b5",
+   "bytes": 14029
   },
   {
-   "staged": "animations/database/battle/bin/hr1_pegasus_ld_dive_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_ld_dive_v153.bin",
-   "sha256": "971817ea8b5499d069c2dc68ef9faa66266707a50bf9a49a8eaab68b0da5d747",
-   "bytes": 13260
+   "staged": "animations/database/battle/bin/hr1_pegasus_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_dive_v153.bin",
+   "sha256": "2b51da1b6bbfb1364aa63f74f870a4e4c70c40f7f9dd31802ca2cfe097cd69cc",
+   "bytes": 13258
   },
   {
-   "staged": "animations/database/battle/bin/hr1_pegasus_ld_dive_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_ld_dive_v162.bin",
-   "sha256": "ea52c125789e8b9b143a8b54419e7f673bdf51b14e1c0ae8449839d9a31cf599",
-   "bytes": 13260
+   "staged": "animations/database/battle/bin/hr1_pegasus_dive_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hr1_pegasus_dive_v162.bin",
+   "sha256": "2724c42b724e20668b998183de4de507daac8d386d5c369edcf39f2ac08ac37f",
+   "bytes": 13258
   },
   {
-   "staged": "animations/database/battle/bin/hr1_wh3_longma_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hr1_wh3_longma_ld_dive.bin",
-   "sha256": "0dab5c8d0fdbd05344983aeec19646c693c0244575d99b889895900a453c04f6",
-   "bytes": 13534
+   "staged": "animations/database/battle/bin/hr1_wh3_longma_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hr1_wh3_longma_dive.bin",
+   "sha256": "d1c1089db8b26f4c47f4c92a4caaf6c710382993739579d04aaf58bf742e5cd2",
+   "bytes": 13532
   },
   {
-   "staged": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10_dlc29_morghast_archai_halberd_ld_dive.bin",
-   "sha256": "725e998b5b0a5783d795b93408412e995ec38e121e1afbc1f9503372b4f5b775",
-   "bytes": 20437
+   "staged": "animations/database/battle/bin/hu10_dlc29_morghast_archai_halberd_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_dlc29_morghast_archai_halberd_dive.bin",
+   "sha256": "1d79f53728e07d1cf50cca3b788aa37b11e7bfe1d59cb15f13377cf5a59a8a0a",
+   "bytes": 20434
   },
   {
-   "staged": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10_dlc29_morghast_harbingers_dual_swords_ld_dive.bin",
-   "sha256": "459b03de2818ce401dc33d2d931f1c00f89d92dbed2e420a7694869f5794d304",
-   "bytes": 21400
+   "staged": "animations/database/battle/bin/hu10_dlc29_morghast_harbingers_dual_swords_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_dlc29_morghast_harbingers_dual_swords_dive.bin",
+   "sha256": "35cea7f58a2e045ecb797f267ce2efd7676321eb57bce0aa886fe623d2d0fc6d",
+   "bytes": 21397
   },
   {
-   "staged": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10_wh3_bloodthirster_axe_and_whip_ld_dive.bin",
-   "sha256": "24f0ad3c318eb60936ff2f5bec2df3027f81e18f435da02d0c4258922df4c831",
-   "bytes": 16727
+   "staged": "animations/database/battle/bin/hu10_wh3_bloodthirster_axe_and_whip_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_wh3_bloodthirster_axe_and_whip_dive.bin",
+   "sha256": "e8d6202044fca57a83ee2ef51eaf874f8aab8b8c5642afe23ef273d245e3fefe",
+   "bytes": 16724
   },
   {
-   "staged": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10_wh3_bloodthirster_great_axe_ld_dive.bin",
-   "sha256": "8d2ba8cf6aa3d2e5f6a462584c6cd5c845189ff25b3a6c23175033576d8e97fd",
-   "bytes": 16566
+   "staged": "animations/database/battle/bin/hu10_wh3_bloodthirster_great_axe_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10_wh3_bloodthirster_great_axe_dive.bin",
+   "sha256": "478c74831717a8dbd7dee6dab5966325e6f02b9fd5d92b162e27624f3282547b",
+   "bytes": 16563
   },
   {
-   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v144.bin",
-   "sha256": "d5dbe866170c70a900e626cfc15df168da2191883c95d9078d96195153e72c58",
-   "bytes": 22820
+   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v144.bin",
+   "sha256": "6a4d4bf78506b60f2988c965e7c18ec8a70aa17abddb8e50321046b7ebffc18a",
+   "bytes": 22817
   },
   {
-   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_1h_noarmoury_ld_dive_v153.bin",
-   "sha256": "f696b2e8afc8d5f89aaebc483c8c33536a706b7c4f50d7f267d864649179b824",
-   "bytes": 22820
+   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_1h_noarmoury_dive_v153.bin",
+   "sha256": "7ebf6ed3a5463f41135daf9d3a545dc6dfcdd2f3f57ffbe5985e28c3820e0a27",
+   "bytes": 22817
   },
   {
-   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_2h_noarmoury_ld_dive.bin",
-   "sha256": "dd25b8b7c806f87f48af0a1adf658bde8fba58dd5250117a5f086af07c740988",
-   "bytes": 24033
+   "staged": "animations/database/battle/bin/hu10e_dlc20_daemon_prince_2h_noarmoury_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_dlc20_daemon_prince_2h_noarmoury_dive.bin",
+   "sha256": "62c062fc3dee26bc2fa26600920900a733dbce87901e2c28aa72f8e4399ab617",
+   "bytes": 24030
   },
   {
-   "staged": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10e_wh3_daemon_prince_1h_ld_dive.bin",
-   "sha256": "71859208578fc95826715c4a6cd5b53288d1e1ccd01795c016821605159e2ddc",
-   "bytes": 24625
+   "staged": "animations/database/battle/bin/hu10e_wh3_daemon_prince_1h_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_wh3_daemon_prince_1h_dive.bin",
+   "sha256": "9bc0cdcaaa283fb7ba463ae33e4aa6a83d1b7152d92dfc9b22a4ff69e2e23943",
+   "bytes": 24622
   },
   {
-   "staged": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu10e_wh3_daemon_prince_2h_ld_dive.bin",
-   "sha256": "e46fc77f5a11d99ca0aeb8979a43f72ba55757b60ec19590b94207db673bc123",
-   "bytes": 24394
+   "staged": "animations/database/battle/bin/hu10e_wh3_daemon_prince_2h_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu10e_wh3_daemon_prince_2h_dive.bin",
+   "sha256": "6ccb96841c72a2d13df5d386e259dea517c3101637d15c148de1405d42498dfe",
+   "bytes": 24391
   },
   {
-   "staged": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu14_t1_dlc21_blue_scribes_ld_dive.bin",
-   "sha256": "8711955b850a020309c6d1ae93a4c6bc998e506c6157dc415b618da362ccaa61",
-   "bytes": 26893
+   "staged": "animations/database/battle/bin/hu14_t1_dlc21_blue_scribes_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu14_t1_dlc21_blue_scribes_dive.bin",
+   "sha256": "6c0774152844e62bcde74e199a0955667c305c6afebc7d6c649eaacebc29777a",
+   "bytes": 26890
   },
   {
-   "staged": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_ld_dive.bin",
-   "sha256": "311bae6b49a8bd45e260f9d9447b41bfc3efe1bab26c63ce7dcd88240daf2f2d",
-   "bytes": 28160
+   "staged": "animations/database/battle/bin/hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book_dive.bin",
+   "sha256": "7fb07474cc354be3a05bf1bce9d9d02e6c450ebdb60b52bb3f940bc6c6ff2b96",
+   "bytes": 28157
   },
   {
-   "staged": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu16c_wh3_dlc20_valkia_spear_shield_ld_dive.bin",
-   "sha256": "484520f53db5210ccb9354a13a76b4ee7831fbe549cc4d3ec736ecee26478d99",
-   "bytes": 19109
+   "staged": "animations/database/battle/bin/hu16c_wh3_dlc20_valkia_spear_shield_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu16c_wh3_dlc20_valkia_spear_shield_dive.bin",
+   "sha256": "5b935fd34c32900396a32f94454b79e6a16140cf2a21bdccbff937afe175bc98",
+   "bytes": 19106
   },
   {
-   "staged": "animations/database/battle/bin/hu1_bretonnian_alberic_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_alberic_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "sha256": "2acf9ea81ee134c1f38d1da4a5da8ff876ac57ba75dd3d058a4e18938bde868e",
-   "bytes": 118117
+   "staged": "animations/database/battle/bin/hu1_bretonnian_alberic_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_alberic_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "sha256": "078d9fadc40cde550c060fd4c35a16536db8c391ec8b9dcbf09ecc4f7b90af07",
+   "bytes": 118116
   },
   {
-   "staged": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_alberic_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_bc2b_hippogryph_wb_alberic_ld_rider_v153.bin",
-   "sha256": "be3678c04ce0cdbb342b67cc076f4d5b72a4215d1378783fc94c43882c33b6b8",
-   "bytes": 96313
+   "staged": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_alberic_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_bc2b_hippogryph_wb_alberic_dive_rider_v153.bin",
+   "sha256": "9893c923e083d3c23f5765e80e7533f4fcdaee7fe19f2f9e586ae84d42d4e4ed",
+   "bytes": 96312
   },
   {
-   "staged": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_ld_rider_v153.bin",
-   "sha256": "b2b15a5e89c8727a8655e4afba26953ae7c229496ae12987e402bc4d5f537f22",
-   "bytes": 95725
+   "staged": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_bc2b_hippogryph_wb_lance_sword_shield_dive_rider_v153.bin",
+   "sha256": "f741b0bd48792fda9e993cac0516d3c6af035ea63b6fbdc44ca263b9d7877b61",
+   "bytes": 95724
   },
   {
-   "staged": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_ld_rider_v153.bin",
-   "sha256": "fc16309ffeb2ad0b57f1f84ad955bdec6eefc8b8a7da4db25cd685dc95afae61",
-   "bytes": 95775
+   "staged": "animations/database/battle/bin/hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_bc2b_hippogryph_wb_sword_shield_dive_rider_v153.bin",
+   "sha256": "85a1d159bcf8ea94c66a7747e647904f03621adadf7e3fe33cf85d52d707f22b",
+   "bytes": 95774
   },
   {
-   "staged": "animations/database/battle/bin/hu1_bretonnian_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "sha256": "27a7f90b6d1544c9188749345563f4b477b93cc7d477e864e2d121caa3a19e63",
-   "bytes": 122110
+   "staged": "animations/database/battle/bin/hu1_bretonnian_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "sha256": "55b523be474fb7cdf6d78797bf90978d5008d65ef6020810eee3462afb48e11d",
+   "bytes": 122109
   },
   {
-   "staged": "animations/database/battle/bin/hu1_bretonnian_hr1_royal_pegasus_lancer_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_hr1_royal_pegasus_lancer_ld_rider_v162.bin",
-   "sha256": "1411e1cfd0d983b29e136b1b08a7961dc78f0d0dedf5539b57439a8676de0a82",
-   "bytes": 121992
+   "staged": "animations/database/battle/bin/hu1_bretonnian_hr1_royal_pegasus_lancer_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_bretonnian_hr1_royal_pegasus_lancer_dive_rider_v162.bin",
+   "sha256": "ab36a8fe43bc90c680f6bae52e8f5106d7d7fdf41c95150580f67596f88db978",
+   "bytes": 121991
   },
   {
-   "staged": "animations/database/battle/bin/hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_ld_rider.bin",
-   "sha256": "59dd0fbdb561d15a4e72f3d8593457d11facae53f189f9bbb0c6b5142b22273a",
-   "bytes": 65922
+   "staged": "animations/database/battle/bin/hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_cst_luthor_bi2_terrorgheist_wb_cutlass_and_pistol_dive_rider.bin",
+   "sha256": "c197d553453cb79d00cf700061e4cae278d9e69b8b9bddf983576f90cb5474b5",
+   "bytes": 65921
   },
   {
-   "staged": "animations/database/battle/bin/hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_ld_rider.bin",
-   "sha256": "f8a4900370f8ae67aaab889e2482a58027ad122b0498267a2f686531c10f7f06",
-   "bytes": 111380
+   "staged": "animations/database/battle/bin/hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_dlc29_bc3c_dread_abyssal_lord_staff_and_sword_dive_rider.bin",
+   "sha256": "fa5a8a3261803164d022ee489d549fabf95ab6c450c50bc722f137ec461c233c",
+   "bytes": 111379
   },
   {
-   "staged": "animations/database/battle/bin/hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "sha256": "995c01ff8b26884e87115237e9fd3230680f2296c0185adb9e18401c93170102",
-   "bytes": 41280
+   "staged": "animations/database/battle/bin/hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_dlc29_dieter_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "sha256": "b2f1c838bee5b37c4087c8a39c3d6ece8f864e1f0cb2ac6b8d1e303706f5bbf2",
+   "bytes": 41279
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_bc2_boris_griffon_wb_sword_shield_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_bc2_boris_griffon_wb_sword_shield_ld_rider.bin",
-   "sha256": "4b3c5e998414893e61e262671255aa080199fdab79a32e9067e4b3702fda2ecc",
-   "bytes": 95935
+   "staged": "animations/database/battle/bin/hu1_empire_bc2_boris_griffon_wb_sword_shield_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_bc2_boris_griffon_wb_sword_shield_dive_rider.bin",
+   "sha256": "22638420e9dcdd5c70d58795e8d3993ee8ffa954cb5724acc4c7a81075531497",
+   "bytes": 95934
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_bc2_griffon_wb_staff_and_sword_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_bc2_griffon_wb_staff_and_sword_ld_rider_v144.bin",
-   "sha256": "ce5d96c81a7ecaeb8338ed6f7c4e6da0d76370d7cd39b9f564bc6389c3ca23c4",
-   "bytes": 66486
+   "staged": "animations/database/battle/bin/hu1_empire_bc2_griffon_wb_staff_and_sword_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_bc2_griffon_wb_staff_and_sword_dive_rider_v144.bin",
+   "sha256": "407ce492e96b7c0df7d2a4dc83d1a81cebeaecaddef5f8a34eff37a31780acb3",
+   "bytes": 66485
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_hammer_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_hammer_ld_rider_v162.bin",
-   "sha256": "160f8a86bfecc4908335831089dc35e5fc978251d451c92125cddc32236b3800",
-   "bytes": 91069
+   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_hammer_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_hammer_dive_rider_v162.bin",
+   "sha256": "94d2ca2f87f32587642cddbb0a9b1239833c10b3b1f34fc37031003cbca3e7c6",
+   "bytes": 91068
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v153.bin",
-   "sha256": "afa1f0c00277c3811aebc8429d30a189edf29ad9591e578a2750b3037381c59f",
-   "bytes": 126269
+   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v153.bin",
+   "sha256": "a4c6af80b0f62a2c1b958444910341bb814e5a9456b67260655ddb6a98a6a57b",
+   "bytes": 126268
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_staff_and_sword_ld_rider_v162.bin",
-   "sha256": "7d0b20344aab182cd9a7746a81983cdf289b4ccff1257bb6e0b0261208ce4cc0",
-   "bytes": 126269
+   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_staff_and_sword_dive_rider_v162.bin",
+   "sha256": "3b5ec707818673c04a3647e64d07fba8143ad69aa495aa32c37eaa021aace2fc",
+   "bytes": 126268
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v153.bin",
-   "sha256": "cb8327dcdca45647a311b1390083e2d4c2d2eacecac243e2a5355cd9667d4c01",
-   "bytes": 114560
+   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v153.bin",
+   "sha256": "bc296b057709a4a389c0f8a2d167074df48fbeb99d32c67ee425f76b80b310ae",
+   "bytes": 114559
   },
   {
-   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "sha256": "fd733bedfe351efbb1dc594c942de8f69035867048acdd427afed3483ca6ab43",
-   "bytes": 114560
+   "staged": "animations/database/battle/bin/hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_empire_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "sha256": "d0a41869e939cddee974ecf14d2f8a2e1aec93b32ecd05da5fd0444042490ca1",
+   "bytes": 114559
   },
   {
-   "staged": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v153.bin",
-   "sha256": "a3d43743d4b5c473abd9f740ba41c29a773e133dcd64919f775020eb8fc0fd73",
-   "bytes": 95903
+   "staged": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v153.bin",
+   "sha256": "77bfc331e838efb8b4ba6831219b7cdd51314199e559d0c64f03b0eec8adc1a0",
+   "bytes": 95902
   },
   {
-   "staged": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v158.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_ld_rider_v158.bin",
-   "sha256": "d05274e4aaf44af053ba90fd7143eff4344305be9becea1e883c7ade1c18892b",
-   "bytes": 95903
+   "staged": "animations/database/battle/bin/hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v158.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_leoncoeur_bc2b_hippogryph_wb_sword_shield_dive_rider_v158.bin",
+   "sha256": "dd0b7ed7a477cab4ae30d8ed15d3bc54bb6741a3b31addfd8c96b18cc08020b0",
+   "bytes": 95902
   },
   {
-   "staged": "animations/database/battle/bin/hu1_leoncoeur_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_leoncoeur_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "sha256": "687c6538944a447b1d31187a48ae76f676c6919ab320d3c6fdc4e82b5e1efcdb",
-   "bytes": 113753
+   "staged": "animations/database/battle/bin/hu1_leoncoeur_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_leoncoeur_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "sha256": "a7a172bcf3d44b0ad1798da6e4092a40413827e491295b810e6a2aa6c84b6957",
+   "bytes": 113752
   },
   {
-   "staged": "animations/database/battle/bin/hu1_mannfred_hr1_pegasus_staff_and_sword_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_mannfred_hr1_pegasus_staff_and_sword_ld_rider_v153.bin",
-   "sha256": "6c01a9f59e9b4d8d21c230125eaeffb6e718b7eff5b4d871be3592de0a5086d7",
-   "bytes": 125925
+   "staged": "animations/database/battle/bin/hu1_mannfred_hr1_pegasus_staff_and_sword_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_mannfred_hr1_pegasus_staff_and_sword_dive_rider_v153.bin",
+   "sha256": "2c41b7c218103876ef48ef120ebb1888c34e542cfe49f37e868d64805c0fa0fe",
+   "bytes": 125924
   },
   {
-   "staged": "animations/database/battle/bin/hu1_paladin_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_paladin_hr1_pegasus_lancer_ld_rider_v162.bin",
-   "sha256": "f56698a784c86096247ab03ced17818e25b09d2ad2359abfa432d45360f79d65",
-   "bytes": 121741
+   "staged": "animations/database/battle/bin/hu1_paladin_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_paladin_hr1_pegasus_lancer_dive_rider_v162.bin",
+   "sha256": "bec293d3109926ff8af0d0d3a71ba6a312adc4c603e3f9d9ee3dd159b029df55",
+   "bytes": 121740
   },
   {
-   "staged": "animations/database/battle/bin/hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_ld_rider_v126.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_ld_rider_v126.bin",
-   "sha256": "1cd35a4d68bb6a216930a7b7c3b10244eb1460ee45ed3603c33815917b2f159a",
-   "bytes": 94404
+   "staged": "animations/database/battle/bin/hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_dive_rider_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1_vampire_counts_dr1_zombie_dragon_wb_sword_and_shield_dive_rider_v126.bin",
+   "sha256": "48b65b4bff027b9448def08d53b04a54ebc520853b9e3b73978d4ad07c4b96b2",
+   "bytes": 94403
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_dlc15_archmage_phoenix_wb_staff_sword_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc15_archmage_phoenix_wb_staff_sword_ld_rider_v171.bin",
-   "sha256": "3d67cbf01dc1181e4141a5d5514e0ef059794efbbdddd1af8cb0f960f0b0f0b2",
-   "bytes": 39307
+   "staged": "animations/database/battle/bin/hu1b_dlc15_archmage_phoenix_wb_staff_sword_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc15_archmage_phoenix_wb_staff_sword_dive_rider_v171.bin",
+   "sha256": "2876e14d6f6a834e5d02ee10e5aea08d44f1176765631ddbee97808a458a679a",
+   "bytes": 39306
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_ld_rider_v144.bin",
-   "sha256": "8549bf00d224652a8f44111d8b48e0ce2418c10228c0f16182a1df5eecdc6152",
-   "bytes": 38971
+   "staged": "animations/database/battle/bin/hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc15_princess_bc2_griffon_wb_sword_bow_dive_rider_v144.bin",
+   "sha256": "e0b681732d8bd76c9fbea779640ed9880d6c5555dff4ae203220ea1438303c39",
+   "bytes": 38970
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_dlc16_arahan_bi1_wb_bow_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_arahan_bi1_wb_bow_ld_rider.bin",
-   "sha256": "c5a98578ab48768387b8a59d9af48881029be8c662c0dfff3a36d4c617dfa897",
-   "bytes": 43053
+   "staged": "animations/database/battle/bin/hu1b_dlc16_arahan_bi1_wb_bow_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_arahan_bi1_wb_bow_dive_rider.bin",
+   "sha256": "f4312a6878a18859e3b8b602d8d92378df7d0c453f2b111d9d549462d6369e7f",
+   "bytes": 43052
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_dlc16_arahan_dr1_wb_bow_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_arahan_dr1_wb_bow_ld_rider_v144.bin",
-   "sha256": "6e9582b0fac925632c0b4fb3a78e97aee83016192d2d8c764b5ec555bfcf604e",
-   "bytes": 43539
+   "staged": "animations/database/battle/bin/hu1b_dlc16_arahan_dr1_wb_bow_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_arahan_dr1_wb_bow_dive_rider_v144.bin",
+   "sha256": "752faf8679f408b3a0c53be3a89e0438e83680ec3e30f76738bbf26e7a0044cf",
+   "bytes": 43538
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_dlc16_bi1_eagle_wb_spear_bow_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_bi1_eagle_wb_spear_bow_ld_rider_v171.bin",
-   "sha256": "2007de5ee7031c410c2b4b15d3ff6f54c25df9775d4f514f9bb550cc72efed7b",
-   "bytes": 45675
+   "staged": "animations/database/battle/bin/hu1b_dlc16_bi1_eagle_wb_spear_bow_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_bi1_eagle_wb_spear_bow_dive_rider_v171.bin",
+   "sha256": "3f3c2af4814ef257208732e987528002f6a7204cc5580c5fcf810c5af60a82aa",
+   "bytes": 45674
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_ld_rider_v171.bin",
-   "sha256": "695142014a20f34739d1df6d224261645886b0166a3e30de5355e8edb5dbc219",
-   "bytes": 57164
+   "staged": "animations/database/battle/bin/hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_dlc16_elf_bi1_eagle_wb_spellweaver_sword_dive_rider_v171.bin",
+   "sha256": "9ed646bd650bd4a29e041f0cf2da320cc7f203765cf48310e2b2a7b73e0c8429",
+   "bytes": 57163
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_dual_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bc3_manticore_wb_dual_sword_ld_rider.bin",
-   "sha256": "1472cec1195b54821271ca3a3d57f4d8607bd2d292f92b8da0730a6b931018c0",
-   "bytes": 50676
+   "staged": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_dual_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bc3_manticore_wb_dual_sword_dive_rider.bin",
+   "sha256": "313f3d37ede60b7574cc1df572cfa941198900535ee51d4341796bef57b2e412",
+   "bytes": 50675
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "sha256": "8d0fd02fd33ef91364cda64918ca57f169b205e465fecc71bde680bcd219e01f",
-   "bytes": 50691
+   "staged": "animations/database/battle/bin/hu1b_elf_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "sha256": "eb75be056c2cfb92fa0209a7b37f76b28d11c359d10a83dd209e93cab1a8497f",
+   "bytes": 50690
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_bi1_alarielle_wb_staff_and_sword_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bi1_alarielle_wb_staff_and_sword_ld_rider_v171.bin",
-   "sha256": "25e35b1af947273a0c06d28a24f983064dc93ac721f5cd6531e95d7489b7e7ee",
-   "bytes": 50975
+   "staged": "animations/database/battle/bin/hu1b_elf_bi1_alarielle_wb_staff_and_sword_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bi1_alarielle_wb_staff_and_sword_dive_rider_v171.bin",
+   "sha256": "ecd3ef6511ca40109f0a781727c1610a9823f2324cbdbafc51f5c472a593db23",
+   "bytes": 50974
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171.bin",
-   "sha256": "6d813b20df2e75d905168a3f5df9b3fdddfacf754f7aaf8fa3129c961d3bf1b5",
-   "bytes": 46094
+   "staged": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171.bin",
+   "sha256": "659178cb5766476afaaf2d7ca6e18e1e05521d7e74bf04bf663d4d12f64dfccf",
+   "bytes": 46093
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bi1_eagle_wb_sword_ld_rider_v171.bin",
-   "sha256": "d519bfbca105c22429b249a47bc97421ecb810fce7bcf3754fc937d0aa576b50",
-   "bytes": 57057
+   "staged": "animations/database/battle/bin/hu1b_elf_bi1_eagle_wb_sword_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_bi1_eagle_wb_sword_dive_rider_v171.bin",
+   "sha256": "baace48b349c04c6b836db8aed52cba02d47724b9c8e2d5dc64e672980723d70",
+   "bytes": 57056
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v144.bin",
-   "sha256": "7e654b053fc6c450bedf9836899f5b0bc3ce82a5e687edb7801b4fa8436f487e",
-   "bytes": 51037
+   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v144.bin",
+   "sha256": "9be77e97b2887296c566d562cfbb9d67394e7353c24ee044ba37f6cb39edb906",
+   "bytes": 51036
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_staff_and_sword_ld_rider_v153.bin",
-   "sha256": "442ac847b345170a24821d65965c3beb7ae00b61e5b89c49df02bce8fe67c198",
-   "bytes": 51037
+   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_staff_and_sword_dive_rider_v153.bin",
+   "sha256": "96db83774c4871c3cd146d4053ee19974e6ea46f94717ba146c2377c08e69dba",
+   "bytes": 51036
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v135.bin",
-   "sha256": "89bc68001c6448108b41fd4d447be0a45cc4a6849358e9731975675ceb437ec1",
-   "bytes": 43603
+   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v135.bin",
+   "sha256": "fb8ffd1cdd400728aa4ed97d82dd6bbc3c03eceb303baef05df54d69048c8a3e",
+   "bytes": 43602
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144.bin",
-   "sha256": "ddc02b6201384faeaf12dd3991cf857feb93adc08a5163d2d83064471c6b0be8",
-   "bytes": 43603
+   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144.bin",
+   "sha256": "c0418899f0c938156e9048ec7a4dfc6636798ee7a9f5edbfecb7af492000a5fe",
+   "bytes": 43602
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "sha256": "771790060f430bb95b9dec333a693769776a9e52032ec5badcf6ca3a87920844",
-   "bytes": 47577
+   "staged": "animations/database/battle/bin/hu1b_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "sha256": "ffbe3be808de8e5dbc92a1c1a691e7ddb76e83d7b4098b06518819ddd7c47a1e",
+   "bytes": 47576
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_staff_and_sword_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_hr1_pegasus_staff_and_sword_ld_rider_v162.bin",
-   "sha256": "e60ccff31097cc1dbb8584e2214859765416aa4ea3e2befb1ffa4cf70e83a288",
-   "bytes": 84295
+   "staged": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_staff_and_sword_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_hr1_pegasus_staff_and_sword_dive_rider_v162.bin",
+   "sha256": "7e4c4865dfcea418f40c940059df91f132636ba637333d405f22eb8d67c24564",
+   "bytes": 84294
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_hr1_pegasus_sword_and_shield_ld_rider_v162.bin",
-   "sha256": "320c5d2327e7c22fccb75416ba3cc917e907bbae634c889707a62b31c12b5fdf",
-   "bytes": 81825
+   "staged": "animations/database/battle/bin/hu1b_elf_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_elf_hr1_pegasus_sword_and_shield_dive_rider_v162.bin",
+   "sha256": "3105747571dac3edd61ca1a6744ab3d545d4968dbd60dc4eddd619fdf135dc44",
+   "bytes": 81824
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_and_chalice_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_vampire_hr1_pegasus_sword_and_chalice_ld_rider_v153.bin",
-   "sha256": "0f6aa023856a018d9a4337603708458b32aa253b7fba61499401c68698e9f912",
-   "bytes": 83283
+   "staged": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_and_chalice_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_vampire_hr1_pegasus_sword_and_chalice_dive_rider_v153.bin",
+   "sha256": "c53d4815483817dfb6884d7878e71523109e2c756941beeed66e97cf67dd96e8",
+   "bytes": 83282
   },
   {
-   "staged": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1b_vampire_hr1_pegasus_sword_ld_rider_v153.bin",
-   "sha256": "f80ba230be1020bd41550aaad3cd8e51318e0f769bf85b9c63e805c1e2837226",
-   "bytes": 83310
+   "staged": "animations/database/battle/bin/hu1b_vampire_hr1_pegasus_sword_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1b_vampire_hr1_pegasus_sword_dive_rider_v153.bin",
+   "sha256": "adaa03f458712b140fdb560bbd10bae615fddd93fb6b8ed819c3313aed51640b",
+   "bytes": 83309
   },
   {
-   "staged": "animations/database/battle/bin/hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_ld_rider.bin",
-   "sha256": "f3ba9047f58ef332f637f1dc089f8610b7c802e806a8f4487e05e5f54e3cba3b",
-   "bytes": 47110
+   "staged": "animations/database/battle/bin/hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1ba_dlc29_vmp_bc3c_dread_abyssal_neferata_staff_and_sword_dive_rider.bin",
+   "sha256": "d9738e5a0acb7c47e72df1d745031409762b3415027a9b9ac3ce5199f4d4d64f",
+   "bytes": 47109
   },
   {
-   "staged": "animations/database/battle/bin/hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_ld_rider_v126.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_ld_rider_v126.bin",
-   "sha256": "c2f281c753e847f09bcd4122c2c723ff622f73ac1f699fed59922ff9a42a1611",
-   "bytes": 11734
+   "staged": "animations/database/battle/bin/hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_dive_rider_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1ba_dlc29_vmp_dr1_zombie_dragon_wb_neferata_sword_and_staff_dive_rider_v126.bin",
+   "sha256": "eb04df36a90439405b283a5c462115237ec7eec077aab47c25e93fc9815a11f1",
+   "bytes": 11733
   },
   {
-   "staged": "animations/database/battle/bin/hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_ld_rider_v153.bin",
-   "sha256": "5d22e1259c50b74d616ea633315c0c994eb1d5aa5b1a9e730d63d02a106b9b13",
-   "bytes": 23491
+   "staged": "animations/database/battle/bin/hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1ba_dlc29_vmp_hr1_hellsteed_neferata_sword_and_staff_dive_rider_v153.bin",
+   "sha256": "c385948268862a898a1ce96916e5058d2cbfb6360f47bc4410894b84be6e50d2",
+   "bytes": 23490
   },
   {
-   "staged": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1c_chaos_bc3_manticore_wb_staff_and_sword_ld_rider.bin",
-   "sha256": "c8822f9b5edce7abc4ef3f11d9ebbfaf64d8c9608111d239f5385ea64710735d",
-   "bytes": 66503
+   "staged": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1c_chaos_bc3_manticore_wb_staff_and_sword_dive_rider.bin",
+   "sha256": "2f07e3d35d984e5691d73a8daa38980d2e87b2f3449aa9267f1a0dfa9e0e9456",
+   "bytes": 66502
   },
   {
-   "staged": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_sword_and_shield_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1c_chaos_bc3_manticore_wb_sword_and_shield_ld_rider.bin",
-   "sha256": "f7361bd9ea797eca3be89dfcbd2a5653356d8f38667eb5bbe1cd90453a22c5c8",
-   "bytes": 67353
+   "staged": "animations/database/battle/bin/hu1c_chaos_bc3_manticore_wb_sword_and_shield_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1c_chaos_bc3_manticore_wb_sword_and_shield_dive_rider.bin",
+   "sha256": "50a3e36c39ce3dcae6d800ce531daae1f4b83cb81f60614df10c1c381218c491",
+   "bytes": 67352
   },
   {
-   "staged": "animations/database/battle/bin/hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "sha256": "2b80052d9e16707d1b82903f66c24be59529b3ce042d673b0c8b0d6356bc6aa6",
-   "bytes": 67227
+   "staged": "animations/database/battle/bin/hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1c_chaos_dr1b_chaos_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "sha256": "60310b29738ac80fb4b55854ecffb741ed1fa0fef57b08edc6b4e63013ece356",
+   "bytes": 67226
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_ld_rider.bin",
-   "sha256": "db537f008e87ae8a0a664ec91e0dd33ad1bf6f21cde7bf7fd692b68d9c8ddeb9",
-   "bytes": 58529
+   "staged": "animations/database/battle/bin/hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc14_bc3_manticore_wb_beastmaster_spear_whip_dive_rider.bin",
+   "sha256": "cc79540bace5d6e20fb6005b26179c68d492d4b028c212dc4595661bf63176ce",
+   "bytes": 58528
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_dlc14_hr1_pegasus_master_spear_shield_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc14_hr1_pegasus_master_spear_shield_ld_rider_v162.bin",
-   "sha256": "fde0e84bae6dc5b73b8a541a393bb413822a797873967d80d1712c8247941a99",
-   "bytes": 78118
+   "staged": "animations/database/battle/bin/hu1d_dlc14_hr1_pegasus_master_spear_shield_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc14_hr1_pegasus_master_spear_shield_dive_rider_v162.bin",
+   "sha256": "c7e12baaca8219ac28a299fb0bb30bf1f31fd56b94e8ef510d130348c0e71619",
+   "bytes": 78117
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_ld_rider_v148.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_ld_rider_v148.bin",
-   "sha256": "add6b95709c4ff779efeb1eee2606fcba53953cdd9f726a4d379f63404e13c52",
-   "bytes": 60584
+   "staged": "animations/database/battle/bin/hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_dive_rider_v148.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc15_eltharion_bc2_griffon_wb_spear_sword_dive_rider_v148.bin",
+   "sha256": "912973638b8d02367fd7a9fb59ee1eeb99823084d4c421887c983c5b4e0b4ad0",
+   "bytes": 60583
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_ld_rider_v144.bin",
-   "sha256": "5cbf99401050ef79e83fe11d291de23d132229b118e3bc4be49730fa5dba68d8",
-   "bytes": 58231
+   "staged": "animations/database/battle/bin/hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_dlc15_prince_bc2_griffon_wb_sword_shield_dive_rider_v144.bin",
+   "sha256": "93c1e8cc297fb6783be12f339da57cd40a98bb52c698d303271760182bc5beba",
+   "bytes": 58230
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_2handed_axe_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_2handed_axe_ld_rider_v171.bin",
-   "sha256": "71a15c18087b7cfde2008fb9bdd918fb10c99ae09fa87be359778ea802569e1e",
-   "bytes": 62766
+   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_2handed_axe_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_2handed_axe_dive_rider_v171.bin",
+   "sha256": "7b5a3f5ac12473f96ce664573587105c09401879b2ef217c456044fee6f4b22b",
+   "bytes": 62765
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_halberd_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_halberd_ld_rider_v171.bin",
-   "sha256": "b182dc22263c80e8f9d55b053502550a5198f5af284201a7e15d350e718d45d2",
-   "bytes": 58937
+   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_halberd_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_halberd_dive_rider_v171.bin",
+   "sha256": "8d9f8afffddd17b445e3d8a2424a24833f67dc5d47ef34c7ce93e886b408e7ef",
+   "bytes": 58936
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_sword_and_bow_ld_rider_v171.bin",
-   "sha256": "2cd7c2067a70e425856de9e57a32a23f006d736197ad8f2bd44fe6dee6254b8b",
-   "bytes": 62877
+   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_sword_and_bow_dive_rider_v171.bin",
+   "sha256": "d3a673fc1d0f526c834d0ef3b376c5a10fd5d21f28a219ea2d620e407d5ad516",
+   "bytes": 62876
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_shield_ld_rider_v171.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_sword_and_shield_ld_rider_v171.bin",
-   "sha256": "f39050b634c3eefff50b61b867ca1cbc2c4085830a622a7a40a8cf643356708d",
-   "bytes": 62880
+   "staged": "animations/database/battle/bin/hu1d_elf_bi1_eagle_wb_sword_and_shield_dive_rider_v171.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_eagle_wb_sword_and_shield_dive_rider_v171.bin",
+   "sha256": "05d10d14c2a23d18bf39b1e59b83462cbd40a0ca2a8241914f32f76321b52604",
+   "bytes": 62879
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_bi1_teclis_wb_staff_and_sword_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_teclis_wb_staff_and_sword_ld_rider.bin",
-   "sha256": "5c8a688f3b490082b67d6c7ea7c9f537973ea52ac2df6b09b6a4ef6c231b09a3",
-   "bytes": 61533
+   "staged": "animations/database/battle/bin/hu1d_elf_bi1_teclis_wb_staff_and_sword_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_bi1_teclis_wb_staff_and_sword_dive_rider.bin",
+   "sha256": "16ae5858853c21a861da86ad895084f284b72c0b09de1848221a5fe8e3e4e8bf",
+   "bytes": 61532
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v135.bin",
-   "sha256": "8ad241634765112c922984b8bfa6a2a219b6b6a8032756a3000ffc596041e18b",
-   "bytes": 62768
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v135.bin",
+   "sha256": "a2b1a69c9a707db8478b0d5f43aab31a5740099a3749605a9ae4aa101b5b6949",
+   "bytes": 62767
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_2handed_axe_ld_rider_v153.bin",
-   "sha256": "d375abf8364df7101336219a4dc23c1cc9ae5426b3a5504eca383ee6875366e9",
-   "bytes": 62768
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_2handed_axe_dive_rider_v153.bin",
+   "sha256": "3640679984bdaa2d046334175dd0aadd762796d8b9c8dfb13026af67c300ebaa",
+   "bytes": 62767
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_ld_rider_v144.bin",
-   "sha256": "9618608daae36c206d896f4f7596385660002319b689c33f709490e56e979a4c",
-   "bytes": 65342
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_malekith_sword_and_shield_dive_rider_v144.bin",
+   "sha256": "ef6f4c49261aa6feb5a7e4c558e74ee1ce3708ef51d793c070837c3b28a7a2db",
+   "bytes": 65341
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_bow_ld_rider_v144.bin",
-   "sha256": "0af161e5f9c58b008524f61c0d3ea61a7d2caaf22e95e4e21e1359891272df38",
-   "bytes": 60371
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_bow_dive_rider_v144.bin",
+   "sha256": "de2aa1c323c7861f80f2a3c6594fa010fefdd99f6bca57943c22948304cc6dfb",
+   "bytes": 60370
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_crossbow_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_crossbow_ld_rider_v144.bin",
-   "sha256": "50f26f81112e650a21b79736af3fc5d1f16ef6df93957da4c93416cfd4070c53",
-   "bytes": 60258
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_crossbow_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_crossbow_dive_rider_v144.bin",
+   "sha256": "0843a4f402e6eafc829207ec98e046d88944d5fd74703e3904b681d5b6d4324c",
+   "bytes": 60257
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v135.bin",
-   "sha256": "aca2c210b51501834b195cca4d2f17d20c2d10f287eb0c48805d492a79bedf00",
-   "bytes": 65550
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v135.bin",
+   "sha256": "f6918a6fdf91080e0a62aff70fee18a75ca651967c74267da827e5d88323c475",
+   "bytes": 65549
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v144.bin",
-   "sha256": "e315e7441d14c093d8c76249f8e75f214af95320f885efa52c32e94ca74896e6",
-   "bytes": 65550
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v144.bin",
+   "sha256": "b8beed681a2c7231b6bf6902663e5743dad50b2b8a33f92894a9172b0b9eabaa",
+   "bytes": 65549
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_shield_ld_rider_v153.bin",
-   "sha256": "812316a7435bc4e3d0c8a334aed79626def81307d55a39d60b3eef153ee2070a",
-   "bytes": 65550
+   "staged": "animations/database/battle/bin/hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_dr1_dragon_wb_sword_and_shield_dive_rider_v153.bin",
+   "sha256": "a32c049390a32d83127065701f5c936d7a98d4b7787b5e431df0b669c0d3c8b6",
+   "bytes": 65549
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_elf_hr1_pegasus_sword_crossbow_ld_rider_v162.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_hr1_pegasus_sword_crossbow_ld_rider_v162.bin",
-   "sha256": "3a4adf76f3f519dbdfb6caefaacd394d508b42538306a019376fd2d20f3eed37",
-   "bytes": 83759
+   "staged": "animations/database/battle/bin/hu1d_elf_hr1_pegasus_sword_crossbow_dive_rider_v162.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_elf_hr1_pegasus_sword_crossbow_dive_rider_v162.bin",
+   "sha256": "84e2b544d708c7463fb7bc5c8db6a521be539e2b74479a984e7e31bd53ee2c32",
+   "bytes": 83758
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_ld_rider_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_ld_rider_v135.bin",
-   "sha256": "d580eb7c2af3a6e622ed549b90d7561e991d6a58c22629ba7d0da1bb4d82c7ee",
-   "bytes": 58849
+   "staged": "animations/database/battle/bin/hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_dive_rider_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_hef_imrik_dlc15_wb_dr1_dragon_lance_horn_dive_rider_v135.bin",
+   "sha256": "9a293d3e0bb6d969a4eddfb775e3ae7293072eba595b8abae1ed44906a7c9cf6",
+   "bytes": 58848
   },
   {
-   "staged": "animations/database/battle/bin/hu1d_twa03_wb_dr1_rakarth_spear_whip_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1d_twa03_wb_dr1_rakarth_spear_whip_ld_rider_v144.bin",
-   "sha256": "e4ca7ded2dd868b43de62e70c3c40c3b30498ac15879c0f3201c610fcb6ce016",
-   "bytes": 65491
+   "staged": "animations/database/battle/bin/hu1d_twa03_wb_dr1_rakarth_spear_whip_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1d_twa03_wb_dr1_rakarth_spear_whip_dive_rider_v144.bin",
+   "sha256": "2383d1b2facd4f14093f30df6b4101f77050ca8ec640419a50f8b272ea025c9f",
+   "bytes": 65490
   },
   {
-   "staged": "animations/database/battle/bin/hu1e_dlc24_bc2_celestial_lion_celestial_general_ld_rider_v135.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1e_dlc24_bc2_celestial_lion_celestial_general_ld_rider_v135.bin",
-   "sha256": "24b65ed1c3f0baaf45103b258ca7453c32857ff68bfd71b8eac2a21d5331ec6c",
-   "bytes": 47798
+   "staged": "animations/database/battle/bin/hu1e_dlc24_bc2_celestial_lion_celestial_general_dive_rider_v135.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1e_dlc24_bc2_celestial_lion_celestial_general_dive_rider_v135.bin",
+   "sha256": "2bc25e8194ee56071e8190ed8d713c521e5042fdd55812c7c44d5eaa4e32de27",
+   "bytes": 47797
   },
   {
-   "staged": "animations/database/battle/bin/hu1e_dlc24_hr1_longma_celestial_general_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1e_dlc24_hr1_longma_celestial_general_ld_rider.bin",
-   "sha256": "1679c1d23b85166c3fdea7e9b5fa4e78ab133c9380f5a744d184ab5d9f25081d",
-   "bytes": 78453
+   "staged": "animations/database/battle/bin/hu1e_dlc24_hr1_longma_celestial_general_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1e_dlc24_hr1_longma_celestial_general_dive_rider.bin",
+   "sha256": "394546e2d110f3cdd54c5987a667053ea33a5e924de179b8fabc1c6eb762a5d8",
+   "bytes": 78452
   },
   {
-   "staged": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_halberd_and_shield_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1e_wh3_cathay_hr1_longma_halberd_and_shield_ld_rider.bin",
-   "sha256": "9d631a74f68e02abc1992550f5d6d55eabe1ae710cf1b8b7339babe86a1c340e",
-   "bytes": 54818
+   "staged": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_halberd_and_shield_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1e_wh3_cathay_hr1_longma_halberd_and_shield_dive_rider.bin",
+   "sha256": "5b66932cfa3cf2a9c2ed5a5c6220be45d6c4d5a732b7a1a49a8bb6750c68f5c0",
+   "bytes": 54817
   },
   {
-   "staged": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_mage_lord_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1e_wh3_cathay_hr1_longma_mage_lord_ld_rider.bin",
-   "sha256": "0504776467290c1e784492d5cbd5967e92c2b0bc5f529c50508f9509d896d95c",
-   "bytes": 55221
+   "staged": "animations/database/battle/bin/hu1e_wh3_cathay_hr1_longma_mage_lord_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1e_wh3_cathay_hr1_longma_mage_lord_dive_rider.bin",
+   "sha256": "d705ed320875b07c056f93f377958709ee548a5ddde0cb7dfdf0ff541301b5f4",
+   "bytes": 55220
   },
   {
-   "staged": "animations/database/battle/bin/hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_ld_rider.bin",
-   "sha256": "c7177b804010a2ccd95e0ed0281cea60b2942d8792a9e72ea0b8f95b66df08ec",
-   "bytes": 42861
+   "staged": "animations/database/battle/bin/hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1j_dlc25_elspeth_dr1_dragon_wb_scythe_dive_rider.bin",
+   "sha256": "7d43275836680ceea6a05c515a7294e69cc3d55023f3be536ce8c98618c95074",
+   "bytes": 42860
   },
   {
-   "staged": "animations/database/battle/bin/hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_ld_rider_v126.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_ld_rider_v126.bin",
-   "sha256": "0d32b5f64e2e953831d394f3c89959aae2243ec7621409e9e7ab9cb816401891",
-   "bytes": 43735
+   "staged": "animations/database/battle/bin/hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_dive_rider_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1k_dlc29_vmp_dr1_zombie_dragon_necrarch_vampire_sword_and_skull_dive_rider_v126.bin",
+   "sha256": "eff1e64f0fb74b34b74f2bd1b092a8f3fe58d957f63b6751ccad0fce434c4222",
+   "bytes": 43734
   },
   {
-   "staged": "animations/database/battle/bin/hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_ld_rider_v153.bin",
-   "sha256": "5982fb84e9d82ed91cf00c5e0f9138e20bc883c153c3dcc11b211b666d28af3d",
-   "bytes": 53778
+   "staged": "animations/database/battle/bin/hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1k_dlc29_vmp_hr1_hellsteed_necrarch_vampire_sword_and_skull_dive_rider_v153.bin",
+   "sha256": "67eb635e883eab135ada7830ec730f82c7b84511e0d8948ea14f9fb738e77379",
+   "bytes": 53777
   },
   {
-   "staged": "animations/database/battle/bin/hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_ld_rider_v126.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_ld_rider_v126.bin",
-   "sha256": "865509ce14b4039838c78fd38ae7468dac8e9d1647cbe7859ebc801b8db5f273",
-   "bytes": 21292
+   "staged": "animations/database/battle/bin/hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_dive_rider_v126.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1o_dlc29_vmp_dr1_zombie_dragon_lahmian_vampire_sword_and_magic_dive_rider_v126.bin",
+   "sha256": "17def56b2d8d3b0c9a245d78b6919d781e74b1402b1ef34b10519597190ce2ff",
+   "bytes": 21291
   },
   {
-   "staged": "animations/database/battle/bin/hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_ld_rider_v153.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_ld_rider_v153.bin",
-   "sha256": "208d22f5e73f19444bcae6268b3d9c55a5d0a81cebe8e4f68cad7c667f98a922",
-   "bytes": 21346
+   "staged": "animations/database/battle/bin/hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_dive_rider_v153.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu1o_dlc29_vmp_hr1_hellsteed_lahmian_vampire_sword_and_magic_dive_rider_v153.bin",
+   "sha256": "f151a9631144e45192d0a11988a80a48e9131e26dedf88a0de9d353a6ab7d594",
+   "bytes": 21345
   },
   {
-   "staged": "animations/database/battle/bin/hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_ld_rider_v144.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_ld_rider_v144.bin",
-   "sha256": "6010b862121346c2fd25d87c7e1c8933c353f1d06df88ec30e30f415ee3040a7",
-   "bytes": 69804
+   "staged": "animations/database/battle/bin/hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_dive_rider_v144.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu2_dlc26_bi2_wyvern_wb_orc_great_shaman_staff_and_sword_dive_rider_v144.bin",
+   "sha256": "2832c206e168f98ed109a6fd9a473ec8feb38a177cf1c956ee324b55d69d0075",
+   "bytes": 69803
   },
   {
-   "staged": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_pistol_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_bc2_lammasu_wb1_axe_pistol_ld_rider.bin",
-   "sha256": "b79eab6f9e54d5e133575607749408e63cee2b3877ca277f2b35a3213eb1c657",
-   "bytes": 54760
+   "staged": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_pistol_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_bc2_lammasu_wb1_axe_pistol_dive_rider.bin",
+   "sha256": "8a4f1cfed898fb5fd0be4e9c8a51d2ecd58acc441913e0325c2a8d9326f15c57",
+   "bytes": 54759
   },
   {
-   "staged": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_shield_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_bc2_lammasu_wb1_axe_shield_ld_rider.bin",
-   "sha256": "40fee702e6725db486c8ae570f463eb9711b83f4d327d967f56544df6ac8a7f9",
-   "bytes": 50994
+   "staged": "animations/database/battle/bin/hu3_dlc23_bc2_lammasu_wb1_axe_shield_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_bc2_lammasu_wb1_axe_shield_dive_rider.bin",
+   "sha256": "7394f81fb8f03fc52c2771ee37fc09292ac73375a9f9166384894966e9b5bff2",
+   "bytes": 50993
   },
   {
-   "staged": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_pistol_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_ox1_taurus_wb1_axe_pistol_ld_rider.bin",
-   "sha256": "66e22ef2f0fc13be32f4d70fa40b78502736af1f3a820738ac17c660f221167a",
-   "bytes": 56324
+   "staged": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_pistol_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_ox1_taurus_wb1_axe_pistol_dive_rider.bin",
+   "sha256": "b58dad3b832751e0cf2bd58b01bbaea702a700c63e809f22f43c6b9d76a4fd51",
+   "bytes": 56323
   },
   {
-   "staged": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_sceptre_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_ox1_taurus_wb1_axe_sceptre_ld_rider.bin",
-   "sha256": "319d6397213923317da8dd6aac2848e0b127e189f16fa3ed338a9547cb42920c",
-   "bytes": 37923
+   "staged": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_sceptre_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_ox1_taurus_wb1_axe_sceptre_dive_rider.bin",
+   "sha256": "36787b5f292e7e8a1479efcf4da768303de20fda72c9bb522964069e49e475cf",
+   "bytes": 37922
   },
   {
-   "staged": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_shield_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_ox1_taurus_wb1_axe_shield_ld_rider.bin",
-   "sha256": "4d0123a5e1559dbc0e0cd758cbdb4ae13daa9977672e88da5402970912a80323",
-   "bytes": 40736
+   "staged": "animations/database/battle/bin/hu3_dlc23_ox1_taurus_wb1_axe_shield_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu3_dlc23_ox1_taurus_wb1_axe_shield_dive_rider.bin",
+   "sha256": "04482ccb2c7a7acea5c2117d83f0eed484c488ec39a7260f0bc7086c1c0635c9",
+   "bytes": 40735
   },
   {
-   "staged": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu6g_wh3_dlc20_azazel_sword_ld_dive.bin",
-   "sha256": "13204137ad6f3222a3fbdc8c952b269a514ade6219a9b19ee436cbb2102649d4",
-   "bytes": 31696
+   "staged": "animations/database/battle/bin/hu6g_wh3_dlc20_azazel_sword_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu6g_wh3_dlc20_azazel_sword_dive.bin",
+   "sha256": "973ca182a374b38f5b3d32fb7e446ebb289da8c667a33c511f037b8dfce24585",
+   "bytes": 31693
   },
   {
-   "staged": "animations/database/battle/bin/hu8_strigoi_bi2_terrorgheist_wb_ld_rider.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu8_strigoi_bi2_terrorgheist_wb_ld_rider.bin",
-   "sha256": "b63aff6c78eaca9a8200db615038b2b9873ae3b7cc7b07fc7d989edb26e21da8",
-   "bytes": 7438
+   "staged": "animations/database/battle/bin/hu8_strigoi_bi2_terrorgheist_wb_dive_rider.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu8_strigoi_bi2_terrorgheist_wb_dive_rider.bin",
+   "sha256": "d0d7fd5dcca39f56a21ea45091e02302a968013f0f5251cd743abb897a4707ae",
+   "bytes": 7437
   },
   {
-   "staged": "animations/database/battle/bin/hu8b_vargheist_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\hu8b_vargheist_ld_dive.bin",
-   "sha256": "85f8b609cbb5596f2a9d8cd23c4380114443c9a3d141775812d8027aa003a93f",
-   "bytes": 22937
+   "staged": "animations/database/battle/bin/hu8b_vargheist_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\hu8b_vargheist_dive.bin",
+   "sha256": "5fc6fac8c123aa4a2076030f08b425a43534db518f6c83d16715ae53ea5a92da",
+   "bytes": 22934
   },
   {
-   "staged": "animations/database/battle/bin/mt1_wh3_screamers_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\mt1_wh3_screamers_ld_dive.bin",
-   "sha256": "1f96a5cf31b31ceb2518453f2265b44766c524bbcc339405e5c26d26004a2f34",
-   "bytes": 20251
+   "staged": "animations/database/battle/bin/mt1_wh3_screamers_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\mt1_wh3_screamers_dive.bin",
+   "sha256": "ccc1f000bc1e27f7c28064fb18a225b54f0e8132147727a359b5aa953f386068",
+   "bytes": 20248
   },
   {
-   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_cages_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_cages_ld_dive.bin",
-   "sha256": "fe57e7d3e2fb108bb5d63033b935012fd77acd04a99508b00465925f3d491bea",
-   "bytes": 23942
+   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_cages_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_cages_dive.bin",
+   "sha256": "a2e1b062c038a9c92134de79b468b51f600948dfe6955144bb4d07c61f9d6837",
+   "bytes": 23939
   },
   {
-   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_feral_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_feral_ld_dive.bin",
-   "sha256": "e73f33b5070d2638b0b79bae605d34908212db225c23fcab811f2930b20edeee",
-   "bytes": 24167
+   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_feral_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_feral_dive.bin",
+   "sha256": "59484f9685358b7a80e3d3f375006a1c804bdbe04239b14ccb0572f303a1e5f0",
+   "bytes": 24164
   },
   {
-   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_mount_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_mount_ld_dive.bin",
-   "sha256": "65f7151a229813e132c2a60e1a1c99533417d08e605908316efea3deb466c1b3",
-   "bytes": 23938
+   "staged": "animations/database/battle/bin/ox1_dlc23_taurus_mount_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\ox1_dlc23_taurus_mount_dive.bin",
+   "sha256": "31c1d5598abf3333ff6cd71908b0205b6bbd2913344aad0700e27b6d63f0fe0f",
+   "bytes": 23935
   },
   {
-   "staged": "animations/database/battle/bin/sky1_dlc27_skycutter01_ld_dive.bin",
-   "pack_path": "animations\\database\\battle\\bin\\sky1_dlc27_skycutter01_ld_dive.bin",
-   "sha256": "d09b224faa4ec389af3eee3ce3b408095adc201baa547062aa6c6324f857959b",
-   "bytes": 13414
+   "staged": "animations/database/battle/bin/sky1_dlc27_skycutter01_dive.bin",
+   "pack_path": "animations\\database\\battle\\bin\\sky1_dlc27_skycutter01_dive.bin",
+   "sha256": "1e0822b19730809d32c779f764d4e5719273125585eb3c4105d56b4c486087e2",
+   "bytes": 13411
   },
   {
-   "staged": "ld_air_dive_tables.animpack",
-   "pack_path": "animations\\database\\battle\\bin\\ld_air_dive_tables.animpack",
-   "sha256": "49966fd89f80f6a039395bcb3cd8552b86eaf3cb29262bee93e3b8db6ed940d3",
-   "bytes": 6799540
+   "staged": "flyer_dive_tables.animpack",
+   "pack_path": "animations\\database\\battle\\bin\\flyer_dive_tables.animpack",
+   "sha256": "20e25b498d3636503ff88eef0e730ddae1bcdfc0e367111f83c2d2d0701f384b",
+   "bytes": 6799237
   }
  ]
 }

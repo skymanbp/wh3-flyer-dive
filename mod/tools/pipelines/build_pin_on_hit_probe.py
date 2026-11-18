@@ -1,6 +1,6 @@
 """TEST-ONLY packs for the flyer take-off comparisons.
 
-[AIR-DIVE-TAKEOFF-W1 2026-11-12] Nothing here ships: ld_air_dive.pack is
+[AIR-DIVE-TAKEOFF-W1 2026-11-12] Nothing here ships: flyer_dive_takeoff.pack is
 built by build_air_dive_minimod.py and is not touched. Each pack carries the air-dive
 movement recorder plus:
 
@@ -13,8 +13,8 @@ movement recorder plus:
   --rule         + the shipped take-off scripts (battle entry, rule module,
                  generated site table: build_air_dive_minimod.takeoff_entries)
   --record       (with --rule) + pin_on_hit_probe.lua, which writes what the
-                 caves recorded and answered to ld_pin_probe.txt and reads
-                 ld_pin_probe.cfg ("window <ticks>", "mode <1|2>"; mode 2 =
+                 caves recorded and answered to pin_probe.txt and reads
+                 pin_probe.cfg ("window <ticks>", "mode <1|2>"; mode 2 =
                  hits recorded, the game's own engaged check answers: the
                  vanilla arm with the record)
 
@@ -37,7 +37,7 @@ from packfile import PACK_TYPE_MOD, write_pack_file
 
 assert rolepath          # imported for its side effect: the role directories on sys.path
 PROBE_SOURCE = HERE / "pin_on_hit_probe.lua"
-PROBE_PACK_PATH = "script/battle/mod/ld_pin_on_hit_probe.lua"
+PROBE_PACK_PATH = "script/battle/mod/pin_on_hit_probe.lua"
 
 
 def record_entry():

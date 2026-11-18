@@ -30,7 +30,7 @@ import air_dive_rules
 import reflect_probe_asm
 
 GAME_ROOT = Path(os.environ.get(
-    "LD_WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
+    "WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
 REFLECT_RET = f"{reflect_probe_asm.REFLECT_DAMAGE_RETURN:016X}"
 TYPES = {0: "melee", 1: "ranged", 2: "ability", 3: "ability", 4: "explosion", 5: "impact", 6: "collision attack"}
 

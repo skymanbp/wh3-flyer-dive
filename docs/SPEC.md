@@ -41,7 +41,7 @@ W1–W16、冲撞攻击、喷吐、起飞、K 方案是一批一批加上去的�
 | 被谁截停 | 原版拒马、反弹、碰撞分层 | 引擎与 `_kv_rules`（原版值，不改） |
 | 接战中喷吐 | 技能禁用条件表 | `air_dive_rules.breath_abilities` |
 | 接战中起飞 | 挨打才按住的代码洞 | `air_dive_rules` 的 `TAKEOFF_*`（起飞车道） |
-| 原地转向 | 两行转向参数 | `air_dive_rules`（`ld_flyer_large_entity` / `ld_flyer_very_large_entity`） |
+| 原地转向 | 两行转向参数 | `air_dive_rules`（`flyer_dive_large_entity` / `flyer_dive_very_large_entity`） |
 
 **现有改动去留**（证据见各批 §C11）
 

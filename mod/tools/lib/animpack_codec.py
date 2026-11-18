@@ -2,7 +2,7 @@
 
 An animpack is a flat list of named blobs: ``<u32 count>`` followed, per entry,
 by ``<u16 path length><ascii path><u32 size><bytes>``. Here it reads CA's
-animpacks and writes ``ld_air_dive_tables.animpack`` (``pipelines/air_dive.py``).
+animpacks and writes ``flyer_dive_tables.animpack`` (``pipelines/air_dive.py``).
 / animpack 容器编解码的唯一实现。
 """
 from __future__ import annotations

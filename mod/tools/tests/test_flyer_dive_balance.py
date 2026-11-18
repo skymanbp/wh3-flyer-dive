@@ -1,6 +1,6 @@
 """Balance split (2026-11-17, user ruling): breath-while-engaged and the mass
 cut ship in a second pack, ``flyer_dive_balance.pack``, built by the same run
-as ``ld_air_dive.pack`` (``pipelines/build_air_dive_minimod.pack_entries``).
+as ``flyer_dive_takeoff.pack`` (``pipelines/build_air_dive_minimod.pack_entries``).
 
 These checks read the very entry lists the build writes:
 
@@ -164,9 +164,9 @@ class BalanceSplit(unittest.TestCase):
 
     def test_build_refuses_other_pack_names(self):
         with self.assertRaises(SystemExit):
-            mini.main(["--out", "x/ld_air_dive.pack", "--balance-out", "x/zz_balance.pack"])
+            mini.main(["--out", "x/flyer_dive_takeoff.pack", "--balance-out", "x/zz_balance.pack"])
         with self.assertRaises(SystemExit):
-            mini.main(["--out", "x/ld_air_dive.pack"])
+            mini.main(["--out", "x/flyer_dive_takeoff.pack"])
 
     def test_paths_disjoint(self):
         self.assertEqual({p for p, _d in self.main} & {p for p, _d in self.bal}, set())
@@ -217,7 +217,7 @@ class BalanceCheckLua(unittest.TestCase):
         self.assertTrue(out[3].startswith("BALANCE check failed"), out[3])
 
     def test_battle_entry_writes_the_line(self):
-        text = (MOD_DIR / "script/battle/mod/ld_flyer_dive.lua").read_text(encoding="utf-8")
+        text = (MOD_DIR / "script/battle/mod/flyer_dive.lua").read_text(encoding="utf-8")
         self.assertIn('pcall(require, "script/flyer_dive/balance_check")', text)
         self.assertIn("pcall(balance_check.line, require)", text)
 

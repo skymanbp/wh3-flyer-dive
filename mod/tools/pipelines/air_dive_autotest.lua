@@ -1,4 +1,4 @@
--- ld_air_dive_autotest.lua — battle-side driver for the air-dive charge test
+-- flyer_dive_autotest.lua — battle-side driver for the air-dive charge test
 -- 飞兽俯冲自动测试：战斗内驱动——自动开战、摆位、逐个下冲锋令、报完成。
 --
 -- [AIR-DIVE-AUTOTEST 2026-11-10] The user hand-tested every air-dive canary in
@@ -6,10 +6,10 @@
 -- starts the game straight into the battle defined by the generated xml
 -- (game_startup_mode battle <xml>; CA's own terrain/xml_battle/
 -- battle_map_test.xml documents the mechanism) and ships this file at
--- script/battle/mod/ld_air_dive_autotest.lua in a helper pack that is enabled
+-- script/battle/mod/flyer_dive_autotest.lua in a helper pack that is enabled
 -- for that one run only. Never part of the published packs.
 --
--- INERT unless ld_air_dive_autotest_cmd.txt exists in the game's working
+-- INERT unless flyer_dive_autotest_cmd.txt exists in the game's working
 -- directory (the folder of Warhammer3.exe). The control file carries
 -- key=value lines: dist (start distance, m), spacing (lane spacing, m),
 -- settle_ms, stagger_ms, tail_ms, lanes (number of flyer/target pairs),
@@ -32,11 +32,11 @@
 --      (unitcontroller:attack_unit(target, true, true), CA's own call in
 --      lib_battle_script_unit.lua:1928); lane i+1 starts stagger_ms later.
 --   4. tail_ms after the last order writes DONE. The Python side then quits
---      the game and reads ld_air_dive_probe.txt (the movement recorder in the
---      dive pack measures movement) and ld_air_dive_autotest_hp.txt (below).
+--      the game and reads flyer_dive_probe.txt (the movement recorder in the
+--      dive pack measures movement) and flyer_dive_autotest_hp.txt (below).
 --   5. [AIR-DIVE-W14 2026-11-11] From the charge setup to DONE, every 100 ms,
 --      each lane's target hit points: "H <ms> <lane> <unary_hitpoints>
---      <number_of_men_alive>" in ld_air_dive_autotest_hp.txt. The plough is
+--      <number_of_men_alive>" in flyer_dive_autotest_hp.txt. The plough is
 --      judged on these (target hit-point loss right after touchdown), not on
 --      the flyer's position: unit:position() is "the centre position of the
 --      main squad of the unit" (assembly_kit/documentation/script/script/
@@ -44,7 +44,7 @@
 --      per-soldier position (only position_of_officer, one model), so for a
 --      multi-model flyer (griffon knights) the centre only says where the
 --      squad's middle is while riders land one by one.
--- Status lines go to ld_air_dive_autotest_status.txt, stamped with battle
+-- Status lines go to flyer_dive_autotest_status.txt, stamped with battle
 -- time in ms (or "real<n>" before the battle clock runs).
 --
 -- API provenance (CA's scripts, data_script.pack, read 2026-11-10):
@@ -61,9 +61,9 @@
 --   unit:unary_hitpoints()               battle_unit.html (Unit Strength:
 --     "hitpoint strength of all soldiers ... unary fraction of the initial")
 
-local CMD_FILE = "ld_air_dive_autotest_cmd.txt"
-local STATUS_FILE = "ld_air_dive_autotest_status.txt"
-local HP_FILE = "ld_air_dive_autotest_hp.txt"   -- [AIR-DIVE-W14]
+local CMD_FILE = "flyer_dive_autotest_cmd.txt"
+local STATUS_FILE = "flyer_dive_autotest_status.txt"
+local HP_FILE = "flyer_dive_autotest_hp.txt"   -- [AIR-DIVE-W14]
 
 local probe = io.open(CMD_FILE, "r")
 if not probe then return end            -- no control file: completely inert
@@ -176,7 +176,7 @@ local phase = "loading"
 local clicks = 0
 local dumped = false
 local CLICK_IDS = { "button_battle_start" }
-local CLICKER = "ld_air_dive_autotest_clicker"
+local CLICKER = "flyer_dive_autotest_clicker"
 
 local function clicker()
     real_ticks = real_ticks + 1
@@ -289,7 +289,7 @@ local function run_engage(lanes, ux, uz)
             end)
             hp_line(ok and line or fmt("EFAIL %d %d %s", now, i, tostring(line)))
         end
-    end, 100, "ld_air_dive_autotest_engage")
+    end, 100, "flyer_dive_autotest_engage")
     bm:callback(function()
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
@@ -327,8 +327,8 @@ local function run_engage(lanes, ux, uz)
         end
     end, cfg.away_ms)
     bm:callback(function()
-        bm:remove_callback("ld_air_dive_autotest_engage")
-        bm:remove_callback("ld_air_dive_autotest_hp")
+        bm:remove_callback("flyer_dive_autotest_engage")
+        bm:remove_callback("flyer_dive_autotest_hp")
         hp_line(nil)
         status("DONE")
     end, cfg.away_ms + cfg.tail_ms)
@@ -348,7 +348,7 @@ local function run_push(lanes, ux, uz)
             end)
             hp_line(ok and line or fmt("PFAIL %d %d %s", now, i, tostring(line)))
         end
-    end, 100, "ld_air_dive_autotest_push")
+    end, 100, "flyer_dive_autotest_push")
     local function attack(n)
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
@@ -390,8 +390,8 @@ local function run_push(lanes, ux, uz)
         bm:callback(function() attack(k + 1) end, tk)
     end
     bm:callback(function()
-        bm:remove_callback("ld_air_dive_autotest_push")
-        bm:remove_callback("ld_air_dive_autotest_hp")
+        bm:remove_callback("flyer_dive_autotest_push")
+        bm:remove_callback("flyer_dive_autotest_hp")
         hp_line(nil)
         status("DONE")
     end, cfg.settle_ms + cfg.push_ms)
@@ -411,7 +411,7 @@ local function run_cycle(lanes, ux, uz)
             end)
             hp_line(ok and line or fmt("FFAIL %d %d %s", now, i, tostring(line)))
         end
-    end, 100, "ld_air_dive_autotest_cycle")
+    end, 100, "flyer_dive_autotest_cycle")
     local function attack(n)
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
@@ -444,8 +444,8 @@ local function run_cycle(lanes, ux, uz)
         end
     end
     bm:callback(function()
-        bm:remove_callback("ld_air_dive_autotest_cycle")
-        bm:remove_callback("ld_air_dive_autotest_hp")
+        bm:remove_callback("flyer_dive_autotest_cycle")
+        bm:remove_callback("flyer_dive_autotest_hp")
         hp_line(nil)
         status("DONE")
     end, t_end)
@@ -570,7 +570,7 @@ local function run()
             end
         end
         if hp_ticks % 10 == 0 then hp_flush() end
-    end, 100, "ld_air_dive_autotest_hp")
+    end, 100, "flyer_dive_autotest_hp")
 
     -- every 2 s: where each ordered flyer is relative to its target (evidence
     -- for a lane that never closes; the recorder only writes inside 80 m)
@@ -589,7 +589,7 @@ local function run()
                 end)
             end
         end
-    end, 2000, "ld_air_dive_autotest_track")
+    end, 2000, "flyer_dive_autotest_track")
 
     -- [AIR-DIVE-TAKEOFF-W1] melee_off_<i>: the target stops attacking
     for i, lane in ipairs(lanes) do
@@ -627,7 +627,7 @@ local function run()
                 bm:camera():move_to(v(q:get_x() + px * cfg.cam_dist - ux * 10, q:get_y() + cfg.cam_up,
                     q:get_z() + pz * cfg.cam_dist - uz * 10), v(q:get_x(), q:get_y() + 2, q:get_z()), 0, false, 0)
             end)
-        end, cfg.cam_every_ms, "ld_air_dive_autotest_cam")
+        end, cfg.cam_every_ms, "flyer_dive_autotest_cam")
         status(fmt("camera on lane %d", cfg.cam_lane))
     end
     if cfg.scenario == "cycle" then
@@ -662,8 +662,8 @@ local function run()
     end
     local done_at = cfg.settle_ms + (n - 1) * cfg.stagger_ms + cfg.tail_ms
     bm:callback(function()
-        bm:remove_callback("ld_air_dive_autotest_track")
-        bm:remove_callback("ld_air_dive_autotest_hp")
+        bm:remove_callback("flyer_dive_autotest_track")
+        bm:remove_callback("flyer_dive_autotest_hp")
         hp_flush()
         status("DONE")
     end, done_at)

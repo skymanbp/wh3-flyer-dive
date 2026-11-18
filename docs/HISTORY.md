@@ -1413,3 +1413,128 @@ C 新包余下的 9 次放行是飞兽离开近战后的新俯冲（再冲时目
   代码与已发布的那一版相同，新增的只有规矩、记录和两批旧证据（148 个文件）。
 - 推之前核对：新增内容里用户主目录路径、邮箱、令牌字样各 0 处；提交的作者邮箱与此前已公开的提交相同。
 - 两个分支（下一版的代码）没推。创意工坊没动。
+
+## RENAME-1118 2026-11-18：下一版的名字里不再带 `ld`（D9）
+
+依据：`docs/DECISIONS.md` D9（「这一版就改」）。分支 `rename-1118`，建在 `update-1117` 上；离线做完，没启动游戏。
+做法照姊妹模组 wh3-toughness-blast 的 HOME-1117 第三、五节。
+
+### 一、旧名 → 新名（动手之前先定下）
+
+| 类 | 旧 | 新 |
+|---|---|---|
+| 主包 | `ld_air_dive.pack` | `flyer_dive_takeoff.pack` |
+| 子模组包 | `flyer_dive_balance.pack` | 不变 |
+| 主包的 DB 片段（7 张表） | `db\<表>\ld_air_dive` | `db\<表>\flyer_dive_takeoff` |
+| 动作表包 | `animations\database\battle\bin\ld_air_dive_tables.animpack` | `…\flyer_dive_tables.animpack` |
+| 改名的飞行动作表（65 张） | `<原名>_ld_dive[_v<速度>]` | `<原名>_dive[_v<速度>]` |
+| 骑手表副本（84 张） | `<原名>_ld_rider[_v<速度>]` | `<原名>_dive_rider[_v<速度>]` |
+| 放平的俯冲动作 | `animations\battle\ld_air_dive\level\<原名>_ld_level.anim` | `animations\battle\flyer_dive\level\<原名>_dive_level.anim` |
+| 犁地动作（不发货，代码里留着） | `animations/battle/ld_air_dive/plough/<原名>_ld_plough.anim` | `animations/battle/flyer_dive/plough/<原名>_dive_plough.anim` |
+| 复制的近战武器（28 件） | `<原键>_ld_dive` | `<原键>_dive` |
+| 两行转向参数 | `ld_flyer_large_entity`、`ld_flyer_very_large_entity` | `flyer_dive_large_entity`、`flyer_dive_very_large_entity` |
+| 战斗入口脚本 | `script/battle/mod/ld_flyer_dive.lua`、`ld_flyer_takeoff.lua` | `script/battle/mod/flyer_dive.lua`、`flyer_takeoff.lua` |
+| 战役入口脚本 | `script/campaign/mod/ld_flyer_dive.lua`、`ld_flyer_takeoff.lua` | `script/campaign/mod/flyer_dive.lua`、`flyer_takeoff.lua` |
+| 规则模块 | `script/campaign/lore_disasters/lib/ld_flyer_dive.lua`、`ld_flyer_takeoff.lua`、`ld_cave_common.lua` | `script/campaign/flyer_dive/lib/dive.lua`、`takeoff.lua`、`cave_common.lua` |
+| 位点表（生成物） | `script/campaign/lore_disasters/data/ld_flyer_dive_site.lua`、`ld_flyer_takeoff_site.lua` | `script/campaign/flyer_dive/data/dive_site.lua`、`takeoff_site.lua` |
+| 版本戳与子模组核对 | `script/flyer_dive/*.lua` | 不变 |
+| memreader Plus 的所有者 | `ld_flyer_dive`、`ld_flyer_takeoff` | `flyer_dive`、`flyer_takeoff` |
+| 缓冲区标记 | `LDFLYDV2`（俯冲）、`LDFLYPN2`（起飞） | `FLYDIVE3`、`FLYPINS3` |
+| 协商标题（联机时可能显示给玩家） | `Lore Disasters flyer physics dive`、`Lore Disasters flyer take-off` | `Flyer Dive: physics dive`、`Flyer Dive: take-off from melee` |
+| 监听器与计时器名 | `ld_flyer_dive_first_turn`、`ld_flyer_takeoff_first_turn`、`ld_flyer_dive_counts` | 去掉 `ld_` |
+| 写在游戏目录的日志 | `ld_flyer_dive.txt`、`ld_flyer_takeoff.txt` | `flyer_dive.txt`、`flyer_takeoff.txt` |
+| 随包脚本里提到主模组的注释 | `ld_mod.pack`、`ld_army_cap.lua`、`ld_engine_resist.lua` | 改写成不提这些名字 |
+| 开发用环境变量 | `LD_WH3_DATA`、`LD_WH3_ROOT`、`LD_GAME_EXE`、`LD_VANILLA_DB_PACK`、`LD_MEMREADER_DIR` | `WH3_DATA`、`WH3_ROOT`、`WH3_GAME_EXE`、`WH3_DB_PACK`、`MEMREADER_DIR` |
+| 测试探针 | `ld_air_dive_probe`（包内路径、日志、计时器）、`ld_air_dive_autotest*`（驱动、战斗 xml、命令 / 状态 / 血量文件）、`ld_pin_on_hit_probe`、`ld_pin_probe.txt/.cfg` | `flyer_dive_probe`、`flyer_dive_autotest*`、`pin_on_hit_probe`、`pin_probe.txt/.cfg` |
+| 只给适配包用的两个键 | `ld_air_dive_charge_impact`、`ld_air_dive_impact` | `flyer_dive_charge_impact`、`flyer_dive_impact` |
+| 工具里的别名、测试里的假键 | `_ld_os` / `_ld_sys`、`ld_no_such_flyer`、`ld_breath` | `_boot_os` / `_boot_sys`、`no_such_flyer`、`donor_breath` |
+
+**有意不改的：**
+
+- 原版的键（发货的实体、陆军单位、坐骑行改的都是原版的行，键不变）。
+- 主模组 Lore Disasters 的键与名字，留作以后适配包的输入：`mod/tools/data/main_mod_flyers.json`、
+  `air_dive_rules.py` 里标明「适配包输入」的几组行、注释里提到的主模组片段名（`ld_resist_both` 等）。
+  它们是别人的名字，改了就对不上。
+- 外部的测试读取器 `ld_entity_read.pack` / `ld_entity_read.txt`：它的建包脚本不在本仓库，名字由那边定；只在测试里用，从不发布。
+- 随附的 memreader Plus（第三方，原样保存）。
+- 历史记录：本文件以前各节、`docs/DECISIONS.md` 的 E1–E8 与 D1–D8 引文、`docs/research/`、`mod/tools/evidence/`。
+- 草稿目录名 `from_lore_disaster/` 及其中的 `MOVED_FROM_LORE_DISASTER.json`：那是磁盘上现有目录的名字。
+- 散文里把主模组称作 Lore Disasters 的地方（不进包）。
+
+**加载顺序：** 两个包都开时，子模组必须赢过主包的同一行（它的实体行是主包的整行加上下调后的质量）。
+此前实测的规律是「名字排在前面的包（或片段）的行生效」。新名字 `flyer_dive_takeoff` 在包名与片段名两层都仍排在
+`flyer_dive_balance` 之后（`b` < `t`，不分大小写也一样），所以关系不变；有测试钉住。注意不能叫 `flyer_dive.pack`：
+`.` 排在 `_` 前面，它会排到子模组之前。两者对原版 `data__` 片段的先后也不变（`d` < `f` < `l`）。
+
+### 二、怎么改的
+
+- **一次确定的改写**：`mod/tools/rename_1118.py apply`。9 个随包 Lua 换路径（`git mv`），代码、测试、工坊文字里的旧名字
+  按一张有序的替换表改：23 条逐文件改写（共 28 处：提到主模组文件的注释、协商标题、两个缓冲区标记行、一个测试假键、
+  两处测试的通配）、39 条全树规则（共 248 处），36 个文件。每条规则记着它必须替换的次数，次数不对就一个字节都不写；
+  以字母开头的规则只在词首匹配（`ld_air_dive` 不能匹配进 `build_air_dive_minimod`——第一版没这条，干跑时就照出来了）。
+  已改过的树再跑一次报「already applied」，改了一半的树拒绝。
+- **生成物重新生成，不靠文字替换**：动作表与清单 `python -P tools/pipelines/air_dive.py`（151 个旧文件换成 151 个新文件，
+  `--check` 与新派生逐字节相同）；两个位点表 `dive_cave_asm.py --write-site`、`pin_cave_asm.py --write-site`
+  （模拟器全过：俯冲 11 个洞、每个 76 个故意改坏的版本都被抓住；起飞 506 项检查、19 个改坏的洞都被抓住）。
+  位点表里变的只有所有者、标记、头注释、`format`、`source_sha` 五样，机器码一个字节没动（见第三节）。
+- **可复现**：从 `update-1117`（`f6951a3`）另检出一份，只放进这个脚本，跑 `apply` 和上面三条生成命令，结果与本树
+  逐文件相同（除了本节的文档和新加的测试）。
+- 新测试 `mod/tools/tests/test_no_old_names.py`（4 条）：树里没有旧名字、发货的三个名字不带 `ld`、允许清单碰不到
+  `mod/script/`、扫描的模式抓得到每种旧写法而放过 `build_` / `world_` 这类词。
+
+### 三、核对
+
+| 项 | 结果 |
+|---|---|
+| 旧名字（改之前，`update-1117` 的包） | 主包 169 个文件里 167 个路径带旧名；内容里 1,641 处（UTF-8：动作表包 388、骑手与坐骑表 239、陆军单位 388、文化 192、动作登记 149、实体 95、坐骑 67、武器 28、转向 2、脚本 93）；子模组 92 处（实体 90、转向 2） |
+| 旧名字（改之后） | `rename_1118.py check`：两个包 0 处（路径、UTF-8、UTF-16 都查），树里 0 处 |
+| 反向验证 1（树） | 在 `flyer_dive.lua` 末尾加一行 `-- ld_flyer_dive planted`，新测试变红（报出这一行）；还原后文件 sha256 与之前相同 |
+| 反向验证 2（包） | 把新主包复制一份、往战斗入口里加一行 `-- LDFLYPN2`：报 1 处；拿 `update-1117` 的旧包去查：主包 1,809 处、子模组 92 处 |
+| 建包两次 | `flyer_dive_takeoff.pack` 14,011,724 字节，sha256 `266699b345b5f08c0705a65d64fb40712861ba076cdbd6724087f07718e23089`；`flyer_dive_balance.pack` 70,812 字节，sha256 `9f936db40bbf6502338b7e0faaf484788f59e00cd2aa378855fe5f58f83d75f2`；两次相同 |
+| 建包拒绝旧名 | `--out …/ld_air_dive.pack` 被拒绝（包名必须是 `flyer_dive_takeoff.pack`） |
+| 测试 | `88 passed, 2769 subtests passed`（原 84 条 ＋ 新 4 条） |
+| 数据没变 | 见下 |
+
+**新旧包逐项比**（旧包：在本分支改动之前用同一台机器从 `update-1117` 重建，14,013,205 / 70,628 字节，sha256 与
+UPDATE-1117 记的 `c32c9704…`、`a13a8de9…` 相同）。旧包每个文件按映射找到新路径，把映射套到它的每个字符串上再比：
+
+- DB：10 个片段 1,830 行，表头字节相同，行相同。只有两处**行序**不同：武器表 2 行、动作登记表 3 行换了位置——建包按键排序，
+  而改名后的键排序变了（例：`bc2_griffon_draught_dive` 现在排在 `bc2_griffon_dive_v144` 之后）。行的集合相同、键各不相同，
+  同一片段里的行序不影响哪一行生效。
+- 动作表：149 张散装的与动作表包里的 149 张，把映射套到解析结果上再编码，与新文件逐字节相同。放平的俯冲动作逐字节相同。
+- 代码洞：两个位点表里 46 个 `pattern` / `expect` / `bytes` 字段逐字节相同。
+- 脚本：12 个文件套上同一张替换表后，剩下的差别只有：两个位点表的标记（`FLYPINS3`、`FLYDIVE3`）、`format`、`source_sha`
+  （这三样由所有者和标记算出来），以及两个版本戳（主包实体片段的 sha256 前 16 位，键改了它就跟着变）。
+- 子模组大 184 字节：92 行转向键各长 2 个字符（`flyer_dive_large_entity` 比 `ld_flyer_large_entity`）。主包小 1,481 字节。
+- 比对的反向验证：映射里去掉 `_ld_rider` 一条，报 181 处不同；去掉转向键一条，14 处；去掉 `_ld_level`，18 处。
+
+比对脚本在 `D:/Projects/.worktrees/wh3-flyer-dive/rename-1118/scratch/compare_packs.py`（草稿区，不进仓库）。
+
+### 四、加载顺序与别的模组
+
+- 子模组对主包：不变（第一节）。`test_flyer_dive_balance` 一直钉着包名的先后。
+- **对别的模组变了**：主包从 `l` 开头挪到 `f` 开头，名字排在 `flyer_dive_takeoff` 与 `ld_air_dive` 之间的包现在排到它后面。
+  本机订阅的 241 个包里有 18 个落在这段，逐个查它们发的同几张表（陆军单位、坐骑、实体、武器、动作登记、文化、转向）
+  里有没有和本模组相同的键：两个有——`kaylika_auri_lahmians`（3 行吸血鬼陆军单位）、`lbm`（1 行飞马骑士陆军单位）。
+  按「排前面的赢」，这几行以前是它们赢、以后是本模组赢。只查了本机订阅的包。
+
+### 五、没验证的
+
+- **没有实机跑过**：新的脚本路径能不能加载（`script/campaign/flyer_dive/` 在战役与战斗两个 Lua 环境里被 `require`）、
+  新所有者的协商、新日志名、两个包的先后，都没在游戏里看过。`docs/STATUS.md` 欠测第 6 项（换序）要用这两个包跑，
+  顺带看两个日志文件是否出现在游戏目录。
+- 订阅者更新后是否真的要重新勾选，取决于启动器怎么记模组；没试。
+- 存档：改名的键（动作表、复制的武器、转向行）按推断不进战役存档（存档记单位键，这些都没改），没拿旧存档试。
+- 别人的模组按名字引用本模组的键：只查了本机订阅目录里的文件名（带 `air_dive` / `flyer_dive` 的只有本模组自己的条目），包的内容没扫；创意工坊上别的没查。
+
+### 主管复核与两处决定（2026-11-18）
+
+- 主管自己重跑，不采信车道的报告：测试 `88 passed`；重建两个包，sha256 与车道建的相同（主包 `266699b3…8e23089`、
+  14,011,724 字节；子模组 `9f936db4…f83d75f2`、70,812 字节）；旧名字检查对树与两个包都是 `CLEAN`，对改名前的包报 908 处；
+  与改名前的参考包（`c32c9704…`、`a13a8de9…`）逐项比，剩 10 处差异，全是上面列过的三类（两张表只是行序不同、
+  两个位点表的标记与由它算出的两个值、两个建包戳）；去掉骑手表那条映射后变成 181 处差异。输出在草稿区
+  `rename-1118/verify/`。
+- 新旧版本在联机战役里配不上（所有者名变了）：照此定。联机双方本来就得是同一版，更新由 Steam 一起发给两边。
+- 主包改名后排序位置从 `l` 提前到 `f`，会压过原先排在它前面的别人模组里同键的行（本机订阅里查到两个：
+  一个吸血鬼单位模组的 3 个陆军单位行、一个飞马骑士模组的行）。这一条留给主人定：保持新位置，还是换一个排在
+  原位置的名字。主人回答之前按新位置继续实机核对；若主人选原位置，改名脚本换一张映射重跑即可。

@@ -34,7 +34,7 @@ from pathlib import Path
 import air_dive_rules
 
 GAME_ROOT = Path(os.environ.get(
-    "LD_WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
+    "WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
 FIRST = 0x60
 SIZE_AT, MASS_AT = 0x74, 0xB4
 

@@ -26,7 +26,7 @@ import flyer_size_probe_report as size_report  # noqa: E402 -- same reason (pipe
 import reflect_probe_asm  # noqa: E402 -- same reason
 
 GAME_EXE = Path(os.environ.get(
-    "LD_GAME_EXE", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\Warhammer3.exe"))
+    "WH3_GAME_EXE", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\Warhammer3.exe"))
 
 
 class RuledNumbers(unittest.TestCase):

@@ -18,7 +18,7 @@ WHAT SHIPS [AIR-DIVE-W8 2026-11-10, canary 13]. Two parts, both required:
    peak / travel per size class in ``air_dive_rules.PLOUGH_PROFILES``),
    484 too where vanilla plays the same clip in both, 489 added where vanilla
    has none (``dive_entries``). The clips and their fresh metas ship under
-   ``animations/battle/ld_air_dive/plough/``.
+   ``animations/battle/flyer_dive/plough/``.
 
 WHY (in-game canaries and the battle movement recorder, user-confirmed
 2026-11-10; star dragon unless stated):
@@ -61,7 +61,7 @@ seat bone keeps CA's path, so the rider's paired dive clip stays seated
 (FLYER-FIX-1117 / FLYER-SEAT-1117, ``author_levels``).
 
 HOW THE TABLES SHIP [AIR-DIVE-W8 2026-11-10]. W1-W7 shipped the changed flight
-tables as same-named bins in ``@ld_air_dive.animpack``, expecting them to
+tables as same-named bins in the W1-W7 builds' own animpack, expecting them to
 override vanilla by name. They never did. Seven canary packs (user-confirmed
 in game 2026-11-10) tried a same-named bin in our animpack, by-path copies of
 ``animation_tables.animpack`` and ``animation_tables__.animpack``, a loose
@@ -69,12 +69,12 @@ in game 2026-11-10) tried a same-named bin in our animpack, by-path copies of
 ``animations/database/battle/fragments/dr1_dragon.txt``: none took effect.
 What works is the method of Workshop 3120190274 (storm_dargon_anim) and CBFM's
 land_units "animchange" fragment -- ship each changed table under a NEW name
-(``<name>_ld_dive``, only the bin header's ``name`` changes), register it,
+(``<name>_dive``, only the bin header's ``name`` changes), register it,
 copy the source table's culture rows, and repoint every land unit on the
-source table. Canary 7 (every slot of ``dr1_dragon_ld_dive`` pointed at
+source table. Canary 7 (every slot of ``dr1_dragon_dive`` pointed at
 ``dr1_attack_01``) visibly changed the star dragon. The mechanism lives in
 ``lib/anim_table_rename.py``; this script emits the renamed bins (loose and in
-``ld_air_dive_tables.animpack``) and records the rename map in the manifest's
+``flyer_dive_tables.animpack``) and records the rename map in the manifest's
 ``tables_renamed``; the pack build (``pipelines/build_air_dive_minimod.py``)
 emits the three DB row sets from it and repoints every installed land unit on
 a source table through ``anim_table_rename``. [AIR-DIVE-W9] A MOUNTED
@@ -82,9 +82,9 @@ unit's body plays ``mounts_tables.animation``, not ``man_animation``, so the
 mount rows on a source table are repointed as well (``mount_rows``).
 
 Outputs (deterministic; ``--check`` re-derives and compares sha256):
-    mod/assets/air_dive/animations/database/battle/bin/*_ld_dive.bin  renamed tables (loose)
-    mod/assets/air_dive/ld_air_dive_tables.animpack             the same bins, animpacked
-    mod/assets/air_dive/animations/battle/ld_air_dive/plough/*  plough clips + metas (W9)
+    mod/assets/air_dive/animations/database/battle/bin/*_dive.bin  renamed tables (loose)
+    mod/assets/air_dive/flyer_dive_tables.animpack             the same bins, animpacked
+    mod/assets/air_dive/animations/battle/flyer_dive/plough/*  plough clips + metas (W9)
     mod/assets/air_dive/air_dive_manifest.json                 files + measurements
 ``pipelines/build_air_dive_minimod.py`` ships the files the manifest names.
 
@@ -93,9 +93,9 @@ Usage:
     python -P tools/pipelines/air_dive.py --check    # re-derive, compare
 / 空军俯冲：改名的飞行动画表去掉 104 号落地槽，飞兽跳击概率 100，落地后接跳击冲进敌阵。
 """
-import os as _ld_os, sys as _ld_sys
-_ld_sys.path.insert(0, _ld_os.path.dirname(
-    _ld_os.path.dirname(_ld_os.path.abspath(__file__))))
+import os as _boot_os, sys as _boot_sys
+_boot_sys.path.insert(0, _boot_os.path.dirname(
+    _boot_os.path.dirname(_boot_os.path.abspath(__file__))))
 import rolepath
 
 import argparse
@@ -124,11 +124,11 @@ OUT_DIR = MOD_DIR / "assets" / "air_dive"
 MANIFEST = OUT_DIR / "air_dive_manifest.json"
 # [AIR-DIVE-W8] a non-vanilla animpack name holding non-vanilla table names:
 # vanilla tables cannot be overridden by name (module docstring)
-ANIMPACK_NAME = "ld_air_dive_tables.animpack"
-TABLE_SUFFIX = "_ld_dive"
+ANIMPACK_NAME = "flyer_dive_tables.animpack"
+TABLE_SUFFIX = "_dive"
 ANIMPACK_PACK_PATH = "animations\\database\\battle\\bin\\" + ANIMPACK_NAME
 GAME_DATA = Path(os.environ.get(
-    "LD_WH3_DATA",
+    "WH3_DATA",
     r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data"))
 ANIM_PACKS = ("anim.pack", "anim2.pack", "anim_3.pack")
 
@@ -146,7 +146,7 @@ SLOT_MOVING = 484
 # skeleton (CA's precedent: azazel's 484 plays a standing attack clip)
 SLOT_ATTACK_1 = 454
 # [FLYER-FIX-1117 2026-11-17] Pegasus-type tables (horse01: pegasi, hellsteeds, jade longma): with slot 104
-# gone and the flight movement kept after touchdown (lib/ld_flyer_dive.lua), CA's slot-103 dive clip
+# gone and the flight movement kept after touchdown (lib/dive.lua), CA's slot-103 dive clip
 # (hr1_fly_charge_01, its body pitched 32 deg off level for the steep drop) went on playing at ground level:
 # royal pegasus knights slid along the ground nearly upright (in-game shots, runs P_old / P_new, 2026-11-17).
 # [FLYER-SEAT-1117 2026-11-17] 34dfbf3 fixed that by pointing slot 103 at the table's slot-102 FLY_WALK clip,
@@ -158,7 +158,7 @@ SLOT_ATTACK_1 = 454
 # clip (the attitude run P_103 showed gliding level in game). The seat keeps its exact path, so every rider
 # clip CA paired with the dive still sits on it.
 SLOT_FLY_WALK = 102
-LEVEL_DIR = "animations/battle/ld_air_dive/level/"
+LEVEL_DIR = "animations/battle/flyer_dive/level/"
 # [FLYER-SEAT-1117 2026-11-17] A rider table's header s1 names the mount table it is played with (376 of the
 # 1,426 installed tables carry one). Renaming the mount table (AIR-DIVE-W8) left every pegasus / hellsteed /
 # longma rider's s1 naming the vanilla mount, and the engine then played rider and mount out of step: in level
@@ -167,8 +167,8 @@ LEVEL_DIR = "animations/battle/ld_air_dive/level/"
 # slots unchanged, vanilla entity rows and no code caves, reproduce it; the same pack with the vampire's rider
 # table copied with s1 naming the renamed mount copy keeps him seated in every frame. So each rider table whose
 # s1 names a renamed source ships a copy with s1 naming the copy its units ride (rider_copies).
-RIDER_SUFFIX = "_ld_rider"
-CLIP_DIR = "animations/battle/ld_air_dive/plough/"
+RIDER_SUFFIX = "_dive_rider"
+CLIP_DIR = "animations/battle/flyer_dive/plough/"
 
 
 def _bin_inner(path):
@@ -262,7 +262,7 @@ def dive_entries(table, plough=None, levelled=None):
     table has a slot 484 moving attack (the attack picker would otherwise
     start CA's pounce at touchdown), no plough clip -- a landed flyer is left
     to the charge locomotion and the collisions (the code caves in
-    lib/ld_flyer_dive.lua keep it moving). ``plough`` is None. Returns
+    lib/dive.lua keep it moving). ``plough`` is None. Returns
     ``{"slot_104_removed", "slot_489_removed", "slot_484_added",
     "plough_slots": [], "slot_489_added": False}``.
 
@@ -424,8 +424,8 @@ def census_riders(sources, data_dir=GAME_DATA, snapshot=main_mod_flyers.SNAPSHOT
 
 def variants(riders):
     """[AIR-DIVE-W12] ``[(suffix, speed, [entities])]`` for one source table:
-    one renamed copy per plough speed (AIR-DIVE-W13) among its riders, ``_ld_dive`` when
-    they all share one speed, else ``_ld_dive_v<tenths>`` each."""
+    one renamed copy per plough speed (AIR-DIVE-W13) among its riders, ``_dive`` when
+    they all share one speed, else ``_dive_v<tenths>`` each."""
     by_speed = {}
     for ent, speed in riders.items():
         by_speed.setdefault(speed, []).append(ent)
@@ -462,8 +462,8 @@ def author_ploughs(jobs, flight, read_clip, files):
             if stem in reports:
                 raise SystemExit(f"[air_dive] REFUSING: plough clip name "
                                  f"clash {stem}")
-            cpath = f"{CLIP_DIR}{stem}_ld_plough.anim"
-            mpath = f"{CLIP_DIR}{stem}_ld_plough.anm.meta"
+            cpath = f"{CLIP_DIR}{stem}_dive_plough.anim"
+            mpath = f"{CLIP_DIR}{stem}_dive_plough.anm.meta"
             files[cpath], files[mpath] = clip, meta
             authored[key] = (cpath, mpath)
             reports[stem] = {
@@ -476,7 +476,7 @@ def author_ploughs(jobs, flight, read_clip, files):
                 "meta_events": rep["meta"]["events"],
                 "splash_donor": rep["meta"]["splash_donor"], "tables": []}
         cpath, mpath = authored[key]
-        stem = cpath[len(CLIP_DIR):-len("_ld_plough.anim")]
+        stem = cpath[len(CLIP_DIR):-len("_dive_plough.anim")]
         reports[stem]["tables"].append(renamed)
         ploughs[renamed] = {"clip": cpath, "meta": mpath, "third": sref[2],
                             "source_slot": sslot}
@@ -503,7 +503,7 @@ def author_levels(jobs, flight, read_clip, files):
         for src in dives:
             key = (src.lower(), walk[0].lower())
             if key not in made:
-                path = f"{LEVEL_DIR}{src.split('/')[-1][:-len('.anim')]}_ld_level.anim"
+                path = f"{LEVEL_DIR}{src.split('/')[-1][:-len('.anim')]}_dive_level.anim"
                 if path in files:
                     raise SystemExit(f"[air_dive] REFUSING: levelled clip name clash {path} "
                                      "(one dive clip, two level-flight targets)")

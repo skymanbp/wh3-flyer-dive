@@ -7,7 +7,7 @@ without a row, so every emitter already fails closed. These checks pin the
 table itself against what ships:
 
 * every installed flyer the rule applies to (fly_speed > 0, not fauna) has a
-  row -- the vanilla rows the ld_air_dive.pack entity fragment ships;
+  row -- the vanilla rows the flyer_dive_takeoff.pack entity fragment ships;
 * every donor flyer of the main mod (the recorded snapshot
   data/main_mod_flyers.json, read through lib/main_mod_flyers.py) has a row --
   adapter input: the air-dive census counts them, the flyer pack does not
@@ -37,7 +37,7 @@ import flyer_db as installed_db_table  # noqa: E402 -- same reason (FLYER-FIX-11
 import main_mod_flyers  # noqa: E402 -- because rolepath above puts lib/ on sys.path
 
 DB_PACK = Path(os.environ.get(
-    "LD_VANILLA_DB_PACK",
+    "WH3_DB_PACK",
     r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data\db.pack"))
 # Adapter input: the main mod's own flying bodies, emitted by its generators and not shipped by the flyer
 # pack (measured on the main mod's built pack 2026-11-11): Galrauch and Ka'Bandha (its character emitter),
@@ -94,7 +94,7 @@ class ChargeSpeedCoverage(unittest.TestCase):
                 self.assertTrue(reason.strip())
 
     def test_unlisted_flyer_is_refused(self):
-        row = {"key": "ld_no_such_flyer", "fly_speed": 9.0, "type": "giant",
+        row = {"key": "no_such_flyer", "fly_speed": 9.0, "type": "giant",
                "flying_charge_speed": 12.0}
         with self.assertRaises(RuntimeError):
             air_dive_rules.tuned_cells(row)

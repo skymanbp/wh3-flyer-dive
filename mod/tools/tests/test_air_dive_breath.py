@@ -82,19 +82,19 @@ class RowStrip(unittest.TestCase):
     def test_vendored_tsv(self):
         text = ("invalid_usage_flag\tspecial_ability\n"
                 "#special_ability_to_invalid_usage_flags_tables;0;db/x/@y\n"
-                "engaged_in_melee\tld_breath\nclimbing\tld_breath\n"
+                "engaged_in_melee\tdonor_breath\nclimbing\tdonor_breath\n"
                 "engaged_in_melee\tld_plan\n")
-        out, n = rules.rewrite_vendored_usage_flags_tsv(text, {"ld_breath"})
+        out, n = rules.rewrite_vendored_usage_flags_tsv(text, {"donor_breath"})
         self.assertEqual(n, 1)
-        self.assertNotIn("engaged_in_melee\tld_breath", out)
-        self.assertIn("climbing\tld_breath", out)
+        self.assertNotIn("engaged_in_melee\tdonor_breath", out)
+        self.assertIn("climbing\tdonor_breath", out)
         self.assertIn("engaged_in_melee\tld_plan", out)
         same, zero = rules.rewrite_vendored_usage_flags_tsv(text, {"other"})
         self.assertEqual((same, zero), (text, 0))
 
 
 class InstalledTable(unittest.TestCase):
-    DB = Path(os.environ.get("LD_WH3_DATA", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data")) / "db.pack"
+    DB = Path(os.environ.get("WH3_DATA", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data")) / "db.pack"
 
     def test_replacement_drops_exactly_the_breath_rows(self):
         writer, removed, breath = rules.breath_usage_writer(

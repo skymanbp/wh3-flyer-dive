@@ -139,8 +139,8 @@ CHARGE_DISTANCE_FLOORS = {
 }
 # vanilla shared row -> our flyer row
 LOCOMOTION_REPOINT = {
-    "large_entity": "ld_flyer_large_entity",
-    "very_large_entity": "ld_flyer_very_large_entity",
+    "large_entity": "flyer_dive_large_entity",
+    "very_large_entity": "flyer_dive_very_large_entity",
 }
 LOCOMOTION_CELLS = {
     "max_standing_turn_speed": 1.0,
@@ -176,7 +176,7 @@ TURN_ANIM_CELLS = {
 # touchdown). [AIR-DIVE-MP-DIVE-W1 2026-11-12, §C8-61] 0: the shipped ground
 # handoff plays no jump attack at touchdown; a landed flyer keeps moving and
 # the collisions slow it (pipelines/air_dive.py dive_entries,
-# lib/ld_flyer_dive.lua).
+# lib/dive.lua).
 JUMP_ATTACK_CHANCE = 0
 
 # [AIR-DIVE-W10 2026-11-11] Charge speed per flyer, by role and lore (user
@@ -941,7 +941,7 @@ REFLECTION_FLYER_DAMAGE_FACTOR = 2.0
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)
-WEAPON_CLONE_SUFFIX = "_ld_dive"
+WEAPON_CLONE_SUFFIX = "_dive"
 ANCHOR_MASS_RATIO = 1.5      # anchors within x1.5 of the flyer's mass ...
 ANCHOR_MIN = 3               # ... at least this many, else every same-size row
 # the push: dealt-collision knock thresholds x this (lower = men fall at a
@@ -955,7 +955,7 @@ KNOCK_FIELDS = ("dealt_collision_knocked_flying_threshold_multiplier",
                 "dealt_collision_knocked_back_threshold_multiplier")
 # the charge passive (stage D): CA's always-on-while-charging passive
 CHARGE_PASSIVE_TEMPLATE = "wh3_dlc24_unit_passive_bears_bulwark"
-CHARGE_PASSIVE_KEY = "ld_air_dive_charge_impact"
+CHARGE_PASSIVE_KEY = "flyer_dive_charge_impact"
 CHARGE_PASSIVE_UID = 991797001
 CHARGE_PASSIVE_FLAG = "unit_is_not_charging"
 # stat_mass x1.5: CA's own charge passives (murderous charge, momentum) use
@@ -1279,13 +1279,13 @@ def weapon_repointed_land_rows(land_rows, repoint, db_pack, tag="air_dive_impact
 # (installed_impact) and does not call it.
 # A flyer's weapon and land unit can be shipped by any lane (measured on the
 # built ld_mod.pack 2026-11-12: 516 of 519 flyer land units are shipped by us,
-# 314 of them whole in ld_resist_both, 117 in ld_air_dive, the rest by our
+# 314 of them whole in ld_resist_both, 117 in flyer_dive_takeoff, the rest by our
 # generators and 40 donor closures; 27 of the flyer weapons are donor rows),
 # so the rule runs once, at final assembly, over the shipped fragments plus
 # the installed game: a changed row is rewritten inside the fragment that
 # ships it (one row, one owner); installed rows nobody ships go into
 # IMPACT_FRAGMENT. The collision-attack anchors are CA's own rows only.
-IMPACT_FRAGMENT = "ld_air_dive_impact"
+IMPACT_FRAGMENT = "flyer_dive_impact"
 IMPACT_READ_TABLES = ("land_units_tables", "battle_entities_tables",
                       "mounts_tables", COLLISION_ATTACK_TABLE)
 
@@ -1448,16 +1448,16 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
 # source, emulator check, sites and the generated site table live in
 # pipelines/pin_cave_asm.py, installed at runtime through memreader Plus (the
 # site loader: every pattern exactly once, original bytes checked, owned).
-# One owner / feature for ld_mod.pack and the stand-alone ld_air_dive.pack, so
-# the two never fight. It replaces the first version (§C8-57: one byte patch
+# One owner / feature (the Lore Disasters main pack shipped the same while it
+# carried the flyer mod, so the two never fought). It replaces the first version (§C8-57: one byte patch
 # that let the timer always run, so a flyer left 3.0 s after the order
 # whatever was hitting it -- charge, leave, charge again).
 # / 近战中起飞：过半存活模型在最近 1.5 秒内近战挨打才按住，否则 3 秒后离地；
 #   两个代码洞（pipelines/pin_cave_asm.py），取代此前「一律放行」的字节补丁。
-TAKEOFF_OWNER = "ld_flyer_takeoff"
+TAKEOFF_OWNER = "flyer_takeoff"
 TAKEOFF_FEATURE = "takeoff"                       # the agreement feature name
 TAKEOFF_BUILD = "6ae2a00b"                       # the build it was measured on
-TAKEOFF_SITE_LUA_PATH = "script/campaign/lore_disasters/data/ld_flyer_takeoff_site.lua"
+TAKEOFF_SITE_LUA_PATH = "script/campaign/flyer_dive/data/takeoff_site.lua"
 # 1.5 s at 10 ticks a second (measured: the tick counter ran 15..745 over a
 # 73 s battle). A struck model stops counting 1.5 s after its last hit; the
 # 3.0 s timer then has to run out, so a unit leaves at most 4.5 s after the

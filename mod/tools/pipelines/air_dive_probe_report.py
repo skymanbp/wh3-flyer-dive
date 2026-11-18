@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Air dive probe -- per-charge report from ld_air_dive_probe.txt. [AIR-DIVE-W4 2026-11-09]
+"""Air dive probe -- per-charge report from flyer_dive_probe.txt. [AIR-DIVE-W4 2026-11-09]
 
 Reads what ``air_dive_probe.lua`` (shipped by ``build_air_dive_minimod.py
 --probe`` / ``--probe-only``) records in a battle and answers, per charge,
@@ -21,7 +21,7 @@ change of the unit's depth along its approach direction relative to the
 target's centroid (positive = went deeper into the formation; the target's
 own movement is taken out when the log has its position).
 
-usage: python -P air_dive_probe_report.py <ld_air_dive_probe.txt>
+usage: python -P air_dive_probe_report.py <flyer_dive_probe.txt>
                  [--battle N] [--json out.json]
        (default: the last battle in the file; N counts from 1, -1 = last)
 / 读探针日志，逐次冲锋报告：接触后身体是否继续冲进敌阵。

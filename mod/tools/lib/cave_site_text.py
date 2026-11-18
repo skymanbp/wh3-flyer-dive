@@ -5,7 +5,7 @@ pipelines/dive_cave_asm.py (flyer physics dive) each carried a copy of the
 cave template writer and of the Lua lines one cave entry takes in the
 generated site table (`Py_Dup_Census` measured the pair). One home; each
 generator passes its own placeholders and fields, so the generated
-data/ld_flyer_*_site.lua bytes are unchanged.
+data/*_site.lua bytes are unchanged.
 / 两个代码洞生成器共用的模板文本与位点表条目行。
 """
 import struct

@@ -1,17 +1,17 @@
--- ld_air_dive_probe.lua — battle-side movement recorder for the air-dive lane
+-- flyer_dive_probe.lua — battle-side movement recorder for the air-dive lane
 -- 飞兽俯冲探针：战斗中每 0.1 秒记录接敌单位的位置、速度与状态。
 --
 -- [AIR-DIVE-W4 2026-11-09] W2 and W3 changed the land clip's metadata and its
 -- run-out, and both times the user saw the same thing in a custom battle: the
 -- flyer lands at the enemy's front rank and stops. Three file-level guesses
 -- failed, so this measures what the engine actually does with the body. It
--- ships ONLY in the standalone ld_air_dive.pack / ld_air_dive_probe.pack built
+-- ships ONLY in the standalone flyer_dive_takeoff.pack / flyer_dive_probe.pack built
 -- by tools/pipelines/build_air_dive_minimod.py --probe, never in a published pack;
 -- tools/pipelines/air_dive_probe_report.py reads what it writes.
 --
--- WHAT IT WRITES: ld_air_dive_probe.txt in the game's working directory (the
--- folder of Warhammer3.exe, same relative-path convention as ld_battle_probe /
--- ld_selftest). Appends; every battle starts with a "BATTLE" line.
+-- WHAT IT WRITES: flyer_dive_probe.txt in the game's working directory (the
+-- folder of Warhammer3.exe, same relative-path convention as the main mod's
+-- battle probe and self-test). Appends; every battle starts with a "BATTLE" line.
 --   UNIT  <uid> <alliance> <key> fly=<can_fly> men=<initial men> class=<unit_class>
 --   S <ms> <uid> <x> <y> <z> <spd> <bearing> <cur_fly> <moving> <fast> <melee>
 --     <alive> <near_uid> <near_dist> <near_x> <near_z> <near_bearing>
@@ -29,13 +29,13 @@
 --   bm:repeat_callback / remove_callback  lib_battle_manager.lua:1943 / :1952
 --   bm:time_elapsed_ms                 lib_battle_manager.lua:2123 (self:)
 --   bm:alliances() :armies() :units() :count() :item()
---                                      lib_battle_manager.lua:802, ld_incarnate_watch
+--                                      lib_battle_manager.lua:802, the main mod's incarnate watch
 --   army:num_reinforcement_units / get_reinforcement_units
 --                                      lib_battle_script_unit.lua:95 / :105
 --   unit:position() vec:get_x/get_y/get_z  lib_battle_cutscene.lua:1805-1807
 --   unit:bearing() (degrees)           lib_battle_cutscene.lua:1834 (d_to_r)
 --   unit:unique_ui_id()                lib_battle_script_unit.lua:210
---   unit:type()                        ld_incarnate_watch.lua (unit key)
+--   unit:type()                        the main mod's incarnate watch (unit key)
 --   unit:can_fly()                     battle/wh_battle_advice.lua:989
 --   unit:is_currently_flying()         quest_battles/drycha/coeddil_unchained/battle_script.lua:566
 --   unit:is_moving()                   quest_battles/astragoth/black_hammer_of_hashut/battle_script.lua:375
@@ -47,16 +47,16 @@
 -- killing the probe (lib_core pcall would otherwise swallow it silently).
 --
 -- Chunk scope on purpose: the battle loader loads mod files but never calls a
--- function named after the file (see ld_battle_probe.lua header).
+-- function named after the file (the main mod's battle probe does the same).
 
-local LOG_FILE = "ld_air_dive_probe.txt"
+local LOG_FILE = "flyer_dive_probe.txt"
 local VARIANT = "@VARIANT@"   -- substituted by build_air_dive_minimod.py
 local TICK_MS = 100
 local GATE_M = 80
 local SMALL_MEN = 48
 local BIG_EVERY = 5
 local MAX_BYTES = 30 * 1024 * 1024
-local CALLBACK_NAME = "ld_air_dive_probe_tick"
+local CALLBACK_NAME = "flyer_dive_probe_tick"
 
 local fmt = string.format
 

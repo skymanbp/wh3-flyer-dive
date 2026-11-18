@@ -9,7 +9,7 @@
 -- them (pipelines/build_air_dive_minimod.py): the main pack in
 -- script/flyer_dive/main_stamp.lua, the submod in
 -- script/flyer_dive/balance_stamp.lua. The main battle entry
--- (battle/mod/ld_flyer_dive.lua) writes line(require) to ld_flyer_dive.txt.
+-- (battle/mod/flyer_dive.lua) writes line(require) to flyer_dive.txt.
 -- / 两个包都带同一次建包的戳；主包的战斗入口把比对结果写进日志。
 --
 -- Pure module: no core/cm/bm calls; `req` is the game's require (a test

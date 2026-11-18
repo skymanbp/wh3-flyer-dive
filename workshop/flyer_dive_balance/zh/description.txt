@@ -10,7 +10,7 @@
 
 [h2]前置模组[/h2]
 [list]
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3840651516]飞兽俯冲与近战起飞[/url]（必需）。本子模组与主模组由同一次建包生成，只能和它一起用。请两个一起更新；版本不一致时，战斗日志 ld_flyer_dive.txt 会写明。
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3840651516]飞兽俯冲与近战起飞[/url]（必需）。本子模组与主模组由同一次建包生成，只能和它一起用。请两个一起更新；版本不一致时，战斗日志 flyer_dive.txt 会写明。
 [/list]
 
 [h2]加载顺序[/h2]

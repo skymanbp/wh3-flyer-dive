@@ -15,10 +15,10 @@ uses); ``--startup-via user_script`` puts it in
 %APPDATA%/The Creative Assembly/Warhammer3/scripts/user.script.txt instead.
 Both are restored/removed afterwards, whatever happens.
 
-PACKS ENABLED: the test pack (``--test-pack``, default ld_air_dive.pack, the
-deployed canary; it must carry script/battle/mod/ld_air_dive_probe.lua, the
+PACKS ENABLED: the test pack (``--test-pack``, default flyer_dive_takeoff.pack, the
+deployed canary; it must carry script/battle/mod/flyer_dive_probe.lua, the
 recorder) and a helper pack this script writes and deploys for the run only:
-``ld_air_dive_autotest.pack`` = the battle xml + the driver
+``flyer_dive_autotest.pack`` = the battle xml + the driver
 ``pipelines/air_dive_autotest.lua`` (presses "start battle", takes script
 control of every unit, lays the lanes out, orders the charges, writes DONE).
 The helper pack is deleted from data/ after the run unless --keep-helper.
@@ -34,7 +34,7 @@ Exit 0 PASS, 1 FAIL, 3 BLOCKED (game already running).
 
 PLOUGH [AIR-DIVE-W14 2026-11-11]: a lane ploughs when its target loses at
 least PLOUGH_HP_LOSS of its hit points (``unit:unary_hitpoints()``, sampled
-every 100 ms by the driver into ld_air_dive_autotest_hp.txt) within
+every 100 ms by the driver into flyer_dive_autotest_hp.txt) within
 PLOUGH_WINDOW_S after the touchdown. In the 11-11 run the first is_in_melee
 came 2.6 s (star dragon) and 3.3 s (griffon knights) after touchdown, so a
 loss inside 1.5 s is the landing's impact, not ordinary melee. The loss at
@@ -98,7 +98,7 @@ list of either scenario (the lane count follows it).
 
 usage: python -P tools/pipelines/air_dive_autotest.py
            [--scenario charge|engage]
-           [--test-pack ld_air_dive.pack] [--dist 250] [--spacing 250]
+           [--test-pack flyer_dive_takeoff.pack] [--dist 250] [--spacing 250]
            [--lane-offsets a,b,c,d | spacing] [--offset 0]
            [--stagger 20] [--tail 40] [--timeout 900]
            [--startup-via argv|user_script] [--out-dir DIR] [--keep-helper]
@@ -106,9 +106,9 @@ usage: python -P tools/pipelines/air_dive_autotest.py
            (re-judge a finished run's saved status + probe slice + hp.txt)
 / 俯冲冲锋全自动实机测试：直接进脚本战斗、逐个冲锋、退出、出报告与判决。
 """
-import os as _ld_os, sys as _ld_sys
-_ld_sys.path.insert(0, _ld_os.path.dirname(
-    _ld_os.path.dirname(_ld_os.path.abspath(__file__))))
+import os as _boot_os, sys as _boot_sys
+_boot_sys.path.insert(0, _boot_os.path.dirname(
+    _boot_os.path.dirname(_boot_os.path.abspath(__file__))))
 import rolepath  # noqa: F401  (role directories on sys.path)
 
 import argparse
@@ -131,20 +131,20 @@ KEEP_BEHIND = OwnGame.keep_behind
 from packfile import PACK_TYPE_MOD, PackFile, write_pack_file
 
 GAME_ROOT = Path(os.environ.get(
-    "LD_WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
+    "WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
 DATA_DIR = GAME_ROOT / "data"
 USED_MODS = GAME_ROOT / "used_mods.txt"
 USER_SCRIPT = (Path(os.environ.get("APPDATA", "")) / "The Creative Assembly"
                / "Warhammer3" / "scripts" / "user.script.txt")
-CMD_FILE = GAME_ROOT / "ld_air_dive_autotest_cmd.txt"
-STATUS_FILE = GAME_ROOT / "ld_air_dive_autotest_status.txt"
-HP_FILE = GAME_ROOT / "ld_air_dive_autotest_hp.txt"   # [AIR-DIVE-W14]
-PROBE_LOG = GAME_ROOT / "ld_air_dive_probe.txt"
-HELPER_PACK = "ld_air_dive_autotest.pack"
-PROBE_PACK_PATH = "script/battle/mod/ld_air_dive_probe.lua"
+CMD_FILE = GAME_ROOT / "flyer_dive_autotest_cmd.txt"
+STATUS_FILE = GAME_ROOT / "flyer_dive_autotest_status.txt"
+HP_FILE = GAME_ROOT / "flyer_dive_autotest_hp.txt"   # [AIR-DIVE-W14]
+PROBE_LOG = GAME_ROOT / "flyer_dive_probe.txt"
+HELPER_PACK = "flyer_dive_autotest.pack"
+PROBE_PACK_PATH = "script/battle/mod/flyer_dive_probe.lua"
 DRIVER_SOURCE = Path(__file__).resolve().parent / "air_dive_autotest.lua"
-DRIVER_PACK_PATH = "script/battle/mod/ld_air_dive_autotest.lua"  # Lua: forward slashes
-XML_PACK_PATH = "terrain\\xml_battle\\ld_air_dive_autotest.xml"   # VFS: backslashes
+DRIVER_PACK_PATH = "script/battle/mod/flyer_dive_autotest.lua"  # Lua: forward slashes
+XML_PACK_PATH = "terrain\\xml_battle\\flyer_dive_autotest.xml"   # VFS: backslashes
 # [ENGINE-ENTITY-READ-W1] the optional per-soldier reader (module docstring)
 ENTITY_PACK = "ld_entity_read.pack"
 ENTITY_LOG = GAME_ROOT / "ld_entity_read.txt"
@@ -293,7 +293,7 @@ def battle_xml(flyers=FLYERS, target=TARGET, ally=None):
 
 def helper_entries(flyers=FLYERS, target=TARGET, ally=None):
     driver = DRIVER_SOURCE.read_bytes()
-    if b"ld_air_dive_autotest_cmd.txt" not in driver:
+    if b"flyer_dive_autotest_cmd.txt" not in driver:
         raise SystemExit("[air_dive_autotest] REFUSING: the driver Lua does not "
                          "name its control file -- wrong source?")
     return [(XML_PACK_PATH, battle_xml(flyers, target, ally)), (DRIVER_PACK_PATH, driver)]
@@ -862,7 +862,7 @@ def grab_window(own, path):
 
 # [FLYER-FIX-1117] the Workshop memreader Plus (the test pack's declared prerequisite) for a run without
 # the entity reader, which carried its own copy: --memreader
-MEMREADER_DIR = Path(os.environ.get("LD_MEMREADER_DIR",
+MEMREADER_DIR = Path(os.environ.get("MEMREADER_DIR",
                                     r"D:\SteamLibrary\steamapps\workshop\content\1142710\3811098873"))
 
 
@@ -1117,7 +1117,7 @@ def run(args):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--test-pack", default="ld_air_dive.pack")
+    ap.add_argument("--test-pack", default="flyer_dive_takeoff.pack")
     ap.add_argument("--scenario", choices=("charge", "engage") + PUSH_SCENARIOS, default="charge",
                     help="charge: the dive charge lanes; engage (AIR-DIVE-W15): "
                          "flyers in melee use their breath, then move away")
@@ -1149,7 +1149,7 @@ def main(argv=None):
     ap.add_argument("--startup-via", choices=("argv", "user_script"), default="argv")
     ap.add_argument("--out-dir")
     ap.add_argument("--keep-helper", action="store_true",
-                    help="leave ld_air_dive_autotest.pack in data/ afterwards")
+                    help="leave flyer_dive_autotest.pack in data/ afterwards")
     ap.add_argument("--entity-read", action="store_true",
                     help="also enable the TEST-ONLY per-soldier reader "
                          "(ld_entity_read.pack, built for the run and removed)")

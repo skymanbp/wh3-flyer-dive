@@ -7,7 +7,7 @@ five call-site caves since AIR-DIVE-RELEASE-W1, the
 contact-engage cave dv_contact, the blocked-stop call-site cave dv_settle
 and the landing-commit call-site cave dv_commit since AIR-DIVE-BRACE-W1). Their source, emulator check
 and sites live in ``pipelines/dive_cave_asm.py``; what ships is the generated
-data module ``data/ld_flyer_dive_site.lua``. These checks pin the join:
+data module ``data/dive_site.lua``. These checks pin the join:
 
 * the committed table was generated from the current cave source;
 * it names every cave, every resume offset and call-site read, and no entry
@@ -35,7 +35,7 @@ from cave_site_cases import loader_pattern_limit, read_site_text  # noqa: E402 -
 
 MOD_DIR = TOOLS_DIR.parent
 SITE_FILE = MOD_DIR / dive_cave_asm.SITE_LUA
-GAME_EXE = Path(os.environ.get("LD_GAME_EXE", str(dive_cave_asm.EXE)))
+GAME_EXE = Path(os.environ.get("WH3_GAME_EXE", str(dive_cave_asm.EXE)))
 
 
 def site_text():

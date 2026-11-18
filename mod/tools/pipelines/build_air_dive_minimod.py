@@ -2,15 +2,15 @@
 """Air dive charge -- the STANDALONE mini-mod pack. [AIR-DIVE-W1 2026-11-09]
 
 User 2026-11-09 (CONTENT_LEDGER §C8-45 item 3): the dive charge, then shipped
-inside the Lore Disasters ld_mod.pack, "can also be its own small mod". This
+inside the Lore Disasters main pack, "can also be its own small mod". This
 writes that small mod (since 2026-11-17 the only pack that carries it):
 one PFH5 mod pack holding exactly the air-dive content and nothing of ours
 besides it, built from the installed game every time (so a game patch is a
 re-run, not a hand edit):
 
-* the RENAMED flight tables (``<name>_ld_dive``, slot 104 removed, slot
+* the RENAMED flight tables (``<name>_dive``, slot 104 removed, slot
   489 playing the plough clip; loose bins plus
-  ``ld_air_dive_tables.animpack``) and [AIR-DIVE-W9] the 34 plough clips and
+  ``flyer_dive_tables.animpack``) and [AIR-DIVE-W9] the 34 plough clips and
   their metas, taken from ``mod/assets/air_dive`` after re-checking every
   sha256 against ``air_dive_manifest.json`` (``pipelines/air_dive.py``
   derives them);
@@ -23,16 +23,16 @@ re-run, not a hand edit):
   ``mounts_tables`` (every installed mount on a source table, whole,
   ``animation`` repointed -- a mounted unit's body plays the mount's table),
   each under the installed fragment's GUID;
-* ``db\\battle_entities_tables\\ld_air_dive``: EVERY installed flyer the rule
+* ``db\\battle_entities_tables\\flyer_dive_takeoff``: EVERY installed flyer the rule
   changes (``air_dive_rules.tuned_cells``), installed row + the rule's cells,
   unchanged cells replayed byte-for-byte. This pack has no other entity
   fragment, so all of them ship in this one fragment. Since the
   balance split (2026-11-17) no ``mass`` cell;
-* ``db\\battle_entity_locomotion_constants_tables\\ld_air_dive``: the two
-  ld_flyer_* rows;
+* ``db\\battle_entity_locomotion_constants_tables\\flyer_dive_takeoff``: the two
+  flyer_dive_* rows;
 * [balance split 2026-11-17] ``script/flyer_dive/main_stamp.lua`` (generated:
   the build stamp of this run) and ``script/flyer_dive/balance_check.lua``,
-  which the battle entry asks for the BALANCE line of ld_flyer_dive.txt.
+  which the battle entry asks for the BALANCE line of flyer_dive.txt.
 
 THE BALANCE SUBMOD (user ruling 2026-11-17: only breath-while-engaged and the
 mass cut move out of the main pack). ``--balance-out`` writes
@@ -58,7 +58,7 @@ the two packs can never disagree:
 Row priority between the two packs: RESIST-W2 measured "the row from the pack
 whose name sorts first wins" with pack AND fragment names sorted the same
 way, so which of the two decides is not separated. Both are made to sort
-first here (``flyer_dive_balance`` / ``data__`` < ``ld_air_dive``; pinned by
+first here (``flyer_dive_balance`` / ``data__`` < ``flyer_dive_takeoff``; pinned by
 tests/test_flyer_dive_balance.py). The in-game swap test is still owed.
 
 * [AIR-DIVE-W16 2026-11-12] the impact (``air_dive_rules`` IMPACT_STAGE,
@@ -87,26 +87,26 @@ load order; that is stated, not solved.
   player and in multiplayer CAMPAIGN battles when every player's game agrees
   (memreader Plus agreement); [FLYER-MP-BATTLE-W1 2026-11-15] multiplayer
   custom / quick / ranked battles run them too, as single player does
-  (no agreement exists outside a campaign; lib/ld_cave_common start_battle).
+  (no agreement exists outside a campaign; lib/cave_common start_battle).
 
 [AIR-DIVE-W4 2026-11-09] ``--probe`` adds the battle movement recorder
-``pipelines/air_dive_probe.lua`` as ``script/battle/mod/ld_air_dive_probe.lua``
-(writes ld_air_dive_probe.txt next to the game exe, read by
+``pipelines/air_dive_probe.lua`` as ``script/battle/mod/flyer_dive_probe.lua``
+(writes flyer_dive_probe.txt next to the game exe, read by
 ``pipelines/air_dive_probe_report.py``); ``--probe-only`` writes a pack with
 the recorder and nothing else, so a vanilla control battle can be recorded
 with the dive pack disabled. Both packs carry the script at the same path,
 so enabling both loads it once. Never part of the published packs.
 
-Usage:  python -P tools/pipelines/build_air_dive_minimod.py --out <path>/ld_air_dive.pack
+Usage:  python -P tools/pipelines/build_air_dive_minimod.py --out <path>/flyer_dive_takeoff.pack
         --balance-out <path>/flyer_dive_balance.pack [--probe]
         python -P tools/pipelines/build_air_dive_minimod.py --out <path.pack>
         --probe-only [--takeoff]
         (deliberately no default: this pack is not part of the mod build)
 / 独立小模组：只含改名动画表（去 104 号槽）与飞兽数据，每次都从安装游戏重新生成。
 """
-import os as _ld_os, sys as _ld_sys
-_ld_sys.path.insert(0, _ld_os.path.dirname(
-    _ld_os.path.dirname(_ld_os.path.abspath(__file__))))
+import os as _boot_os, sys as _boot_sys
+_boot_sys.path.insert(0, _boot_os.path.dirname(
+    _boot_os.path.dirname(_boot_os.path.abspath(__file__))))
 import rolepath
 
 import argparse
@@ -124,10 +124,10 @@ from packfile import PACK_TYPE_MOD, write_pack_file
 MOD_DIR = Path(rolepath.__file__).resolve().parent.parent
 ASSET_DIR = MOD_DIR / "assets" / "air_dive"
 GAME_DIR = Path(os.environ.get(
-    "LD_WH3_DATA",
+    "WH3_DATA",
     r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III\data"))
-FRAGMENT = "ld_air_dive"
-MAIN_PACK_NAME = "ld_air_dive.pack"
+FRAGMENT = "flyer_dive_takeoff"
+MAIN_PACK_NAME = "flyer_dive_takeoff.pack"
 # [balance split 2026-11-17] the submod: pack and fragment names sort before the main pack's
 BALANCE_PACK_NAME = "flyer_dive_balance.pack"
 BALANCE_FRAGMENT = "flyer_dive_balance"
@@ -137,7 +137,7 @@ STAMP_MAIN_PATH = "script/flyer_dive/main_stamp.lua"        # generated, main pa
 STAMP_BALANCE_PATH = "script/flyer_dive/balance_stamp.lua"  # generated, balance pack
 BALANCE_CHECK_PATH = "script/flyer_dive/balance_check.lua"  # repository file, main pack
 PROBE_SOURCE = Path(__file__).resolve().parent / "air_dive_probe.lua"
-PROBE_PACK_PATH = "script/battle/mod/ld_air_dive_probe.lua"   # Lua: forward slashes
+PROBE_PACK_PATH = "script/battle/mod/flyer_dive_probe.lua"   # Lua: forward slashes
 
 
 def probe_entry(variant):
@@ -326,7 +326,7 @@ def impact_entries(db_pack):
 # [AIR-DIVE-TAKEOFF-W1 2026-11-12] take-off from melee (user rulings
 # 2026-11-12, CONTENT_LEDGER §C8-57 / §C8-58): the battle entry, the pure rule
 # module and the generated site table, at the paths the published pack has always
-# used (the Lore Disasters ld_mod.pack used the same while it carried the flyer
+# used (the Lore Disasters main pack used the same while it carried the flyer
 # mod, so both enabled loaded them once). [AIR-DIVE-MP-DIVE-W1 2026-11-12] and the
 # campaign entry, which carries the multiplayer agreement: without it this pack
 # alone never got "allowed" in a multiplayer campaign battle (AIR-DIVE-MP-TEST-W1
@@ -334,14 +334,14 @@ def impact_entries(db_pack):
 # and the rule module only.
 # memreader Plus is a declared prerequisite of this pack, not vendored into it:
 # a player of this pack subscribes to memreader Plus (the Lore Disasters
-# ld_mod.pack carried its own pinned copy while it shipped the flyer mod). Without it the battle entry logs "not installed".
+# main pack carried its own pinned copy while it shipped the flyer mod). Without it the battle entry logs "not installed".
 # / 近战起飞：四份脚本与主包同路径（含带联机协商的战役入口）；memreader Plus 为
 #   本小模组的声明前置。
 TAKEOFF_SCRIPTS = (
-    "script/battle/mod/ld_flyer_takeoff.lua",
-    "script/campaign/mod/ld_flyer_takeoff.lua",
-    "script/campaign/lore_disasters/lib/ld_flyer_takeoff.lua",
-    "script/campaign/lore_disasters/lib/ld_cave_common.lua",   # shared with the other cave lanes (TEST-REPAIR-1113)
+    "script/battle/mod/flyer_takeoff.lua",
+    "script/campaign/mod/flyer_takeoff.lua",
+    "script/campaign/flyer_dive/lib/takeoff.lua",
+    "script/campaign/flyer_dive/lib/cave_common.lua",   # shared with the other cave lanes (TEST-REPAIR-1113)
     air_dive_rules.TAKEOFF_SITE_LUA_PATH,
 )
 # [AIR-DIVE-MP-DIVE-W1 2026-11-12, §C8-61] the physics dive (a landing flyer
@@ -350,17 +350,17 @@ TAKEOFF_SCRIPTS = (
 # site table (pipelines/dive_cave_asm.py). Same prerequisite and the same
 # multiplayer rules as the take-off.
 DIVE_SCRIPTS = (
-    "script/battle/mod/ld_flyer_dive.lua",
-    "script/campaign/mod/ld_flyer_dive.lua",
-    "script/campaign/lore_disasters/lib/ld_flyer_dive.lua",
-    # lib/ld_cave_common.lua, which the dive module requires too, ships once in
+    "script/battle/mod/flyer_dive.lua",
+    "script/campaign/mod/flyer_dive.lua",
+    "script/campaign/flyer_dive/lib/dive.lua",
+    # lib/cave_common.lua, which the dive module requires too, ships once in
     # TAKEOFF_SCRIPTS: dive_rule_entries() never ships without takeoff_entries().
-    "script/campaign/lore_disasters/data/ld_flyer_dive_site.lua",
+    "script/campaign/flyer_dive/data/dive_site.lua",
 )
 
 
 def takeoff_entries(mod_dir=MOD_DIR, game_dir=GAME_DIR):
-    """The take-off scripts (with the shared lib/ld_cave_common); refuses a site table that was not generated
+    """The take-off scripts (with the shared lib/cave_common); refuses a site table that was not generated
     from the current cave sources, and an installed game that does not hold
     every cave site and field anchor exactly once."""
     import pin_cave_asm
@@ -376,7 +376,7 @@ def takeoff_entries(mod_dir=MOD_DIR, game_dir=GAME_DIR):
 
 
 def dive_rule_entries(mod_dir=MOD_DIR, game_dir=GAME_DIR):
-    """The physics-dive scripts (lib/ld_cave_common ships with the take-off
+    """The physics-dive scripts (lib/cave_common ships with the take-off
     scripts); refuses a site table that was not
     generated from the current cave sources, and an installed game whose exe
     does not hold every cave site exactly once with the expected bytes."""

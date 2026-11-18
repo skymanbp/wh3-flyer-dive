@@ -53,9 +53,12 @@ tables do not hold. Every other slot ships as CA authored it: the table
 edit is ``dive_entries`` alone (slot 104 out, slot 489 / 484 to the plough
 clip).
 
-Slot 103 FLY_CHARGE_AIR_TO_GROUND is left as CA ships it; the manifest's
-``slot_103_census`` records that no vanilla clip played there moves
-``animroot`` down (largest |drop| 0.095 m).
+Slot 103 FLY_CHARGE_AIR_TO_GROUND carries no descent in any vanilla clip (the
+manifest's ``slot_103_census``: largest |animroot drop| 0.095 m). It is CA's
+own except on skeletons with a declared rider seat (``lib/rider_seat.py``:
+horse01), where it plays a levelled copy of the table's dive clip whose
+seat bone keeps CA's path, so the rider's paired dive clip stays seated
+(FLYER-FIX-1117 / FLYER-SEAT-1117, ``author_levels``).
 
 HOW THE TABLES SHIP [AIR-DIVE-W8 2026-11-10]. W1-W7 shipped the changed flight
 tables as same-named bins in ``@ld_air_dive.animpack``, expecting them to
@@ -99,6 +102,7 @@ import rolepath
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 
@@ -108,6 +112,7 @@ import anim_codec
 import anim_meta
 import anim_table_bin
 import anim_table_rename
+import rider_seat
 from animpack_codec import animpack_build, animpack_iter
 from packfile import PackFile
 
@@ -142,13 +147,29 @@ SLOT_MOVING = 484
 # its moving attack from this slot: CA's own ATTACK_1 clip of the same
 # skeleton (CA's precedent: azazel's 484 plays a standing attack clip)
 SLOT_ATTACK_1 = 454
-# [FLYER-FIX-1117 2026-11-17] Pegasus-type tables (horse01: pegasi, hellsteeds, jade longma): slot 103
-# FLY_CHARGE plays the table's own slot 102 FLY_WALK clip. With slot 104 gone and the flight movement kept
-# after touchdown (lib/ld_flyer_dive.lua), CA's dive clip (hr1_fly_charge_01, the horse pitched nose-down for a
-# steep drop) went on playing at ground level: royal pegasus knights slid along the ground standing on their
-# heads (in-game shots, runs P_old / P_new, 2026-11-17); with the level clip they glide in level (run P_103).
+# [FLYER-FIX-1117 2026-11-17] Pegasus-type tables (horse01: pegasi, hellsteeds, jade longma): with slot 104
+# gone and the flight movement kept after touchdown (lib/ld_flyer_dive.lua), CA's slot-103 dive clip
+# (hr1_fly_charge_01, its body pitched 32 deg off level for the steep drop) went on playing at ground level:
+# royal pegasus knights slid along the ground nearly upright (in-game shots, runs P_old / P_new, 2026-11-17).
+# [FLYER-SEAT-1117 2026-11-17] 34dfbf3 fixed that by pointing slot 103 at the table's slot-102 FLY_WALK clip,
+# which split rider from mount (player report 2026-11-17): the rider table's paired slot 1772 still plays the
+# rider's dive clip, authored on the steady dive, while the fly-walk body bobs 2 m per wing beat -- the
+# rider's pelvis drifted up to 1.06 m off the saddle (lib/rider_seat.py). Rider tables are not ours to
+# change (other mods' riders sit on the same mounts), so slot 103 now plays a LEVELLED COPY of the table's
+# own dive clip: the body turned about the seat bone (rider_seat.SEAT) to the mean pitch of its slot-102
+# clip (the attitude run P_103 showed gliding level in game). The seat keeps its exact path, so every rider
+# clip CA paired with the dive still sits on it.
 SLOT_FLY_WALK = 102
-LEVEL_DIVE_SKELETONS = ("horse01",)
+LEVEL_DIR = "animations/battle/ld_air_dive/level/"
+# [FLYER-SEAT-1117 2026-11-17] A rider table's header s1 names the mount table it is played with (376 of the
+# 1,426 installed tables carry one). Renaming the mount table (AIR-DIVE-W8) left every pegasus / hellsteed /
+# longma rider's s1 naming the vanilla mount, and the engine then played rider and mount out of step: in level
+# flight the vampire on a hellsteed hung under the horse's belly. Bisect in game (2026-11-17, autotest runs
+# d_marker / d_land / b_tables / b_entities / b_renameonly / b_s1): the renamed tables alone, with CA's own
+# slots unchanged, vanilla entity rows and no code caves, reproduce it; the same pack with the vampire's rider
+# table copied with s1 naming the renamed mount copy keeps him seated in every frame. So each rider table whose
+# s1 names a renamed source ships a copy with s1 naming the copy its units ride (rider_copies).
+RIDER_SUFFIX = "_ld_rider"
 CLIP_DIR = "animations/battle/ld_air_dive/plough/"
 
 
@@ -233,7 +254,7 @@ def _land_clip_verdict(clip):
     return None
 
 
-def dive_entries(table, plough=None):
+def dive_entries(table, plough=None, levelled=None):
     """The renamed table's entries, edited in place.
 
     [AIR-DIVE-MP-DIVE-W1 2026-11-12, user ruling §C8-61] The shipped design is
@@ -283,15 +304,21 @@ def dive_entries(table, plough=None):
                          f"{SLOT_LAND} to remove")
     if plough is None:
         level_103 = None
-        if table.get("skeleton") in LEVEL_DIVE_SKELETONS:
-            walk = next((e for e in table["entries"] if e["slot"] == SLOT_FLY_WALK), None)
+        if table.get("skeleton") in rider_seat.SEAT:
+            # [FLYER-SEAT-1117] the levelled copy of each dive clip (author_levels); meta / sound refs stay CA's
             dive = [e for e in table["entries"] if e["slot"] == SLOT_AIR_TO_GROUND]
-            if walk is None or not dive:
+            if not dive or levelled is None:
                 raise SystemExit(f"[air_dive] REFUSING: {table['name']} ({table['skeleton']}) has no slot "
-                                 f"{SLOT_FLY_WALK} / {SLOT_AIR_TO_GROUND} for the level dive")
+                                 f"{SLOT_AIR_TO_GROUND} or no levelled dive clip")
+            swaps = []
             for e in dive:
-                e["refs"] = [list(r) for r in walk["refs"]]
-            level_103 = {"from_slot": SLOT_FLY_WALK, "refs": [list(r) for r in walk["refs"]]}
+                for r in e["refs"]:
+                    new = levelled.get(r[0].lower())
+                    if new is None:
+                        raise SystemExit(f"[air_dive] REFUSING: {table['name']}: no levelled copy of {r[0]}")
+                    swaps.append({"from": r[0], "to": new})
+                    r[0] = new
+            level_103 = {"clips": swaps}
         added_484 = None
         if not any(e["slot"] == SLOT_MOVING for e in table["entries"]):
             src = (next((e for e in table["entries"] if e["slot"] == SLOT_JUMP), None)
@@ -473,19 +500,141 @@ def author_ploughs(jobs, flight, read_clip, files):
     return ploughs, [dict(r, stem=k) for k, r in sorted(reports.items())]
 
 
+def author_levels(jobs, flight, read_clip, files):
+    """[FLYER-SEAT-1117] One levelled dive clip per distinct (dive clip, level-flight clip) on the renamed
+    tables whose skeleton has a declared seat (``rider_seat.SEAT``), written into ``files``. Returns
+    ``({vanilla dive clip path (lower case): levelled clip path}, [clip report])``; ``jobs`` is
+    ``[(source bin, renamed name)]``."""
+    out, reports, made = {}, [], {}
+    for ip, renamed in sorted(jobs, key=lambda j: j[1]):
+        van = flight[ip]
+        if van["skeleton"] not in rider_seat.SEAT:
+            continue
+        spec = rider_seat.SEAT[van["skeleton"]]
+        walk = [r[0] for e in van["entries"] if e["slot"] == SLOT_FLY_WALK for r in e["refs"]]
+        dives = sorted({r[0] for e in van["entries"] if e["slot"] == SLOT_AIR_TO_GROUND for r in e["refs"]})
+        if len(walk) != 1 or not dives:
+            raise SystemExit(f"[air_dive] REFUSING: {van['name']}: need one slot-{SLOT_FLY_WALK} clip and a "
+                             f"slot-{SLOT_AIR_TO_GROUND} clip to level the dive (got {walk} / {dives})")
+        bind = rider_seat.skeleton_bind(read_clip, van["skeleton"])
+        for src in dives:
+            key = (src.lower(), walk[0].lower())
+            if key not in made:
+                path = f"{LEVEL_DIR}{src.split('/')[-1][:-len('.anim')]}_ld_level.anim"
+                if path in files:
+                    raise SystemExit(f"[air_dive] REFUSING: levelled clip name clash {path} "
+                                     "(one dive clip, two level-flight targets)")
+                dive = anim_codec.decode(read_clip(src))
+                target = rider_seat.mean_pitch(anim_codec.decode(read_clip(walk[0])), spec["axis"], bind)
+                blob = anim_codec.encode_v7(rider_seat.level_about_seat(dive, bind, target))
+                back = anim_codec.decode(blob)
+                moved = max(math.dist(rider_seat.bone_pos(dive, f, spec["seat"], bind),
+                                      rider_seat.bone_pos(back, f, spec["seat"], bind))
+                            for f in range(len(dive["frames"])))
+                files[path] = blob
+                made[key] = path
+                reports.append({"clip": path, "source": src, "pitch_target_from": walk[0],
+                                "pitch_deg": {"source": round(rider_seat.mean_pitch(dive, spec["axis"], bind), 1),
+                                              "target": round(target, 1),
+                                              "levelled": round(rider_seat.mean_pitch(back, spec["axis"], bind), 1)},
+                                "seat_bone": spec["seat"], "seat_moved_m": round(moved, 4), "tables": []})
+            if src.lower() in out and out[src.lower()] != made[key]:
+                raise SystemExit(f"[air_dive] REFUSING: {src} levelled to two targets")
+            out[src.lower()] = made[key]
+            next(r for r in reports if r["clip"] == made[key])["tables"].append(renamed)
+    return out, reports
+
+
+def rider_copies(mount_records, by_table, data_dir=GAME_DATA):
+    """[FLYER-SEAT-1117] ``([(record, bin)], [kept])``: for every installed land unit whose mount rides a
+    renamed mount copy, the copy of its rider table (``man_animation``) whose header ``s1`` names that mount
+    copy -- one copy per (rider table, mount copy), named ``<rider><RIDER_SUFFIX><speed tag>``. A rider table
+    whose ``s1`` does not name the mount's source table is CA's own mismatch (50 of 1,122 vanilla mounted
+    units, AIR-DIVE-W9) and is left alone, listed in ``kept`` with the reason, as is a unit whose mount keeps
+    the source table (a grounded rider). The header ``name`` and ``s1`` change, and the rider mirrors the
+    one slot move ``dive_entries`` makes on the mount: where the mount copy got slot 484 from its slot X
+    (``slot_484_added``), the rider's paired slot 1931 plays the rider's own clip of X's paired slot
+    (``rider_seat.RIDER_PAIR``), so the pair stays the one CA authored (``rider_slots_mirrored``); a rider
+    with no clip in X's paired slot is left as CA shipped it. Every other slot is CA's.
+    Fail-closed on a missing installed input or an added mount slot whose source slot has no declared
+    rider pair while the rider plays the added slot's pair."""
+    import flyer_db as installed_db_table
+    db_pack = Path(data_dir) / "db.pack"
+    lu, _h = installed_db_table.decode_round_trip(db_pack, "land_units_tables", "air_dive_riders")
+    mo, _h = installed_db_table.decode_round_trip(db_pack, "mounts_tables", "air_dive_riders")
+    mounts = {r["key"]: r for r in mo}
+    copy_of, copy_rec = {}, {rec["renamed"]: rec for rec in mount_records}
+    for rec in mount_records:
+        for ent in rec["entities"]:
+            copy_of[(rec["source"], ent)] = rec["renamed"]
+    sources = {rec["source"] for rec in mount_records}
+    groups, kept = {}, []
+    for unit in lu:
+        m = mounts.get(unit.get("mount") or "")
+        if m is None or m["animation"] not in sources:
+            continue
+        src, rider = m["animation"], unit["man_animation"]
+        copy = copy_of.get((src, m["entity"]))
+        why = None
+        if copy is None:
+            why = f"its mount {m['key']} (entity {m['entity']}) keeps {src}"
+        elif rider not in by_table:
+            why = f"rider table {rider} is not installed"
+        elif by_table[rider][1]["s1"] != src:
+            why = f"rider table {rider} header s1 {by_table[rider][1]['s1']!r} does not name {src}"
+        if why:
+            kept.append({"land_unit": unit["key"], "rider_table": rider, "reason": why})
+            continue
+        groups.setdefault((rider, copy, src), []).append(unit["key"])
+    out = []
+    for (rider, copy, src), units in sorted(groups.items()):
+        ip, table = by_table[rider]
+        tag = copy[len(src):]
+        if not tag.startswith(TABLE_SUFFIX):
+            raise SystemExit(f"[air_dive] REFUSING: mount copy {copy} does not carry {TABLE_SUFFIX}")
+        table = anim_table_bin.parse(anim_table_bin.write(table))
+        table["s1"] = copy
+        mirrored = []
+        added = copy_rec[copy].get("slot_484_added")
+        if added:
+            rto = rider_seat.RIDER_PAIR[SLOT_MOVING]
+            rfrom = rider_seat.RIDER_PAIR.get(added["from_slot"])
+            own = [e for e in table["entries"] if e["slot"] == rto]
+            if rfrom is None and own:
+                raise SystemExit(f"[air_dive] REFUSING: {copy} got slot {SLOT_MOVING} from slot "
+                                 f"{added['from_slot']}, which has no declared rider pair, and {rider} plays {rto}")
+            paired = [e for e in table["entries"] if rfrom is not None and e["slot"] == rfrom]
+            if paired:
+                new = [dict(e, slot=rto, refs=[list(r) for r in e["refs"]]) for e in paired]
+                at = next((i for i, e in enumerate(table["entries"]) if e["slot"] == rto), len(table["entries"]))
+                rest = [e for e in table["entries"] if e["slot"] != rto]
+                table["entries"] = rest[:at] + new + rest[at:]
+                mirrored.append({"slot": rto, "from_slot": rfrom, "mount_slot": SLOT_MOVING,
+                                 "mount_from_slot": added["from_slot"],
+                                 "dropped": [r[0] for e in own for r in e["refs"]],
+                                 "clips": [r[0] for e in new for r in e["refs"]]})
+        rec, blob = anim_table_rename.rename_bin(ip, anim_table_bin.write(table), RIDER_SUFFIX + tag[len(TABLE_SUFFIX):])
+        if anim_table_bin.parse(blob)["s1"] != copy:
+            raise SystemExit(f"[air_dive] REFUSING: {rec['renamed']} lost its s1")
+        out.append((dict(rec, s1=copy, mount_source=src, land_units=sorted(units),
+                         registry_skeleton="source", rider_slots_mirrored=mirrored), blob))
+    return out, sorted(kept, key=lambda k: (k["rider_table"], k["land_unit"]))
+
+
 def derive(data_dir=GAME_DATA):
     """Everything this lane ships, in memory: ``(files, manifest)``.
 
     ``files`` maps a staged relative path to bytes.
     """
     bins, read_clip = load_installed(data_dir)
-    vanilla_names, flight = set(), {}
+    vanilla_names, flight, by_table = set(), {}, {}
     for ip in sorted(bins):
         try:
             table = anim_table_bin.parse(bins[ip])
         except anim_table_bin.BinFormatError:
             continue
         vanilla_names.add(table["name"])
+        by_table[table["name"]] = (ip, table)
         slots = {e["slot"] for e in table["entries"]}
         if SLOT_LAND in slots:
             flight[ip] = table
@@ -496,7 +645,7 @@ def derive(data_dir=GAME_DATA):
                 for r in e["refs"]:
                     land_users.setdefault(r[0].lower(), set()).add(ip)
 
-    # slot 103: measure, never change (see the module docstring)
+    # slot 103: measure the vanilla clips (see the module docstring)
     s103 = {r[0].lower() for t in flight.values() for e in t["entries"]
             if e["slot"] == SLOT_AIR_TO_GROUND for r in e["refs"]}
     worst_103, undecoded_103 = 0.0, []
@@ -542,9 +691,11 @@ def derive(data_dir=GAME_DATA):
         ploughs, clip_reports = author_ploughs(
             [(ip, renamed, speed) for ip, renamed, speed, _e, _s in jobs],
             flight, read_clip, files)
+    levelled, level_reports = author_levels([(ip, renamed) for ip, renamed, _sp, _e, _s in jobs],
+                                            flight, read_clip, files)
     for ip, renamed, speed, ents, suffix in jobs:
         table = anim_table_bin.parse(anim_table_bin.write(flight[ip]))
-        edit = dive_entries(table, ploughs[renamed])
+        edit = dive_entries(table, ploughs[renamed], levelled)
         rec, blob = anim_table_rename.rename_bin(
             ip, anim_table_bin.write(table), suffix, ents)
         if rec["renamed"] in vanilla_names:
@@ -554,6 +705,12 @@ def derive(data_dir=GAME_DATA):
         files[rec["bin"]] = blob
         bins_out.append(dict(rec, source_bin=ip, speed=speed,
                              body_sizes={e: sizes[e] for e in ents}, **edit))
+    riders_out, riders_kept = rider_copies(bins_out, by_table, data_dir)
+    for rec, blob in riders_out:
+        if rec["renamed"] in vanilla_names:
+            raise SystemExit(f"[air_dive] REFUSING: {rec['renamed']} is already a vanilla table name")
+        entries.append((rec["bin"], blob))
+        files[rec["bin"]] = blob
     files[ANIMPACK_NAME] = animpack_build(entries)
 
     manifest = {
@@ -575,17 +732,21 @@ def derive(data_dir=GAME_DATA):
                             "flying riders; the plough clip peaks at that speed "
                             "(AIR-DIVE-W12); plough speed = charge speed x "
                             "body-size multiplier, cap 20 (AIR-DIVE-W13)"),
-                 "slot_103": ("the table's own slot 102 clip on " + ", ".join(LEVEL_DIVE_SKELETONS)
-                              + " (FLYER-FIX-1117: CA's nose-down dive clip went on at ground level), "
-                              "else unchanged (no vanilla clip carries descent there)")},
+                 "slot_103": ("a levelled copy of the table's own dive clip on " + ", ".join(sorted(rider_seat.SEAT))
+                              + " (body turned about the rider's seat bone to the mean pitch of the table's "
+                              "slot 102 clip; FLYER-FIX-1117 / FLYER-SEAT-1117), else unchanged (no vanilla "
+                              "clip carries descent there)")},
         "flight_tables": len(flight),
         "slot_103_census": {"clips": len(s103),
                             "max_abs_animroot_drop_m": round(worst_103, 3),
                             "not_measured": undecoded_103},
         "tables_renamed": bins_out,
+        "riders_renamed": [rec for rec, _blob in riders_out],
+        "riders_kept": riders_kept,
         "unridden_tables": unridden,
         "grounded_riders": grounded,
         "plough_clips": clip_reports,
+        "level_clips": level_reports,
         "land_clips": land_clips,
         "skipped": skipped,
         "files": [

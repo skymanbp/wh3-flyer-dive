@@ -169,7 +169,20 @@ class AirDiveRenames(unittest.TestCase):
                 loose = staged[rec["bin"]].read_bytes()
                 self.assertEqual(anim_table_bin.parse(loose)["name"], rec["renamed"])
                 self.assertEqual(packed[rec["bin"]], loose)
-        self.assertEqual(len(packed), len(records))
+        # [FLYER-SEAT-1117] the rider table copies whose header s1 names a renamed mount copy ride in the
+        # same animpack (pipelines/air_dive.py rider_copies)
+        riders, _units, _rr = air_dive_rules.rider_renames()
+        self.assertTrue(riders)
+        for rec in riders:
+            with self.subTest(rider=rec["source"], mount=rec["s1"]):
+                self.assertIn(rec["source"].lower(), vanilla)
+                self.assertNotIn(rec["renamed"].lower(), vanilla)
+                self.assertEqual(rec["bin"], anim_table_rename.bin_path(rec["renamed"]))
+                loose = staged[rec["bin"]].read_bytes()
+                table = anim_table_bin.parse(loose)
+                self.assertEqual((table["name"], table["s1"]), (rec["renamed"], rec["s1"]))
+                self.assertEqual(packed[rec["bin"]], loose)
+        self.assertEqual(len(packed), len(records) + len(riders))
 
     def test_renamed_tables_have_no_landing_slot(self):
         """Slot 104 pins the landed flyer (canary 8: 0.0 m); canary 13 ran on
@@ -190,7 +203,10 @@ class AirDiveRenames(unittest.TestCase):
         So no clip is staged (a plough or W1-W3 dive clip would be dead
         weight), slot 489 is gone wherever the table has a slot-484 moving
         attack (the attack picker would start CA's pounce at touchdown), and
-        where it stays it plays CA's own clips -- nothing of ours."""
+        where it stays it plays CA's own clips -- nothing of ours.
+        [FLYER-SEAT-1117 2026-11-17] The one exception: slot 103 of a table on
+        a skeleton with a declared rider seat plays the levelled copy of its
+        own dive clip (manifest ``level_clips``), the only staged clips."""
         import json
         base = MOD_DIR / "assets" / "air_dive"
         manifest = json.loads((base / "air_dive_manifest.json")
@@ -198,7 +214,9 @@ class AirDiveRenames(unittest.TestCase):
         self.assertEqual(manifest["plough_clips"], [])
         staged = {p.relative_to(base).as_posix() for p in base.rglob("*")
                   if p.name.endswith((".anim", ".anm.meta"))}
-        self.assertEqual(staged, set())
+        level = {rec["clip"] for rec in manifest["level_clips"]}
+        self.assertTrue(level)
+        self.assertEqual(staged, level)
         recs = {rec["bin"]: rec for rec in manifest["tables_renamed"]}
         bins = sorted(base.rglob("*_ld_dive*.bin"))
         self.assertTrue(bins)
@@ -217,8 +235,11 @@ class AirDiveRenames(unittest.TestCase):
                     self.assertIn(484, slots)
                 self.assertEqual(rec["plough_slots"], [])
                 self.assertFalse(rec["slot_489_added"])
+                ours = {c["to"] for c in (rec["slot_103_level"] or {}).get("clips", [])}
                 for e in entries:
                     for r in e["refs"]:
+                        if e["slot"] == 103 and r[0] in ours:
+                            continue
                         self.assertNotIn("_ld_", r[0], f"slot {e['slot']}")
 
 

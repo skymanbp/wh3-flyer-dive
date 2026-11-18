@@ -173,16 +173,20 @@ def rename_entries(db_pack, repoint=None):
     [AIR-DIVE-W9] mount fragments, and their row counts. [AIR-DIVE-W16]
     ``repoint`` {land unit: cloned weapon} is merged into the land units."""
     records, renames = air_dive_rules.table_renames()
+    # [FLYER-SEAT-1117] the rider table copies whose header s1 names the renamed mount copy
+    rider_records, rider_units, rider_renames = air_dive_rules.rider_renames()
     tag = "air_dive_minimod"
-    reg_rows, _unregistered = anim_table_rename.registry_rows(records, db_pack, tag)
+    reg_rows, _unregistered = anim_table_rename.registry_rows(records + rider_records, db_pack, tag)
     land = anim_table_rename.land_unit_rows(renames, db_pack, tag)
+    land = anim_table_rename.rider_land_unit_rows(land, rider_units, db_pack, tag)
     if repoint:
         land = air_dive_rules.weapon_repointed_land_rows(land, repoint, db_pack, tag)
+    culture = (anim_table_rename.culture_rows(renames, db_pack, tag)
+               + anim_table_rename.culture_rows(rider_renames, db_pack, tag))
     out, counts = [], {}
     for table, rows in (
             (anim_table_rename.REGISTRY_TABLE, [(r, None) for r in reg_rows]),
-            (anim_table_rename.CULTURE_TABLE,
-             [(r, None) for r in anim_table_rename.culture_rows(renames, db_pack, tag)]),
+            (anim_table_rename.CULTURE_TABLE, [(r, None) for r in culture]),
             (anim_table_rename.LAND_TABLE, land),
             (anim_table_rename.MOUNTS_TABLE,
              anim_table_rename.mount_rows(renames, db_pack, tag))):

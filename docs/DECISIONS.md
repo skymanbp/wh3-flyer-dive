@@ -360,3 +360,33 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   (`local_cn.pack`: 13 / 18 / 19 uses; 联机 2, 房主 0).
 - Not verified: no two-player battle was run. What MCT does is read from its code, not seen in a
   multiplayer session.
+
+### D15 · Braced-spear damage: the maintainer sets the size, a dive only
+
+> Asked how much a dive into braced spears should hurt (D4): 「冲锋反制的伤害我不确定是怎么计算的。你给它加到确实能造成一些伤害，但是不会太超标的程度。这个伤害应该只能由有冲锋反制技能的部队在站定的条件下才能触发吧？」
+> Asked whether it covers a dive only or any charge by a flying unit: 「只算俯冲（推荐）」 (owner, 2026-11-18)
+
+- **Size:** the owner leaves the number to the maintainer, inside two bounds: it must really cost the
+  flyer health, and it must not be excessive. The number is chosen from an in-game measurement and is
+  reported to the owner, with the measured losses, before the version is uploaded. This replaces D4's
+  "twice the game's own" as the rule for the size.
+- **Scope:** a dive from the air only. A flying unit's charge along the ground after it has landed stays
+  the game's. If a dive cannot be told apart from a ground charge at the point where the damage is
+  computed, the owner is told before it ships.
+- **The owner's question, answered** from the installed game's data and the series 4 measurement
+  (`docs/HISTORY.md` PROBES-1118 part two, INGAME-1118 series 4 part three): yes. The game multiplies only
+  hits made by a unit that has the `charge_reflection` attribute (129 land units) while that unit is
+  bracing (game text: "When bracing, this unit causes additional damage when attacking charging enemies";
+  rule values `unit_braced_status_threshold` 0.75, `bracing_attack_angle` 80), and only when the charger's
+  charge factor is at least 0.7. In game it was seen in one direction only, the braced soldier's hit on
+  the charger: 151 times against knights, 58 times against flyers. The mod keeps those conditions and
+  changes only how much such a hit costs a diving flyer.
+- Not verified: whether 80 is the whole front arc or half of it. Nothing of D15 is built yet.
+
+### D16 · Branch `rename-1118` is pushed again
+
+> Asked which commits to push: 「飞行模组分支推公开仓库」 (owner, 2026-11-18)
+
+- `rename-1118` is on GitHub at `76e1228` (pushed `0a3b2c4..76e1228`: the rulings D10–D13, the one pack
+  with the breath switch, the take-off gap fix, D14). `main` is unchanged and still the published version.
+- As before, the go-ahead covered that one push. Commits made after it stay local until asked again.

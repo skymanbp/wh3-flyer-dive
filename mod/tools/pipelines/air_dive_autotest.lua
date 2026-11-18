@@ -86,6 +86,14 @@ cfg.engage_ms, cfg.breath_ms, cfg.away_ms, cfg.away_m = 3000, 15000, 25000, 150
 -- retreat_<i>=<ms>: from that battle time lane i's target withdraws 80 m
 -- straight away from its flyer, at a run (the enemy stops attacking).
 cfg.melee_off, cfg.retreat = {}, {}
+-- [INGAME-1118 series 2, run 2] free_targets_ms=<ms> (-1 = off): that long after the layout every
+-- lane's target is released from script control (script_unit:release_control is uc:release_control,
+-- CA's lib_battle_script_unit.lua:1067). A unit under script control that was only teleported and halted
+-- never enters an action of its own: the spearmen of run 2 logged 0 action updates, so the engine's
+-- charge-reflection check was never called for them. Released, the unit is its side's AI again.
+-- It may then walk off its lane; retreat_<i> and the scenarios that order the target to attack
+-- give orders through the same controller and are not measured together with this key.
+cfg.free_targets_ms = -1
 -- [update-1117 part C] target_turn_<i>=<deg>: lane i's target is teleported facing that many degrees
 -- away from its flyer (90 = the flyer comes in on its flank); the probe's flank lane.
 cfg.target_turn = {}
@@ -616,6 +624,13 @@ local function run()
                 end)
                 status(fmt("retreat %d ok=%s %s", i, tostring(ok), ok and "" or tostring(err)))
             end, math.max(rt, 1))
+        end
+        -- free_targets_ms: the target goes back to its own side's AI (see the key's note above)
+        if cfg.free_targets_ms >= 0 then
+            bm:callback(function()
+                local ok, err = pcall(function() lane.target.uc:release_control() end)
+                status(fmt("free_target %d ok=%s %s", i, tostring(ok), ok and "" or tostring(err)))
+            end, math.max(cfg.free_targets_ms, 1))
         end
     end
     -- [FLYER-FIX-1117] the camera on one lane, from the side

@@ -1753,3 +1753,5 @@ RENAME-1118 第四节说 `kaylika_auri_lahmians` 有 3 行、`lbm` 有 1 行与�
 - 冲锋反制：下一局在 `air_dive_autotest.lua` 里让目标在瞬移之后释放脚本控制（`uc:release_control()`，或不对目标 `take_control()`/`halt()`），
   其余同第 2 局；看 `ACTION UPDATES` 是否大于 0、`BRACE CHECK` 是否被走到。这要改测试驱动代码，本局没做。
 - 游戏目录里留着第 3 局写的 `flyer_size_probe.txt`（追加写的探针文件，下一局开跑前照规矩删）。
+
+**之后补的（2026-11-18，没进游戏）：** 测试驱动加了开关 `free_targets_ms`（`--cmd free_targets_ms=0`）：摆好位之后把每道的目标交还给它那一方的电脑（`uc:release_control()`，原版 `lib_battle_script_unit.lua:1067`），每道在状态文件里写一行 `free_target <i> ok=…`；默认 -1 不放。只过了 LuaJIT 语法检查，等下一局实机。

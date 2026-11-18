@@ -60,8 +60,10 @@
      `BRACE CHECK REACHED` 而反射者不是 `0x69` → 挡在 `Back`；是 `0x69` 而第一个敌人状态是 12/15/16/17 或距离不在半径内 → 挡在那一道。
      这一局只回答「挡在哪」；之后可能还要一局验证改法。
    - **结果（series 2 第 2 局）**：`ACTION UPDATES 0`、`BRACE CHECK NOT REACHED 0 calls`、`CONTROL NOT SEEN`；扣血记录活着（683 次）。
-     挡在长矛兵的动作这一层。**下一局**：改 `tools/pipelines/air_dive_autotest.lua`，目标瞬移后释放脚本控制（`uc:release_control()`，
-     或不对目标 `take_control()` / `halt()`，现在是第 458–459 行对所有单位都做），其余同上；看 `ACTION UPDATES` 是否大于 0。要改测试驱动的代码（它随驱动自己写的辅助包进游戏，探针包不用重建）。
+     挡在长矛兵的动作这一层。**下一局**：同一命令加 `--cmd free_targets_ms=0`——测试驱动 2026-11-18 加了这个开关：摆好位之后把每道的目标
+     交还给它那一方的电脑（`uc:release_control()`，原版 `lib_battle_script_unit.lua:1067` 的同一个调用；默认 -1 不放）。驱动在状态文件里
+     每道写一行 `free_target <i> ok=true`，先确认这行在；再看 `ACTION UPDATES` 是否大于 0。放开之后目标可能自己走开，
+     所以这一局只回答「不受脚本控制时长矛兵会不会进入那个动作」。开关只过了语法检查，没进过游戏。探针包不用重建（驱动随它自己写的辅助包进游戏）。
 3. **子模组换序：片段名还是 `used_mods.txt` 顺序**（约 3 分钟）。拷 `base/flyer_dive_takeoff.pack`、`base/flyer_dive_balance.pack`、`size_reader.pack`。
    `python -P tools/pipelines/air_dive_autotest.py --test-pack flyer_dive_takeoff.pack --pack-before flyer_dive_balance.pack --pack-after size_reader.pack --memreader --flyers wh2_main_def_inf_harpies,wh_main_brt_cav_pegasus_knights,wh2_dlc10_def_mon_feral_manticore_0,wh2_main_hef_mon_star_dragon`
    然后 `python -P tools/pipelines/flyer_size_probe_report.py "<游戏目录>/flyer_size_probe.txt"`。

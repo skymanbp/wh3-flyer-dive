@@ -1,8 +1,8 @@
 -- flyer_takeoff.lua — battle entry for the flyer take-off rule
 -- 飞兽近战起飞规则的战斗入口
 --
--- [AIR-DIVE-TAKEOFF-W1 2026-11-12, user rulings 2026-11-12, CONTENT_LEDGER
--- §C8-57 and §C8-58] The rule and
+-- [AIR-DIVE-TAKEOFF-W1 2026-11-12; the rule since D3, 2026-11-17: each flying
+-- model by its own body size] The rule and
 -- its caves: lib/takeoff.lua. The battle simulation runs in lockstep
 -- on every player's machine, so the rule is only safe when every machine
 -- applies it:
@@ -80,10 +80,10 @@ if not ok then
     pcall(takeoff.pass_through, buffer)
     buffer, how = nil, "off (error: " .. tostring(problem) .. ")"
 end
-local window = buffer and takeoff.layout() and takeoff.layout().window
-local window_single = buffer and takeoff.layout() and takeoff.layout().window_single
+local windows = buffer and takeoff.layout() and takeoff.layout().windows
 record(("BATTLE mp=%s campaign=%s %s%s"):format(tostring(mp), tostring(from_campaign), tostring(how),
-    window and (", window " .. tostring(window) .. " ticks (single model " .. tostring(window_single) .. ")") or ""))
+    windows and (", windows by size small/medium/large/very large/unknown " .. table.concat(windows, "/")
+        .. " ticks") or ""))
 
 bm:register_phase_change_callback("Complete", function()
     if not buffer then return end
@@ -91,7 +91,7 @@ bm:register_phase_change_callback("Complete", function()
         local c = takeoff.counters(buffer)
         -- the table's entities die with the battle: back to off / 表随战斗失效
         takeoff.pass_through(buffer)
-        record(("END melee hits on flyers %d (%d not recorded), answers hold %d / free %d"):format(
-            c.stamps, c.dropped, c.held, c.free))
+        record(("END melee hits on flyers %d (%d not recorded), answers hold %d / free %d, unknown size %d, unmatched %d"):format(
+            c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched))
     end)
 end)

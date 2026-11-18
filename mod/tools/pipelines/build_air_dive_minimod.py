@@ -76,8 +76,9 @@ flyer rows whole (e.g. Workshop 3575054982 overrides 136) wins or loses by
 load order; that is stated, not solved.
 
 * [AIR-DIVE-TAKEOFF-W1 2026-11-12] the take-off-from-melee rule scripts
-  (``takeoff_entries``: a flyer is held only while more than half of its
-  living models are being struck; memreader Plus is a declared prerequisite).
+  (``takeoff_entries``: [D3] a flying model struck in melee within the last
+  N seconds, N by its body size, cannot take off; memreader Plus is a declared
+  prerequisite).
 * [AIR-DIVE-MP-DIVE-W1 2026-11-12] the physics dive scripts
   (``dive_rule_entries``: the ground handoff -- slot 104 and, where the table
   has a 484, slot 489 removed, jump_attack_chance 0, no plough clip -- plus

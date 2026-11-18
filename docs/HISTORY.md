@@ -1538,3 +1538,147 @@ UPDATE-1117 记的 `c32c9704…`、`a13a8de9…` 相同）。旧包每个文件�
 - 主包改名后排序位置从 `l` 提前到 `f`，会压过原先排在它前面的别人模组里同键的行（本机订阅里查到两个：
   一个吸血鬼单位模组的 3 个陆军单位行、一个飞马骑士模组的行）。这一条留给主人定：保持新位置，还是换一个排在
   原位置的名字。主人回答之前按新位置继续实机核对；若主人选原位置，改名脚本换一张映射重跑即可。
+
+## INGAME-1118 2026-11-18：第一轮实机核对（26 局）
+
+主管在 00:32–01:46 跑完 `docs/STATUS.md` 欠测第 1–6 项，每局的命令、退出码、判定、`used_mods.txt` 与 `data/` 复原、
+结束后 `Warhammer3.exe` 进程数都记在 `D:/Projects/.worktrees/wh3-flyer-dive/ingame_1118/LOG.md`，每局一个目录
+（`item*/`），第 4、5 项的汇总在同目录 `aggregate_items4_5.txt`。所用探针包（`update-1117/build/probes/`）与
+改名后的包都按 sha256 记在 LOG 开头和各局的 `deployed.txt`。这一轮跑的还是旧起飞规则（日志 `window 15 ticks (single model 30)`）。
+
+| 项 | 局数 | 结果 | 证据 |
+|---|---|---|---|
+| 1 骑手俯冲时坐稳（改名后的包） | 5（吸血鬼、圣杯骑士、皇家飞马、龙王子、玉龙马） | 主管看逐帧截图判定五局骑手都坐稳；自动判定 5 × PASS | `item1_*/shots/`、`verdict.json` |
+| 2 体型字段 `+0x74` | 1 | `HOLDS`：小型 1、中型 2、大型 3、超大型 4，每个兵模两次读数相同 | `item2_1`，`flyer_size_probe_report.py` |
+| 3 冲锋反制地面对照（王国骑士冲长矛兵） | 3 ＋ 1 局带截图 | 4 局都是 `CONTROL NOT SEEN`；记录器是活的（每局 469–745 次扣血调用） | `item3_*/reflect_probe.txt`、`reflect_report.txt` |
+| 4 飞兽对长矛、戟兵、剑士 | 9 | 自动判定 9 × PASS；冲锋反制 `FLYER NOT SEEN` | `aggregate_items4_5.txt` |
+| 5 侧面接近长矛兵 | 3 | 3 × PASS；`FLYER NOT SEEN` | 同上 |
+| 6 子模组换序 | 2 | 两种包名先后下子模组都生效（蝎尾狮 `+0xb4` 1700、星龙 4425，即 2000 × 0.85、5900 × 0.75）；`flyer_dive.txt` 写 `BALANCE submod loaded` | `item6_*` |
+
+第 4、5 项的数（`aggregate_items4_5.txt`，每格三局）：星龙被拦停 长矛 1/3、戟兵 2/3、剑士 3/3、侧面长矛 2/3；
+蝎尾狮 0/3、1/3、0/3、2/3；多兵模的狮鹫骑士与飞马骑士不判拦停。飞兽自己 5 秒内掉血最多的是飞马骑士对戟兵（0.08–0.16）。
+
+**第 6 项排除了「包名决定」**：两局 `used_mods.txt` 都是主包在前、子模组在后（`item6_*/stdout.txt`），而第二局把子模组改名
+`flyer_dive_zz_balance.pack`，包名排到主包之后，子模组仍然生效。所以「包名排前者赢」和「包名排后者赢」各被一局推翻。
+剩下两种说法都和两局相符：「片段名排前者赢」（`flyer_dive_balance` < `flyer_dive_takeoff`）与「`used_mods.txt` 里排后者赢」。
+分开它们的一局见 `docs/STATUS.md` 欠测。
+
+**过程上的两处疏漏：**
+
+- 01:35 主管改了一次忙碌检查脚本 `busy.ps1`（StarSavior 的崩溃处理子进程把它卡住了），中间一版有错，约一分钟里检查失效、放行；
+  那段时间在跑的只有 StarSavior，没有启动游戏。记在 LOG.md 末行。
+- 写在游戏目录的探针文件是追加写的，跑之前没有清掉：`flyer_size_probe.txt`、`reflect_probe.txt` 每局拷出来的都含前几局。
+  各报告只读文件里最后一场战斗，所以判定没受影响；但 `item1_*/flyer_size_probe.txt` 五份与 `item2_1` 的逐字节相同
+  （md5 `56dd4803…`，战斗戳都是 00:33:13）——第 1 项的包里没有体型读取器，拷出来的是第 2 项留下的旧文件，不是骑乘单位的读数。
+  以后每局开跑前删掉这些文件。
+
+## D3-1118 2026-11-18：按体型、逐兵模起飞（D3）落地；冲锋反制对照组为什么没出现；两个订阅模组
+
+分支 `rename-1118`（未提交），离线做完，没启动游戏。草稿在 `D:/Projects/.worktrees/wh3-flyer-dive/d3-1118_scratch/`。
+
+### 一、D3 实现
+
+- **规则**：一个飞行兵模最近 N 秒内被近战击中就不能起飞，N 按它自己的体型：小型 4.5、中型 4.0、大型 3.5、超大型 3.0 秒
+  （`air_dive_rules.TAKEOFF_PIN_WINDOWS`，45 / 40 / 35 / 30 个战斗时刻）。每个兵模单独判。
+- **体型从哪来**：引擎实体 `+0x74`。INGAME-1118 第 2 项量到 小型 1、中型 2、大型 3、超大型 4（`TAKEOFF_SIZE_CODES`），
+  第 6 项两局又各读了一遍，相同。新锚点 `pin_layout_size` 钉住引擎自己读这个字段的代码（`0x143061598`，击退代码里比较两个实体的体型），
+  游戏更新挪了它就拒绝装洞。
+- **骑乘单位用坐骑的体型**：洞读的是带飞行控制器的那个实体，也就是起飞表 `+0x184 / +0x188` 里的实体、记录洞按 `+0x2e0` 由骑手走上去
+  落到的那个实体。第 2 项里飞马骑士那 24 个实体的 `+0xb4` 读 1300.0——这是坐骑实体 `wh_main_flying_pegasus_blood` 的质量，
+  骑手实体 `wh_main_cavalry_rider_standard_blood` 是 100.0（已安装的 `battle_entities` 表）——所以读到的是坐骑。
+  这一例里骑手与坐骑碰巧都是中型，体型本身分不出来；分得出来的是质量。
+- **按住洞重写**（`pin_cave_asm.py`）：在发问兵模所属单位的现存飞行实体里找飞行控制器正是 `rbx` 的那一个，读它的 `+0x74`，
+  按 1–4 取缓冲区里的窗口，查它自己的记录。找不到（兵模已死、链断）答「放」并计数 `unmatched`。
+  原版「交战判定」照旧被跳过；记录洞一个字节没动（位点表里 `pin_stamp` 的机器码与改前相同）。
+- **体型读到 1–4 以外的值**：给最长的窗口（45 个时刻＝小型的 4.5 秒）并计数 `unsized`。理由：读不出体型时，不让任何兵模比规则允许的
+  更早离开；同时它在挨打停止 4.5 秒后仍会走，不会像原版交战判定那样只要接触就一直被按住。
+- **缓冲区**：标记 `FLYPINS4`（联机协商的 `format` 由洞源码算出，随之变为 639876，新旧版本不配对）；`+28 unmatched`、`+40 unsized`、
+  `+44` 起五个窗口（体型 1–4、未知）。删掉了旧的两个常数 `TAKEOFF_PIN_WINDOW_TICKS`（1.5 秒、过半）与 `TAKEOFF_PIN_WINDOW_SINGLE_TICKS`
+  （3.0 秒、只剩一个兵模），以及缓冲区 `+0 window`、`+40 window_single`。
+- **日志**：战斗开始 `flyer_takeoff.txt` 写 `windows by size small/medium/large/very large/unknown 45/40/35/30/45 ticks`；
+  战斗结束行加 `unknown size`、`unmatched`。测试用记录器 `pin_on_hit_probe.lua` 每 2 秒的 S 行同样加这两项。
+  注意：INGAME-1118 的 26 局里 `flyer_takeoff.txt` 一行 `END` 都没有——自动测试在战斗结束前就关游戏，结束行写不出来；
+  所以实机核对要读记录器的 S 行，不读结束行。
+- **改了文字的地方**：README（英、中）、工坊说明（英、中，「按体型决定起飞」占位行删掉，规则写进「近战起飞」一条）、
+  `workshop/README.md`、`docs/SPEC.md` 那一行、`CLAUDE.md` 的协商标记、建包脚本与测试的说明。历史记录（本文件以前各节、
+  `docs/DECISIONS.md` 的引文、`docs/research/`、`mod/tools/rename_1118.py` 的替换表）不改。
+
+**核对：**
+
+| 项 | 结果 |
+|---|---|
+| 模拟器 | `pin_cave_asm.py`：621 项检查全过；22 个故意改坏的洞全被抓住（按住洞 15 个：窗口末拍、体型不减一、体型不设上界、未知体型放行、未知体型给超大型窗口、未知不计数、窗口表错一格、体型读错字段、拿单位第一个实体代替发问兵模、空表项被跟进、`unmatched` 不计数、模式 2 回答、查找无上限、空位不停、两洞哈希不同；记录洞 7 个照旧） |
+| 关键用例 | 四种体型各自在窗口最后一拍按住、到点放；同一时刻 32 / 37 / 42 拍前挨打，按住的体型依次是 小中大 / 小中 / 小；8 兵模单位里只有挨打的那个被按住；骑乘：中型坐骑上的小型骑手在 42 拍后放（若按骑手 45 会按住），小型坐骑上的超大型骑手在 32 拍后仍按住；体型值 0、5、6、−1、0x7FFFFFFF、−0x80000000 都给 45 并计数 |
+| Lua | `takeoff.lua` 的 `arm` / `counters` 用假的 memreader 跑：写入 `45 40 35 30 45`、模式 1、六个计数清零；覆盖窗口也照写（草稿 `mock_arm.lua`）。四个改过的 Lua 都能编译 |
+| 测试 | 改前 `88 passed, 2769 subtests`；改后 `97 passed, 2779 subtests`（D3 新增 5 条、冲锋反制报告 3 条、换序驱动 1 条） |
+| 反向验证 | 往规则里加回 `TAKEOFF_PIN_WINDOW_TICKS = 15`：「旧规则已删」一条变红；把未知体型窗口改成最短：3 条变红；都还原（文件 sha256 前后相同） |
+| 建包两次 | `flyer_dive_takeoff.pack` 14,012,405 字节，sha256 `83cb3572b6f5654e87a4aac86ffd1791e53489a99b51b2a301da05e94e93bfed`；`flyer_dive_balance.pack` 70,812 字节，sha256 `9f936db40bbf6502338b7e0faaf484788f59e00cd2aa378855fe5f58f83d75f2`（与 RENAME-1118 相同，子模组不含起飞）；两次相同 |
+| 与 RENAME-1118 的包比 | 只有三个文件不同：`flyer_takeoff.lua`、`takeoff.lua`、`takeoff_site.lua`；`rename_1118.py check` 两个包 `CLEAN` |
+
+**没验证**：实机。新洞在游戏里能不能装上、`unmatched` 是不是 0（即发问兵模的飞行控制器确实就是表里那个实体的 `+0x128`——
+静态上引擎自己的起飞循环 `0x14305018b` 就是这样取的，但没在游戏里量过）、各体型实际离地时间。见 `docs/STATUS.md` 欠测。
+
+### 二、冲锋反制对照组为什么没出现
+
+**今晚的事实**（`item3_*`、`item4_*`、`item5_*` 的 `reflect_probe.txt`）：
+
+- 冲锋反制函数 `0x1430afae4` 入口的记录洞在 16 局里一次都没被走到（每局 S 行 `refl=0`）。
+- 同一包里的扣血记录洞是活的：骑兵局每局 469–745 次扣血调用，其中骑士冲上长矛兵的冲击（类型 5，返回 `0x143061966`）每局 33–42 次（探针文件是追加写的，按场分开数）。
+- 冲锋反制自己的扣血调用（`0x14325bf8b`，返回 `0x14325bf90`）也是 0 次——这是另一个洞、另一个位点，所以「反射没发生」有两路证据，不是一个洞装错了位置。
+- 骑士自己在接触后 1.5 秒内只掉 0–1.4% 的血（草稿 `contact_hp.py` 对 `item3_diag` 四场），看不到反射该有的那一下。
+
+**静态读（本车道，草稿 `d_bbec.txt`、`funcof.py`）：**
+
+- `0x1430afae4` 唯一的调用者是 `0x14325bbec`；`0x14325bbec` 只被两处调用：`0x14326a2bc` 里的 `0x14326a6ba` 与 `0x14326a958` 里的
+  `0x14326ae9b`。这两个都是「某个兵模的动作」的每拍更新（`rcx` 是动作对象，`[rcx+8]` 是兵模）；第一个开头若兵模的 `+0x318` 与
+  动作的 `+0x38` 不同，先调用 `0x143084df0`，之后只在 `[[[动作+0x28]+0x440]+0x150]+0x28` 为 6–9 时往下走，否则整段跳过。
+- `0x14325bbec` 对附近每个敌人逐个检查，五处跳过都带引擎自己的调试字样：冲锋者状态 `+0x324` 为 12/15/16/17（`Interr`）、
+  距离超出半径、近于内半径（`Near`）、**反射者 `+0x318` 不等于 0x69**（`Back`）、`0x1430751a8` 判免疫（`Immune`）、
+  调用方标志或 `0x143072fe8(冲锋者)`（`BACK`）。
+- 游戏数据（已安装 `db.pack`）：`wh_main_emp_inf_spearmen_1` 的属性组带 `charge_reflection`、`charge_defense_vs_large`（全游戏 129 个陆军单位带 `charge_reflection`）；
+  `_kv_rules`：`charge_reflect_min_charge_factor_threshold` 0.7、`charge_reflect_damage_multiplier` 2、`unit_braced_status_threshold` 0.75、
+  `bracing_attack_angle` 80、`impact_reflection_knockback_chance` 75。说明文字（`local_en.pack`）：「When bracing, this unit causes additional damage
+  when attacking charging enemies.」——前提是「正在架矛」。
+- 自动测试怎么摆兵：开战后把双方每个单位都收归脚本控制并 `halt()`（`air_dive_autotest.lua` 的 `run()`），把目标瞬移到位、面向飞兽
+  （`teleport_to_location`，`target_turn` 可转向），此后不再给目标任何命令；骑士在 3 秒后用 `attack_unit(目标, true, true)` 从约 250 米外冲锋，
+  四道错开 20 秒（今晚首次接触 37–40、61–64、74、93 秒）。
+
+**结论（离线能证明到哪）**：反射没发生，而且停在 `0x14325bbec` 之前或之内——不是记录器看不见。到底停在哪一道，今晚的数据分不出来：
+可能是长矛兵根本没进入能调用反射检查的那个动作（脚本控制、瞬移、`halt` 之下不架矛），也可能进了但被 `Back` / `Near` / `Interr` 等挡掉。
+`docs/SPEC.md` 里记过的早期测试（同一套摆兵）星龙被「站定的戟兵与长矛」拒马反弹截停，那是另一条路径（测试补丁让飞兽走地面冲锋），
+不能拿来证明这套摆兵下长矛兵会架矛。
+
+**改了的探针**（`reflect_probe_asm.py`、`reflect_probe.lua`、`reflect_probe_report.py`；只进测试包）：
+
+- 新增三个只记录的洞：`rf_brace`（`0x14325bbec` 入口：反射者、它的 `+0x318`、标志、附近敌人数、前两个敌人的状态与坐标、半径）、
+  `rf_act1` / `rf_act2`（两个动作更新的入口：兵模、它的 `+0x318`、动作 `+0x38`、两个标志字节）。缓冲区标记 `RFPROBE2`。
+- 模拟器：五个洞全过；20 个故意改坏的版本全被抓住（新增 10 个）。四个位点在安装的游戏里各恰好一处、地址与静态读相同。
+  Lua 记录器用假的 memreader 跑过一遍，B / A / BS / AS / S 行的字段与洞写入的布局逐项对上（草稿 `luamock/`）。
+- 报告新增两行：`ACTION UPDATES n`（有没有兵模在跑能通向反射的动作）与 `BRACE CHECK REACHED / NOT REACHED`（反射检查被调用几次、
+  反射者处于 0x69 的几次、第一个敌人的状态与距离）。旧探针文件没有这些行时报告写「not logged」，不写「not reached」。
+- 探针包 `d3-1118_scratch/probes/probe_impact.pack`（14,039,180 字节，sha256 `9ba1b2fb26bd8b06568b2344f5bd8feccd273bdaf269e6aa4ebec0c5735b51e1`）。
+
+**下一局怎么读**：报告出现 `CONTROL SEEN` 且 `reflections logged` 大于 0、骑士那一节有 `<- the reflection's damage call` 的行，就是看到了反射
+（两个洞各自独立）。没看到时：`ACTION UPDATES 0` → 长矛兵没进入那个动作，改摆兵（下一步试不收归脚本控制的目标）；
+`BRACE CHECK REACHED` 但反射者不是 0x69 → `Back`；是 0x69 但第一个敌人状态是 12/15/16/17 或距离不在半径内 → 对应那一道。
+
+### 三、两个订阅模组的同键行
+
+RENAME-1118 第四节说 `kaylika_auri_lahmians` 有 3 行、`lbm` 有 1 行与本模组同键。重查的结果是**没有同键行**：
+
+- 本模组主包只发 7 张表的片段（`battle_entities`、`battle_entity_locomotion_constants`、`melee_weapons`、`battle_animations_table`、
+  `culture_to_battle_animation_tables`、`land_units`、`mounts`）。两个模组与它共有的表有 5 张，逐片段解码到文件末尾（`flyer_db`），
+  按主键取交集：全部是 0。`kaylika_auri_lahmians` 的两个 `battle_entities` 片段是版本 38、我们的写入器解不了，改为在原始字节里找
+  本模组的每个键（带长度前缀）：0 处。两边也没有同路径的文件。
+- 之前报出的那几个键是**引用**，不是同键行：它们的新单位骑着本模组改过的坐骑行、用着本模组改过的武器行
+  （`lbm_bretonnia_pegasus_knights_swords_and_shields` 骑 `wh_main_brt_mnt_pegasus`；`auri_naaima_2`、`auri_2nd_gen_vmp_02`、`lahmian_nefer_2`、
+  `auri_lahmian_lord_2` 骑 `wh_main_vmp_mnt_hellsteed`；`auri_lahmian_lord_3` 骑 `wh_main_vmp_mnt_dragon_zombie`、用 `wh_main_vmp_hero_zombie_dragon`；
+  `lbm` 的两种翼手龙骑兵与鹰骑用 `wh2_dlc12_lzd_ripperdactyl`、`wh_dlc05_wef_hawk_talons`）。另有几处是属性组名恰好与原版单位键同名，那不是引用本模组。
+- 所以包名排在前还是后，对这两个模组没有影响：哪一行生效的问题不存在。
+- **真正的影响（推断，没在游戏里看过）**：本模组把这三个坐骑行的 `animation` 改指了改名的飞行表（`hr1_pegasus_dive_v162`、`hr1_pegasus_dive_v153`、
+  `dr1_dragon_zombie_dive_v126`），而这 6 个单位的骑手表仍是原版（`hu1_bretonnian_hr1_pegasus_lancer`、`hu1b_vampire_hr1_pegasus_sword`、
+  `hu1b_elf_hr1_pegasus_staff_and_sword`、`hu1b_elf_dr1_dragon_wb_sword_and_shield`）。这正是 UPDATE-1117 第一节修掉的那种配对错位：
+  骑手表头写的坐骑表与坐骑实际播的表不同，俯冲时骑手可能和坐骑分开。只有给别人的单位也改指骑手表才修得掉，那属于兼容补丁。
+- 引擎对同键行的规则：本仓库只有实测，没有官方文档可引。INGAME-1118 第 6 项已推翻「包名决定」；剩下「片段名」与「`used_mods.txt` 顺序」
+  两种，一局可分（`docs/STATUS.md`）。为此自动测试驱动加了 `--pack-before` / `--pack-after`（把 `data/` 里已有的包按给定顺序列进
+  `used_mods.txt`，不拷不删），有测试钉住顺序。

@@ -1438,46 +1438,39 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
 # 0x143053bd4 re-arms every tick its engaged check 0x143026588 says busy --
 # which it does for any contact, struck or not.
 #
-# THE RULE (§C8-58): a flying unit is held (the timer re-armed) only while
-# MORE THAN HALF of its living models were struck in melee within the last
-# TAKEOFF_PIN_WINDOW_TICKS battle ticks; a single-model unit uses its one
-# model. Two code caves do it (one records every damaging melee hit -- the
-# damage applier's own type 0: weapon hits, splash attacks, matched combat --
-# on the flying entity it lands on, one answers the timer in place of the
-# engaged check; FLYER-TAKEOFF-HITS 2026-11-16); their
-# source, emulator check, sites and the generated site table live in
+# THE RULE [D3, user ruling 2026-11-17, docs/DECISIONS.md; implemented D3-1118]:
+# a flying MODEL that was hit by a melee attack within the last N seconds
+# cannot take off; N by that model's body size (TAKEOFF_PIN_WINDOWS), decided
+# for each model on its own. Two code caves do it (one records every damaging
+# melee hit -- the damage applier's own type 0: weapon hits, splash attacks,
+# matched combat -- on the flying entity it lands on, one answers the timer of
+# each model in place of the engaged check; FLYER-TAKEOFF-HITS 2026-11-16);
+# their source, emulator check, sites and the generated site table live in
 # pipelines/pin_cave_asm.py, installed at runtime through memreader Plus (the
 # site loader: every pattern exactly once, original bytes checked, owned).
-# One owner / feature (the Lore Disasters main pack shipped the same while it
-# carried the flyer mod, so the two never fought). It replaces the first version (§C8-57: one byte patch
-# that let the timer always run, so a flyer left 3.0 s after the order
-# whatever was hitting it -- charge, leave, charge again).
-# / 近战中起飞：过半存活模型在最近 1.5 秒内近战挨打才按住，否则 3 秒后离地；
-#   两个代码洞（pipelines/pin_cave_asm.py），取代此前「一律放行」的字节补丁。
+# It replaces the rules of §C8-57 (one byte patch: the timer always ran),
+# §C8-58 and §C8-78 (whole-unit "more than half" and "last model" windows).
+# / 近战中起飞：每个飞行兵模按自己的体型，最近 N 秒内近战挨打就不能起飞（D3）。
 TAKEOFF_OWNER = "flyer_takeoff"
 TAKEOFF_FEATURE = "takeoff"                       # the agreement feature name
 TAKEOFF_BUILD = "6ae2a00b"                       # the build it was measured on
 TAKEOFF_SITE_LUA_PATH = "script/campaign/flyer_dive/data/takeoff_site.lua"
-# 1.5 s at 10 ticks a second (measured: the tick counter ran 15..745 over a
-# 73 s battle). A struck model stops counting 1.5 s after its last hit; the
-# 3.0 s timer then has to run out, so a unit leaves at most 4.5 s after the
-# blows on more than half of it stop.
-TAKEOFF_PIN_WINDOW_TICKS = 15
-# [§C8-78, user ruling 2026-11-16] A unit with exactly one living model is held
-# while that model was struck within the last 3.0 s (30 ticks): one model has
-# no "more than half" to average over, and the blows of a lord, hero or
-# monster come seconds apart. Multi-model units keep the 1.5 s window.
-# / 单体（存活模型数 = 1）挨打窗口 3 秒，多模型仍 1.5 秒。
-TAKEOFF_PIN_WINDOW_SINGLE_TICKS = 30
-# [update-1117, user ruling 2026-11-17, docs/DECISIONS.md D3] THE NEXT RULE, one per model (replaces
-# both constants above once the cave carries it): "a flying model that was hit by a melee attack
-# within the last N seconds cannot take off", N by the model's body size (battle_entities.size of
-# the flying body; a ridden unit: its mount's), smaller waits longer. Battle ticks, 10 a second.
-# NOT SHIPPED YET: the cave needs each flying model's size class, and the only engine field the
-# static read offers (entity +0x74) is unverified -- pipelines/flyer_size_probe.lua reads it in a
-# battle (pipelines/flyer_size_probe_report.py prints the window each model would get). Until that
-# run settles the source, the shipped cave keeps the two constants above.
+# [D3] battle ticks (10 a second: the tick counter ran 15..745 over a 73 s battle) a flying
+# model of each body size stays down after a melee hit; smaller waits longer ("越小等越久").
+# A ridden unit uses its mount's size: the entity that carries the flight controller is the
+# mount (measured, TAKEOFF_SIZE_CODES). After the window the 3.0 s timer still has to run out.
 TAKEOFF_PIN_WINDOWS = {"very_large": 30, "large": 35, "medium": 40, "small": 45}
+# [D3-1118] What the engine keeps at flying entity +0x74 for each battle_entities size.
+# Measured 2026-11-18 (ingame_1118 item2_1, flyer_size_probe_report HOLDS; again in item6_1 and
+# item6_2): harpies 1, pegasus knights 2, feral manticore 3, star dragon 4, every model, both
+# reads. For the pegasus knights (ridden) the entity read is the pegasus: its +0xb4 reads 1300.0,
+# the mount entity's mass (wh_main_flying_pegasus_blood), not the rider's 100.0.
+TAKEOFF_SIZE_CODES = {"small": 1, "medium": 2, "large": 3, "very_large": 4}
+# [D3-1118] A model whose +0x74 holds none of the four codes gets the longest window (the
+# strictest of the four): an unreadable size never lets a model out earlier than the rule lets
+# any size out, and it still leaves once the blows stop (the stock check would pin it for as long
+# as anything touches it). The cave counts these answers (``unsized`` in the battle log).
+TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE = max(TAKEOFF_PIN_WINDOWS.values())
 
 
 def takeoff_pin_window(size):
@@ -1487,3 +1480,15 @@ def takeoff_pin_window(size):
         raise RuntimeError(f"[air_dive_rules] REFUSING: body size {size!r} has no take-off window "
                            f"(sizes {BODY_SIZES})")
     return TAKEOFF_PIN_WINDOWS[size]
+
+
+def takeoff_window_table():
+    """[D3-1118] The windows the hold cave indexes, in the order of the engine's size codes
+    (1, 2, 3, 4), then the unknown-size window. Refused unless the codes are exactly 1..4 over
+    BODY_SIZES."""
+    if (set(TAKEOFF_SIZE_CODES) != set(BODY_SIZES)
+            or sorted(TAKEOFF_SIZE_CODES.values()) != [1, 2, 3, 4]):
+        raise RuntimeError(f"[air_dive_rules] REFUSING: size codes {TAKEOFF_SIZE_CODES} are not "
+                           f"1..4 over {BODY_SIZES}")
+    by_code = sorted(TAKEOFF_SIZE_CODES, key=TAKEOFF_SIZE_CODES.get)
+    return [takeoff_pin_window(s) for s in by_code] + [TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE]

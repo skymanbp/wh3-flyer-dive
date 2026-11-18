@@ -1,16 +1,18 @@
 """Machine code of the pin-on-hit take-off caves, their emulator check and the
 generated site table.
 
-[AIR-DIVE-TAKEOFF-W1 2026-11-12, user rulings 2026-11-12, CONTENT_LEDGER
-§C8-58] RULE: a flying unit is held on the ground (its models' take-off
-countdown re-armed) only while MORE THAN HALF of its living models were struck
-in melee within the last ``air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS`` battle
-ticks (15 = 1.5 s). A single-model unit (one living model): its one model,
-struck within the last ``TAKEOFF_PIN_WINDOW_SINGLE_TICKS`` (30 = 3.0 s; user
-ruling 2026-11-16, CONTENT_LEDGER §C8-78). Contact without hits,
-ranged and explosion hits, and a charge's collision damage do not hold it.
-Replaces the first take-off patch (the countdown always ran, so a flyer left
-3.0 s after the order whatever was hitting it).
+[D3, user ruling 2026-11-17, docs/DECISIONS.md; implemented D3-1118] RULE:
+a flying MODEL is held on the ground (its take-off countdown re-armed) only
+while it was struck in melee within the last N battle ticks, N by its own
+body size (``air_dive_rules.takeoff_window_table``: small 45, medium 40,
+large 35, very large 30 = 4.5 / 4.0 / 3.5 / 3.0 s). Each model is judged on
+its own: in a unit of many, the struck ones stay down and the others may
+lift off. A ridden unit is judged on its mount (the flying entity, the one
+that carries the flight controller). Contact without hits, ranged and
+explosion hits, and a charge's collision damage do not hold it. Replaces the
+whole-unit rules of §C8-58 / §C8-78 and, before them, the first take-off
+patch (the countdown always ran, so a flyer left 3.0 s after the order
+whatever was hitting it).
 
 Two caves in Warhammer3.exe 9.0.5 (6ae2a00b), installed by memreader Plus
 through the generated site table (``--write-site``):
@@ -47,24 +49,31 @@ HOLD ``pin_hold`` at 0x143053cfb, in the per-model flight update 0x143053bd4,
 where the stock code asks the engaged check ``call 0x143026588(rcx = FC)``
 whether to re-arm the take-off countdown FC+0x44 (30 ticks). Stolen bytes:
 ``mov rcx,rbx`` + that call (8 bytes). rbx = FC, [FC] = model, [model+0x2e8]
-= unit; unit +0x184 (count) / +0x188 (array of pointers) = its living flight
-entities (the engine's own loop over them: 0x14305018b; the list shrinks when
-a model dies). Mode 1: the cave counts the living entities whose table entry
-is younger than the window, answers al = 1 (hold) when struck x 2 > living,
-else al = 0 -- when exactly one entity is living, its entry is judged against
-the single-model window (+40) instead [§C8-78], and jumps to the instruction after the call (``test al,al``),
-skipping the engaged check. Any other mode: the cave does nothing and the
-original check runs. The entity pointers are only compared, never followed.
+= unit, [model+0x58] -> the battle tick; unit +0x184 (count) / +0x188 (array
+of pointers) = its living flight entities (the engine's own loop over them,
+0x14305018b, reads each one's FC at +0x128; the list shrinks when a model
+dies). Mode 1 [D3-1118]: the cave finds the living flight entity whose FC is
+rbx (the model asking: the flying body, i.e. the mount of a ridden unit; the
+stamp cave keys the same entity), reads its size code at +0x74 (1 small ..
+4 very large, measured 2026-11-18; anchor ``pin_layout_size``), takes the
+window for that code from the buffer (any other value: the unknown-size
+window, counted), and answers al = 1 (hold) when that entity's table entry is
+younger than the window, else al = 0; then it jumps to the instruction after
+the call (``test al,al``), skipping the engaged check. An FC that no living
+entity of its unit carries is answered "free" and counted (``unmatched``).
+Any other mode: the cave does nothing and the original check runs.
 Registers a call may clobber change (rax rcx rdx r8-r11, flags); rbx rsi rdi
-rbp r12-r15 rsp come back unchanged (rsi rdi r12 r13 are saved around the loop).
+rbp r12-r15 rsp come back unchanged (the cave touches none of them).
 
 Buffer (game_alloc, little endian), 64-byte header then the table:
-  +0  u32 window in ticks        +4  u32 mode: 0 off, 1 the rule, 2 record
+  +0  u32 unused (0)             +4  u32 mode: 0 off, 1 the rule, 2 record
   +8  u32 stamps (hits recorded)     only (stamps kept, stock hold; tests)
   +12 u32 allowed (Lua only: the campaign's agreement said yes)
   +16 8 bytes MAGIC              +24 u32 dropped (no free entry in reach)
+  +28 u32 unmatched (an FC no living entity of its unit carries)
   +32 u32 "hold" answers         +36 u32 "free" answers (mode 1)
-  +40 u32 single-model window in ticks (§C8-78)
+  +40 u32 unsized (answers that used the unknown-size window)
+  +44 5 x u32 windows in ticks: size code 1, 2, 3, 4, then unknown size
   +64 TABLE_SLOTS x 16 bytes: u64 flying entity, u32 tick, u32 hits
 Entry of pointer p: slot ((p>>4) ^ (p>>17) ^ (p>>30)) & (TABLE_SLOTS-1), then
 linear probing, at most PROBES entries. Entries are never freed inside a
@@ -73,7 +82,7 @@ no entry in reach is dropped (counted), so a full table errs towards "free".
 
 The site table also carries ANCHORS: pieces of the engine's own code that use
 the same fields (the flight-entity list, the unit back-reference, the battle
-tick, the parent link) and the callers that pass a non-melee damage type
+tick, the parent link, the size code) and the callers that pass a non-melee damage type
 (charge 6, impact 5, ranged 1..4); the stamp site's own pattern pins the
 applier's victim, damage and damage-type reads. The site loader needs every
 one exactly once, so a game update that moves a field turns the feature off
@@ -105,17 +114,20 @@ OWNER = air_dive_rules.TAKEOFF_OWNER
 FEATURE = air_dive_rules.TAKEOFF_FEATURE
 BUILD = air_dive_rules.TAKEOFF_BUILD
 SITE_LUA = air_dive_rules.TAKEOFF_SITE_LUA_PATH
-WINDOW_TICKS = air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS
+# [D3-1118] windows by the engine's size code 1..4, then the unknown-size window
+WINDOWS = tuple(air_dive_rules.takeoff_window_table())
+SIZE_CODES = dict(air_dive_rules.TAKEOFF_SIZE_CODES)
 
 # --- buffer layout ----------------------------------------------------------
-WINDOW_AT, MODE_AT, STAMPS_AT, ALLOWED_AT, MAGIC_AT = 0, 4, 8, 12, 16
-DROPPED_AT, HELD_AT, FREE_AT, WINDOW_SINGLE_AT = 24, 32, 36, 40
-WINDOW_SINGLE_TICKS = air_dive_rules.TAKEOFF_PIN_WINDOW_SINGLE_TICKS
+MODE_AT, STAMPS_AT, ALLOWED_AT, MAGIC_AT = 4, 8, 12, 16
+DROPPED_AT, UNMATCHED_AT, HELD_AT, FREE_AT, UNSIZED_AT = 24, 28, 32, 36, 40
+WINDOWS_AT = 44                     # 5 x u32, ends at 64
 TABLE_AT, ENTRY_BYTES = 64, 16
 TABLE_SLOTS = 8192                  # power of two
 PROBES = 64
 BUFFER_BYTES = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
-MAGIC = b"FLYPINS3"                  # 2: +40 single-model window (§C8-78); 3: renamed (RENAME-1118)
+# 2: +40 single-model window (§C8-78); 3: renamed (RENAME-1118); 4: per model by body size (D3)
+MAGIC = b"FLYPINS4"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -127,6 +139,7 @@ PARENT_OFF = 0x2E0                  # entity -> the entity it rides (0: none)
 UNIT_OFF = 0x2E8                    # entity -> its unit
 BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 LIST_COUNT_OFF, LIST_OFF = 0x184, 0x188   # unit: living flight entities
+SIZE_OFF = 0x74                     # flying entity: body size code 1..4 (D3-1118)
 
 # --- sites ------------------------------------------------------------------
 # name -> (pattern, at, expected original bytes, "stamp" / "hold")
@@ -163,6 +176,11 @@ ANCHORS = {
     "pin_layout_parent": ("48 8B 87 E0 02 00 00 EB ?? 48 8B F8 48 8B 80 E0 02 00 00 "
                           "48 85 C0 75 F1 48 8B 07",
                           "entity +0x2e0 parent chain"),
+    # 0x143061598 (knock code): mov eax,[rsi+0x74]; cmp eax,[rdi+0x74]; jle; sub eax,[rdi+0x74];
+    # cmp eax,1 -- the engine orders two entities by this field. Read in game 2026-11-18 on every
+    # flying entity: 1 small, 2 medium, 3 large, 4 very large (ingame_1118 item2_1, item6_1, item6_2).
+    "pin_layout_size": ("8B 46 74 3B 47 74 7E ?? 2B 47 74 83 F8 01",
+                        "entity +0x74 body size code"),
     # the callers whose damage must not hold a flyer pass a non-melee type:
     # 0x143061087 charge's collision attack: mov dword [rsp+0x28],6 before its applier call
     "pin_kind_charge": ("C7 44 24 28 06 00 00 00 C6 44 24 20 01 F3 0F 11 45 0F 48 89 7D E7 E8",
@@ -315,58 +333,48 @@ def hold_source(mutate=()):
         mov rdx, [rdx + {LIST_OFF:#x}]
         test rdx, rdx
         jz free
-        push rsi
-        push rdi
-        push r12
-        push r13
-        xor r10d, r10d
-        xor r12d, r12d
-        xor r13d, r13d
-    each:
-        mov rsi, [rdx]
-        test rsi, rsi
-        jz skip
-        dec r10d
-        inc r12d
-        {_hash("rsi", "rax", "rdi")}
+    own:
+        mov rax, [rdx]
+        test rax, rax
+        jz own_next
+        cmp qword ptr [rax + {FC_OFF:#x}], rbx
+        je found
+    own_next:
+        add rdx, 8
+        dec ecx
+        jnz own
+        lock inc dword ptr [r9 + {UNMATCHED_AT}]
+        jmp free
+    found:
+        mov rcx, rax
+        mov eax, dword ptr [rcx + {SIZE_OFF:#x}]
+        dec eax
+        cmp eax, 3
+        jbe sized
+        lock inc dword ptr [r9 + {UNSIZED_AT}]
+        mov eax, 4
+    sized:
+        mov r10d, dword ptr [r9 + rax*4 + {WINDOWS_AT}]
+        {_hash("rcx", "rax", "rdx")}
         mov r11d, {PROBES}
     look:
-        mov edi, eax
-        shl rdi, 4
-        lea rdi, [r9 + rdi + {TABLE_AT}]
-        cmp [rdi], rsi
+        mov edx, eax
+        shl rdx, 4
+        lea rdx, [r9 + rdx + {TABLE_AT}]
+        cmp [rdx], rcx
         je hit
-        cmp qword ptr [rdi], 0
-        je skip
+        cmp qword ptr [rdx], 0
+        je free
         inc eax
         and eax, {TABLE_SLOTS - 1}
         dec r11d
         jnz look
-        jmp skip
+        jmp free
     hit:
         mov eax, r8d
-        sub eax, dword ptr [rdi + 8]
-        cmp eax, dword ptr [r9 + {WINDOW_SINGLE_AT}]
-        jae short_window
-        inc r13d
-    short_window:
-        cmp eax, dword ptr [r9 + {WINDOW_AT}]
-        jae skip
-        add r10d, 2
-    skip:
-        add rdx, 8
-        dec ecx
-        jnz each
-        cmp r12d, 1
-        jne several
-        mov r10d, r13d
-    several:
-        pop r13
-        pop r12
-        pop rdi
-        pop rsi
-        test r10d, r10d
-        jle free
+        sub eax, dword ptr [rdx + 8]
+        cmp eax, r10d
+        jae free
         lock inc dword ptr [r9 + {HELD_AT}]
         mov eax, 1
         jmp resume
@@ -385,12 +393,13 @@ def cave_source(name, mutate=()):
 
 
 def layout():
-    return {"bytes": BUFFER_BYTES, "window_at": WINDOW_AT, "mode_at": MODE_AT,
+    return {"bytes": BUFFER_BYTES, "mode_at": MODE_AT,
             "stamps_at": STAMPS_AT, "allowed_at": ALLOWED_AT, "magic_at": MAGIC_AT,
-            "magic": MAGIC.decode(), "dropped_at": DROPPED_AT, "held_at": HELD_AT,
-            "free_at": FREE_AT, "table_at": TABLE_AT, "table_slots": TABLE_SLOTS,
-            "entry_bytes": ENTRY_BYTES, "window": WINDOW_TICKS,
-            "window_single_at": WINDOW_SINGLE_AT, "window_single": WINDOW_SINGLE_TICKS}
+            "magic": MAGIC.decode(), "dropped_at": DROPPED_AT, "unmatched_at": UNMATCHED_AT,
+            "held_at": HELD_AT, "free_at": FREE_AT, "unsized_at": UNSIZED_AT,
+            "table_at": TABLE_AT, "table_slots": TABLE_SLOTS, "entry_bytes": ENTRY_BYTES,
+            "windows_at": WINDOWS_AT, "windows": list(WINDOWS),
+            "size_codes": dict(sorted(SIZE_CODES.items())), "size_at": SIZE_OFF}
 
 
 def source_sha():
@@ -432,8 +441,14 @@ def filled(code, buffer, resume):
 # --- emulator ---------------------------------------------------------------
 CODE, BUF, STACK, OBJ, WORLD, BLOCK, UNIT, RESUME = (
     0x100000, 0x200000, 0x400000, 0x500000, 0x600000, 0x700000, 0x800000, 0x900000)
-BATTLE, TICKS, FCB, ARRAY = WORLD, WORLD + 0x10000, BLOCK + 0x8000, UNIT + 0x10000
+BATTLE, TICKS, ARRAY = WORLD, WORLD + 0x10000, UNIT + 0x10000
+FCS, FC_STRIDE, FCS_BYTES = 0xA00000, 0x100, 0x200000     # one flight controller per flyer
+BIG, BIG_STRIDE, BIG_BYTES = 0x1000000, 0x400, 0x120000   # entities of the large-unit cases
 FLAGS = 0x0247
+CODE_OF = {size: code for size, code in SIZE_CODES.items()}
+WINDOW_OF = {size: WINDOWS[code - 1] for size, code in SIZE_CODES.items()}
+UNKNOWN_WINDOW = WINDOWS[4]
+BODY_SIZES_IN_ORDER = air_dive_rules.BODY_SIZES
 
 
 def model_at(index):
@@ -468,6 +483,8 @@ class Machine:
         uc.mem_map(BLOCK, 0x10000)
         uc.mem_map(UNIT, 0x20000)
         uc.mem_map(RESUME, 0x1000)
+        uc.mem_map(FCS, FCS_BYTES)
+        uc.mem_map(BIG, BIG_BYTES)
         uc.mem_write(RESUME, b"\xf4")
         self.code = {}
         for i, name in enumerate(CAVES):
@@ -477,13 +494,15 @@ class Machine:
         self.reset()
 
     # -- the battle's memory
-    def reset(self, window=WINDOW_TICKS, mode=1, single=WINDOW_SINGLE_TICKS):
+    def reset(self, windows=WINDOWS, mode=1):
         self.uc.mem_write(BUF, bytes(BUFFER_BYTES))
-        self.uc.mem_write(BUF, struct.pack("<II", window, mode))
-        self.uc.mem_write(BUF + WINDOW_SINGLE_AT, struct.pack("<I", single))
+        self.uc.mem_write(BUF + MODE_AT, struct.pack("<I", mode))
+        self.uc.mem_write(BUF + WINDOWS_AT, struct.pack("<5I", *windows))
         self.uc.mem_write(BUF + MAGIC_AT, MAGIC)
         self.uc.mem_write(OBJ, bytes(0x40000))
-        self.models = set()
+        self.uc.mem_write(FCS, bytes(FCS_BYTES))
+        self.uc.mem_write(BIG, bytes(BIG_BYTES))
+        self.models, self.fc_of = set(), {}
         self.now(0)
 
     def now(self, tick, battle=True, ticks=True):
@@ -493,18 +512,32 @@ class Machine:
         for at in self.models:
             self.uc.mem_write(at + BATTLE_OFF, struct.pack("<Q", self._battle))
 
-    def model(self, index, fc=True, parent=None, unit=UNIT, at=None):
-        """A synthetic entity: with or without a flight controller, riding
-        ``parent`` (a model index) or nothing. ``at`` = an address instead of
-        an index."""
+    def model(self, index, fc=True, parent=None, unit=UNIT, at=None, size="medium"):
+        """A synthetic entity: with or without a flight controller (its own,
+        whose first field points back at it), riding ``parent`` (a model
+        index) or nothing, with the size code of body size ``size`` at +0x74
+        (or a raw integer). ``at`` = an address instead of an index."""
         at = model_at(index) if at is None else at
         self.models.add(at)
-        self.uc.mem_write(at + FC_OFF, struct.pack("<Q", FCB + 0x100 if fc else 0))
+        fc_at = 0
+        if fc:
+            fc_at = self.fc_of.get(at) or FCS + FC_STRIDE * (len(self.fc_of) + 1)
+            self.fc_of[at] = fc_at
+            self.uc.mem_write(fc_at, struct.pack("<Q", at))
+        code = CODE_OF[size] if isinstance(size, str) else size
+        self.uc.mem_write(at + FC_OFF, struct.pack("<Q", fc_at))
+        self.uc.mem_write(at + SIZE_OFF, struct.pack("<i", code))
         self.uc.mem_write(at + PARENT_OFF,
                           struct.pack("<Q", model_at(parent) if parent is not None else 0))
         self.uc.mem_write(at + UNIT_OFF, struct.pack("<Q", unit))
         self.uc.mem_write(at + BATTLE_OFF, struct.pack("<Q", self._battle))
         return at
+
+    def flyers(self, n, size="medium", big=False):
+        """``n`` flying entities of one size (indices 1.. or the large region)."""
+        if big:
+            return [self.model(None, at=BIG + BIG_STRIDE * i, size=size) for i in range(n)]
+        return [self.model(1 + i, size=size) for i in range(n)]
 
     def put(self, entity, tick, hits=0, slot=None):
         """Insert the way the stamp cave does (or at a forced ``slot``)."""
@@ -566,37 +599,45 @@ class Machine:
                 "rsp": uc.reg_read(x.UC_X86_REG_RSP) == STACK + 0x8000,
                 "flags": (uc.reg_read(x.UC_X86_REG_EFLAGS) & 0xFFF) == FLAGS}
 
-    def hold(self, living, count=None, fc_model=True, unit=True, array=True):
-        """The hold cave for one model of a unit whose living flight entities
-        are ``living`` (addresses; ``count`` overrides the list length)."""
-        from unicorn import UC_HOOK_CODE
+    def hold(self, living, asker, count=None, fc_model=True, unit=True, array=True, fc=None):
+        """The hold cave for the flight controller of ``asker`` (an entity
+        made by ``model``; ``fc`` = another FC address instead), in a unit
+        whose living flight entities are ``living`` (addresses; ``count``
+        overrides the list length). ``fc_model=False``: the FC's model field
+        is null; ``unit=False``: the model's unit is null."""
+        from unicorn import UC_HOOK_CODE, UcError
         x, uc = self.x, self.uc
         begin, size = self.code[HOLD_NAME]
         self._registers()
-        asker = self.model(0x3F)
-        uc.mem_write(FCB, struct.pack("<Q", asker if fc_model else 0))
+        fc_at = self.fc_of[asker] if fc is None else fc
+        uc.mem_write(fc_at, struct.pack("<Q", asker if fc_model else 0))
         uc.mem_write(asker + UNIT_OFF, struct.pack("<Q", UNIT if unit else 0))
         n = len(living) if count is None else count
         uc.mem_write(UNIT + LIST_COUNT_OFF, struct.pack("<I", n & 0xFFFFFFFF))
         uc.mem_write(UNIT + LIST_OFF, struct.pack("<Q", ARRAY if array else 0))
         uc.mem_write(ARRAY, bytes(0x4000))
         uc.mem_write(ARRAY, b"".join(struct.pack("<Q", e) for e in living))
-        uc.reg_write(x.UC_X86_REG_RBX, FCB)
+        uc.reg_write(x.UC_X86_REG_RBX, fc_at)
         before = {r: uc.reg_read(r) for r in self.callee_saved}
-        counters = (self.head(STAMPS_AT), self.head(DROPPED_AT), self.head(HELD_AT),
-                    self.head(FREE_AT))
+        heads = (STAMPS_AT, DROPPED_AT, HELD_AT, FREE_AT, UNMATCHED_AT, UNSIZED_AT)
+        counters = tuple(self.head(h) for h in heads)
         landed = []
 
         def at_resume(mu, address, _size, _data):
             landed.append(address)
             mu.emu_stop()
         hook = uc.hook_add(UC_HOOK_CODE, at_resume, begin=RESUME, end=RESUME)
-        uc.emu_start(begin, begin + size, count=2_000_000)
+        crashed = False
+        try:
+            uc.emu_start(begin, begin + size, count=2_000_000)
+        except UcError:
+            crashed = True
         uc.hook_del(hook)
         rip = uc.reg_read(x.UC_X86_REG_RIP)
-        after = (self.head(STAMPS_AT), self.head(DROPPED_AT), self.head(HELD_AT),
-                 self.head(FREE_AT))
-        return {"where": "resume" if landed else ("through" if rip == begin + size else hex(rip)),
+        after = tuple(self.head(h) for h in heads)
+        where = ("crash" if crashed else "resume" if landed
+                 else ("through" if rip == begin + size else hex(rip)))
+        return {"where": where,
                 "al": uc.reg_read(x.UC_X86_REG_RAX) & 0xFF,
                 "callee-saved": all(uc.reg_read(r) == v for r, v in before.items()),
                 "rsp": uc.reg_read(x.UC_X86_REG_RSP) == STACK + 0x8000,
@@ -738,196 +779,213 @@ def check(mutate=()):
         expect(tag + "wrap-around: slot 1", m.find(flyer), [(1, 900, 1)])
 
     # ---- hold cave ----------------------------------------------------------
-    def hold_case(name, living, struck, now, want, window=WINDOW_TICKS, mode=1, extra=(),
-                  single=WINDOW_SINGLE_TICKS, **kw):
-        """``struck`` = {entity: tick}; ``want`` = 1 hold / 0 free / None pass-through."""
-        m.reset(window=window, mode=mode, single=single)
+    def hold_case(name, sizes, ask, struck, now, want, windows=WINDOWS, mode=1, extra=(),
+                  unmatched=0, unsized=0, **kw):
+        """A unit of len(``sizes``) flying entities (body sizes or raw codes), the
+        one at index ``ask`` asking; ``struck`` = {index: tick}; ``extra`` =
+        [(pointer, tick)] entries of other entities; ``want`` = 1 hold / 0 free /
+        None pass-through. kw: list = the living list as indices (None = a null
+        entry), asker_in_list, big, and the hold() / now() knobs."""
+        m.reset(windows=windows, mode=mode)
         m.now(now, battle=kw.pop("battle", True), ticks=kw.pop("ticks", True))
-        for entity, tick in list(struck.items()) + list(extra):
+        big = kw.pop("big", False)
+        ents = [m.model(None, at=(BIG + BIG_STRIDE * i) if big else model_at(1 + i), size=s)
+                for i, s in enumerate(sizes)]
+        order = kw.pop("list", list(range(len(ents))))
+        living = [ents[i] if i is not None else 0 for i in order]
+        for i, tick in struck.items():
+            m.put(ents[i], tick)
+        for entity, tick in extra:
             m.put(entity, tick)
-        r = m.hold(living, **kw)
+        r = m.hold(living, ents[ask], **kw)
         expect(f"hold {name}: where", r["where"], "through" if want is None else "resume")
         expect(f"hold {name}: callee-saved registers", r["callee-saved"], True)
         expect(f"hold {name}: rsp", r["rsp"], True)
         if want is None:
-            expect(f"hold {name}: counters", r["counters"], (0, 0, 0, 0))
+            expect(f"hold {name}: counters", r["counters"], (0, 0, 0, 0, 0, 0))
         else:
             expect(f"hold {name}: al", r["al"], want)
-            expect(f"hold {name}: counters", r["counters"], (0, 0, want, 1 - want))
+            expect(f"hold {name}: counters", r["counters"],
+                   (0, 0, want, 1 - want, unmatched, unsized))
 
-    e8 = _keys(8)
-    fresh = lambda keys, tick=995: {k: tick for k in keys}
-    hold_case("mode 0 passes through", e8, fresh(e8), 1000, None, mode=0)
-    hold_case("mode 2 passes through", e8, fresh(e8), 1000, None, mode=2)
-    hold_case("0 of 8 struck", e8, {}, 1000, 0)
-    hold_case("1 of 8 struck", e8, fresh(e8[:1]), 1000, 0)
-    hold_case("3 of 8 struck", e8, fresh(e8[:3]), 1000, 0)
-    hold_case("4 of 8 struck (exactly half)", e8, fresh(e8[:4]), 1000, 0)
-    hold_case("5 of 8 struck", e8, fresh(e8[:5]), 1000, 1)
-    hold_case("5 of 8 struck, the last five", e8, fresh(e8[3:]), 1000, 1)
-    hold_case("8 of 8 struck", e8, fresh(e8), 1000, 1)
-    hold_case("5 of 8 struck 20 ticks ago (stale)", e8, fresh(e8[:5], 980), 1000, 0)
-    hold_case("8 of 8 struck long ago", e8, fresh(e8, 12), 100000, 0)
-    hold_case("4 fresh + 4 stale of 8", e8, {**fresh(e8[:4]), **fresh(e8[4:], 900)}, 1000, 0)
-    hold_case("5 fresh + 3 stale of 8", e8, {**fresh(e8[:5]), **fresh(e8[5:], 900)}, 1000, 1)
-    hold_case("5 of 8 struck 14 ticks ago", e8, fresh(e8[:5], 986), 1000, 1)
-    hold_case("5 of 8 struck 15 ticks ago", e8, fresh(e8[:5], 985), 1000, 0)
-    hold_case("5 of 8, four at 14 ticks and one at 15", e8,
-              {**fresh(e8[:4], 986), e8[4]: 985}, 1000, 0)
-    hold_case("window 5: struck 4 ticks ago", e8, fresh(e8[:5], 996), 1000, 1, window=5)
-    hold_case("window 5: struck 5 ticks ago", e8, fresh(e8[:5], 995), 1000, 0, window=5)
-    hold_case("window 0: never held", e8, fresh(e8, 1000), 1000, 0, window=0)
-    hold_case("struck this very tick", e8, fresh(e8[:5], 1000), 1000, 1)
-    # single-model unit
-    hold_case("single model, struck", e8[:1], fresh(e8[:1]), 1000, 1)
-    # [§C8-78] one living model: 3.0 s (30 ticks); 2.9 s held, 3.0 and 3.1 s free
-    hold_case("single model, struck 15 ticks ago", e8[:1], fresh(e8[:1], 985), 1000, 1)
-    hold_case("single model, struck 29 ticks ago (2.9 s)", e8[:1], fresh(e8[:1], 971), 1000, 1)
-    hold_case("single model, struck 30 ticks ago (3.0 s)", e8[:1], fresh(e8[:1], 970), 1000, 0)
-    hold_case("single model, struck 31 ticks ago (3.1 s)", e8[:1], fresh(e8[:1], 969), 1000, 0)
-    hold_case("single model, single window 10: struck 9 ago", e8[:1], fresh(e8[:1], 991), 1000, 1,
-              single=10)
-    hold_case("single model, single window 10: struck 10 ago", e8[:1], fresh(e8[:1], 990), 1000, 0,
-              single=10)
-    hold_case("single model held by the single window, not the multi one", e8[:1],
-              fresh(e8[:1], 980), 1000, 1, window=0)
-    hold_case("one living model left of eight (dead gone from the list): 3.0 s", e8[4:5],
-              fresh(e8[:5], 980), 1000, 1)
-    hold_case("one living model and a null entry: 3.0 s", [e8[0], 0], fresh(e8[:1], 980), 1000, 1)
-    hold_case("two living, both struck 20 ticks ago: multi window", e8[:2], fresh(e8[:2], 980),
-              1000, 0)
-    hold_case("eight living, all struck 20 ticks ago: multi window", e8, fresh(e8, 980), 1000, 0)
-    hold_case("eight living, five struck 14 ticks ago, single window 0", e8, fresh(e8[:5], 986),
-              1000, 1, single=0)
-    hold_case("single model, never struck", e8[:1], {}, 1000, 0)
-    hold_case("single model, only others struck", e8[:1], fresh(e8[1:]), 1000, 0)
-    # two and three models
-    hold_case("1 of 2 struck", e8[:2], fresh(e8[:1]), 1000, 0)
-    hold_case("2 of 2 struck", e8[:2], fresh(e8[:2]), 1000, 1)
-    hold_case("2 of 3 struck", e8[:3], fresh(e8[:2]), 1000, 1)
-    # dead models: gone from the living list, their entries stay in the table
-    hold_case("5 struck, four of them dead: 1 of 4 living", e8[4:], fresh(e8[:5]), 1000, 0)
-    hold_case("3 of 8 struck, three unstruck dead: 3 of 5 living", e8[:5], fresh(e8[:3]), 1000, 1)
-    hold_case("all struck models dead", e8[5:], fresh(e8[:5]), 1000, 0)
-    # another unit's models
+    # the four windows, at the edge, one model of each size alone
+    for size in BODY_SIZES_IN_ORDER:
+        w = WINDOW_OF[size]
+        hold_case(f"{size} struck this tick", [size], 0, {0: 1000}, 1000, 1)
+        hold_case(f"{size} struck {w - 1} ticks ago", [size], 0, {0: 1000 - (w - 1)}, 1000, 1)
+        hold_case(f"{size} struck {w} ticks ago", [size], 0, {0: 1000 - w}, 1000, 0)
+        hold_case(f"{size} struck {w + 1} ticks ago", [size], 0, {0: 1000 - (w + 1)}, 1000, 0)
+        hold_case(f"{size} never struck", [size], 0, {}, 1000, 0)
+    # the order of the four (smaller waits longer): struck 32 ticks ago
+    for size, want in (("very_large", 0), ("large", 1), ("medium", 1), ("small", 1)):
+        hold_case(f"{size} struck 32 ticks ago", [size], 0, {0: 968}, 1000, want)
+    for size, want in (("very_large", 0), ("large", 0), ("medium", 1), ("small", 1)):
+        hold_case(f"{size} struck 37 ticks ago", [size], 0, {0: 963}, 1000, want)
+    for size, want in (("very_large", 0), ("large", 0), ("medium", 0), ("small", 1)):
+        hold_case(f"{size} struck 42 ticks ago", [size], 0, {0: 958}, 1000, want)
+    # an unknown size code: the unknown-size window (the longest), counted
+    for code in (0, 5, 6, -1, 0x7FFFFFFF, -0x80000000):
+        hold_case(f"size code {code} struck {UNKNOWN_WINDOW - 1} ticks ago", [code], 0,
+                  {0: 1000 - (UNKNOWN_WINDOW - 1)}, 1000, 1, unsized=1)
+        hold_case(f"size code {code} struck {UNKNOWN_WINDOW} ticks ago", [code], 0,
+                  {0: 1000 - UNKNOWN_WINDOW}, 1000, 0, unsized=1)
+        hold_case(f"size code {code} never struck", [code], 0, {}, 1000, 0, unsized=1)
+    # each model on its own (D3): a unit of eight
+    eight = ["medium"] * 8
+    hold_case("8 models, only the asker struck", eight, 5, {5: 995}, 1000, 1)
+    hold_case("8 models, all but the asker struck", eight, 5,
+              {i: 995 for i in range(8) if i != 5}, 1000, 0)
+    hold_case("8 models, all struck", eight, 0, {i: 995 for i in range(8)}, 1000, 1)
+    hold_case("8 models, the asker struck 40 ticks ago, the rest now", eight, 3,
+              {**{i: 1000 for i in range(8)}, 3: 960}, 1000, 0)
+    hold_case("8 models, the asker is last in the list", eight, 7, {7: 999}, 1000, 1)
+    hold_case("mixed sizes: the asker's own size decides (very large, 31 ago)",
+              ["small", "very_large", "small"], 1, {0: 969, 1: 969, 2: 969}, 1000, 0)
+    hold_case("mixed sizes: the asker's own size decides (small, 31 ago)",
+              ["small", "very_large", "small"], 2, {0: 969, 1: 969, 2: 969}, 1000, 1)
+    # another unit's entries do not hold
     others = _keys(8, base=0x2A1B3C4D0)
-    hold_case("eight of another unit struck", e8, fresh(others), 1000, 0)
-    hold_case("5 of 8 struck among another unit's entries", e8, fresh(e8[:5]), 1000, 1,
-              extra=list(fresh(others).items()))
+    hold_case("eight of another unit struck", eight, 0, {}, 1000, 0,
+              extra=[(k, 995) for k in others])
+    hold_case("the asker struck among another unit's entries", eight, 0, {0: 995}, 1000, 1,
+              extra=[(k, 995) for k in others])
+    # the asking FC no living entity carries (it died, or the list is another unit's)
+    hold_case("asker not in the living list", eight, 0, {0: 995}, 1000, 0,
+              list=list(range(1, 8)), unmatched=1)
+    hold_case("living list only null entries", eight, 0, {0: 995}, 1000, 0,
+              list=[None, None], unmatched=1)
+    hold_case("null entry before the asker", eight, 2, {2: 995}, 1000, 1, list=[None, 2, 5])
+    hold_case("FC of no entity at all", eight, 0, {0: 995}, 1000, 0, unmatched=1,
+              fc=FCS + FCS_BYTES - FC_STRIDE)
     # broken links, odd counts
-    hold_case("null FC model", e8, fresh(e8), 1000, 0, fc_model=False)
-    hold_case("null unit", e8, fresh(e8), 1000, 0, unit=False)
-    hold_case("null battle", e8, fresh(e8), 1000, 0, battle=False)
-    hold_case("null tick block", e8, fresh(e8), 1000, 0, ticks=False)
-    hold_case("null entity array", e8, fresh(e8), 1000, 0, array=False)
-    hold_case("count 0", e8, fresh(e8), 1000, 0, count=0)
-    hold_case("count -1", e8, fresh(e8), 1000, 0, count=-1)
-    hold_case(f"count {MAX_MODELS + 1}", e8, fresh(e8), 1000, 0, count=MAX_MODELS + 1)
-    big = _keys(MAX_MODELS, base=0x3000000000, stride=0x9C0)
-    hold_case(f"{MAX_MODELS // 2} of {MAX_MODELS} struck", big, fresh(big[:MAX_MODELS // 2]),
-              1000, 0)
-    hold_case(f"{MAX_MODELS // 2 + 1} of {MAX_MODELS} struck", big,
-              fresh(big[:MAX_MODELS // 2 + 1]), 1000, 1)
-    hold_case("null entry in the list: 1 of 2 living struck", [e8[0], 0, e8[2]],
-              fresh(e8[:1]), 1000, 0)
-    hold_case("null entry in the list: 1 of 1 living struck", [e8[0], 0], fresh(e8[:1]), 1000, 1)
-    hold_case("only null entries", [0, 0, 0], {}, 1000, 0)
+    hold_case("mode 0 passes through", eight, 0, {0: 995}, 1000, None, mode=0)
+    hold_case("mode 2 passes through", eight, 0, {0: 995}, 1000, None, mode=2)
+    hold_case("null model in the FC", eight, 0, {0: 995}, 1000, 0, fc_model=False)
+    hold_case("null unit", eight, 0, {0: 995}, 1000, 0, unit=False)
+    hold_case("null battle", eight, 0, {0: 995}, 1000, 0, battle=False)
+    hold_case("null tick block", eight, 0, {0: 995}, 1000, 0, ticks=False)
+    hold_case("null entity array", eight, 0, {0: 995}, 1000, 0, array=False)
+    hold_case("count 0", eight, 0, {0: 995}, 1000, 0, count=0)
+    hold_case("count -1", eight, 0, {0: 995}, 1000, 0, count=-1)
+    hold_case(f"count {MAX_MODELS + 1}", eight, 0, {0: 995}, 1000, 0, count=MAX_MODELS + 1)
+    hold_case(f"{MAX_MODELS} models, the last one asks", ["small"] * MAX_MODELS, MAX_MODELS - 1,
+              {MAX_MODELS - 1: 990}, 1000, 1, big=True)
+    hold_case(f"{MAX_MODELS} models, the first one asks, unstruck", ["small"] * MAX_MODELS, 0,
+              {i: 990 for i in range(1, MAX_MODELS)}, 1000, 0, big=True)
+    # windows come from the buffer (the Lua side writes them)
+    hold_case("windows all 0: never held", ["small"], 0, {0: 1000}, 1000, 0,
+              windows=(0, 0, 0, 0, 0))
+    hold_case("windows 5: struck 4 ago", ["large"], 0, {0: 996}, 1000, 1, windows=(5,) * 5)
+    hold_case("windows 5: struck 5 ago", ["large"], 0, {0: 995}, 1000, 0, windows=(5,) * 5)
+    hold_case("only the large slot 50: large struck 49 ago", ["large"], 0, {0: 951}, 1000, 1,
+              windows=(1, 1, 50, 1, 1))
+    hold_case("only the large slot 50: medium struck 49 ago", ["medium"], 0, {0: 951}, 1000, 0,
+              windows=(1, 1, 50, 1, 1))
+    hold_case("only the unknown slot 50: code 9 struck 49 ago", [9], 0, {0: 951}, 1000, 1,
+              windows=(1, 1, 1, 1, 50), unsized=1)
     # tick arithmetic
-    hold_case("tick wrap", e8[:1], {e8[0]: 0xFFFFFFFE}, 3, 1)
-    hold_case("stamp ahead of now", e8[:1], {e8[0]: 1001}, 1000, 0)
-    hold_case("first tick of a battle, empty table", e8, {}, 0, 0)
+    hold_case("tick wrap", ["small"], 0, {0: 0xFFFFFFFE}, 3, 1)
+    hold_case("stamp ahead of now", ["small"], 0, {0: 1001}, 1000, 0)
+    hold_case("first tick of a battle, empty table", eight, 0, {}, 0, 0)
     # entries away from home
     for far, want in ((3, 1), (PROBES - 1, 1), (PROBES, 0)):
         m.reset(); m.now(1000)
-        home = slot_of(e8[0])
+        ent = m.model(1, size="small")
+        home = slot_of(ent)
         for k in range(far):
             m.put(0x7000000000 + k, 5, slot=(home + k) % TABLE_SLOTS)
-        m.put(e8[0], 995, slot=(home + far) % TABLE_SLOTS)
-        r = m.hold(e8[:1])
+        m.put(ent, 995, slot=(home + far) % TABLE_SLOTS)
+        r = m.hold([ent], ent)
         expect(f"hold entry {far} past home: al", (r["where"], r["al"]), ("resume", want))
     m.reset(); m.now(1000)
+    edge = m.model(None, at=EDGE_MODEL, size="small")
     m.put(0x7000000000, 5, slot=TABLE_SLOTS - 1)
-    m.put(EDGE_MODEL, 995, slot=0)
-    r = m.hold([EDGE_MODEL])
+    m.put(edge, 995, slot=0)
+    r = m.hold([edge], edge)
     expect("hold entry wrapped to slot 0: al", (r["where"], r["al"]), ("resume", 1))
     m.reset(); m.now(1000)
-    m.put(e8[0], 995, slot=slot_of(e8[0]) + 1)             # home empty: not searched further
-    r = m.hold(e8[:1])
+    ent = m.model(1, size="small")
+    m.put(ent, 995, slot=slot_of(ent) + 1)                 # home empty: not searched further
+    r = m.hold([ent], ent)
     expect("hold entry behind an empty home is not found: al", (r["where"], r["al"]), ("resume", 0))
 
     # ---- stamp -> hold, the two caves on one table -------------------------
-    def unit_of(indices, riders=False):
+    def unit_of(indices, riders=False, size="medium", rider_size="small"):
         """Flight entities (models with an FC); with ``riders`` each is ridden
-        by model index + 0x20 and the riders are the victims."""
+        by model index + 0x20 (of size ``rider_size``) and the riders are the victims."""
         ents, victims = [], []
         for i in indices:
-            ents.append(m.model(i))
-            victims.append(m.model(i + 0x20, fc=False, parent=i) if riders else ents[-1])
+            ents.append(m.model(i, size=size))
+            victims.append(m.model(i + 0x20, fc=False, parent=i, size=rider_size)
+                           if riders else ents[-1])
         return ents, victims
 
     for riders in (False, True):
         who = "riders" if riders else "flyers"
+        w = WINDOW_OF["medium"]
         m.reset(); m.now(2000)
         ents, victims = unit_of(range(1, 9), riders)
-        for v in victims[:4]:
-            m.stamp(MELEE, 30, v)
-        expect(f"round trip {who}: 4 of 8 struck", m.hold(ents)["al"], 0)
-        m.stamp(6, 30, victims[4])                          # a charge's collision attack
-        m.stamp(1, 30, victims[4])                          # a ranged hit
-        expect(f"round trip {who}: non-melee damage on the fifth does not hold", m.hold(ents)["al"], 0)
-        m.stamp(MELEE, 30, victims[4])
-        expect(f"round trip {who}: 5 of 8 struck", m.hold(ents)["al"], 1)
-        expect(f"round trip {who}: stamps", m.head(STAMPS_AT), 5)
-        m.now(2014)
-        expect(f"round trip {who}: 14 ticks later", m.hold(ents)["al"], 1)
-        m.now(2015)
-        expect(f"round trip {who}: 15 ticks later", m.hold(ents)["al"], 0)
-        m.stamp(MELEE, 30, victims[0])
-        m.stamp(MELEE, 30, victims[0])                      # one model struck twice
-        expect(f"round trip {who}: one model struck twice is one model", m.hold(ents)["al"], 0)
-        m.now(2100)
-        for v in victims[:5]:
-            m.stamp(MELEE, 30, v)
-        expect(f"round trip {who}: 5 of 8 again", m.hold(ents)["al"], 1)
-        expect(f"round trip {who}: three struck die, 2 of 5 living", m.hold(ents[3:])["al"], 0)
-        expect(f"round trip {who}: three unstruck die, 5 of 5 living", m.hold(ents[:5])["al"], 1)
-        m.reset(); m.now(3000)
-        ents, victims = unit_of([1], riders)
-        expect(f"round trip {who}: single model, not struck", m.hold(ents)["al"], 0)
-        m.stamp(MELEE, 30, victims[0])
-        expect(f"round trip {who}: single model, struck", m.hold(ents)["al"], 1)
-        m.now(3015)
-        expect(f"round trip {who}: single model, 15 ticks later", m.hold(ents)["al"], 1)
-        m.now(3029)
-        expect(f"round trip {who}: single model, 29 ticks later", m.hold(ents)["al"], 1)
-        m.now(3031)
-        expect(f"round trip {who}: single model, 31 ticks later", m.hold(ents)["al"], 0)
+        m.stamp(MELEE, 30, victims[2])
+        expect(f"round trip {who}: the struck model is held", m.hold(ents, ents[2])["al"], 1)
+        expect(f"round trip {who}: its unstruck neighbour is free", m.hold(ents, ents[3])["al"], 0)
+        m.stamp(6, 30, victims[3])                          # a charge's collision attack
+        m.stamp(1, 30, victims[3])                          # a ranged hit
+        expect(f"round trip {who}: non-melee damage does not hold", m.hold(ents, ents[3])["al"], 0)
+        m.stamp(MELEE, 30, victims[3])
+        expect(f"round trip {who}: a melee hit does", m.hold(ents, ents[3])["al"], 1)
+        expect(f"round trip {who}: stamps", m.head(STAMPS_AT), 2)
+        m.now(2000 + w - 1)
+        expect(f"round trip {who}: {w - 1} ticks later (medium)", m.hold(ents, ents[2])["al"], 1)
+        m.now(2000 + w)
+        expect(f"round trip {who}: {w} ticks later (medium)", m.hold(ents, ents[2])["al"], 0)
+        m.stamp(MELEE, 30, victims[2])
+        expect(f"round trip {who}: struck again", m.hold(ents, ents[2])["al"], 1)
+        expect(f"round trip {who}: it died (gone from the list)", m.hold(ents[3:], ents[2])["al"], 0)
         m.reset(mode=2); m.now(3000)
         ents, victims = unit_of(range(1, 9), riders)
         for v in victims:
             m.stamp(MELEE, 30, v)
         expect(f"round trip {who}: mode 2 records", m.head(STAMPS_AT), 8)
-        expect(f"round trip {who}: mode 2 leaves the stock check", m.hold(ents)["where"], "through")
+        expect(f"round trip {who}: mode 2 leaves the stock check", m.hold(ents, ents[0])["where"],
+               "through")
+    # a ridden unit uses its mount's size, not the rider's (D3): a medium mount (40) under a
+    # small rider (45), struck 42 ticks before the question
+    m.reset(); m.now(4000)
+    ents, victims = unit_of([1], riders=True, size="medium", rider_size="small")
+    m.stamp(MELEE, 30, victims[0])
+    m.now(4000 + WINDOW_OF["medium"] + 2)
+    expect("ridden: judged on the mount's size", m.hold(ents, ents[0])["al"], 0)
+    m.reset(); m.now(4000)
+    ents, victims = unit_of([1], riders=True, size="small", rider_size="very_large")
+    m.stamp(MELEE, 30, victims[0])
+    m.now(4000 + WINDOW_OF["very_large"] + 2)
+    expect("ridden: a small mount under a very large rider is held", m.hold(ents, ents[0])["al"], 1)
     return failures, count[0]
 
 
 # Source edits that break the rule: the cases above must catch each one.
 MUTANTS = (
-    ("exactly half holds", "hold", "jle free", "jl free"),
-    ("the window's last tick counts", "hold", "jae skip", "ja skip"),
-    ("living models not counted", "hold", "dec r10d", "nop"),
-    ("a struck model counts once, not twice", "hold", "add r10d, 2", "add r10d, 1"),
+    ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae free",
+     "cmp eax, r10d\n        ja free"),
+    ("the size code used as the index without -1", "hold", "dec eax\n", "nop\n"),
+    ("no bound on the size code", "hold", "jbe sized", "jmp sized"),
+    ("an unknown size frees", "hold", "mov eax, 4\n", "jmp free\n"),
+    ("an unknown size gets the very-large window", "hold", "mov eax, 4\n", "mov eax, 3\n"),
+    ("unknown sizes not counted", "hold", f"lock inc dword ptr [r9 + {UNSIZED_AT}]", "nop"),
+    ("the window table read one slot off", "hold", f"[r9 + rax*4 + {WINDOWS_AT}]",
+     f"[r9 + rax*4 + {WINDOWS_AT + 4}]"),
+    ("the size read from the wrong field", "hold", f"[rcx + {SIZE_OFF:#x}]", "[rcx + 0x70]"),
+    ("the first living entity taken for the asking model", "hold",
+     f"cmp qword ptr [rax + {FC_OFF:#x}], rbx\n        je found",
+     f"cmp qword ptr [rax + {FC_OFF:#x}], rbx\n        jmp found"),
+    ("null list entries followed", "hold", "jz own_next", "nop"),
+    ("unmatched FCs not counted", "hold", f"lock inc dword ptr [r9 + {UNMATCHED_AT}]", "nop"),
     ("mode 2 answers", "hold", "jne passthrough", "je passthrough"),
-    ("no probe limit on the lookup", "hold", "jnz look\n        jmp skip",
-     "jmp look\n        jmp skip"),
-    ("the two caves hash differently", "hold", "shr rdi, 17", "shr rdi, 16"),
-    ("one living model judged on the multi-model window", "hold", "jne several", "jmp several"),
-    ("several living models judged on the single-model window", "hold", "jne several",
-     "je several"),
-    ("the single-model window's last tick counts", "hold", "jae short_window", "ja short_window"),
-    ("the single-model window read from the multi-model slot", "hold",
-     f"[r9 + {WINDOW_SINGLE_AT}]", f"[r9 + {WINDOW_AT}]"),
-    ("living models not counted for the single-model test", "hold", "inc r12d\n", "nop\n"),
+    ("no probe limit on the lookup", "hold", "jnz look\n        jmp free",
+     "jmp look\n        jmp free"),
+    ("the lookup does not stop at an empty entry", "hold", "je free\n        inc eax",
+     "nop\n        inc eax"),
+    ("the two caves hash differently", "hold", "shr rdx, 17", "shr rdx, 16"),
     ("zero-damage hits recorded", "stamp", "jle done", "jl done"),
     ("non-melee damage recorded", "stamp", "jne done\n        cmp r8d, 0",
      "nop\n        cmp r8d, 0"),
@@ -958,15 +1016,15 @@ def site_lua(codes):
     lines = [
         "-- takeoff_site.lua -- GENERATED by tools/pipelines/pin_cave_asm.py",
         "-- (--write-site); do not edit, rerun the generator. Pure data.",
-        "-- [AIR-DIVE-TAKEOFF-W1 2026-11-12] Flyers are held on the ground only while",
-        "-- more than half of their living models were struck in melee in the last",
-        "-- `layout.window` battle ticks (one living model: `layout.window_single`,",
-        "-- §C8-78): two code caves (one records every melee",
-        "-- hit at the damage applier, one answers the take-off countdown) and the",
-        "-- anchors that pin the engine fields and damage types they rely on, as",
-        "-- memreader Plus site-loader entries (handle:sites), plus the buffer",
-        "-- layout lib/takeoff.lua writes.",
-        "-- / 飞兽只在过半存活模型近 1.5 秒内近战挨打时才被按在地上：两个代码洞与",
+        "-- [D3, user ruling 2026-11-17] A flying model is held on the ground only",
+        "-- while it was struck in melee within the last N battle ticks, N by its own",
+        "-- body size (`layout.windows`: size code 1 small .. 4 very large, then an",
+        "-- unknown code): two code caves (one records every melee hit at the damage",
+        "-- applier, one answers each model's take-off countdown) and the anchors",
+        "-- that pin the engine fields and damage types they rely on, as memreader",
+        "-- Plus site-loader entries (handle:sites), plus the buffer layout",
+        "-- lib/takeoff.lua writes.",
+        "-- / 每个飞行兵模按自己的体型，最近 N 秒内近战挨打才被按在地上：两个代码洞与",
         "--   锚点的位点表、缓冲区布局（生成物）。",
         "return {",
         f"    owner = '{OWNER}',",
@@ -988,13 +1046,17 @@ def site_lua(codes):
         "    caves = { " + ", ".join(f"'{n}'" for n in CAVES) + " },",
         f"    hold = '{HOLD_NAME}', resume_at = {HOLD_RESUME_AT},",
         "    layout = {",
-        f"        bytes = {lay['bytes']}, window_at = {lay['window_at']}, mode_at = {lay['mode_at']},",
+        f"        bytes = {lay['bytes']}, mode_at = {lay['mode_at']},",
         f"        stamps_at = {lay['stamps_at']}, allowed_at = {lay['allowed_at']},",
         f"        magic_at = {lay['magic_at']}, magic = '{lay['magic']}',",
-        f"        dropped_at = {lay['dropped_at']}, held_at = {lay['held_at']}, free_at = {lay['free_at']},",
+        f"        dropped_at = {lay['dropped_at']}, unmatched_at = {lay['unmatched_at']},",
+        f"        held_at = {lay['held_at']}, free_at = {lay['free_at']}, unsized_at = {lay['unsized_at']},",
         f"        table_at = {lay['table_at']}, table_slots = {lay['table_slots']},",
-        f"        entry_bytes = {lay['entry_bytes']}, window = {lay['window']},",
-        f"        window_single_at = {lay['window_single_at']}, window_single = {lay['window_single']},",
+        f"        entry_bytes = {lay['entry_bytes']}, size_at = {lay['size_at']},",
+        f"        windows_at = {lay['windows_at']},",
+        "        windows = { " + ", ".join(str(w) for w in lay['windows']) + " },",
+        "        size_codes = { " + ", ".join(f"{s} = {c}" for s, c in
+                                            sorted(lay['size_codes'].items(), key=lambda i: i[1])) + " },",
         "    },",
         f"    format = {agreement_format()},",
         f"    build = '{BUILD}',",
@@ -1047,8 +1109,8 @@ def main(argv):
     codes = {name: assemble(name) for name in CAVES}
     failures, n = check()
     print("caves: " + ", ".join(f"{name} {len(code)} bytes" for name, code in codes.items())
-          + f"; buffer {BUFFER_BYTES} bytes, {TABLE_SLOTS} entries, window {WINDOW_TICKS} ticks"
-          f" (single model {WINDOW_SINGLE_TICKS})")
+          + f"; buffer {BUFFER_BYTES} bytes, {TABLE_SLOTS} entries, windows by size code 1..4 "
+          f"{list(WINDOWS[:4])} ticks, unknown size {WINDOWS[4]}")
     for f in failures:
         print("FAIL", f)
     print(f"emulator: {n} checks,", "PASS" if not failures else f"{len(failures)} FAIL")

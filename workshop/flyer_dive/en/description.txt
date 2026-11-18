@@ -5,14 +5,13 @@ Flying units charge like flying units: a dive keeps its speed when it lands, and
 [h2]What it does[/h2]
 [list]
 [*][b]Physics dive.[/b] A flying unit that dives onto the ground keeps its speed when it lands. Only the bodies it actually hits slow it down, so a dive carries into the enemy line instead of stopping dead at touchdown.
-[*][b]Take-off from melee.[/b] A flyer engaged in melee can take off again. It is held on the ground only while more than half of its living models are being struck in melee (a single-model unit: while it was struck in the last 3 seconds). Contact alone, ranged hits and charge impacts do not hold it.
+[*][b]Take-off from melee.[/b] A flyer engaged in melee can take off again. Each flying model is judged on its own: a model hit by a melee attack in the last few seconds cannot take off, the others can. The smaller the body, the longer it stays down: small 4.5 s, medium 4.0 s, large 3.5 s, very large 3.0 s (a ridden unit goes by its mount). Contact alone, ranged hits and charge impacts do not hold it.
 [*][b]Charge speed per flyer.[/b] Every flyer has its own charge speed, set by its role and background (light skirmishers fastest, dragons slower but heavier), plus longer charge distances and a collision attack on its first contact.
 [*]Every flying unit, both sides, the AI included.
 [/list]
 
 [h2]Coming next (not in this version)[/h2]
 [list]
-[*][b]Take-off by body size.[/b] PLACEHOLDER: the size-based take-off rule is still being measured in game. This line will describe it once it ships.
 [*][b]Diving into braced spears.[/b] PLACEHOLDER: damage to a flyer that dives head-on into braced Charge Reflection infantry is still being measured in game. This line will describe it once it ships.
 [/list]
 

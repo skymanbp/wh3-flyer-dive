@@ -13,6 +13,13 @@ Per unit of the battle (key, side, flyer or not):
 Verdict lines: CONTROL (some non-flyer took reflection damage: the logger can see a reflection),
 FLYER (some flyer took reflection damage), and the counts behind both. A file with no BATTLE
 ... on line or no R / D line at all is INCOMPLETE, never a pass.
+[d3-1118] Two lines more say how far the engine got when no reflection was seen:
+ACTION UPDATES (rf_act1 / rf_act2: soldiers running an action that can call the reflection check,
+by unit, with the soldier's +0x318 and the action's +0x38) and BRACE CHECK (rf_brace: calls of the
+reflection check 0x14325bbec, by reflector unit, with the reflector's +0x318 -- the engine needs
+0x69 there ("Back" otherwise) -- and, for the first enemy in its list, its +0x324 state (12 / 15 /
+16 / 17 is "Interr") and its distance against the radius). A probe file older than these caves
+has none of these lines; the report says "not logged" then, never "not reached".
 
 usage: python -P tools/pipelines/reflect_probe_report.py [reflect_probe.txt]
 """
@@ -45,6 +52,9 @@ def parse(text):
     for line in text.splitlines():
         p = line.split()
         if not p:
+            continue
+        if p[0] in ("B", "A", "BS", "AS"):
+            other.append(line)          # read by brace_summary()
             continue
         if p[0] == "BATTLE":
             on, units, refl, dmg, hp, other = line, {}, [], [], [], []
@@ -80,6 +90,57 @@ def hp_curve(hp, uid, after_s=(1.5, 5.0)):
         later = [r for r in hp if uid in r and r["ms"] >= first["ms"] + s * 1000]
         losses.append(round(h0 - later[0][uid][0], 5) if later else None)
     return first["ms"], h0, losses
+
+
+INTERRUPTED = {12, 15, 16, 17}           # 0x14325bc8c..: charger +0x324 states that skip ("Interr")
+BRACED_STATE = 0x69                      # 0x14325bdd6: reflector +0x318 the check needs ("Back" otherwise)
+
+
+def brace_summary(other, units):
+    """[d3-1118] Lines about the reflection check and the actions that call it, from the B / A / BS /
+    AS lines of the last battle (``other``). [] when the file has none of them at all."""
+    bs = [ln.split() for ln in other if ln.startswith("BS ")]
+    as_ = [ln.split() for ln in other if ln.startswith("AS ")]
+    b = [ln.split() for ln in other if ln.startswith("B ")]
+    s_lines = [ln for ln in other if ln.startswith("S ")]
+    if not (bs or as_ or b) and not any("brace=" in ln for ln in s_lines):
+        return ["BRACE CHECK not logged (probe file older than rf_brace)"]
+    name = lambda u8: units.get(u8.upper(), {}).get("key", u8)
+    out = []
+    acts = {}
+    for p in as_:
+        k = (p[2], name(p[3]), int(p[4], 16), int(p[5], 16))
+        acts[k] = acts.get(k, 0) + int(p[6].split("=")[1])
+    total_a = sum(acts.values())
+    out.append(f"ACTION UPDATES {total_a}" + ("" if total_a else " (no soldier ran an action that can "
+                                                                "call the reflection check)"))
+    for (which, key, st, aid), n in sorted(acts.items(), key=lambda kv: -kv[1])[:12]:
+        out.append(f"  update {which} {key}: soldier +0x318 {st:#x}, action +0x38 {aid:#x}: {n}")
+    calls = {}
+    for p in bs:
+        k = (name(p[2]), int(p[3], 16), int(p[5]), int(p[6], 16) if int(p[5]) else None)
+        calls[k] = calls.get(k, 0) + int(p[7].split("=")[1])
+    total_b = sum(calls.values())
+    braced = sum(n for (_k, st, _e, _s), n in calls.items() if st == BRACED_STATE)
+    out.append(f"BRACE CHECK {'REACHED' if total_b else 'NOT REACHED'} {total_b} calls, reflector in "
+               f"state {BRACED_STATE:#x} {braced}, with an enemy in reach list "
+               f"{sum(n for (_k, _st, e, _s), n in calls.items() if e)}")
+    for (key, st, enemies, est), n in sorted(calls.items(), key=lambda kv: -kv[1])[:12]:
+        tag = "" if st == BRACED_STATE else ' (not 0x69: "Back")'
+        etag = "" if est is None else f", first enemy +0x324 {est}" + (' ("Interr")' if est in INTERRUPTED else "")
+        out.append(f"  {key}: reflector +0x318 {st:#x}{tag}, enemies {enemies}{etag}: {n}")
+    near = []
+    for p in b:
+        if len(p) < 15 or p[11] in ("00000000",):
+            continue
+        rx, rz, radius, ex, ez = (f32(p[i]) for i in (8, 9, 10, 14, 15))
+        near.append(((rx - ex) ** 2 + (rz - ez) ** 2, radius, int(p[5], 16), int(p[13], 16)))
+    if near:
+        d2 = sorted(x[0] for x in near)
+        out.append(f"  first enemy distance in the logged calls: min {d2[0] ** 0.5:.1f} m, median "
+                   f"{d2[len(d2) // 2] ** 0.5:.1f} m; radius value median "
+                   f"{sorted(x[1] for x in near)[len(near) // 2]:.2f} ({len(near)} calls with an enemy)")
+    return out
 
 
 def main(argv):
@@ -125,6 +186,8 @@ def main(argv):
     print(f"\nreflections logged {len(refl)} (flyer chargers {sum(r['charger_flyer'] for r in refl)}), "
           f"damage calls {len(dmg)}, reflection damage calls "
           f"{sum(1 for d in dmg if d['ret'] == REFLECT_RET)}")
+    for line in brace_summary(other, units):
+        print(line)
     print("CONTROL", "SEEN" if control else "NOT SEEN", f"({control} ground units took reflection damage)")
     print("FLYER", "SEEN" if flyer else "NOT SEEN", f"({flyer} flying units took reflection damage)")
     if not refl and not dmg:

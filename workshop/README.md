@@ -17,7 +17,8 @@ Before publishing:
   submod's Workshop id once it exists.
 * The submod declares Workshop item 3840651516 as a required item, with the same
   tags as the main item.
-* The two `PLACEHOLDER` lines in `flyer_dive/*/description.txt` (take-off by body
-  size, damage from braced spears) stay until those rules ship.
+* The `PLACEHOLDER` line in `flyer_dive/*/description.txt` (damage from braced
+  spears) stays until that rule ships. The take-off line describes the body-size rule
+  (D3), implemented on the `rename-1118` branch and not yet checked in game.
 * Chinese game terms are the game client's own words, read from
   `local_cn.pack` (for example 吹息, 陷入近战, 已落地, 冲锋反制, 阵列齐整, 昊天狮).

@@ -3,7 +3,9 @@
 --
 -- Never in a player's pack: packed only by tools/pipelines/build_pin_on_hit_probe.py --reflect,
 -- with the generated site table script/reflect_probe/reflect_probe_site.lua
--- (tools/pipelines/reflect_probe_asm.py: two logger caves, every call, no flyer filter).
+-- (tools/pipelines/reflect_probe_asm.py: logger caves, every call, no flyer filter; d3-1118 added
+-- rf_brace at the reflection check 0x14325bbec and rf_act1 / rf_act2 at the two per-soldier
+-- action updates that call it).
 -- Single player only (it installs caves). Installs at Deployed, after the take-off battle entry
 -- installed its own caves at chunk scope (reflect_probe_asm.py docstring: the rf_dmg pattern
 -- starts after pin_stamp's stolen bytes).
@@ -14,8 +16,17 @@
 --     <charger flyer> <reflector +0xbc> <reflector +0x6c>          every impact reflection
 --   D <ms> <tick> <ret> <victim8> <victim unit8> <damage> <type> <flyer> <flyer entity8>
 --                                                               every damage-applier call
+--   B <ms> <tick> <reflector8> <reflector unit8> <reflector +0x318 hex8> <flag> <enemies> <x> <z> <radius>
+--     <enemy8> <enemy unit8> <enemy +0x324> <x> <z>  (twice)   a call of the reflection check,
+--                                     the first B_LINES of them (floats as big-endian hex)
+--   A <ms> <tick> <which> <soldier8> <soldier unit8> <soldier +0x318> <action +0x38> <+0x48> <+0x7c>
+--                                     a call of action update 1 / 2, the first A_LINES of them
+--   BS <ms> <reflector unit8> <+0x318> <flag> <enemies> <first enemy +0x324> n=<calls>
+--   AS <ms> <which> <soldier unit8> <+0x318> <action +0x38> n=<calls>
+--                                     every 2 s: every call since the last summary, by those fields
 --   U <ms> <uid>:<unary hp>:<men alive>:<in melee> ...          every 100 ms, every unit
---   S <ms> refl=<n> dmg=<n> lost_refl=<n> lost_dmg=<n>           every 2 s
+--   S <ms> refl=<n> dmg=<n> brace=<n> act=<n> lost_refl=<n> lost_dmg=<n> lost_brace=<n> lost_act=<n>
+--                                                                every 2 s
 --   END
 -- id8 = the low 8 hex digits of a pointer (the units' obj ids match a D / R line's unit8).
 -- tools/pipelines/reflect_probe_report.py reads it.
@@ -23,6 +34,7 @@
 local LOG_FILE = "reflect_probe.txt"
 local CALLBACK = "reflect_probe_tick"
 local SAMPLE_MS, SUMMARY_MS = 100, 2000
+local B_LINES, A_LINES = 3000, 1000           -- d3-1118: raw lines kept; the summaries count all
 
 local lines = {}
 local function emit(s) lines[#lines + 1] = s end
@@ -110,21 +122,28 @@ local function list_units()
 end
 
 local seen_r, seen_d, lost_r, lost_d, last_s = 0, 0, 0, 0, -SUMMARY_MS
+local seen_b, seen_a, lost_b, lost_a, lines_b, lines_a = 0, 0, 0, 0, 0, 0
+local agg_b, agg_a = {}, {}
 
-local function drain(count_at, ring_at, slots, seen, lost, line)
+-- entries of one ring not read yet; `size` / `seq_at` default to the 64-byte rings (seq at +60)
+local function drain(count_at, ring_at, slots, seen, lost, line, size, seq_at)
+    size, seq_at = size or l.entry, seq_at or 60
     local count = u32(mr.read(buf, count_at, 4), 0)
     if count - seen > slots then
         lost = lost + (count - seen - slots)
         seen = count - slots
     end
     while seen < count do
-        local e = mr.read(buf, ring_at + (seen % slots) * l.entry, l.entry)
-        if u32(e, 60) ~= seen + 1 then break end           -- not written yet
-        emit(line(e))
+        local e = mr.read(buf, ring_at + (seen % slots) * size, size)
+        if u32(e, seq_at) ~= seen + 1 then break end       -- not written yet
+        local text = line(e)
+        if text then emit(text) end
         seen = seen + 1
     end
     return seen, lost, count
 end
+
+local function bump(agg, key) agg[key] = (agg[key] or 0) + 1 end
 
 local function tick()
     local ms = bm:time_elapsed_ms()
@@ -138,6 +157,25 @@ local function tick()
         return fmt("D %d %d %s %s %s %d %d %d %s", ms, u32(e, 32), hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)),
             low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36), low8(sub(e, 41, 48)))
     end)
+    local nb, na
+    seen_b, lost_b, nb = drain(l.brace_count_at, l.brace_ring_at, l.brace_slots, seen_b, lost_b, function(e)
+        bump(agg_b, fmt("%s %s %d %d %s", low8(sub(e, 9, 16)), hexle(sub(e, 17, 20)), u32(e, 20), u32(e, 24),
+            hexle(sub(e, 65, 68))))
+        if lines_b >= B_LINES then return nil end
+        lines_b = lines_b + 1
+        return fmt("B %d %d %s %s %s %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s", ms, u32(e, 28),
+            low8(sub(e, 1, 8)), low8(sub(e, 9, 16)), hexle(sub(e, 17, 20)), u32(e, 20), u32(e, 24),
+            f32hex(sub(e, 33, 36)), f32hex(sub(e, 37, 40)), f32hex(sub(e, 41, 44)),
+            low8(sub(e, 49, 56)), low8(sub(e, 57, 64)), hexle(sub(e, 65, 68)), f32hex(sub(e, 69, 72)), f32hex(sub(e, 73, 76)),
+            low8(sub(e, 81, 88)), low8(sub(e, 89, 96)), hexle(sub(e, 97, 100)), f32hex(sub(e, 101, 104)), f32hex(sub(e, 105, 108)))
+    end, l.brace_entry, 124)
+    seen_a, lost_a, na = drain(l.act_count_at, l.act_ring_at, l.act_slots, seen_a, lost_a, function(e)
+        bump(agg_a, fmt("%d %s %s %s", u32(e, 24), low8(sub(e, 9, 16)), hexle(sub(e, 17, 20)), hexle(sub(e, 21, 24))))
+        if lines_a >= A_LINES then return nil end
+        lines_a = lines_a + 1
+        return fmt("A %d %d %d %s %s %s %s %d %d", ms, u32(e, 28), u32(e, 24), low8(sub(e, 1, 8)),
+            low8(sub(e, 9, 16)), hexle(sub(e, 17, 20)), hexle(sub(e, 21, 24)), u32(e, 32), u32(e, 36))
+    end)
     local cells = {}
     for _, u in ipairs(units) do
         local hp, men, melee = -1, -1, false
@@ -149,7 +187,11 @@ local function tick()
     emit(fmt("U %d %s", ms, table.concat(cells, " ")))
     if ms - last_s >= SUMMARY_MS then
         last_s = ms
-        emit(fmt("S %d refl=%d dmg=%d lost_refl=%d lost_dmg=%d", ms, nr, nd, lost_r, lost_d))
+        for key, n in pairs(agg_b) do emit(fmt("BS %d %s n=%d", ms, key, n)) end
+        for key, n in pairs(agg_a) do emit(fmt("AS %d %s n=%d", ms, key, n)) end
+        agg_b, agg_a = {}, {}
+        emit(fmt("S %d refl=%d dmg=%d brace=%d act=%d lost_refl=%d lost_dmg=%d lost_brace=%d lost_act=%d",
+            ms, nr, nd, nb, na, lost_r, lost_d, lost_b, lost_a))
     end
     flush()
 end

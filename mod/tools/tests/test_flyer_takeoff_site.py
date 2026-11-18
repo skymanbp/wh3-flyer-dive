@@ -1,9 +1,8 @@
-"""AIR-DIVE-TAKEOFF-W1 (2026-11-12, CONTENT_LEDGER §C8-58): the flyer take-off
-rule's site table.
+"""AIR-DIVE-TAKEOFF-W1 (2026-11-12): the flyer take-off rule's site table.
 
-The rule -- a flying unit is held in melee only while more than half of its
-living models were struck within the last 15 battle ticks -- is two code
-caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
+The rule [D3, user ruling 2026-11-17; D3-1118] -- a flying model struck in
+melee within the last N battle ticks cannot take off, N by its own body size
+(small 45, medium 40, large 35, very large 30) -- is two code caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
 replaced the two inside the hit processor). Their source, emulator check, sites and field anchors live in
 ``pipelines/pin_cave_asm.py``; what ships is the generated data module
 ``data/takeoff_site.lua``. These checks pin the join between the two:
@@ -11,12 +10,13 @@ replaced the two inside the hit processor). Their source, emulator check, sites 
 * the committed table was generated from the current cave source (a cave edit
   without ``--write-site`` would ship bytes the emulator never saw);
 * the table names every cave and every field anchor, the hold cave, its
-  resume offset and the ruled window, and no entry the tool does not know;
+  resume offset and the ruled windows by size code, and no entry the tool does
+  not know;
 * every pattern is one memreader Plus accepts (its own length limit, read
   from the vendored loader; no wildcard first);
 * the installed game holds every cave site and every anchor exactly once.
 The installed exe is a required input (§A14.4): without it the last check
-refuses rather than passing. The emulator check itself (506 cases, 19 broken
+refuses rather than passing. The emulator check itself (621 cases, 22 broken
 caves each caught) needs keystone + unicorn and runs inside pin_cave_asm.py
 before it writes the table; it is not repeated here.
 """
@@ -59,7 +59,7 @@ class SiteTable(unittest.TestCase):
         want = ([(n, pin_cave_asm.FEATURE, "cave") for n in pin_cave_asm.CAVES]
                 + [(n, pin_cave_asm.FEATURE, "anchor") for n in pin_cave_asm.ANCHORS])
         self.assertEqual(named, want)
-        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (2, 7))
+        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (2, 8))
 
     def test_owner_feature_hold_and_window(self):
         # whole lines of the table's top level (an entry repeats the feature inline)
@@ -70,14 +70,24 @@ class SiteTable(unittest.TestCase):
                      f"    build = '{air_dive_rules.TAKEOFF_BUILD}',"):
             with self.subTest(line=line):
                 self.assertEqual(lines.count(line), 1)
-        self.assertEqual(self.text.count(f" window = {air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS},"), 1)
-        # the ruled window: 1.5 s at the engine's 10 battle ticks a second
-        self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOW_TICKS, 15)
-        # [§C8-78] one living model: 3.0 s
-        self.assertEqual(self.text.count(
-            f" window_single = {air_dive_rules.TAKEOFF_PIN_WINDOW_SINGLE_TICKS},"), 1)
-        self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOW_SINGLE_TICKS, 30)
+        # [D3] the windows by the engine's size code 1..4 (small .. very large), then the
+        # unknown-size window = the longest; 10 battle ticks a second
+        self.assertEqual(lines.count("        windows = { 45, 40, 35, 30, 45 },"), 1)
+        self.assertEqual(lines.count(
+            "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS4',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
+        self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
+
+    def test_the_old_whole_unit_rule_is_gone(self):
+        """[D3] The two constants of the replaced rule (more than half within 1.5 s, the last
+        model within 3.0 s) and their buffer slots are deleted, not left beside the new ones."""
+        for name in ("TAKEOFF_PIN_WINDOW_TICKS", "TAKEOFF_PIN_WINDOW_SINGLE_TICKS"):
+            with self.subTest(name=name):
+                self.assertFalse(hasattr(air_dive_rules, name))
+        for word in ("window_single", "window_at =", " window = "):
+            with self.subTest(word=word):
+                self.assertNotIn(word, self.text)
 
     def test_every_cave_takes_the_buffer_and_only_the_hold_cave_resumes(self):
         for name in pin_cave_asm.CAVES:

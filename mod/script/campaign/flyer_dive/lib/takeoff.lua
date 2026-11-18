@@ -1,14 +1,13 @@
 -- takeoff.lua — flyers are held on the ground only while struck (memreader_plus code caves)
 -- 飞兽只在挨打时被按在地上：经 memreader_plus 装两个代码洞，全体飞行单位
 --
--- [AIR-DIVE-TAKEOFF-W1 2026-11-12, user rulings 2026-11-12, CONTENT_LEDGER
--- §C8-57 and §C8-58] A flyer ordered away from melee is asked to take off,
--- then waits on a 3.0 s timer that the game holds at full for as long as its
--- engaged check says the model is busy -- any contact, struck or not.
--- THE RULE: a flying unit is held only while MORE THAN HALF of its living
--- models were struck in melee within the last 1.5 s (15 battle ticks); a
--- single-model unit (one living model) uses its one model, struck within the
--- last 3.0 s (30 ticks; §C8-78, user ruling 2026-11-16). Every flying unit,
+-- [AIR-DIVE-TAKEOFF-W1 2026-11-12] A flyer ordered away from melee is asked to
+-- take off, then waits on a 3.0 s timer that the game holds at full for as
+-- long as its engaged check says the model is busy -- any contact, struck or not.
+-- THE RULE [D3, user ruling 2026-11-17, docs/DECISIONS.md]: a flying model that
+-- was hit by a melee attack within the last N seconds cannot take off; N by its
+-- own body size (small 4.5, medium 4.0, large 3.5, very large 3.0 s; a ridden
+-- unit: its mount's), decided for each model on its own. Every flying unit,
 -- both sides, AI included. One cave, at the engine's damage applier, records every damaging
 -- melee hit (the engine's own damage type 0: weapon hits, splash attacks,
 -- matched combat; not charges, impacts, ranged or abilities) on the flying
@@ -16,8 +15,9 @@
 -- in place of the engaged check (source, emulator check and sites:
 -- tools/pipelines/pin_cave_asm.py; the site table and buffer layout
 -- data/takeoff_site.lua are generated from it).
--- / 过半存活模型在最近 1.5 秒内近战挨打才按住（只剩一个存活模型时为 3 秒，§C8-78），否则 3 秒后离地。一个洞在扣血函数入口
---   记全部近战命中（含横扫与对决动作），一个洞代替原版的交战判定回答起飞计时。
+-- / 每个飞行兵模按自己的体型（小 4.5、中 4.0、大 3.5、超大 3.0 秒；骑乘看坐骑），最近 N 秒内近战挨打就不能起飞，
+--   否则 3 秒后离地（D3）。一个洞在扣血函数入口记全部近战命中（含横扫与对决动作），一个洞代替原版的交战判定
+--   逐个兵模回答起飞计时。
 --
 -- The caves stay in the game for the session (memreader Plus never removes a
 -- cave), so "off" is mode 0: nothing is recorded and the game's own engaged
@@ -155,11 +155,12 @@ function M.find(log_fn)
 end
 
 -- Start the rule for a battle: caves off while the table and the counters
--- are cleared (the entries are this battle's entity pointers), then the
--- windows (multi-model, then single-model §C8-78), then the mode last. mode 1
--- = the rule; 2 = record hits only, the game's own check still answers
--- (tests). / 清表后开规则，模式最后写。
-function M.arm(buf, window, mode, window_single)
+-- are cleared (the entries are this battle's entity pointers), then the five
+-- windows (size code 1..4, then an unknown code; `windows` = a list of five to
+-- use instead of the ruled ones, tests only), then the mode last. mode 1 = the
+-- rule; 2 = record hits only, the game's own check still answers (tests).
+-- / 清表后写五个窗口（体型 1..4 与未知体型），模式最后写。
+function M.arm(buf, windows, mode)
     local mr, layout = mr_(), site.layout
     put_u32(buf, layout.mode_at, 0)
     local zeros = string.rep("\0", 1024)
@@ -167,11 +168,14 @@ function M.arm(buf, window, mode, window_single)
     for off = 0, span - 1, 1024 do
         mr.write(buf, layout.table_at + off, sub(zeros, 1, math.min(1024, span - off)))
     end
-    for _, at in ipairs({ layout.stamps_at, layout.dropped_at, layout.held_at, layout.free_at }) do
+    for _, at in ipairs({ layout.stamps_at, layout.dropped_at, layout.unmatched_at, layout.held_at,
+            layout.free_at, layout.unsized_at }) do
         put_u32(buf, at, 0)
     end
-    put_u32(buf, layout.window_at, window or layout.window)
-    put_u32(buf, layout.window_single_at, window_single or layout.window_single)
+    local use = windows or layout.windows
+    for i = 1, #layout.windows do
+        put_u32(buf, layout.windows_at + 4 * (i - 1), use[i] or layout.windows[i])
+    end
     put_u32(buf, layout.mode_at, mode or 1)
 end
 
@@ -183,12 +187,15 @@ end
 function M.set_allowed(buf, on) put_u32(buf, site.layout.allowed_at, on and 1 or 0) end
 function M.allowed(buf) return mr_().read(buf, site.layout.allowed_at, 4) == "\1\0\0\0" end
 
--- {window, mode, stamps, dropped, held, free}: the header as it stands.
+-- {windows, mode, stamps, dropped, unmatched, held, free, unsized}: the header as it stands.
 function M.counters(buf)
     local l = site.layout
-    return { window = u32(buf, l.window_at), mode = u32(buf, l.mode_at),
+    local windows = {}
+    for i = 1, #l.windows do windows[i] = u32(buf, l.windows_at + 4 * (i - 1)) end
+    return { windows = windows, mode = u32(buf, l.mode_at),
         stamps = u32(buf, l.stamps_at), dropped = u32(buf, l.dropped_at),
-        held = u32(buf, l.held_at), free = u32(buf, l.free_at) }
+        unmatched = u32(buf, l.unmatched_at), held = u32(buf, l.held_at),
+        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at) }
 end
 
 function M.layout() return site and site.layout end

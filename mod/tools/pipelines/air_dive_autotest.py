@@ -866,8 +866,11 @@ MEMREADER_DIR = Path(os.environ.get("MEMREADER_DIR",
                                     r"D:\SteamLibrary\steamapps\workshop\content\1142710\3811098873"))
 
 
-def write_startup(via, test_pack, restore, extra_packs=(), memreader=False):
-    mod_lines = [f'mod "{test_pack}";', f'mod "{HELPER_PACK}";']
+def write_startup(via, test_pack, restore, extra_packs=(), memreader=False, before_packs=()):
+    """[d3-1118] ``before_packs`` are listed in used_mods.txt ahead of the test pack, ``extra_packs``
+    after the helper pack, in the order given (the pack-order experiment needs both sides)."""
+    mod_lines = [f'mod "{p}";' for p in before_packs]
+    mod_lines += [f'mod "{test_pack}";', f'mod "{HELPER_PACK}";']
     mod_lines += [f'mod "{p}";' for p in extra_packs]
     if memreader:
         if not (MEMREADER_DIR / "memreader_plus.pack").is_file():
@@ -951,7 +954,13 @@ def run(args):
             restore.save(entity_pack)     # removed again after the run
             build_entity_read_minimod.main(["--out", str(entity_pack)])
             extra = (ENTITY_PACK,)
-        write_startup(args.startup_via, args.test_pack, restore, extra, args.memreader)
+        for p in tuple(args.pack_before) + tuple(args.pack_after):
+            if not (DATA_DIR / p).is_file():
+                raise SystemExit(f"[air_dive_autotest] REFUSING: {p} is not in {DATA_DIR}")
+        extra = extra + tuple(args.pack_after)
+        write_startup(args.startup_via, args.test_pack, restore, extra, args.memreader,
+                      before_packs=tuple(args.pack_before))
+        note("used_mods: " + " | ".join(USED_MODS.read_text("utf-8").splitlines()))
         note(f"launch: mods {args.test_pack} + {HELPER_PACK}, "
              f"startup via {args.startup_via}")
         own = OwnGame()
@@ -1164,6 +1173,12 @@ def main(argv=None):
                     help="land unit key of every lane's enemy unit")
     ap.add_argument("--cmd", help="extra driver control lines, comma list of key=value")
     # [FLYER-FIX-1117] the push scenarios' ally, the camera lane and screenshots
+    # [d3-1118] the pack-order experiment: packs already deployed in data/ (never copied or
+    # removed by the driver), enabled before the test pack / after the helper pack
+    ap.add_argument("--pack-before", action="append", default=[], metavar="PACK",
+                    help="a pack in data/ listed in used_mods.txt before the test pack (repeatable)")
+    ap.add_argument("--pack-after", action="append", default=[], metavar="PACK",
+                    help="a pack in data/ listed in used_mods.txt after the helper pack (repeatable)")
     ap.add_argument("--memreader", action="store_true",
                     help="also enable the Workshop memreader Plus (MEMREADER_DIR), the caves' prerequisite")
     ap.add_argument("--ally", help="scenario assist: land unit key of the flyer side's infantry, one per lane")

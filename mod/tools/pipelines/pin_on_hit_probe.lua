@@ -8,7 +8,8 @@
 -- lib/takeoff.lua and, when asked, restarts the rule with another
 -- window or mode).
 -- CONFIG pin_probe.cfg next to Warhammer3.exe, "key value" lines:
---   window <ticks>   default: the shipped window
+--   window <ticks>   default 0 = the shipped windows by body size (D3); any
+--                    other value is written to all five window slots
 --   mode <1|2>       default 1; 2 = hits recorded, the game's own engaged
 --                    check still answers (the vanilla arm, with the record)
 -- WRITES pin_probe.txt next to Warhammer3.exe:
@@ -18,9 +19,13 @@
 --                                 / +0x188), at the start and when they change
 --   H <ms> <tick> <id>:<tick>:<hits> ...   table entries that changed
 --   U <ms> <tick> <uid>:<living>:<men alive>:<struck in the window> ...
+--                                 (the window: the configured one, else the
+--                                 longest shipped window; per-size answers are
+--                                 the caves' own, counted in S)
 --                                 while any flyer has a struck model, or when
 --                                 a count changed
---   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> used=<entries> stray=<n>
+--   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> unsized=<n> unmatched=<n>
+--     used=<entries> stray=<n>
 --                                 every 2 s; stray = entries that never were
 --                                 in a flyer's list
 --   END | FAIL <why>
@@ -57,7 +62,7 @@ local function id_of(p)
 end
 
 local function read_cfg(defaults)
-    local cfg = { window = defaults.window, mode = 1 }
+    local cfg = { window = 0, mode = 1 }
     local f = io.open(CFG_FILE, "r")
     if not f then return cfg end
     for line in f:lines() do
@@ -180,8 +185,8 @@ local function sample()
     if ms - last_summary >= SUMMARY_MS then
         last_summary = ms
         local c = takeoff.counters(buffer)
-        emit(fmt("S %d %d stamps=%d dropped=%d held=%d free=%d used=%d stray=%d", ms, now,
-            c.stamps, c.dropped, c.held, c.free, used, stray))
+        emit(fmt("S %d %d stamps=%d dropped=%d held=%d free=%d unsized=%d unmatched=%d used=%d stray=%d",
+            ms, now, c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched, used, stray))
     end
     flush()
 end
@@ -203,8 +208,16 @@ local function start()
         return
     end
     local cfg = read_cfg(layout)
-    window = cfg.window
-    takeoff.arm(buffer, cfg.window, cfg.mode)
+    local windows = nil
+    window = 0
+    if cfg.window > 0 then
+        windows = {}
+        for i = 1, #layout.windows do windows[i] = cfg.window end
+        window = cfg.window
+    else
+        for _, w in ipairs(layout.windows) do window = math.max(window, w) end
+    end
+    takeoff.arm(buffer, windows, cfg.mode)
     emit(fmt("BATTLE %s window=%d mode=%d table=%d", stamp, cfg.window, cfg.mode, layout.table_slots))
     each_unit(function(alliance, unit)
         local obj = mr.read_pointer(mr.ud_topointer(unit), 8)

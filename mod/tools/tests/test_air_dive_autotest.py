@@ -133,5 +133,25 @@ class Judge(unittest.TestCase):
         self.assertEqual(res["verdict"], "FAIL")
 
 
+class PackOrder(unittest.TestCase):
+    """[d3-1118] The pack-order experiment: used_mods.txt lists --pack-before packs ahead of the test
+    pack and --pack-after packs after the helper pack, in the order given."""
+
+    def test_used_mods_order(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            saved = adt.USED_MODS
+            adt.USED_MODS = Path(tmp) / "used_mods.txt"
+            try:
+                adt.write_startup("argv", "flyer_dive_takeoff.pack", adt.Restore(), ("probe_size.pack",),
+                                  False, before_packs=("flyer_dive_balance.pack",))
+                lines = adt.USED_MODS.read_text("utf-8").splitlines()
+            finally:
+                adt.USED_MODS = saved
+        self.assertEqual(lines[:4], ['mod "flyer_dive_balance.pack";', 'mod "flyer_dive_takeoff.pack";',
+                                     f'mod "{adt.HELPER_PACK}";', 'mod "probe_size.pack";'])
+        self.assertTrue(lines[-1].startswith("game_startup_mode battle "))
+
+
 if __name__ == "__main__":
     unittest.main()

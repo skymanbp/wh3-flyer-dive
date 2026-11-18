@@ -36,7 +36,30 @@ would be off for that battle -- its BATTLE line says so). EVERY call is logged:
 The reflection's own damage call is the applier call at 0x14325bf8b (type 0, damage = the
 reflection's out +4), so its entries carry return address 0x14325bf90.
 
-``python reflect_probe_asm.py [--write-site PATH]`` (keystone + unicorn) assembles both caves,
+[D3-1118, after the 2026-11-18 runs: rf_refl was entered 0 times in 16 battles while rf_dmg saw
+every melee and impact call] Three more loggers find out how far the engine gets towards a
+reflection. Static read (d3-1118): the ONLY caller of 0x1430afae4 is 0x14325bbec, and that
+function's only callers are two per-soldier action updates (0x14326a6ba in 0x14326a2bc,
+0x14326ae9b in 0x14326a958). Inside 0x14325bbec each nearby enemy (r9 list) is skipped by one of
+five tests, which the engine itself labels with debug strings: charger state +0x324 in
+{12, 15, 16, 17} ("Interr"), outside the radius, closer than the inner radius ("Near"),
+reflector +0x318 != 0x69 ("Back"), 0x1430751a8(reflector, charger +0x60) ("Immune"), and the
+r8b flag or 0x143072fe8(charger) ("BACK").
+``rf_brace`` at the ENTRY of 0x14325bbec: rdx = the reflector (the bracing soldier), r8b = the
+caller's flag (+0x48 of its action object), r9 = the list of nearby enemies ({+4 u32 count,
++8 pointer array}), entry [rsp+0x30] = pointer to the radius (F32, compared with squared
+distances). EVERY call is logged, 128-byte entry:
+  +0 u64 reflector   +8 u64 reflector unit   +16 u32 reflector +0x318   +20 u32 r8b
+  +24 u32 enemies in the list   +28 u32 battle tick   +32 f32 reflector x (+0x88)
+  +36 f32 reflector z (+0x90)   +40 f32 radius   +48 / +80 the first two enemies: u64 entity,
+  u64 unit, u32 state +0x324, f32 x, f32 z   +124 u32 seq + 1 (written last)
+``rf_act1`` / ``rf_act2`` at the ENTRIES of the two action updates (rcx = the action object,
+[rcx+8] its soldier): is any soldier running the action that can lead to a reflection at all?
+64-byte entry: +0 u64 soldier   +8 u64 its unit   +16 u32 soldier +0x318   +20 u32 action +0x38
+(the id 0x14326a2bc compares with the soldier's +0x318)   +24 u32 which (1 / 2)
++28 u32 battle tick   +32 u32 action byte +0x48   +36 u32 action byte +0x7c   +60 u32 seq + 1.
+
+``python reflect_probe_asm.py [--write-site PATH]`` (keystone + unicorn) assembles the caves,
 runs them in Unicorn against synthetic objects, runs mutated sources that must each fail, and
 writes the site table to PATH (default: print only).
 """
@@ -59,14 +82,29 @@ DMG_PATTERN = ("41 55 41 56 41 57 48 8D 6C 24 F9 48 81 EC A0 00 00 00 0F 57 C0 4
 DMG_AT = 0x4A
 DMG_STOLEN = "44 8B 7D 6F 44 8B F0 44 8A 6D 67 89 45 57"
 REFLECT_DAMAGE_RETURN = 0x14325BF90      # the reflection's own applier call returns here
-EXE_SITES = {"rf_refl": 0x1430AFAE4, "rf_dmg": 0x14325AA18}   # build 6ae2a00b
+# [d3-1118] the reflection check 0x14325bbec and the two per-soldier action updates that call it
+BRACE_PATTERN = ("48 8B C4 48 89 58 08 44 88 40 18 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 A0 "
+                 "48 81 EC 60 01 00 00")
+BRACE_STOLEN = "48 8B C4 48 89 58 08 44 88 40 18"
+ACT1_PATTERN = ("48 8B C4 55 53 56 57 41 55 41 56 41 57 48 8D 68 A1 48 81 EC A0 00 00 00 48 8B 59 08 "
+                "48 8B F1 0F 29 70 B8 0F 57 F6")
+ACT1_STOLEN = "48 8B C4 55 53 56 57 41 55"
+ACT2_PATTERN = ("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 68 A1 48 81 EC A8 00 00 00 "
+                "0F 29 70 A8 48 8B F1 48 8B 49 08")
+ACT2_STOLEN = "48 8B C4 55 53 56 57 41 54"
+EXE_SITES = {"rf_refl": 0x1430AFAE4, "rf_dmg": 0x14325AA18,   # build 6ae2a00b
+             "rf_brace": 0x14325BBEC, "rf_act1": 0x14326A2BC, "rf_act2": 0x14326A958}
 
-MODE_AT, MAGIC_AT, REFL_COUNT_AT, DMG_COUNT_AT = 0, 8, 16, 20
-MAGIC = b"RFPROBE1"
+MODE_AT, MAGIC_AT, REFL_COUNT_AT, DMG_COUNT_AT, BRACE_COUNT_AT, ACT_COUNT_AT = 0, 8, 16, 20, 24, 28
+MAGIC = b"RFPROBE2"                 # 2: + rf_brace, rf_act1, rf_act2 (d3-1118)
 REFL_RING_AT, REFL_SLOTS = 64, 4096
 DMG_RING_AT, DMG_SLOTS = REFL_RING_AT + REFL_SLOTS * 64, 32768
 ENTRY = 64
-BYTES = DMG_RING_AT + DMG_SLOTS * ENTRY
+BRACE_RING_AT, BRACE_SLOTS, BRACE_ENTRY = DMG_RING_AT + DMG_SLOTS * ENTRY, 8192, 128
+ACT_RING_AT, ACT_SLOTS = BRACE_RING_AT + BRACE_SLOTS * BRACE_ENTRY, 8192
+BYTES = ACT_RING_AT + ACT_SLOTS * ENTRY
+STATE_OFF, POS_X, POS_Z, CHARGER_STATE = 0x318, 0x88, 0x90, 0x324
+ACT_ID, ACT_FLAG1, ACT_FLAG2 = 0x38, 0x48, 0x7C
 BUF = 0x1122334455667788
 FC, PARENT, UNIT, BATTLE, TICKS, TICK = 0x128, 0x2E0, 0x2E8, 0x58, 0x440, 0x98
 BRACE_MULT, IMMOVABLE = 0xBC, 0x6C
@@ -239,6 +277,148 @@ done:
     return _mutate(s, mutate)
 
 
+BRACE_PUSHES = 5                    # flags + rax rcx r10 r11 (the seq push comes after)
+
+
+def _enemy(n, at):
+    """log enemy ``n`` of the list r9 at entry offset ``at``; rax / rcx / r10 scratch."""
+    return f"""
+    cmp dword ptr [r9 + 4], {n + 1}
+    jb enemy_end_{n}
+    mov rax, qword ptr [r9 + 8]
+    test rax, rax
+    jz enemy_end_{n}
+    mov rax, qword ptr [rax + {8 * n}]
+    test rax, rax
+    jz enemy_end_{n}
+    mov qword ptr [r11 + {at}], rax
+    mov r10, qword ptr [rax + {UNIT:#x}]
+    mov qword ptr [r11 + {at + 8}], r10
+    mov r10d, dword ptr [rax + {CHARGER_STATE:#x}]
+    mov dword ptr [r11 + {at + 16}], r10d
+    mov r10d, dword ptr [rax + {POS_X:#x}]
+    mov dword ptr [r11 + {at + 20}], r10d
+    mov r10d, dword ptr [rax + {POS_Z:#x}]
+    mov dword ptr [r11 + {at + 24}], r10d
+enemy_end_{n}:
+"""
+
+
+def brace_source(mutate=None):
+    zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, BRACE_ENTRY, 8))
+    s = f"""
+    pushfq
+    push rax
+    push rcx
+    push r10
+    push r11
+    mov r10, {BUF:#x}
+    cmp dword ptr [r10 + {MODE_AT}], 0
+    je done
+    mov ecx, 1
+    lock xadd dword ptr [r10 + {BRACE_COUNT_AT}], ecx
+    mov r11d, ecx
+    and r11d, {BRACE_SLOTS - 1}
+    shl r11, 7
+    mov rax, {BRACE_RING_AT}
+    add r11, rax
+    add r11, r10
+    inc ecx
+    push rcx
+    xor eax, eax
+{zero}    mov qword ptr [r11], rdx
+    movzx ecx, r8b
+    mov dword ptr [r11 + 20], ecx
+    mov rax, qword ptr [rsp + {8 * (BRACE_PUSHES + 1) + 0x30}]
+    test rax, rax
+    jz no_radius
+    mov ecx, dword ptr [rax]
+    mov dword ptr [r11 + 40], ecx
+no_radius:
+    {_tick("rdx", "ecx", "reflector")}
+    mov dword ptr [r11 + 28], ecx
+    test rdx, rdx
+    jz no_reflector
+    mov rax, qword ptr [rdx + {UNIT:#x}]
+    mov qword ptr [r11 + 8], rax
+    mov ecx, dword ptr [rdx + {STATE_OFF:#x}]
+    mov dword ptr [r11 + 16], ecx
+    mov ecx, dword ptr [rdx + {POS_X:#x}]
+    mov dword ptr [r11 + 32], ecx
+    mov ecx, dword ptr [rdx + {POS_Z:#x}]
+    mov dword ptr [r11 + 36], ecx
+no_reflector:
+    test r9, r9
+    jz no_list
+    mov ecx, dword ptr [r9 + 4]
+    mov dword ptr [r11 + 24], ecx
+{_enemy(0, 48)}{_enemy(1, 80)}no_list:
+    pop rcx
+    mov dword ptr [r11 + 124], ecx
+done:
+    pop r11
+    pop r10
+    pop rcx
+    pop rax
+    popfq
+"""
+    return _mutate(s, mutate)
+
+
+def act_source(which, mutate=None):
+    zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
+    s = f"""
+    pushfq
+    push rax
+    push rcx
+    push rdx
+    push r10
+    push r11
+    mov r10, {BUF:#x}
+    cmp dword ptr [r10 + {MODE_AT}], 0
+    je done
+    mov edx, 1
+    lock xadd dword ptr [r10 + {ACT_COUNT_AT}], edx
+    mov r11d, edx
+    and r11d, {ACT_SLOTS - 1}
+    shl r11, 6
+    mov rax, {ACT_RING_AT}
+    add r11, rax
+    add r11, r10
+    inc edx
+    xor eax, eax
+{zero}    mov dword ptr [r11 + 24], {which}
+    test rcx, rcx
+    jz fin
+    mov eax, dword ptr [rcx + {ACT_ID:#x}]
+    mov dword ptr [r11 + 20], eax
+    movzx eax, byte ptr [rcx + {ACT_FLAG1:#x}]
+    mov dword ptr [r11 + 32], eax
+    movzx eax, byte ptr [rcx + {ACT_FLAG2:#x}]
+    mov dword ptr [r11 + 36], eax
+    mov rcx, qword ptr [rcx + 8]
+    test rcx, rcx
+    jz fin
+    mov qword ptr [r11], rcx
+    mov rax, qword ptr [rcx + {UNIT:#x}]
+    mov qword ptr [r11 + 8], rax
+    mov eax, dword ptr [rcx + {STATE_OFF:#x}]
+    mov dword ptr [r11 + 16], eax
+    {_tick("rcx", "r10d", "soldier")}
+    mov dword ptr [r11 + 28], r10d
+fin:
+    mov dword ptr [r11 + 60], edx
+done:
+    pop r11
+    pop r10
+    pop rdx
+    pop rcx
+    pop rax
+    popfq
+"""
+    return _mutate(s, mutate)
+
+
 def _mutate(s, mutate):
     if mutate:
         old, new = mutate
@@ -248,7 +428,9 @@ def _mutate(s, mutate):
     return s
 
 
-SOURCES = {"rf_refl": refl_source, "rf_dmg": dmg_source}
+SOURCES = {"rf_refl": refl_source, "rf_dmg": dmg_source, "rf_brace": brace_source,
+           "rf_act1": lambda mutate=None: act_source(1, mutate),
+           "rf_act2": lambda mutate=None: act_source(2, mutate)}
 
 
 def assemble(name, mutate=None):
@@ -391,6 +573,112 @@ def check(mutate=None, which=None):
                        flyer, DMG_SLOTS + 4)
                 if (cnt, got) != (1, exp):
                     fails.append(f"rf_dmg {name}: count {cnt} entry {got} want {exp}")
+    if which in (None, "rf_brace"):
+        fails += _check_brace(mutate if which == "rf_brace" else None)
+    for act, n in (("rf_act1", 1), ("rf_act2", 2)):
+        if which in (None, act):
+            fails += _check_act(act, n, mutate if which == act else None)
+    return fails
+
+
+def _check_brace(mutate):
+    """rf_brace on synthetic calls: every field of the 128-byte entry, the mode switch, null links
+    and a ring slot full of junk (a reused slot must not keep stale fields)."""
+    fails = []
+    code = assemble("rf_brace", mutate)
+    cases = (("two enemies", 1, 2, True, True), ("one enemy", 1, 1, True, True),
+             ("no enemy", 1, 0, True, True), ("null list", 1, None, True, True),
+             ("null reflector", 1, 2, False, True), ("null radius pointer", 1, 2, True, False),
+             ("off", 0, 2, True, True))
+    for name, mode, n, has_refl, has_radius in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            e = _entities(mu, tick=909)
+            refl, en = e[0], e[1:3]
+            mu.mem_write(refl + STATE_OFF, struct.pack("<I", 0x69))
+            mu.mem_write(refl + POS_X, struct.pack("<ff", 12.5, 0.0))
+            mu.mem_write(refl + POS_Z, struct.pack("<f", -40.25))
+            for k, x in enumerate(en):
+                mu.mem_write(x + CHARGER_STATE, struct.pack("<I", 30 + k))
+                mu.mem_write(x + POS_X, struct.pack("<f", 14.0 + k))
+                mu.mem_write(x + POS_Z, struct.pack("<f", -33.0 - k))
+            lst, arr, radius = OBJ + 0xA0000, OBJ + 0xA1000, OBJ + 0xA2000
+            mu.mem_write(arr, struct.pack("<QQ", *en))
+            mu.mem_write(lst, struct.pack("<II", 0, n or 0) + struct.pack("<Q", arr))
+            mu.mem_write(radius, struct.pack("<f", 36.0))
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + BRACE_COUNT_AT, struct.pack("<I", BRACE_SLOTS + 5))
+            slot = B + BRACE_RING_AT + 5 * BRACE_ENTRY
+            mu.mem_write(slot, b"\xEE" * BRACE_ENTRY)
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", 0x14326A6BF) + bytes(0x28)
+                         + struct.pack("<Q", radius if has_radius else 0) + bytes(8))
+            regs = {"rdx": refl if has_refl else 0, "r8": 0x5151515151515101,
+                    "r9": lst if n is not None else 0, "rsp": rsp}
+            changed = _run(mu, code, regs, flags)
+            if changed:
+                fails.append(f"rf_brace {name}/{flags:#x}: registers changed {changed}")
+            cnt = _u32(mu, B + BRACE_COUNT_AT) - (BRACE_SLOTS + 5)
+            ent = bytes(mu.mem_read(slot, BRACE_ENTRY))
+            if mode == 0:
+                if cnt or ent != b"\xEE" * BRACE_ENTRY:
+                    fails.append(f"rf_brace {name}: logged in mode 0")
+                continue
+            want = bytearray(BRACE_ENTRY)
+            r = refl if has_refl else 0
+            struct.pack_into("<QQIIII", want, 0, r, (0xAA0000 + r) if r else 0, 0x69 if r else 0, 1,
+                             n or 0, 909 if r else 0)
+            struct.pack_into("<fff", want, 32, 12.5 if r else 0.0, -40.25 if r else 0.0,
+                             36.0 if has_radius else 0.0)
+            for k in range(min(n or 0, 2)):
+                x = en[k]
+                struct.pack_into("<QQIff", want, 48 + 32 * k, x, 0xAA0000 + x, 30 + k, 14.0 + k, -33.0 - k)
+            struct.pack_into("<I", want, 124, BRACE_SLOTS + 6)
+            if cnt != 1 or ent != bytes(want):
+                fails.append(f"rf_brace {name}/{flags:#x}: count {cnt}, entry differs at "
+                             f"{[i for i in range(BRACE_ENTRY) if ent[i] != want[i]][:8]}")
+    return fails
+
+
+def _check_act(name_site, which, mutate):
+    """rf_act1 / rf_act2 on synthetic calls: every field, the mode switch, null links, junk slot."""
+    fails = []
+    code = assemble(name_site, mutate)
+    for name, mode, kind in (("soldier", 1, "ok"), ("null soldier", 1, "nosoldier"),
+                             ("null action", 1, "noaction"), ("off", 0, "ok")):
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            e = _entities(mu, tick=606)
+            soldier, action = e[0], OBJ + 0xB0000
+            mu.mem_write(soldier + STATE_OFF, struct.pack("<I", 0x69))
+            mu.mem_write(action + 8, struct.pack("<Q", 0 if kind == "nosoldier" else soldier))
+            mu.mem_write(action + ACT_ID, struct.pack("<I", 0x6A))
+            mu.mem_write(action + ACT_FLAG1, b"\x01")
+            mu.mem_write(action + ACT_FLAG2, b"\x02")
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + ACT_COUNT_AT, struct.pack("<I", ACT_SLOTS + 9))
+            slot = B + ACT_RING_AT + 9 * ENTRY
+            mu.mem_write(slot, b"\xEE" * ENTRY)
+            changed = _run(mu, code, {"rcx": 0 if kind == "noaction" else action, "rsp": STACK + 0x4000},
+                           flags)
+            if changed:
+                fails.append(f"{name_site} {name}/{flags:#x}: registers changed {changed}")
+            cnt = _u32(mu, B + ACT_COUNT_AT) - (ACT_SLOTS + 9)
+            ent = bytes(mu.mem_read(slot, ENTRY))
+            if mode == 0:
+                if cnt or ent != b"\xEE" * ENTRY:
+                    fails.append(f"{name_site} {name}: logged in mode 0")
+                continue
+            want = bytearray(ENTRY)
+            s = soldier if kind == "ok" else 0
+            struct.pack_into("<QQIIII", want, 0, s, (0xAA0000 + s) if s else 0, 0x69 if s else 0,
+                             0 if kind == "noaction" else 0x6A, which, 606 if s else 0)
+            if kind != "noaction":
+                struct.pack_into("<II", want, 32, 1, 2)
+            struct.pack_into("<I", want, 60, ACT_SLOTS + 10)
+            if cnt != 1 or ent != bytes(want):
+                fails.append(f"{name_site} {name}/{flags:#x}: count {cnt}, entry differs at "
+                             f"{[i for i in range(ENTRY) if ent[i] != want[i]][:8]}")
     return fails
 
 
@@ -406,6 +694,16 @@ MUTANTS = (
     ("rf_dmg", "mov ecx, dword ptr [rsp + 32]", "mov ecx, dword ptr [rsp + 24]"),
     ("rf_dmg", "    mov dword ptr [r11 + 36], 0\n", "    nop\n"),
     ("rf_dmg", "    pop r9\n", "    pop rax\n"),
+    ("rf_brace", f"[rsp + {8 * (BRACE_PUSHES + 1) + 0x30}]", f"[rsp + {8 * (BRACE_PUSHES + 1) + 0x28}]"),
+    ("rf_brace", f"mov ecx, dword ptr [rdx + {STATE_OFF:#x}]", "mov ecx, dword ptr [rdx + 0x31c]"),
+    ("rf_brace", "cmp dword ptr [r9 + 4], 2", "cmp dword ptr [r9 + 4], 3"),
+    ("rf_brace", "    pop rcx\n    mov dword ptr [r11 + 124], ecx", "    pop rcx\n    nop"),
+    ("rf_brace", "    movzx ecx, r8b\n", "    xor ecx, ecx\n"),
+    ("rf_brace", "    mov qword ptr [r11 + 64], rax\n", "    nop\n"),
+    ("rf_act1", "mov dword ptr [r11 + 24], 1", "mov dword ptr [r11 + 24], 2"),
+    ("rf_act1", f"mov eax, dword ptr [rcx + {ACT_ID:#x}]", "mov eax, dword ptr [rcx + 0x3c]"),
+    ("rf_act2", f"mov eax, dword ptr [rcx + {STATE_OFF:#x}]", "mov eax, dword ptr [rcx + 0x31c]"),
+    ("rf_act2", "    mov dword ptr [r11 + 60], edx\n", "    nop\n"),
 )
 
 
@@ -419,7 +717,9 @@ def _regex(pattern):
                                for t in pattern.split()), re.S)
 
 
-SITES = {"rf_refl": (REFL_PATTERN, 0, REFL_STOLEN), "rf_dmg": (DMG_PATTERN, DMG_AT, DMG_STOLEN)}
+SITES = {"rf_refl": (REFL_PATTERN, 0, REFL_STOLEN), "rf_dmg": (DMG_PATTERN, DMG_AT, DMG_STOLEN),
+         "rf_brace": (BRACE_PATTERN, 0, BRACE_STOLEN), "rf_act1": (ACT1_PATTERN, 0, ACT1_STOLEN),
+         "rf_act2": (ACT2_PATTERN, 0, ACT2_STOLEN)}
 
 
 def check_exe(exe_path):
@@ -461,12 +761,15 @@ def site_lua(codes):
         lines += [f"        {{ name = '{n}', feature = '{FEATURE}', kind = 'cave',",
                   f"          pattern = '{pattern}', at = {at}, expect = '{stolen}',",
                   f"          bytes = '{_template(codes[n])}' }},"]
-    lines += ["    },", "    caves = { 'rf_refl', 'rf_dmg' },",
+    lines += ["    },", "    caves = { " + ", ".join(f"'{n}'" for n in SOURCES) + " },",
               f"    layout = {{ bytes = {BYTES}, mode_at = {MODE_AT}, magic_at = {MAGIC_AT}, "
               f"magic = '{MAGIC.decode()}',",
               f"        refl_count_at = {REFL_COUNT_AT}, refl_ring_at = {REFL_RING_AT}, "
               f"refl_slots = {REFL_SLOTS},",
               f"        dmg_count_at = {DMG_COUNT_AT}, dmg_ring_at = {DMG_RING_AT}, dmg_slots = {DMG_SLOTS},",
+              f"        brace_count_at = {BRACE_COUNT_AT}, brace_ring_at = {BRACE_RING_AT}, "
+              f"brace_slots = {BRACE_SLOTS}, brace_entry = {BRACE_ENTRY},",
+              f"        act_count_at = {ACT_COUNT_AT}, act_ring_at = {ACT_RING_AT}, act_slots = {ACT_SLOTS},",
               f"        entry = {ENTRY} }},", "}"]
     return "\n".join(lines) + "\n"
 

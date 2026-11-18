@@ -14,7 +14,8 @@ movement recorder plus:
                  generated site table: build_air_dive_minimod.takeoff_entries)
   --record       (with --rule) + pin_on_hit_probe.lua, which writes what the
                  caves recorded and answered to pin_probe.txt and reads
-                 pin_probe.cfg ("window <ticks>", "mode <1|2>"; mode 2 =
+                 pin_probe.cfg ("window <ticks>" = one window for every
+                 body size instead of the ruled ones, "mode <1|2>"; mode 2 =
                  hits recorded, the game's own engaged check answers: the
                  vanilla arm with the record)
 

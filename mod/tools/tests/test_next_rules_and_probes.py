@@ -1,14 +1,19 @@
-"""update-1117 (user rulings 2026-11-17, docs/DECISIONS.md D3 / D4): the two ruled numbers that do
-not ship yet, and the test-only probes that decide how they will.
+"""update-1117 (user rulings 2026-11-17, docs/DECISIONS.md D3 / D4): the ruled numbers and the
+test-only probes that decided (D3) or will decide (D4) how they ship.
 
 * D3: one take-off window per body size (very_large 30, large 35, medium 40, small 45 ticks),
-  every battle_entities size covered, an unknown size refused;
+  every battle_entities size covered, an unknown size refused; the engine's size codes as
+  measured in game 2026-11-18 (1..4, small .. very large) and the window table the cave reads,
+  whose unknown-code slot is the longest window (a model with an unreadable size is never
+  let out earlier than any size is);
 * D4: the flyer's reflection hit is twice the game's own;
 * the size probe's verdict: HOLDS only for one value per size, distinct, rising with size and
   stable between reads; REFUTED / INCOMPLETE otherwise (never a pass on missing data);
 * the impact probe's caves sit exactly once in the installed exe, at the addresses of the static
   read (the emulator check needs keystone + unicorn and runs in reflect_probe_asm.py / the probe
-  pack build, not here).
+  pack build, not here);
+* [d3-1118] the impact report tells "the reflection check was never reached" from "the probe file
+  is older than that logger" and from "reached, but the reflector was not in state 0x69".
 The installed exe is a required input: without it the last check refuses rather than passing.
 """
 import os
@@ -43,6 +48,49 @@ class RuledNumbers(unittest.TestCase):
             with self.subTest(size=size), self.assertRaises(RuntimeError):
                 air_dive_rules.takeoff_pin_window(size)
 
+    def test_size_codes_as_measured(self):
+        # ingame_1118 item2_1 (and item6_1 / item6_2): harpies 1, pegasus 2, manticore 3, star dragon 4
+        self.assertEqual(air_dive_rules.TAKEOFF_SIZE_CODES,
+                         {"small": 1, "medium": 2, "large": 3, "very_large": 4})
+
+    def test_window_table_the_cave_reads(self):
+        self.assertEqual(air_dive_rules.takeoff_window_table(), [45, 40, 35, 30, 45])
+        self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE,
+                         max(air_dive_rules.TAKEOFF_PIN_WINDOWS.values()))
+
+    def test_window_table_refuses_bad_codes(self):
+        """Negative controls: the table is refused, not built wrong, when the codes are not
+        exactly 1..4 over the four sizes."""
+        good = dict(air_dive_rules.TAKEOFF_SIZE_CODES)
+        bad = {
+            "a code missing": {k: v for k, v in good.items() if k != "large"},
+            "two sizes one code": {**good, "large": 2},
+            "codes from 0": {k: v - 1 for k, v in good.items()},
+            "an unknown size": {**good, "huge": 5},
+        }
+        for name, codes in bad.items():
+            with self.subTest(case=name):
+                air_dive_rules.TAKEOFF_SIZE_CODES = codes
+                try:
+                    with self.assertRaises(RuntimeError):
+                        air_dive_rules.takeoff_window_table()
+                finally:
+                    air_dive_rules.TAKEOFF_SIZE_CODES = good
+
+    def test_the_cave_layout_follows_the_rules(self):
+        import pin_cave_asm
+        self.assertEqual(list(pin_cave_asm.WINDOWS), air_dive_rules.takeoff_window_table())
+        lay = pin_cave_asm.layout()
+        self.assertEqual(lay["windows"], [45, 40, 35, 30, 45])
+        self.assertEqual(lay["size_at"], 0x74)
+        # the five windows end where the table begins; no header field overlaps another
+        self.assertEqual(lay["windows_at"] + 4 * len(lay["windows"]), lay["table_at"])
+        fields = sorted([lay[k] for k in ("mode_at", "stamps_at", "allowed_at", "dropped_at",
+                                          "unmatched_at", "held_at", "free_at", "unsized_at")]
+                        + [lay["magic_at"], lay["magic_at"] + 4])
+        self.assertEqual(len(fields), len(set(fields)))
+        self.assertTrue(all(f < lay["windows_at"] for f in fields))
+
     def test_reflection_factor(self):
         self.assertEqual(air_dive_rules.REFLECTION_FLYER_DAMAGE_FACTOR, 2.0)
 
@@ -71,6 +119,33 @@ class SizeProbeVerdict(unittest.TestCase):
         self.assertEqual(size_report.verdict([r for r in self.FULL if r[0] != "medium"])[0], "INCOMPLETE")
         self.assertEqual(size_report.verdict([(s, v[:1]) for s, v in self.FULL])[0], "INCOMPLETE")
         self.assertEqual(size_report.verdict([])[0], "INCOMPLETE")
+
+
+class BraceSummary(unittest.TestCase):
+    UNITS = {"B19F5B30": {"key": "wh_main_emp_inf_spearmen_1"}}
+
+    def summary(self, lines):
+        import reflect_probe_report
+        return reflect_probe_report.brace_summary(lines, self.UNITS)
+
+    def test_old_file_is_not_logged_not_unreached(self):
+        out = self.summary(["S 1400 refl=0 dmg=0 lost_refl=0 lost_dmg=0"])
+        self.assertEqual(out, ["BRACE CHECK not logged (probe file older than rf_brace)"])
+
+    def test_never_reached(self):
+        out = self.summary(["S 1400 refl=0 dmg=3 brace=0 act=0 lost_refl=0 lost_dmg=0 lost_brace=0 lost_act=0"])
+        self.assertIn("ACTION UPDATES 0 (no soldier ran an action that can call the reflection check)", out)
+        self.assertTrue(any(line.startswith("BRACE CHECK NOT REACHED 0 calls") for line in out), out)
+
+    def test_reached_but_not_braced(self):
+        out = self.summary(["BS 3400 B19F5B30 00000031 0 2 0000001E n=40",
+                            "BS 3400 B19F5B30 00000069 0 1 0000000F n=2",
+                            "S 3400 refl=0 dmg=3 brace=42 act=0 lost_refl=0 lost_dmg=0 lost_brace=0 lost_act=0"])
+        self.assertTrue(any(line.startswith("BRACE CHECK REACHED 42 calls, reflector in state 0x69 2") for line in out),
+                        out)
+        self.assertTrue(any('wh_main_emp_inf_spearmen_1: reflector +0x318 0x31 (not 0x69: "Back")' in line
+                            for line in out), out)
+        self.assertTrue(any('first enemy +0x324 15 ("Interr")' in line for line in out), out)
 
 
 class ImpactProbeSites(unittest.TestCase):

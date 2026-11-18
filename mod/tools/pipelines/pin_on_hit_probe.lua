@@ -63,7 +63,11 @@
 --                                      model / unit / tick to judge by
 --                                   p  the check was asked and passed to the game's
 --                                      own check (mode 2)
---                                   x  a melee hit was recorded on this entity
+--                                   x  a melee hit was recorded on this entity; suffix r =
+--                                      the stamp cave raised its countdown 0 -> 1 (D11: a
+--                                      model in phase 1 or 2 hit at countdown 0 must reach
+--                                      the take-off check before it can lift); the token
+--                                      shows the countdown from BEFORE the raise
 --                                 id = the entity's id as in E lines ("?" + the FC's
 --                                 id when no living flight entity carries it; uid "?"
 --                                 then); a tick that cannot be read is -1
@@ -145,7 +149,7 @@ local function low8(s, at)        -- the low 8 hex digits of the u64 at `at`
     local a, b, c, d = s:byte(at, at + 3)
     return fmt("%02X%02X%02X%02X", d, c, b, a)
 end
-local TRACE_LETTER = { "u", "f", "h", "p", "x" }
+local TRACE_LETTER = { "u", "f", "h", "p", "x", "x" }   -- 6 = a hit whose countdown was raised
 
 -- [d10-1118] the trace entries written since the last sample, as T lines grouped by tick and unit
 local function drain_trace(owner_of_fc, owner_of_entity)
@@ -165,7 +169,7 @@ local function drain_trace(owner_of_fc, owner_of_entity)
             if u32le(chunk, at + 28) ~= trace.seen + 1 then stop = true; break end   -- not written yet
             local kind = u32le(chunk, at + 20)
             local key = low8(chunk, at)
-            local owner = (kind == 5 and owner_of_entity or owner_of_fc)[key]
+            local owner = ((kind == 5 or kind == 6) and owner_of_entity or owner_of_fc)[key]
             local id, uid = owner and owner[1] or ("?" .. key), owner and owner[2] or "?"
             local tick = all_ff(chunk, at + 8) and -1 or u32le(chunk, at + 8)
             local tok = fmt("%s%d.%d", TRACE_LETTER[kind] or ("k" .. kind), u32le(chunk, at + 16), u32le(chunk, at + 12))
@@ -173,6 +177,8 @@ local function drain_trace(owner_of_fc, owner_of_entity)
                 local extra = u32le(chunk, at + 24)
                 if extra >= 256 then tok = tok .. "s" end
                 if extra % 256 ~= 0 then tok = tok .. "g" end
+            elseif kind == 6 then
+                tok = tok .. "r"
             elseif kind == 2 or kind == 3 then
                 if all_ff(chunk, at + 24) then tok = tok .. "!n"
                 elseif chunk:byte(at + 24) == 254 and chunk:byte(at + 25) == 255 and chunk:byte(at + 26) == 255

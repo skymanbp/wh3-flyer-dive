@@ -37,6 +37,22 @@ first use). A victim that is no flyer costs the two reads. Stolen bytes: the
 applier's first instructions ``mov [rsp+0x10],rbx; push rbp; push rsi;
 push rdi; push r12`` (10 bytes, no jump, nothing rip-relative). Every
 register and the flags come back unchanged.
+[D11, gapfix-1118] RAISE: in mode 1, after recording the hit, the stamp cave
+looks at that flying entity's flight controller FC; when its countdown
+FC+0x44 is 0 and its phase FC+0x90 is one of RAISE_PHASES (1 on the ground,
+2 take-off requested), and a living flight entity of its unit carries FC (the
+hold cave's own test), it raises the countdown to RAISE_TO with
+``lock cmpxchg`` (0 -> 1 only). Measured (series 4 run 1, traced caves):
+every hit lands after that tick's flight update, and the next update lifts a
+phase-2 model at countdown 0 in its state machine (0x14301b8d4) BEFORE the
+gate 0x143053ce3, which asks the rule only when the countdown is above 0 or
+the phase is 1 -- so a model hit at countdown 0 and ordered away at once left
+without the rule being asked. With the countdown at 1 the state machine does
+not lift, the gate asks, and a "held" answer re-arms 30 ticks. The engine
+decrements the countdown only after the gate (0x143053d8b, which writes back
+nothing when it read 0), so the 1 reaches the gate. The compare-exchange
+never lowers a countdown and never replaces one the engine wrote meanwhile.
+Mode 2 (record only) does not raise: the stock check stays untouched there.
 [FLYER-TAKEOFF-HITS 2026-11-16] Replaces two stamps inside the hit processor
 and its twin (0x14326ce15 / 0x14325b597), which saw only single-target
 weapon hits. A logger at the applier entry (custom battles, four flyers
@@ -127,7 +143,8 @@ TABLE_SLOTS = 8192                  # power of two
 PROBES = 64
 BUFFER_BYTES = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
 # 2: +40 single-model window (§C8-78); 3: renamed (RENAME-1118); 4: per model by body size (D3)
-MAGIC = b"FLYPINS4"
+# 5: the stamp cave raises a 0 countdown before lift-off (D11, gapfix-1118)
+MAGIC = b"FLYPINS5"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -140,6 +157,10 @@ UNIT_OFF = 0x2E8                    # entity -> its unit
 BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 LIST_COUNT_OFF, LIST_OFF = 0x184, 0x188   # unit: living flight entities
 SIZE_OFF = 0x74                     # flying entity: body size code 1..4 (D3-1118)
+COUNT_OFF, PHASE_OFF = 0x44, 0x90   # FC: take-off countdown, flight phase (D11)
+# [D11] the stamp cave's raise: a 0 countdown of a model in one of these phases becomes RAISE_TO
+RAISE_TO = air_dive_rules.TAKEOFF_GAP_RAISE_TO
+RAISE_PHASES = tuple(air_dive_rules.TAKEOFF_GAP_RAISE_PHASES)
 
 # --- sites ------------------------------------------------------------------
 # name -> (pattern, at, expected original bytes, "stamp" / "hold")
@@ -243,6 +264,13 @@ def _hash(key, out, scratch):
 STAMP_PUSHES = 8                    # flags + 7 registers
 
 
+def _phase_test(reg, yes, no):
+    """Jump to ``yes`` when ``reg`` holds one of RAISE_PHASES, else to ``no``."""
+    if not RAISE_PHASES or any(not isinstance(p, int) or p < 0 for p in RAISE_PHASES):
+        raise SystemExit(f"[pin_cave_asm] REFUSING: raise phases {RAISE_PHASES!r}")
+    return "".join(f"        cmp {reg}, {p}\n        je {yes}\n" for p in RAISE_PHASES) + f"        jmp {no}"
+
+
 def stamp_source(mutate=()):
     return _mutated(f"""
         pushfq
@@ -302,6 +330,43 @@ def stamp_source(mutate=()):
     write:
         mov dword ptr [rdx + 8], r8d
         lock inc dword ptr [rdx + 12]
+    raise:
+        cmp dword ptr [r10 + {MODE_AT}], 1
+        jne raise_done
+        mov r8, qword ptr [rcx + {FC_OFF:#x}]
+        test r8, r8
+        jz raise_done
+        cmp dword ptr [r8 + {COUNT_OFF:#x}], 0
+        jne raise_done
+        mov eax, dword ptr [r8 + {PHASE_OFF:#x}]
+{_phase_test("eax", "raise_live", "raise_done")}
+    raise_live:
+        mov rdx, qword ptr [rcx + {UNIT_OFF:#x}]
+        test rdx, rdx
+        jz raise_done
+        mov eax, dword ptr [rdx + {LIST_COUNT_OFF:#x}]
+        lea r9d, [rax - 1]
+        cmp r9d, {MAX_MODELS - 1}
+        ja raise_done
+        mov rdx, qword ptr [rdx + {LIST_OFF:#x}]
+        test rdx, rdx
+        jz raise_done
+    raise_own:
+        mov r9, qword ptr [rdx]
+        test r9, r9
+        jz raise_next
+        cmp qword ptr [r9 + {FC_OFF:#x}], r8
+        je raise_found
+    raise_next:
+        add rdx, 8
+        dec eax
+        jnz raise_own
+        jmp raise_done
+    raise_found:
+        xor eax, eax
+        mov edx, {RAISE_TO}
+        lock cmpxchg dword ptr [r8 + {COUNT_OFF:#x}], edx
+    raise_done:
     done:
         pop r11
         pop r10
@@ -502,8 +567,35 @@ class Machine:
         self.uc.mem_write(OBJ, bytes(0x40000))
         self.uc.mem_write(FCS, bytes(FCS_BYTES))
         self.uc.mem_write(BIG, bytes(BIG_BYTES))
+        self.living([])
         self.models, self.fc_of = set(), {}
         self.now(0)
+
+    def living(self, entities, count=None, array=True):
+        """The unit's living flight entities (addresses, 0 = a null entry); ``count``
+        overrides the list length, ``array=False`` writes a null array pointer."""
+        n = len(entities) if count is None else count
+        self.uc.mem_write(UNIT + LIST_COUNT_OFF, struct.pack("<I", n & 0xFFFFFFFF))
+        self.uc.mem_write(UNIT + LIST_OFF, struct.pack("<Q", ARRAY if array else 0))
+        self.uc.mem_write(ARRAY, bytes(0x4000))
+        self.uc.mem_write(ARRAY, b"".join(struct.pack("<Q", e) for e in entities))
+
+    def fc_state(self, entity, count, phase, force=0, stay=0):
+        """Write the countdown (+0x44), phase (+0x90), +0x64 byte and +8 of ``entity``'s FC.
+        The four bytes before and after the countdown and the phase are filled with a
+        non-zero pattern first: a cave that reads either one from a neighbouring offset
+        then sees neither a 0 countdown nor a raise phase, and the raise cases fail."""
+        fc = self.fc_of[entity]
+        for off in (COUNT_OFF, PHASE_OFF):
+            self.uc.mem_write(fc + off - 4, b"\x5a" * 12)
+        self.uc.mem_write(fc + COUNT_OFF, struct.pack("<I", count & 0xFFFFFFFF))
+        self.uc.mem_write(fc + PHASE_OFF, struct.pack("<I", phase & 0xFFFFFFFF))
+        self.uc.mem_write(fc + 0x64, bytes([force]))
+        self.uc.mem_write(fc + 0x08, struct.pack("<Q", stay))
+        return fc
+
+    def countdown(self, entity):
+        return struct.unpack("<I", self.uc.mem_read(self.fc_of[entity] + COUNT_OFF, 4))[0]
 
     def now(self, tick, battle=True, ticks=True):
         self._battle = BATTLE if battle else 0
@@ -580,9 +672,13 @@ class Machine:
         self.uc.reg_write(self.x.UC_X86_REG_RSP, STACK + 0x8000)
         self.uc.reg_write(self.x.UC_X86_REG_EFLAGS, FLAGS)
 
-    def stamp(self, kind, damage, victim, site="pin_stamp"):
+    def stamp(self, kind, damage, victim, site="pin_stamp", rearm=None):
         """One damage-applier call through the stamp cave: ``kind`` = the damage
-        type, ``victim`` = an entity address or 0 (in the context rcx points at)."""
+        type, ``victim`` = an entity address or 0 (in the context rcx points at).
+        ``rearm`` = (FC address, value): another thread's write, made right after the
+        cave's FIRST read of that FC's countdown (the update re-arming it while the
+        cave decides) -- the cave must then leave the engine's value alone."""
+        from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UcError
         x, uc = self.x, self.uc
         begin, size = self.code[site]
         self._registers()
@@ -593,11 +689,31 @@ class Machine:
         uc.mem_write(sp, struct.pack("<Q", 0x14326CF64) + bytes(TYPE_ARG - 8)
                      + struct.pack("<I", kind & 0xFFFFFFFF) + b"\x77" * 12)
         before = {r: uc.reg_read(r) for r in self.all}
-        uc.emu_start(begin, begin + size, count=100_000)
+        hooks, state = [], {"read": False, "done": False}
+        if rearm is not None:
+            at, value = rearm[0] + COUNT_OFF, rearm[1]
+
+            def on_read(_mu, _access, address, _size, _value, _data):
+                if address == at and not state["done"]:
+                    state["read"] = True
+
+            def on_code(mu, _address, _size, _data):
+                if state["read"] and not state["done"]:          # the instruction after that read
+                    mu.mem_write(at, struct.pack("<I", value))
+                    state["done"] = True
+            hooks = [uc.hook_add(UC_HOOK_MEM_READ, on_read), uc.hook_add(UC_HOOK_CODE, on_code,
+                                                                          begin=begin, end=begin + size)]
+        try:
+            uc.emu_start(begin, begin + size, count=100_000)
+        except UcError:                       # a fault is a failed case, not a crashed check
+            pass
+        for h in hooks:
+            uc.hook_del(h)
         return {"ran to the end": uc.reg_read(x.UC_X86_REG_RIP) == begin + size,
                 "registers": all(uc.reg_read(r) == v for r, v in before.items()),
                 "rsp": uc.reg_read(x.UC_X86_REG_RSP) == STACK + 0x8000,
-                "flags": (uc.reg_read(x.UC_X86_REG_EFLAGS) & 0xFFF) == FLAGS}
+                "flags": (uc.reg_read(x.UC_X86_REG_EFLAGS) & 0xFFF) == FLAGS,
+                "rearmed": state["done"]}
 
     def hold(self, living, asker, count=None, fc_model=True, unit=True, array=True, fc=None):
         """The hold cave for the flight controller of ``asker`` (an entity
@@ -612,11 +728,7 @@ class Machine:
         fc_at = self.fc_of[asker] if fc is None else fc
         uc.mem_write(fc_at, struct.pack("<Q", asker if fc_model else 0))
         uc.mem_write(asker + UNIT_OFF, struct.pack("<Q", UNIT if unit else 0))
-        n = len(living) if count is None else count
-        uc.mem_write(UNIT + LIST_COUNT_OFF, struct.pack("<I", n & 0xFFFFFFFF))
-        uc.mem_write(UNIT + LIST_OFF, struct.pack("<Q", ARRAY if array else 0))
-        uc.mem_write(ARRAY, bytes(0x4000))
-        uc.mem_write(ARRAY, b"".join(struct.pack("<Q", e) for e in living))
+        self.living(living, count, array)
         uc.reg_write(x.UC_X86_REG_RBX, fc_at)
         before = {r: uc.reg_read(r) for r in self.callee_saved}
         heads = (STAMPS_AT, DROPPED_AT, HELD_AT, FREE_AT, UNMATCHED_AT, UNSIZED_AT)
@@ -777,6 +889,76 @@ def check(mutate=()):
         m.put(0x7000000001, 5, slot=0)
         clean(tag + "wrap-around", m.stamp(MELEE, 40, flyer, site))
         expect(tag + "wrap-around: slot 1", m.find(flyer), [(1, 900, 1)])
+
+        # [D11] the raise: a 0 countdown in RAISE_PHASES becomes RAISE_TO, nothing else changes
+        for phase in range(0, 7):
+            for cd in (0, 1, 5, 30):
+                raised = cd == 0 and phase in RAISE_PHASES
+                m.reset(); m.now(600)
+                flyer = m.model(1)
+                m.living([m.model(2), flyer])
+                m.fc_state(flyer, cd, phase)
+                name = f"{tag}raise phase {phase} countdown {cd}"
+                clean(name, m.stamp(MELEE, 40, flyer, site))
+                expect(name + ": countdown", m.countdown(flyer), RAISE_TO if raised else cd)
+                expect(name + ": hit still recorded", m.find(flyer), [(slot_of(flyer), 600, 1)])
+                expect(name + ": the other model's countdown", m.countdown(model_at(2)), 0)
+        # ridden: the mount (the entity with the FC) is raised
+        m.reset(); m.now(600)
+        mount = m.model(2)
+        rider = m.model(1, fc=False, parent=2)
+        m.living([mount])
+        m.fc_state(mount, 0, 2)
+        clean(tag + "raise through a rider", m.stamp(MELEE, 40, rider, site))
+        expect(tag + "raise through a rider: the mount's countdown", m.countdown(mount), RAISE_TO)
+        # who is not raised: a non-melee hit, a zero hit, mode 0 / 2, no flyer, not living
+        for name, kind, dmg, mode in (("ranged hit", 1, 40, 1), ("charge collision", 6, 40, 1),
+                                      ("zero damage", MELEE, 0, 1), ("mode 0", MELEE, 40, 0),
+                                      ("mode 2 (record only)", MELEE, 40, 2)):
+            m.reset(mode=mode); m.now(600)
+            flyer = m.model(1)
+            m.living([flyer])
+            m.fc_state(flyer, 0, 2)
+            clean(f"{tag}no raise: {name}", m.stamp(kind, dmg, flyer, site))
+            expect(f"{tag}no raise: {name}: countdown", m.countdown(flyer), 0)
+        m.reset(); m.now(600)
+        walker = m.model(1, fc=False)
+        m.living([walker])
+        clean(tag + "no raise: victim without FC", m.stamp(MELEE, 40, walker, site))
+        expect(tag + "no raise: victim without FC: nothing written", (m.used(), m.head(STAMPS_AT)), (0, 0))
+        for name, kw in (("not in the living list", {"entities": "others"}),
+                         ("living list of null entries", {"entities": "nulls"}),
+                         ("null unit", {"unit": False}), ("null entity array", {"array": False}),
+                         ("count 0", {"count": 0}), ("count -1", {"count": -1}),
+                         (f"count {MAX_MODELS + 1}", {"count": MAX_MODELS + 1})):
+            m.reset(); m.now(600)
+            flyer = m.model(1, unit=UNIT if kw.get("unit", True) else 0)
+            other = m.model(2)
+            ents = {"others": [other], "nulls": [0, 0]}.get(kw.get("entities"), [other, flyer])
+            m.living(ents, kw.get("count"), kw.get("array", True))
+            m.fc_state(flyer, 0, 2)
+            m.fc_state(other, 0, 2)
+            clean(f"{tag}no raise: {name}", m.stamp(MELEE, 40, flyer, site))
+            expect(f"{tag}no raise: {name}: countdown", (m.countdown(flyer), m.countdown(other)), (0, 0))
+            expect(f"{tag}no raise: {name}: hit still recorded", m.find(flyer), [(slot_of(flyer), 600, 1)])
+        # another thread re-arms the countdown while the cave decides: its value is kept
+        for value in (30, 7):
+            m.reset(); m.now(600)
+            flyer = m.model(1)
+            m.living([flyer])
+            fc = m.fc_state(flyer, 0, 2)
+            r = m.stamp(MELEE, 40, flyer, site, rearm=(fc, value))
+            clean(f"{tag}raise race (engine writes {value})", r)
+            expect(f"{tag}raise race (engine writes {value}): the write happened", r["rearmed"], True)
+            expect(f"{tag}raise race (engine writes {value}): kept", m.countdown(flyer), value)
+        # repeated hits: raised once, a second hit at 1 leaves it at 1
+        m.reset(); m.now(600)
+        flyer = m.model(1)
+        m.living([flyer])
+        m.fc_state(flyer, 0, 1)
+        m.stamp(MELEE, 40, flyer, site)
+        m.stamp(MELEE, 40, flyer, site)
+        expect(tag + "raise twice: countdown", m.countdown(flyer), RAISE_TO)
 
     # ---- hold cave ----------------------------------------------------------
     def hold_case(name, sizes, ask, struck, now, want, windows=WINDOWS, mode=1, extra=(),
@@ -948,6 +1130,16 @@ def check(mutate=()):
         expect(f"round trip {who}: mode 2 records", m.head(STAMPS_AT), 8)
         expect(f"round trip {who}: mode 2 leaves the stock check", m.hold(ents, ents[0])["where"],
                "through")
+    # [D11] the gap: hit at countdown 0, take-off requested -- the raise makes the next update ask,
+    # and the hold cave (asked with the countdown at 1) holds it
+    m.reset(); m.now(5000)
+    ents, victims = unit_of(range(1, 5), riders=True)
+    m.living(ents)
+    m.fc_state(ents[1], 0, 2)
+    m.stamp(MELEE, 30, victims[1])
+    expect("gap: countdown raised", m.countdown(ents[1]), RAISE_TO)
+    m.now(5001)
+    expect("gap: the next question is held", m.hold(ents, ents[1])["al"], 1)
     # a ridden unit uses its mount's size, not the rider's (D3): a medium mount (40) under a
     # small rider (45), struck 42 ticks before the question
     m.reset(); m.now(4000)
@@ -997,6 +1189,26 @@ MUTANTS = (
     ("riders not followed to the mount", "stamp", f"mov edx, {CHAIN_MAX}", "mov edx, 1"),
     ("mode 0 still records", "stamp", "je done\n        cmp dword ptr [rsp",
      "nop\n        cmp dword ptr [rsp"),
+    # [D11] the raise
+    ("raise regardless of phase", "stamp", "jmp raise_done\n    raise_live:",
+     "jmp raise_live\n    raise_live:"),
+    # (no early test and a plain store: the precheck alone is only a shortcut, cmpxchg is the guard)
+    ("raise when the countdown is above 0", "stamp",
+     (f"cmp dword ptr [r8 + {COUNT_OFF:#x}], 0\n        jne raise_done",
+      f"xor eax, eax\n        mov edx, {RAISE_TO}\n        lock cmpxchg dword ptr [r8 + {COUNT_OFF:#x}], edx"),
+     (f"cmp dword ptr [r8 + {COUNT_OFF:#x}], 0\n        nop",
+      f"mov dword ptr [r8 + {COUNT_OFF:#x}], {RAISE_TO}")),
+    ("raise writes 0", "stamp", f"mov edx, {RAISE_TO}\n", "mov edx, 0\n"),
+    ("raise with a plain store (overwrites the engine's write)", "stamp",
+     f"xor eax, eax\n        mov edx, {RAISE_TO}\n        lock cmpxchg dword ptr [r8 + {COUNT_OFF:#x}], edx",
+     f"mov dword ptr [r8 + {COUNT_OFF:#x}], {RAISE_TO}"),
+    ("raise in mode 2", "stamp", f"cmp dword ptr [r10 + {MODE_AT}], 1\n        jne raise_done",
+     f"cmp dword ptr [r10 + {MODE_AT}], 0\n        je raise_done"),
+    ("raise without the living-list test", "stamp", "    raise_live:\n", "    raise_live:\n        jmp raise_found\n"),
+    ("raise the wrong field", "stamp", f"lock cmpxchg dword ptr [r8 + {COUNT_OFF:#x}], edx",
+     f"lock cmpxchg dword ptr [r8 + {COUNT_OFF + 4:#x}], edx"),
+    ("raise phase 3 too", "stamp", "jmp raise_done\n    raise_live:",
+     "cmp eax, 3\n        je raise_live\n        jmp raise_done\n    raise_live:"),
 )
 
 
@@ -1004,7 +1216,9 @@ def negative_controls():
     """[mutant name] whose broken cave passed every case (must be empty)."""
     survivors = []
     for name, kind, old, new in MUTANTS:
-        failures, _n = check(((kind, old, new),))
+        # old / new: one edit, or tuples of edits applied together
+        edits = tuple(zip(old, new)) if isinstance(old, tuple) else ((old, new),)
+        failures, _n = check(tuple((kind, o, n) for o, n in edits))
         if not failures:
             survivors.append(name)
     return survivors

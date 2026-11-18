@@ -17,7 +17,7 @@ What is pinned:
 * the report explains an early take-off from those lines: (1), (2), both or neither with the reason; and a
   battle recorded with trace=1 but no T line is a problem;
 * ``build_pin_on_hit_probe.py --trace-from`` swaps exactly the take-off site table and adds the recorder.
-The emulator check of the caves (the shipped check run twice on the traced caves, the trace entries, 13
+The emulator check of the caves (the shipped check run twice on the traced caves, the trace entries, 17
 broken caves) needs keystone + unicorn and runs in takeoff_trace_asm.py before it writes the table.
 luajit missing is a failure, not a skip.
 """
@@ -85,7 +85,7 @@ class TraceSiteTable(unittest.TestCase):
                       self.text)
         self.assertIn(f"bytes = {tt.BYTES},", self.text)
         self.assertEqual(tt.TRACE_AT, pin_cave_asm.BUFFER_BYTES)        # after the shipped table, not over it
-        self.assertIn("magic = 'FLYPINT4'", self.text)
+        self.assertIn("magic = 'FLYPINT5'", self.text)
         self.assertNotEqual(tt.MAGIC, pin_cave_asm.MAGIC)
         for win in air_dive_rules.takeoff_window_table():
             self.assertIn(str(win), self.text)
@@ -227,7 +227,7 @@ if with_trace then
     step(function()                                                     -- 1002: update, check (free), then a hit
         cave(fc_a, 1, 0, 1, 0)
         cave(fc_a, 2, 0, 1, 35)
-        cave(ent_a, 5, 0, 1, 1)
+        cave(ent_a, 6, 0, 1, 1)                                         -- the raised kind (D11)
         hit_table(1002, 1)
         cave(stranger_fc, 1, 7, 2, 0x100)
     end)
@@ -275,7 +275,7 @@ class Recorder(unittest.TestCase):
         t = [ln for ln in self.lines if ln.startswith("T ")]
         ent = next(ln for ln in self.lines if ln.startswith("Z ")).split(" ")[3].split(":")[0]
         self.assertEqual([ln for ln in t if " 7 " in ln],
-                         [f"T 1002 7 {ent}:u1.0,f1.0,x1.0", f"T 1003 7 {ent}:u2.0", f"T 1004 7 {ent}:u2.0"], self.lines)
+                         [f"T 1002 7 {ent}:u1.0,f1.0,x1.0r", f"T 1003 7 {ent}:u2.0", f"T 1004 7 {ent}:u2.0"], self.lines)
 
     def test_unknown_fc_named_and_flags(self):
         t = [ln for ln in self.lines if ln.startswith("T ") and " ? " in ln]

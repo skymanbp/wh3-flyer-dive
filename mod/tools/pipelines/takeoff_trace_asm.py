@@ -23,7 +23,8 @@ the update of tick T+1, is never seen by the check. That is explanation (1); the
 game does it.
 
 THREE CAVES, one buffer (the shipped layout, then a trace header and ring):
-  pin_stamp  the shipped stamp cave + one trace entry per recorded melee hit (kind 5);
+  pin_stamp  the shipped stamp cave + one trace entry per recorded melee hit (kind 5; kind 6 when the
+             shipped D11 raise set its 0 countdown to 1 -- the entry keeps the countdown from before);
   pin_hold   the shipped hold cave + one trace entry per call: kind 2 answered free, 3 answered held,
              4 passed through to the game's own check (mode != 1);
   pin_tick   NEW, at 0x143053c19 in the update (after its first call, before the state machine; stolen
@@ -39,7 +40,7 @@ ring at TRACE_RING_AT, TRACE_SLOTS x 32 bytes:
   +16 u32 phase FC+0x90                             +20 u32 kind
   +24 u32 extra: kind 1 = byte FC+0x64 | 0x100 when FC+8 (the "stay down" field) is set;
                kinds 2/3 = the window used (0xFFFFFFFF: no model / unit / tick / list;
-               0xFFFFFFFE: no living entity carries this FC); kind 4 = 0; kind 5 = the entry's hit count
+               0xFFFFFFFE: no living entity carries this FC); kind 4 = 0; kinds 5/6 = the entry's hit count
   +28 u32 seq + 1 (written last)
 
 ``python takeoff_trace_asm.py [--write-site]`` (keystone + unicorn) assembles, runs the checks and the
@@ -62,14 +63,14 @@ import cave_site_text  # noqa: E402 -- because rolepath above puts lib/ on sys.p
 import pin_cave_asm as base  # noqa: E402 -- same reason (pipelines/)
 
 TRACE_SITE = HERE / "takeoff_trace_site.lua"
-MAGIC = b"FLYPINT4"                 # a shipped table never adopts a traced buffer (cave_common.installed)
+MAGIC = b"FLYPINT5"                 # a shipped table never adopts a traced buffer (cave_common.installed); 5: D11 raise
 TRACE_AT = base.BUFFER_BYTES        # 131136, a multiple of 64
 TRACE_ON_AT, TRACE_COUNT_AT = TRACE_AT, TRACE_AT + 4
 TRACE_RING_AT, TRACE_ENTRY, TRACE_SLOTS = TRACE_AT + 64, 32, 32768
 BYTES = TRACE_RING_AT + TRACE_ENTRY * TRACE_SLOTS
-KIND_UPDATE, KIND_FREE, KIND_HELD, KIND_PASS, KIND_HIT = 1, 2, 3, 4, 5
+KIND_UPDATE, KIND_FREE, KIND_HELD, KIND_PASS, KIND_HIT, KIND_HIT_RAISED = 1, 2, 3, 4, 5, 6
 NO_TICK, NO_MODEL, UNMATCHED = 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFE
-COUNT_OFF, PHASE_OFF, FORCE_OFF, STAY_OFF = 0x44, 0x90, 0x64, 0x08
+COUNT_OFF, PHASE_OFF, FORCE_OFF, STAY_OFF = base.COUNT_OFF, base.PHASE_OFF, 0x64, 0x08
 
 TICK_NAME = "pin_tick"
 # 0x143053c14 call 0x143051e78 | 0x143053c19 xor r12d,r12d; lea rsi,[rbx+0x78]; mov ebp,1;
@@ -136,9 +137,13 @@ def hold_source(mutate=None):
 
 def stamp_source(mutate=None):
     """The shipped stamp cave; after it wrote the entry (rcx = flying entity, rdx = its table entry,
-    r8d = tick, r10 = buffer), one trace entry. rax r9 r11 are free there (pushed, popped at done)."""
+    r8d = tick, r10 = buffer), one trace entry. rax r9 r11 are free there (pushed, popped at done).
+    [D11] The entry is filled BEFORE the shipped raise (so it holds the countdown as it was) and closed
+    (seq written) after it; a raise rewrites its kind to KIND_HIT_RAISED first. The raise uses rax rdx
+    r8 r9 and keeps r11 (this entry, 0 with the trace off); r9 (the seq) is pushed around it."""
     s = base.stamp_source()
     s = _edit(s, "        lock inc dword ptr [rdx + 12]\n", f"""        lock inc dword ptr [rdx + 12]
+        xor r11d, r11d
         cmp dword ptr [r10 + {TRACE_ON_AT}], 0
         je skip_hit
         mov r9d, 1
@@ -159,9 +164,23 @@ def stamp_source(mutate=None):
         mov edx, dword ptr [rax + {PHASE_OFF:#x}]
         mov dword ptr [r11 + {R + 16}], edx
         mov dword ptr [r11 + {R + 20}], {KIND_HIT}
-        mov dword ptr [r11 + {R + 28}], r9d
     skip_hit:
+        push r9
 """, "stamp: hit entry")
+    s = _edit(s, f"        lock cmpxchg dword ptr [r8 + {base.COUNT_OFF:#x}], edx\n",
+              f"""        lock cmpxchg dword ptr [r8 + {base.COUNT_OFF:#x}], edx
+        jne raise_done
+        test r11, r11
+        jz raise_done
+        mov dword ptr [r11 + {R + 20}], {KIND_HIT_RAISED}
+""", "stamp: raise mark")
+    s = _edit(s, "    raise_done:\n", f"""    raise_done:
+        pop r9
+        test r11, r11
+        jz skip_seq
+        mov dword ptr [r11 + {R + 28}], r9d
+    skip_seq:
+""", "stamp: hit entry closed")
     return _mutate(s, mutate)
 
 
@@ -273,14 +292,6 @@ class TraceMachine(_ORIGINAL_MACHINE):
         key, tick, count, phase, kind, extra, seq1 = struct.unpack("<QIIIIII", raw)
         return {"key": key, "tick": tick, "count": count, "phase": phase, "kind": kind, "extra": extra,
                 "seq1": seq1}
-
-    def fc_state(self, entity, count, phase, force=0, stay=0):
-        fc = self.fc_of[entity]
-        self.uc.mem_write(fc + COUNT_OFF, struct.pack("<I", count))
-        self.uc.mem_write(fc + PHASE_OFF, struct.pack("<I", phase))
-        self.uc.mem_write(fc + FORCE_OFF, bytes([force]))
-        self.uc.mem_write(fc + STAY_OFF, struct.pack("<Q", stay))
-        return fc
 
     def update(self, fc):
         """One pass of pin_tick with rbx = ``fc``: every register and the flags must come back."""
@@ -410,6 +421,29 @@ def check_trace(tmutate=None):
     m.fc_state(ent, 0, 1)
     clean("impact, not recorded", m.stamp(5, 40, ent))
     one("impact, not recorded", 0, None)
+    # [D11] the raise: kind 6 with the countdown from BEFORE it; the FC's countdown is 1 afterwards
+    for name, count, phase, living, mode, raised in (
+            ("raised, phase 1", 0, 1, True, 1, True), ("raised, phase 2", 0, 2, True, 1, True),
+            ("not raised, countdown 5", 5, 2, True, 1, False), ("not raised, phase 3", 0, 3, True, 1, False),
+            ("not raised, not living", 0, 2, False, 1, False), ("not raised, mode 2", 0, 2, True, 2, False)):
+        m.reset(mode=mode); m.now(300)
+        ent = m.model(1)
+        m.living([ent] if living else [m.model(2)])
+        m.fc_state(ent, count, phase)
+        m.preset_count(TRACE_SLOTS - 1)                 # the ring wraps right here
+        clean("hit " + name, m.stamp(base.MELEE, 40, ent))
+        one("hit " + name, TRACE_SLOTS - 1, {"key": ent, "tick": 300, "count": count, "phase": phase,
+                                             "kind": KIND_HIT_RAISED if raised else KIND_HIT, "extra": 1})
+        expect("hit " + name + ": countdown after", m.countdown(ent), base.RAISE_TO if raised else count)
+    m.trace_on = 0
+    m.reset(); m.now(300)
+    ent = m.model(1)
+    m.living([ent])
+    m.fc_state(ent, 0, 2)
+    clean("hit raised, trace off", m.stamp(base.MELEE, 40, ent))
+    one("hit raised, trace off", 0, None)
+    expect("hit raised, trace off: countdown after", m.countdown(ent), base.RAISE_TO)
+    m.trace_on = 1
     return fails, n[0]
 
 
@@ -449,6 +483,12 @@ MUTANTS = (
     ("hit: countdown of the entity, not of its FC", "pin_stamp",
      f"mov edx, dword ptr [rax + {COUNT_OFF:#x}]", f"mov edx, dword ptr [rcx + {COUNT_OFF:#x}]"),
     ("hit: tick not written", "pin_stamp", f"mov dword ptr [r11 + {R + 8}], r8d", f"mov dword ptr [r11 + {R + 8}], 0"),
+    ("hit: raise not marked", "pin_stamp", f"mov dword ptr [r11 + {R + 20}], {KIND_HIT_RAISED}", "nop"),
+    ("hit: entry never closed", "pin_stamp", f"mov dword ptr [r11 + {R + 28}], r9d\n    skip_seq:",
+     "nop\n    skip_seq:"),
+    ("hit: no entry pointer reset with the trace off", "pin_stamp", "        xor r11d, r11d\n", ""),
+    ("hit: seq not kept over the raise", "pin_stamp", "        pop r9\n        test r11, r11\n        jz skip_seq",
+     "        pop r9\n        xor r9d, r9d\n        test r11, r11\n        jz skip_seq"),
 )
 
 

@@ -31,6 +31,12 @@ counts, over every traced entity, the ticks with 0 / 1 / more updates and how of
 static reading says it should (the gate at 0x143053ce3: takeoff_trace_asm.py). A battle recorded with
 ``trace=1`` but without a T line is a problem: the trace was asked for and is missing.
 
+[D11, gapfix-1118] The stamp cave raises the countdown 0 -> 1 of a model in phase 1 or 2 when it records a melee
+hit on it (``air_dive_rules.TAKEOFF_GAP_RAISE_PHASES``), in mode 1 only; the trace marks such a hit token with
+``r``. A RAISE line counts the hit tokens (of entities in a flyer's living list) at countdown 0 in those phases and
+how many were raised. In mode 1 every one of them must be raised, in any other mode none, and no other token may
+carry ``r``; anything else is a problem line.
+
 usage: python -P tools/pipelines/pin_probe_report.py <pin_probe.txt> [--json]
 """
 import json
@@ -64,9 +70,11 @@ def parse(text):
         if p[0] == "BATTLE":
             cur = {"header": raw, "units": {}, "sizes": {}, "takeoffs": [], "fails": [], "e_lines": 0,
                    "last_hit": {}, "state": {}, "period": None, "entities": None,
-                   "trace_on": "trace=1" in p[1:], "trace": {}, "t_lines": 0}
+                   "trace_on": "trace=1" in p[1:], "trace": {}, "t_lines": 0, "mode": None}
             for cell in p[1:]:
-                if cell.startswith("sample="):
+                if cell.startswith("mode="):
+                    cur["mode"] = int(cell[5:])
+                elif cell.startswith("sample="):
                     cur["period"] = int(cell[7:])
                 elif cell.startswith("entities="):
                     cur["entities"] = int(cell[9:])
@@ -203,6 +211,33 @@ def trace_census(battle):
     return per_tick, gate
 
 
+def raise_census(battle):
+    """[D11] ({"gap hits": n, "raised": n}, [problem]) over the hit tokens of the traced entities."""
+    phases = set(air_dive_rules.TAKEOFF_GAP_RAISE_PHASES)
+    counts, problems = {"gap hits": 0, "raised": 0}, []
+    for ent, ticks in battle["trace"].items():
+        if ent.startswith("?"):                       # not in a living list: the cave does not raise it
+            continue
+        for tick in sorted(ticks):
+            for tok in ticks[tick]:
+                if tok[0] != "x":
+                    continue
+                _letter, phase, count, flags = token(tok)
+                raised = "r" in flags
+                if count == 0 and phase in phases:
+                    counts["gap hits"] += 1
+                    counts["raised"] += raised
+                    if battle["mode"] == 1 and not raised:
+                        problems.append(f"entity {ent} tick {tick}: hit at countdown 0 in phase {phase} "
+                                        f"not raised ({tok})")
+                    elif battle["mode"] != 1 and raised:
+                        problems.append(f"entity {ent} tick {tick}: hit raised in mode {battle['mode']} ({tok})")
+                elif raised:
+                    problems.append(f"entity {ent} tick {tick}: hit raised at countdown {count} phase {phase} "
+                                    f"({tok})")
+    return counts, problems
+
+
 def judge(battle):
     """(per-unit rows, problems). A row: unit, size, window, the delays of its judged take-offs."""
     problems = []
@@ -244,10 +279,12 @@ def judge(battle):
                      "early": len(early), "gaps": gaps})
     if battle["trace_on"] and battle["t_lines"] == 0:
         problems.append("the battle was recorded with trace=1 but has no T line (the traced caves wrote nothing)")
+    if battle["trace"]:
+        problems += raise_census(battle)[1]
     return rows, problems
 
 
-def render(rows, problems, census=None):
+def render(rows, problems, census=None, raises=None):
     out = []
     for r in rows:
         d = r["delays"]
@@ -270,6 +307,10 @@ def render(rows, problems, census=None):
                    "gate asked when it should " + f"{gate['should, asked']}/"
                    f"{gate['should, asked'] + gate['should, not asked']}, asked when it should not "
                    f"{gate['should not, asked']}/{gate['should not, asked'] + gate['should not, not asked']}")
+    if raises is not None:
+        out.append(f"RAISE hits at countdown 0 in phase "
+                   f"{'/'.join(str(p) for p in air_dive_rules.TAKEOFF_GAP_RAISE_PHASES)}: {raises['gap hits']}, "
+                   f"raised {raises['raised']}")
     out.append("PROBLEMS: " + ("none" if not problems else ""))
     out += ["  " + p for p in problems]
     return "\n".join(out)
@@ -286,8 +327,9 @@ def main(argv=None):
     battle = parse(text)
     rows, problems = judge(battle)
     census = trace_census(battle) if battle is not None and battle["trace"] else None
-    print(json.dumps({"rows": rows, "problems": problems, "trace": census}, indent=1) if as_json
-          else render(rows, problems, census))
+    raises = raise_census(battle)[0] if census is not None else None
+    print(json.dumps({"rows": rows, "problems": problems, "trace": census, "raise": raises}, indent=1) if as_json
+          else render(rows, problems, census, raises))
     return 1 if problems else 0
 
 

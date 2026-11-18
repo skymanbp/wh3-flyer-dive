@@ -1502,6 +1502,19 @@ TAKEOFF_SIZE_CODES = {"small": 1, "medium": 2, "large": 3, "very_large": 4}
 # any size out, and it still leaves once the blows stop (the stock check would pin it for as long
 # as anything touches it). The cave counts these answers (``unsized`` in the battle log).
 TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE = max(TAKEOFF_PIN_WINDOWS.values())
+# [D11, gapfix-1118] Closing the take-off gap. Measured in game 2026-11-18 (series 4 run 1, traced
+# caves, 3856 entity-ticks): every entity-tick had exactly one flight update; the update asked the
+# take-off check on every update in phase 1 (1522/1522) and in phase 2 with the countdown FC+0x44
+# above 0 (683/683), and on none in phase 2 with the countdown at 0 (0/18); every recorded melee hit
+# came AFTER that tick's update (65/65). So a model hit at countdown 0, ordered away (phase 1 -> 2)
+# before its next update, was lifted by that update (state machine 0x14301b534, phase-2 branch
+# 0x14301b8d4: lift when FC+0x44 == 0) without the gate 0x143053ce3 asking the rule. The stamp cave
+# therefore raises a 0 countdown to TAKEOFF_GAP_RAISE_TO when it records a melee hit on a model in one
+# of TAKEOFF_GAP_RAISE_PHASES: the next update sees a countdown above 0, does not lift, and asks the
+# rule (held -> the engine re-arms 30). The countdown is decremented only after the gate (0x143053d8b),
+# so a 1 still reaches the gate as 1. Only a 0 is ever written over (lock cmpxchg 0 -> 1).
+TAKEOFF_GAP_RAISE_TO = 1
+TAKEOFF_GAP_RAISE_PHASES = (1, 2)       # FC+0x90: 1 on the ground, 2 take-off requested (0x14304cea0)
 
 
 def takeoff_pin_window(size):

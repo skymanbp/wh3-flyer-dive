@@ -165,6 +165,14 @@ One rule replaces the two earlier ones ("more than half of the living models str
   charge factor is 0.7 or more are multiplied by `charge_reflect_damage_multiplier` (2), and a separate
   impact reflection applies its own damage. So this rule may need no damage source of its own. What
   "twice the game's own" means under that mechanism is asked of the owner after the control run.
+- **Measured in game on 2026-11-18 (`docs/HISTORY.md` INGAME-1118 series 4, part 3):** the multiplier is
+  what the game applies. Knights charging braced spearmen: applied 151 times, always 2.0, always to the
+  braced soldier's hit on the charger, never the other way. Flyers diving into braced spearmen: applied 58
+  times at 2.0 to hits on the flyers, so a dive and a ground charge go through one engine path. It barely
+  hurts a large flyer: health lost in the 5 seconds after first contact was 0 for the star dragon and the
+  manticore, 0.4% for the griffon knights and 3.0% for the pegasus knights. **Nothing of D4 is built yet.**
+  Two questions go to the owner before it is: what factor the flyers get on top of the game's 2, and whether
+  it covers a dive only or any charge by a flying unit.
 
 ### D5 · Second carry-through: no change (assessment, not a ruling)
 
@@ -281,6 +289,12 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   seen in a multiplayer battle. Changing this needs a two-player test.
 - The settings page is English, or Simplified Chinese when the client is Simplified Chinese (told by
   the game's own word for the breath ability type). One language per string.
+- **Checked in game on 2026-11-18 (`docs/HISTORY.md` INGAME-1118 series 4, part 4):** without MCT the
+  switch is on and a breath order given in melee is accepted; with a stand-in settings pack saying off the
+  script locks the 20 abilities and the engine refuses the order; saying on, it is accepted again. With the
+  damage recorder: on, the enemy took 51 hits (1,949 damage) from a source that appears only after the
+  breath order; off, none. Still owed: one look with the real MCT (settings page, reading order). A
+  multiplayer battle was not run.
 
 ### D11 · The next version is uploaded only when the braced-spear damage is in and the take-off gap is explained
 
@@ -294,6 +308,15 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   the mod's.
 - This replaces the maintainer's earlier call that the gap need not hold the release.
 - The upload itself is still asked when everything is ready.
+- **The gap is explained and fixed (2026-11-18, `docs/HISTORY.md` INGAME-1118 series 4, parts 1 and 2).**
+  Measured: every model gets one flight update per tick; the update asks the take-off rule in phase 1 and in
+  phase 2 while the countdown is above 0, and never in phase 2 at countdown 0 (0 of 18); hits are recorded
+  after that tick's update. So a model hit at countdown 0 and ordered away before its next update was lifted
+  unasked. Fix: when the mod records a melee hit on a model whose countdown is 0 in phase 1 or 2, it raises
+  the countdown to 1, so the next update asks the rule. Checked in game: 2 such hits, both raised, both then
+  asked and held; 8 take-offs, none early. The exact ordering (hit, then the order in the same tick) did not
+  occur in that run; for it the proof is the emulator cases plus the measured engine behaviour.
+- Of the three conditions above, D10 and the gap are met. **D4 is not built**, so nothing is uploaded yet.
 
 ### D12 · No compatibility patch for other mods' ridden units for now
 

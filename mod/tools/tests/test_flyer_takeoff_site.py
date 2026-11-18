@@ -16,7 +16,7 @@ replaced the two inside the hit processor). Their source, emulator check, sites 
   from the vendored loader; no wildcard first);
 * the installed game holds every cave site and every anchor exactly once.
 The installed exe is a required input (§A14.4): without it the last check
-refuses rather than passing. The emulator check itself (621 cases, 22 broken
+refuses rather than passing. The emulator check itself (909 cases, 30 broken
 caves each caught) needs keystone + unicorn and runs inside pin_cave_asm.py
 before it writes the table; it is not repeated here.
 """
@@ -75,7 +75,7 @@ class SiteTable(unittest.TestCase):
         self.assertEqual(lines.count("        windows = { 45, 40, 35, 30, 45 },"), 1)
         self.assertEqual(lines.count(
             "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
-        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS4',"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS5',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
         self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
 

@@ -53,7 +53,11 @@ different builds, the battle log `flyer_dive.txt` gets a
 sorts first wins, and both the submod's pack name and every one of its table
 fragment names sort before the main pack's (`flyer_dive_balance` < `flyer_dive_takeoff`; a main pack
 called `flyer_dive.pack` would not, because `.` sorts before `_`), so it holds whichever of the two
-names the game goes by (a swap test with these two packs is still to be run).
+names the game goes by. Checked in game on 2026-11-18 with these two packs: the submod's masses were
+read in battle (manticore 1700, star dragon 4425) with the submod listed after the main pack in the mod
+list (two runs) and listed before it (one run), so the order in the mod list does not decide it. The
+three runs agree with "the fragment name that sorts first wins"; the opposite fragment order was not
+tested.
 
 ## Repository layout
 
@@ -154,8 +158,9 @@ separate main-mod adapter pack.
 它**需要主模组**，并且和主包由同一次建包生成（见下），两包始终一致：它的飞兽行就是主包的行、
 只改了质量，两包带同一个建包戳；来自不同建包时，战斗日志 `flyer_dive.txt` 会写一行
 `BALANCE MISMATCH`。加载顺序不用手动调：本项目此前实测（主模组台账 RESIST-W2）是名字排序在前的
-包的行生效，子模组的包名和每个表片段名都排在主包之前（`flyer_dive_balance` < `flyer_dive_takeoff`），所以不论游戏看的是哪个名字都成立
-（这两个包的对调实测还没做）。
+包的行生效，子模组的包名和每个表片段名都排在主包之前（`flyer_dive_balance` < `flyer_dive_takeoff`），所以不论游戏看的是哪个名字都成立。
+2026-11-18 用这两个包实机核对过：子模组在模组列表里排在主包之后（两局）和之前（一局），战斗里读到的都是子模组的质量
+（蝎尾狮 1700、星龙 4425），所以决定结果的不是模组列表里的先后；三局都与「片段名排前者赢」相符，反过来的片段名顺序没测。
 
 ## 建包
 

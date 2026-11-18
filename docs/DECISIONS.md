@@ -208,3 +208,12 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - The scratch folders of the flyer work (test runs, probe output, builds, upload staging) move
   from the Lore Disasters scratch area to `D:/Projects/.worktrees/wh3-flyer-dive/`.
 - What moved, from where and how large is recorded in `docs/HISTORY.md` (section DATA-MOVE-1117).
+
+### D8 · Push the main branch only; the next version's branches stay local
+
+> 问：「现在推上去吗？」答：「只推主分支」 (owner, 2026-11-17 night)
+
+- `main` (the published code plus the rules and records that moved in) is pushed to GitHub.
+- `update-1117` and `rider-seat-1117` stay local until the owed in-game checks are done; pushing them is
+  asked again then.
+- The go-ahead covers this one push. Later pushes are asked each time (D6).

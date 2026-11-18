@@ -37,6 +37,8 @@
 **2026-11-18 02:41–02:53 三局都跑了**（INGAME-1118 series 2，`docs/HISTORY.md` 同名一节；证据 `ingame_1118/series2/`）：第 1 项判据通过，
 但离地快慢只量到整队标志，欠一局逐兵模的；第 2 项挡在动作这一层（`ACTION UPDATES 0`），欠一局改摆兵的；第 3 项已有答案。下面各项后面写了结果和还欠什么。
 
+**2026-11-18 04:35–04:58 又跑了四局**（INGAME-1118 series 3，`docs/HISTORY.md` 同名一节；证据 `ingame_1118/series3/`）：第 1 项逐兵模量出来了，四种体型的离地时间都对得上，另有一处一两个时刻的空当记在第 1 项里；第 2 项把目标放开后仍是 `ACTION UPDATES 0`，原因不在脚本控制。
+
 命令都在 `rename-1118/wt` 的 `mod/` 目录下跑。包都在 `D:/Projects/.worktrees/wh3-flyer-dive/d3-1118_scratch/probes/`：
 `base/flyer_dive_takeoff.pack`（D3 的主包加移动记录器，sha256 `555afdd2…`）、`base/flyer_dive_balance.pack`、`probe_impact.pack`
 （主包加冲锋反制探针，`9ba1b2fb…`）、`pin_record.pack`（只有起飞记录器）、`size_reader.pack`（只有体型读取器）。按每项写的拷进游戏
@@ -58,6 +60,16 @@
      （第三次撤退令那一刻目标也撤走，之后不再追打）。跑完 `python -P tools/pipelines/pin_probe_report.py "<游戏目录>/pin_probe.txt"`：
      每个飞兽一行，给出各兵模「最后一次挨打到离地」的时刻数；早于本体型窗口就判失败，预期在「窗口 + 30」上下（窗口过后引擎自己的 3 秒还要走完）。
      记录器的新行只过了离线测试（LuaJIT 跑真文件，`test_pin_probe_entities.py`），没进过游戏。
+   - **结果（series 3 第 1、3、4 局，逐兵模）**：记录器的 `E`、`Z` 行在游戏里可用。「最后一次挨打到离地」的最小值：小型（鹰身女妖，窗口 45）77 个时刻、12 个样本；中型（飞马骑士，40）72、3 个样本；大型（蝎尾狮，35）67、1 个样本；超大（星龙，30）62、3 个样本。四种都是「窗口 + 30 + 2」，没有一个早于「窗口 + 30」。
+     第 1 局的剑士伤不到两只大怪（它们血量一直是满的，所以没有挨打记录），大型和超大是第 3 局换长戟兵量的
+     （`ingame_1118/series3/run_series3_c.sh`：`--target wh_main_emp_inf_halberdiers`，`cycle_away_ms=16000,cycle_back_ms=16000,retreat_<i>=52000`）。
+   - **对照（series 3 第 4 局，`pin_probe.cfg` 里 `mode 2`：照记挨打，但由游戏自己的判定回答）**：同一场仗里，没挨打的星龙收到撤退令后被按住 128 个时刻（uid 1005：第 526 个时刻被要求起飞，第 654 个时刻才离地，其间没有一次挨打记录），另一只到下一次进攻令都没起来；
+     装了规则的第 3 局里同样情形是下令后 1 个时刻离地。这就是 D3 要的差别。
+   - **一处没对上，记着**：第 3 局一只蝎尾狮（uid 1002）落地后 12.7 秒没挨过打，第 204 个时刻第一次挨打，第 205 个时刻收到撤退令，第 206 个时刻离地——挨打后 2 个时刻就走了，`pin_probe_report.py` 判为问题（退出码 1）。同一局里倒计时没走完时挨的打都压住了
+     （星龙 uid 1004 被要求起飞后又挨 6 下，最后一下之后 62 个时刻才离地）。所以漏的是「倒计时早已到 0、刚挨第一下、紧接着下令」这一两个时刻；
+     是引擎在下令那一刻不再问一遍，还是问得比每时刻一次稀，这一局分不出来。要查清得给记录器加「起飞判定被问了几次」的计数再跑一局。
+     影响小（要 10 秒以上没挨打、又恰好卡在这一两个时刻），主管判断不挡发版；对外说明里不写「挨打就一定走不了」。
+   - **顺带量到**：每次落地，游戏自己把起飞倒计时置成 100（`E` 行 `0:1:100`；第 4 局由游戏自己判定时也一样），所以飞兽落地后至少 10 秒不能再起飞，挨没挨打都一样。这是原版行为，不是本模组加的。
 2. **冲锋反制对照组**（约 3 分钟）。拷 `probe_impact.pack`。
    `python -P tools/pipelines/air_dive_autotest.py --test-pack probe_impact.pack --memreader --target wh_main_emp_inf_spearmen_1 --flyers wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm`
    然后 `python -P tools/pipelines/reflect_probe_report.py "<游戏目录>/reflect_probe.txt"`（自动判定会写 FAIL，骑兵不会「落地」）。
@@ -70,6 +82,9 @@
      交还给它那一方的电脑（`uc:release_control()`，原版 `lib_battle_script_unit.lua:1067` 的同一个调用；默认 -1 不放）。驱动在状态文件里
      每道写一行 `free_target <i> ok=true`，先确认这行在；再看 `ACTION UPDATES` 是否大于 0。放开之后目标可能自己走开，
      所以这一局只回答「不受脚本控制时长矛兵会不会进入那个动作」。开关只过了语法检查，没进过游戏。探针包不用重建（驱动随它自己写的辅助包进游戏）。
+   - **结果（series 3 第 2 局，`free_targets_ms=0`）**：状态文件里四道都有 `free_target <i> ok=true`；骑士冲进长矛兵，扣血记录 679 次，但 `ACTION UPDATES 0`、`BRACE CHECK NOT REACHED 0 calls`、`reflections logged 0`、`CONTROL NOT SEEN`。
+     目标受不受脚本控制，结果一样，所以「脚本控制挡住了那个动作」这个猜想不成立。剩下两种可能，都没验证：探针挂的两处不是这种交战真正走的函数；或者这一对兵种在这种打法下游戏本来就不结算反射伤害。
+     下一步不是再换摆法，而是从扣血这一头找：扣血函数的记录是活的，给它加上按伤害类别的计数，再找一组确定会出现反射伤害的对局（先查原版数据里哪些单位带反射属性、规则表里反射伤害的数值），看它走哪一类。D4 在这之前定不了做法。
 3. **子模组换序：片段名还是 `used_mods.txt` 顺序**（约 3 分钟）。拷 `base/flyer_dive_takeoff.pack`、`base/flyer_dive_balance.pack`、`size_reader.pack`。
    `python -P tools/pipelines/air_dive_autotest.py --test-pack flyer_dive_takeoff.pack --pack-before flyer_dive_balance.pack --pack-after size_reader.pack --memreader --flyers wh2_main_def_inf_harpies,wh_main_brt_cav_pegasus_knights,wh2_dlc10_def_mon_feral_manticore_0,wh2_main_hef_mon_star_dragon`
    然后 `python -P tools/pipelines/flyer_size_probe_report.py "<游戏目录>/flyer_size_probe.txt"`。
@@ -82,7 +97,7 @@ D4 的飞兽各道（INGAME-1118 第 4、5 项的样子）要等 D4 有了做法
 
 ### 测完之后
 
-- 第 1 项通过 → D3 进下一版。
+- 第 1 项通过 → D3 进下一版。**已通过（series 3，2026-11-18）**：四种体型都量到了；那一两个时刻的空当记在第 1 项，不挡发版。
 - 第 2 项 → 选定 D4 的做法并实现。做不到「受伤但不被弹回」就回去问主人。
   若量出俯冲的那一下和飞兽平常的地面冲锋走的是同一条引擎路径，先告诉主人再发。
 - 第 3 项 → 把结论写进 README 的加载顺序一段。**已写（2026-11-18）**：中英两段都补了三局的结果（决定结果的不是模组列表里的先后；

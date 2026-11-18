@@ -11,8 +11,14 @@
 --   * "not_flying" -- row grounded;         not unit:is_currently_flying()
 -- (battle_unit API, CA's documentation: disable_special_ability "Disables or re-enables the ability (true for
 -- disabling it)", it only touches the instance the unit owns.)
--- A multiplayer battle keeps "on" whatever the local setting says: the players' settings can differ in a custom
--- battle, and disabling abilities from a script has not been seen in a multiplayer battle.
+-- [D14, owner 2026-11-18: "in multiplayer the MCT settings follow the host's, they do not go out of step; just do
+-- it normally"] A multiplayer CAMPAIGN battle reads the setting like a single-player one: MCT hands every machine
+-- of a multiplayer campaign the host's settings and locks the other players' options (MCT's own scripts:
+-- systems/sync/main.lua MctMpInitialLoad / MctMpFinalized, objects/options/obj.lua mct_lock_reason_mp_client).
+-- A multiplayer battle OUTSIDE a campaign (custom / quick / ranked) keeps "on": there MCT gives each machine its
+-- own global settings (systems/registry/main.lua, context "battle") and nothing can agree between the players
+-- (lib/cave_common.lua start_battle), so two different settings would lock abilities on one machine only.
+-- / 多人战役的战斗按 MCT 的设置（MCT 把主机的设置发给每一台机器）；战役之外的多人战斗固定为开（那里 MCT 各读各的）。
 --
 -- Pure module: no core / bm / get_mct here (the battle entry battle/mod/flyer_breath.lua passes them in), so it
 -- runs unchanged in LuaJIT tests. / 纯模块：不直接调用 core / bm / get_mct，由战斗入口传入。
@@ -20,12 +26,13 @@
 local M = {}
 
 -- on, why: whether breath may be used while engaged in this battle.
--- `rows` is data/breath_rows; `mp` the battle's bm:is_multiplayer(); `read_mct(mod_key, option_key)` returns the
--- setting MCT holds (nil when MCT is not installed).
-function M.decide(rows, mp, read_mct)
+-- `rows` is data/breath_rows; `mp` / `from_campaign` the battle's bm:is_multiplayer() / is_from_campaign();
+-- `read_mct(mod_key, option_key)` returns the setting MCT holds (nil when MCT is not installed).
+function M.decide(rows, mp, from_campaign, read_mct)
     local default = rows.default_on == true
-    if mp then
-        return true, "multiplayer battle: the setting is not used, breath while engaged stays on"
+    if mp and not from_campaign then
+        return true, "multiplayer battle outside a campaign: MCT shares no setting between the players there, "
+            .. "breath while engaged stays on"
     end
     if type(read_mct) ~= "function" then
         return default, "default (MCT not installed)"
@@ -37,7 +44,7 @@ function M.decide(rows, mp, read_mct)
     if type(value) ~= "boolean" then
         return default, "default (MCT holds no setting: " .. tostring(value) .. ")"
     end
-    return value, "MCT"
+    return value, mp and "MCT, multiplayer campaign" or "MCT"
 end
 
 -- Whether an ability with these locks must be disabled now.

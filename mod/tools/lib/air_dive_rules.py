@@ -882,9 +882,9 @@ def breath_usage_writer(db_pack, local_en_pack, flags=BREATH_BLOCK_FLAGS):
 # BREATH_SWITCH_POLL_MS it disables (unit:disable_special_ability, CA's battle_unit API) each removed ability on
 # a unit that is in melee (row engaged_in_melee; unit:is_in_melee) or not flying (row grounded;
 # unit:is_currently_flying) and enables it again when neither holds. Only the rows the table dropped are put
-# back, per ability (:func:`breath_switch_lua`). Multiplayer battles ignore the setting and stay on: the value
-# can differ between the players of a custom battle, and a script that disables abilities has never been seen
-# in a multiplayer battle (docs/DECISIONS.md D10).
+# back, per ability (:func:`breath_switch_lua`). A multiplayer campaign battle reads the setting too: MCT hands
+# every player the host's settings. A multiplayer battle outside a campaign stays on: MCT shares nothing there,
+# so the players' values can differ (docs/DECISIONS.md D14).
 BREATH_SWITCH_DEFAULT_ON = True        # the published behaviour (maintainer's choice under D10)
 BREATH_SWITCH_POLL_MS = 100            # one battle tick (10 a second)
 BREATH_SWITCH_MCT_MOD = "flyer_dive_takeoff"

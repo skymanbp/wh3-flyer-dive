@@ -1963,3 +1963,19 @@ D4 的「两倍」落在这种结算方式上是什么意思、范围是只算�
 ### 五、驱动的 FAIL
 
 第 1、6 局用的是循环命令，驱动按「接战」摆法的判据去判，报 `no engage samples; move-away never ordered`，与起飞记录无关。第 5、7 各局的 FAIL 来自上面那条「吹出来了」的旧判据。
+
+## MP-SETTING-1118 2026-11-18：多人战役里吹息开关按主机的设置（D14）
+
+主人的话：「多人模式的MCT设置是根据主机（房主）的设置走的，不会不同步，你正常做就行。」此前 D10 里主管定的是「多人战斗一律不看设置、固定为开」。
+
+**读了 MCT 自己的脚本**（创意工坊 2927955021 的 `groovy_mct.pack`，60 个 Lua）：
+
+- 多人战役：主机的设置发给每一台机器（`systems/sync/main.lua`：首次载入发 `MctMpInitialLoad`，主机每次确认设置发 `MctMpFinalized`，各端用 `set_finalized_setting` 写入）；其他玩家的选项被锁住（`objects/options/obj.lua`，锁定原因 `mct_lock_reason_mp_client`）。
+- 战役里的战斗：读这场战役存下的设置（`systems/registry/main.lua` 的 `load_campaign_battle`）。
+- 战役之外的战斗（自定义、快速）：各读各的全局设置（同文件，情境 `battle`）；同步代码只在战役里有，消息走 `CampaignUI.TriggerCampaignScriptEvent`。
+
+**改法**：`lib/breath_switch.lua` 的判定从「多人战斗 → 开」改为「战役之外的多人战斗 → 开；其余（单人、多人战役的战斗）→ 按 MCT」。是不是战役里的战斗用 `bm:is_from_campaign()`，与起飞、俯冲两个战斗入口是同一个调用；这个调用失败时按战役之外算。记录行在多人战役里写 `MCT, multiplayer campaign`。设置页的说明改成「多人战役里以主机的设置为准；战役之外的多人战斗始终为开」，用词按客户端（`local_cn.pack`：多人战役 13 次、多人战斗 18 次、主机 19 次；联机 2 次、房主 0 次）。README 与 `workshop/` 两份文案同改。
+
+**核对**：`test_breath_switch.py` 加了多人战役的判定、战斗入口、设置页说明三条。反向核对六种改坏（一律为开、战役之外也读设置、入口不问是否战役里的战斗、原因不区分、中英文说明各改回旧话），每一种都有测试转红，还原后全绿。包重建过。
+
+**没做的**：没有跑过两个人的多人战斗；对 MCT 的了解来自读它的代码。战役之外的多人战斗固定为开是主管定的，已告诉主人。

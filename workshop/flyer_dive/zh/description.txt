@@ -13,7 +13,7 @@
 [/list]
 
 [h2]设置[/h2]
-装了 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021]Mod Configuration Tool[/url]（模组设置工具，可选）就可以关掉「陷入近战时可用吹息」：关掉后吹息技能在近战中、落地时都和原版一样不能用。没装时保持开启。这个设置只对单人战斗生效；联机战斗始终为开，让双方按同一套规则打。其余各项都不是设置。
+装了 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021]Mod Configuration Tool[/url]（模组设置工具，可选）就可以关掉「陷入近战时可用吹息」：关掉后吹息技能在近战中、落地时都和原版一样不能用。没装时保持开启。多人战役里以主机的设置为准；战役之外的多人战斗始终为开，让双方按同一套规则打。其余各项都不是设置。
 
 [h2]下一步（本版尚未包含）[/h2]
 [list]

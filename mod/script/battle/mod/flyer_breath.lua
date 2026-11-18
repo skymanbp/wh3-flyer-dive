@@ -5,13 +5,15 @@
 -- without it the default applies. MCT reads its saved values after every battle script has loaded
 -- (ScriptEventAllModsLoaded, which its own listener hears first) and then fires MctInitialized, so the setting is
 -- read on whichever of the two comes first; without MCT (or without core) at once.
---   * on  (default, and every multiplayer battle): nothing to do -- the shipped usage-flag table already lets
---     breath through.
+--   * on  (default): nothing to do -- the shipped usage-flag table already lets breath through.
 --   * off: lib/breath_switch keeps CA's two locks by hand, every poll_ms of battle time
 --     (bm:repeat_callback, "a timer synchronised to the battle model").
+-- [D14] A multiplayer campaign battle reads the setting too (MCT gives every player the host's settings); a
+-- multiplayer battle outside a campaign stays on (MCT shares nothing there). The rule is in lib/breath_switch.
 -- Lines go to flyer_breath.txt next to Warhammer3.exe: one BREATH line saying on / off and why, NOW lines while
 -- the counters change (every 10 s), one END line.
--- / 设置在 MCT；无 MCT 用默认（开）。开：什么都不做；关：按原版限制逐兵锁住吹息。联机战斗一律为开。
+-- / 设置在 MCT；无 MCT 用默认（开）。开：什么都不做；关：按原版限制逐兵锁住吹息。
+--   多人战役的战斗同样按设置（主机的）；战役之外的多人战斗固定为开。
 
 local LOG_FILE = "flyer_breath.txt"
 local POLL_NAME, TICK_NAME, TICK_MS = "flyer_breath_poll", "flyer_breath_counts", 10000
@@ -75,9 +77,11 @@ local begun = false
 local function begin(when)
     if begun then return end
     begun = true
-    local mp = false
+    -- a call that fails leaves false: a multiplayer battle not known to come from a campaign stays on
+    local mp, from_campaign = false, false
     pcall(function() mp = bm:is_multiplayer() and true or false end)
-    local on, why = switch.decide(rows, mp, type(get_mct) == "function" and read_mct or nil)
+    pcall(function() from_campaign = bm:is_from_campaign() and true or false end)
+    local on, why = switch.decide(rows, mp, from_campaign, type(get_mct) == "function" and read_mct or nil)
     local n = 0
     for _ in pairs(rows.abilities) do n = n + 1 end
     if on then

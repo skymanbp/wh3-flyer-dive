@@ -33,15 +33,17 @@ local TEXT = {
         description = "Settings of the Flyer Dive & Take-off mod.",
         option = "Breath while engaged in melee",
         tooltip = "On: breath attacks can be used while the unit is engaged in melee, and dragons can breathe "
-            .. "while on the ground. Off: as in the base game. Applies to single-player battles; multiplayer "
-            .. "battles always keep it on. Takes effect from the next battle.",
+            .. "while on the ground. Off: as in the base game. In a multiplayer campaign the host's setting "
+            .. "applies to every player; multiplayer battles outside a campaign always keep it on. Takes effect "
+            .. "from the next battle.",
     },
+    -- client wording (local_cn.pack): 多人战役 / 多人战斗 / 主机
     cn = {
         title = "飞兽俯冲与近战起飞",
         description = "飞兽俯冲与近战起飞模组的设置。",
         option = "陷入近战时可用吹息",
-        tooltip = "开：部队陷入近战时也能使用吹息技能，龙落在地面上时也能吹息。关：与原版相同。只对单人战斗生效，"
-            .. "联机战斗始终为开。从下一场战斗起生效。",
+        tooltip = "开：部队陷入近战时也能使用吹息技能，龙落在地面上时也能吹息。关：与原版相同。多人战役里以主机的"
+            .. "设置为准；战役之外的多人战斗始终为开。从下一场战斗起生效。",
     },
 }
 

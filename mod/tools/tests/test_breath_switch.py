@@ -4,8 +4,9 @@ The shipped usage-flag table is the "on" state; "off" is the battle script putti
 hand. The three shipped files run unchanged here against stand-ins for the game (bm, core, get_mct, units),
 with the data module the build generates from the installed game's rows. What is pinned:
 
-* the decision: multiplayer -> on whatever MCT says; no MCT -> the default (on); MCT on / off -> that; MCT
-  failing or holding no boolean -> the default;
+* the decision (D14): a multiplayer battle outside a campaign -> on whatever MCT says; a multiplayer campaign
+  battle -> what MCT holds (the host's setting), like a single-player battle; no MCT -> the default (on); MCT
+  on / off -> that; MCT failing or holding no boolean -> the default;
 * the locks: an ability whose engaged_in_melee row was dropped is disabled while its unit is in melee, one
   whose grounded row was dropped also while not flying; enabled again when neither holds; the game is called
   only on a change; a unit without a listed ability is never touched; a unit whose calls fail does not stop the
@@ -86,15 +87,20 @@ DECIDE_CASE = r'''
 local switch = require("script/campaign/flyer_dive/lib/breath_switch")
 local rows = require("script/campaign/flyer_dive/data/breath_rows")
 local function show(on, why) print(tostring(on) .. "|" .. why) end
-show(switch.decide(rows, true, function() return false end))
-show(switch.decide(rows, false, nil))
-show(switch.decide(rows, false, function() return true end))
-show(switch.decide(rows, false, function() return false end))
-show(switch.decide(rows, false, function() return nil end))
-show(switch.decide(rows, false, function() error("boom", 0) end))
+-- decide(rows, mp, from_campaign, read_mct)
+show(switch.decide(rows, true, false, function() return false end))     -- multiplayer, outside a campaign
+show(switch.decide(rows, false, false, nil))
+show(switch.decide(rows, false, false, function() return true end))
+show(switch.decide(rows, false, false, function() return false end))
+show(switch.decide(rows, false, false, function() return nil end))
+show(switch.decide(rows, false, false, function() error("boom", 0) end))
 local seen = {}
-switch.decide(rows, false, function(m, o) seen[1], seen[2] = m, o; return true end)
+switch.decide(rows, false, false, function(m, o) seen[1], seen[2] = m, o; return true end)
 print("KEYS " .. seen[1] .. " " .. seen[2])
+show(switch.decide(rows, true, true, function() return false end))      -- multiplayer campaign: MCT (the host's)
+show(switch.decide(rows, true, true, function() return true end))
+show(switch.decide(rows, true, true, nil))                              -- ... and no MCT there: the default
+show(switch.decide(rows, false, true, function() return false end))     -- single-player campaign battle
 '''
 
 KEEPER_CASE = r'''
@@ -122,7 +128,12 @@ print("COUNTS " .. k:counts())
 '''
 
 ENTRY_CASE = r'''
-local MODE = arg[3]               -- "none" (no MCT) | "on" | "off" | "mp_off" | "stub" (arg[4]: the test stand-in)
+-- MODE: "none" (no MCT) | "on" | "off" | "stub" (arg[4]: the test stand-in)
+--     | "mp_off" (multiplayer battle outside a campaign, MCT says off)
+--     | "mpc_off" / "mpc_on" (multiplayer campaign battle, MCT says off / on)
+local MODE = arg[3]
+local MP = { mp_off = true, mpc_off = true, mpc_on = true }
+local FROM_CAMPAIGN = { mpc_off = true, mpc_on = true }
 local listeners, callbacks, phases = {}, {}, {}
 local dragon = fake_unit(7, { "STAR" })
 dragon.flying, dragon.melee = true, true
@@ -133,7 +144,8 @@ local alliance = { armies = function() return armies end }
 local alliances = { count = function() return 1 end, item = function() return alliance end }
 bm = {
     alliances = function() return alliances end,
-    is_multiplayer = function() return MODE == "mp_off" end,
+    is_multiplayer = function() return MP[MODE] == true end,
+    is_from_campaign = function() return FROM_CAMPAIGN[MODE] == true end,
     repeat_callback = function(_, fn, ms, name) callbacks[#callbacks + 1] = { fn = fn, ms = ms, name = name } end,
     remove_callback = function() end,
     register_phase_change_callback = function(_, phase, fn) phases[phase] = fn end,
@@ -143,7 +155,7 @@ if MODE == "stub" then
     local f = assert(io.open(arg[4], "rb")); local stub = f:read("*a"); f:close()
     assert(loadstring(stub))()
 elseif MODE ~= "none" then
-    local value = (MODE == "on")
+    local value = (MODE == "on" or MODE == "mpc_on")
     get_mct = function()
         return { get_mod_by_key = function(_, m)
             return { get_option_by_key = function(_, o)
@@ -246,7 +258,7 @@ class Decide(unittest.TestCase):
         lines = run(DECIDE_CASE)
         on = [ln.split("|", 1) for ln in lines[:6]]
         self.assertEqual([o for o, _w in on], ["true", "true", "true", "false", "true", "true"])
-        self.assertIn("multiplayer", on[0][1])
+        self.assertIn("multiplayer battle outside a campaign", on[0][1])
         self.assertIn("MCT not installed", on[1][1])
         self.assertEqual(on[2][1], "MCT")
         self.assertEqual(on[3][1], "MCT")
@@ -254,6 +266,12 @@ class Decide(unittest.TestCase):
         self.assertIn("reading MCT failed: boom", on[5][1])
         self.assertEqual(lines[6], f"KEYS {air_dive_rules.BREATH_SWITCH_MCT_MOD} "
                                    f"{air_dive_rules.BREATH_SWITCH_MCT_OPTION}")
+
+    def test_multiplayer_campaign_follows_mct(self):
+        """D14: MCT hands every machine of a multiplayer campaign the host's settings, so off must be off."""
+        lines = run(DECIDE_CASE)
+        self.assertEqual(lines[7:11], ["false|MCT, multiplayer campaign", "true|MCT, multiplayer campaign",
+                                       "true|default (MCT not installed)", "false|MCT"])
 
 
 class Keeper(unittest.TestCase):
@@ -280,9 +298,18 @@ class Entry(unittest.TestCase):
         self.assertIn("BREATH off (MCT; read on ScriptEventAllModsLoaded)", breath[0])
         self.assertTrue([ln for ln in lines if " END breath locks set 1, released 0" in ln], lines)
 
+    def test_multiplayer_campaign_off_polls_and_locks(self):
+        lines = run(ENTRY_CASE, "mpc_off")
+        self.assertIn(f"POLL_MS {air_dive_rules.BREATH_SWITCH_POLL_MS}", lines)
+        self.assertIn(f"DRAGON {STAR}=true", lines)
+        breath = [ln for ln in lines if " BREATH " in ln]
+        self.assertEqual(len(breath), 1, lines)
+        self.assertIn("BREATH off (MCT, multiplayer campaign; read on ScriptEventAllModsLoaded)", breath[0])
+
     def test_on_does_nothing(self):
         for mode, why in (("on", "BREATH on (MCT;"), ("none", "BREATH on (default (MCT not installed); read on load"),
-                          ("mp_off", "BREATH on (multiplayer battle")):
+                          ("mp_off", "BREATH on (multiplayer battle outside a campaign"),
+                          ("mpc_on", "BREATH on (MCT, multiplayer campaign;")):
             with self.subTest(mode=mode):
                 lines = run(ENTRY_CASE, mode)
                 self.assertIn("CALLBACKS 0", lines)
@@ -332,6 +359,17 @@ class MctPage(unittest.TestCase):
                 self.assertTrue(any("一" <= ch <= "鿿" for ch in cn[key]), cn[key])
                 self.assertFalse(any("a" <= ch.lower() <= "z" for ch in cn[key]), cn[key])
         self.assertEqual(cn["text"], "陷入近战时可用吹息")
+
+    def test_tooltip_states_the_multiplayer_rule(self):
+        """D14: the page says what the battle script does -- the host's setting in a multiplayer campaign, on in
+        a multiplayer battle outside one -- in the client's own words (多人战役 / 多人战斗 / 主机)."""
+        en, cn = self.page("en")["tooltip"], self.page("cn")["tooltip"]
+        self.assertIn("In a multiplayer campaign the host's setting applies to every player", en)
+        self.assertIn("multiplayer battles outside a campaign always keep it on", en)
+        self.assertNotIn("single-player", en)
+        self.assertIn("多人战役里以主机的设置为准", cn)
+        self.assertIn("战役之外的多人战斗始终为开", cn)
+        self.assertNotIn("单人", cn)
 
     def test_without_mct_nothing_happens(self):
         page = self.page("none")

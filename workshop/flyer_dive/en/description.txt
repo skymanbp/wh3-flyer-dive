@@ -13,7 +13,7 @@ Flying units charge like flying units: a dive keeps its speed when it lands, and
 [/list]
 
 [h2]Settings[/h2]
-With the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021]Mod Configuration Tool[/url] (optional) you can turn off breath attacks while engaged: off, breath abilities are blocked in melee and on the ground as in the base game. Without the Mod Configuration Tool it stays on. The setting applies to single-player battles; multiplayer battles always keep it on, so both players play by the same rules. Everything else is not a setting.
+With the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021]Mod Configuration Tool[/url] (optional) you can turn off breath attacks while engaged: off, breath abilities are blocked in melee and on the ground as in the base game. Without the Mod Configuration Tool it stays on. In a multiplayer campaign the host's setting applies to every player; multiplayer battles outside a campaign always keep it on, so both players play by the same rules. Everything else is not a setting.
 
 [h2]Coming next (not in this version)[/h2]
 [list]

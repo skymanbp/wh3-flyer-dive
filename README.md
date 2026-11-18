@@ -44,8 +44,9 @@ optional balance submod of 2026-11-17 was withdrawn before it was published):
   `mod/script/battle/mod/flyer_breath.lua` puts the game's two locks back by hand
   every battle tick (it disables a listed breath while its unit is in melee, or not
   flying where the game also locks it on the ground) and writes `flyer_breath.txt`
-  next to `Warhammer3.exe`. Without MCT the setting stays on. Multiplayer battles
-  ignore it and stay on, because the players' settings could differ.
+  next to `Warhammer3.exe`. Without MCT the setting stays on. In a multiplayer
+  campaign the host's setting applies to every player (MCT shares it); multiplayer battles
+  outside a campaign stay on, because MCT shares nothing between the players there.
 * **Mass cut.** Large flyers weigh ×0.85, very large ones ×0.75. The celestial
   lion and The Wise One (the boss lion) are cut as large; the game's nine flying
   war machine and chariot bodies (thunderbarges, sky-junk, sky lantern,
@@ -141,7 +142,7 @@ separate main-mod adapter pack.
 * **飞行动作表**：原版飞行动作表改名（`<名>_dive`）发货、改落地交接，经数据表登记
   并改指；另有飞兽实体（逐个飞兽的冲锋速度、冲锋距离、减速、转向）、两行移动常数与冲撞攻击
   （规则唯一源 `mod/tools/lib/air_dive_rules.py`）。
-* 单机可用；联机战役各端版本一致时可用（memreader Plus 协商）；联机自定义 / 快速战斗
+* 单机可用；多人战役各端版本一致时可用（memreader Plus 协商）；多人自定义 / 快速战斗
   可用（游戏自己的模组校验保证两端同一版本）。
 
 **前置模组**：memreader Plus（创意工坊 3811098873）。没装时两条规则不生效、按原版运行。
@@ -156,7 +157,7 @@ separate main-mod adapter pack.
   [Mod Configuration Tool](https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021)（模组设置工具，
   可选）里的设置，默认**开**。关掉时由战斗脚本 `mod/script/battle/mod/flyer_breath.lua` 每个战斗时刻把原版的两条限制
   按兵补回去（部队陷入近战时、以及原版在地面上也禁用的那些吹息在没飞起来时，禁用该吹息），并在
-  `Warhammer3.exe` 旁写 `flyer_breath.txt`。没装 MCT 时保持开。联机战斗不看这个设置、始终为开，因为两端的设置可能不同。
+  `Warhammer3.exe` 旁写 `flyer_breath.txt`。没装 MCT 时保持开。多人战役里以主机的设置为准（MCT 会把它发给每个玩家）；战役之外的多人战斗始终为开，因为那里 MCT 不同步设置。
 * **质量下调**：大型飞兽质量 ×0.85，超大型 ×0.75。昊天狮与「智者」按大型算；游戏里九种飞行战争机器
   与战车的实体（雷霆空艇、天舟、天灯、斩天者、浴焰战车、矮人直升机、矮人轰炸机）质量不变。不是设置。
   冲撞攻击仍按下调前的质量计算。

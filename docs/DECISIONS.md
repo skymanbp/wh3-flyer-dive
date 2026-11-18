@@ -287,6 +287,8 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - **A multiplayer battle ignores the setting and stays on** (maintainer's call until the owner says
   otherwise): the two players' settings can differ, and a script disabling abilities has never been
   seen in a multiplayer battle. Changing this needs a two-player test.
+  **Replaced by D14 (owner, 2026-11-18):** a multiplayer campaign battle follows the setting; only a
+  multiplayer battle outside a campaign still stays on.
 - The settings page is English, or Simplified Chinese when the client is Simplified Chinese (told by
   the game's own word for the breath ability type). One language per string.
 - **Checked in game on 2026-11-18 (`docs/HISTORY.md` INGAME-1118 series 4, part 4):** without MCT the
@@ -333,3 +335,28 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - `rename-1118` (at `0a3b2c4`) is on GitHub as a branch. `main` is unchanged and still the published
   version. For this branch it replaces D8's "stay local until the in-game checks are done".
 - The go-ahead covered that one push. Commits made after it stay local until asked again.
+
+### D14 · In multiplayer the breath setting follows the host
+
+> 「多人模式的MCT设置是根据主机（房主）的设置走的，不会不同步，你正常做就行。」 (owner, 2026-11-18)
+
+- This replaces D10's "a multiplayer battle ignores the setting and stays on". A multiplayer **campaign**
+  battle reads the setting exactly like a single-player battle.
+- Checked in MCT's own scripts (Workshop 2927955021, `groovy_mct.pack`, read on 2026-11-18): in a
+  multiplayer campaign the host's settings are sent to every machine (`systems/sync/main.lua`:
+  `MctMpInitialLoad` on the first load, `MctMpFinalized` whenever the host finalizes; each machine applies
+  them with `set_finalized_setting`), and the other players' options are locked
+  (`objects/options/obj.lua`, lock reason `mct_lock_reason_mp_client`). A campaign battle reads that
+  campaign's saved settings (`systems/registry/main.lua`, `load_campaign_battle`).
+- **Maintainer's call, told to the owner:** a multiplayer battle **outside** a campaign (custom, quick,
+  ranked) still stays on. MCT shares nothing there: each machine reads its own global settings
+  (`systems/registry/main.lua`, context `battle`); the sync code is campaign-only and its messages go
+  through `CampaignUI.TriggerCampaignScriptEvent`. Two players with different settings would have the
+  script lock abilities on one machine only. The battle script tells the two kinds apart with
+  `bm:is_from_campaign()`, the call the take-off and dive scripts already use
+  (`lib/cave_common.lua`, `start_battle`); if that call fails in a multiplayer battle, the battle counts
+  as outside a campaign and stays on.
+- Wording follows the client. The Chinese settings page says 多人战役 / 多人战斗 / 主机
+  (`local_cn.pack`: 13 / 18 / 19 uses; 联机 2, 房主 0).
+- Not verified: no two-player battle was run. What MCT does is read from its code, not seen in a
+  multiplayer session.

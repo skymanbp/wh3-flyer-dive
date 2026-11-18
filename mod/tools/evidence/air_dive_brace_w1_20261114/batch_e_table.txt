@@ -1,0 +1,207 @@
+E1_bats        lane 1 spear   men 60 STOP EARLY +0.5s travel 1.6 m st/slot 55/489 cause contact-engage
+E1_bats        lane 2 halb    men 60 STOP EARLY +0.1s travel 13.5 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_bats        lane 3 militia men 60 STOP late  +0.5s travel 17.8 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_bt          lane 1 spear   men 1 STOP late  +2.8s travel 39.7 m st/slot 16/89 cause contact-engage
+E1_bt          lane 2 halb    men 1 no early stop (verdict travel 45.77)
+E1_bt          lane 3 militia men 1 no early stop (verdict travel 56.04)
+E1_carrion     lane 1 spear   men 24 STOP late  +0.2s travel 20.9 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_carrion     lane 2 halb    men 24 STOP EARLY +0.2s travel 10.4 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_carrion     lane 3 militia men 24 STOP late  +0.4s travel 15.7 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_chim        lane 1 spear   men 1 no early stop (verdict travel 40.22)
+E1_chim        lane 2 halb    men 1 no early stop (verdict travel 41.44)
+E1_chim        lane 3 militia men 1 no early stop (verdict travel 53.02)
+E1_cock        lane 1 spear   men 1 STOP late  +4.2s travel 31.2 m st/slot 33/1 cause re-order
+E1_cock        lane 2 halb    men 1 STOP late  +4.1s travel 33.1 m st/slot 30/1 cause re-order
+E1_cock        lane 3 militia men 1 STOP late  +3.4s travel 45.1 m st/slot 30/484 cause re-order
+E1_dragon      lane 1 spear   men 1 no early stop (verdict travel 49.62)
+E1_dragon      lane 2 halb    men 1 no early stop (verdict travel 50.61)
+E1_dragon      lane 3 militia men 1 no early stop (verdict travel 53.48)
+E1_drone       lane 1 spear   men 12 STOP EARLY +0.1s travel 0.6 m st/slot 55/489 cause other(43ADE800->43ADE800 st 55->30)
+E1_drone       lane 2 halb    men 12 STOP EARLY +0.1s travel 2.6 m st/slot 30/91 cause flight-ended
+E1_drone       lane 3 militia men 12 STOP late  +2.3s travel 20.3 m st/slot 30/89 cause other(43ADE800->43ADE800 st 30->30)
+E1_eagle       lane 1 spear   men 1 STOP late  +5.7s travel 25.4 m st/slot 16/1 cause contact-engage
+E1_eagle       lane 2 halb    men 1 STOP EARLY +2.3s travel 12.0 m st/slot 8/1 cause contact-engage
+E1_eagle       lane 3 militia men 1 STOP EARLY +0.4s travel 6.0 m st/slot 30/1 cause re-order
+E1_frostwyrm   lane 1 spear   men 1 no early stop (verdict travel 49.06)
+E1_frostwyrm   lane 2 halb    men 1 no early stop (verdict travel 51.82)
+E1_frostwyrm   lane 3 militia men 1 STOP late  +3.4s travel 46.5 m st/slot 30/484 cause re-order
+E1_grif        lane 1 spear   men 4 STOP late  +6.5s travel 43.8 m st/slot 30/1 cause flight-ended
+E1_grif        lane 2 halb    men 4 STOP late  +4.1s travel 41.0 m st/slot 30/1 cause flight-ended
+E1_grif        lane 3 militia men 4 STOP late  +3.8s travel 22.7 m st/slot 30/1 cause flight-ended
+E1_hippo       lane 1 spear   men 12 STOP late  +0.1s travel 16.6 m st/slot 30/1 cause flight-ended
+E1_hippo       lane 2 halb    men 12 STOP EARLY +0.1s travel 14.3 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->33)
+E1_hippo       lane 3 militia men 12 STOP EARLY +0.3s travel 1.5 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_lamm        lane 1 spear   men 1 STOP late  +4.5s travel 31.0 m st/slot 30/1 cause re-order
+E1_lamm        lane 2 halb    men 1 STOP late  +6.5s travel 21.7 m st/slot 16/1 cause contact-engage
+E1_lamm        lane 3 militia men 1 STOP late  +3.4s travel 42.6 m st/slot 33/1 cause re-order
+E1_lion        lane 1 spear   men 1 STOP late  +2.2s travel 16.6 m st/slot 16/1 cause contact-engage
+E1_lion        lane 2 halb    men 1 no early stop (verdict travel 35.25)
+E1_lion        lane 3 militia men 1 STOP late  +7.2s travel 23.8 m st/slot 30/484 cause other(43ADE800->43ADE800 st 30->30)
+E1_mant        lane 1 spear   men 1 no early stop (verdict travel 40.09)
+E1_mant        lane 2 halb    men 1 no early stop (verdict travel 54.77)
+E1_mant        lane 3 militia men 1 no early stop (verdict travel 69.6)
+E1_peg         lane 1 spear   men 24 STOP EARLY +0.0s travel 14.1 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_peg         lane 2 halb    men 24 STOP EARLY +0.0s travel 0.1 m st/slot 0/1 cause other(43ADE800->43ADE800 st 0->30)
+E1_peg         lane 3 militia men 24 STOP late  +1.7s travel 18.5 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_scream      lane 1 spear   men 16 STOP EARLY +0.1s travel 7.7 m st/slot 30/1 cause flight-ended
+E1_scream      lane 2 halb    men 16 STOP EARLY +0.1s travel 4.7 m st/slot 30/88 cause flight-ended
+E1_scream      lane 3 militia men 16 STOP EARLY +3.5s travel 13.4 m st/slot 55/459 cause flight-ended
+E1_sky         lane 1 spear   men 12 STOP late  +3.6s travel 52.7 m st/slot 30/1 cause contact-engage
+E1_sky         lane 2 halb    men 12 STOP late  +3.8s travel 40.7 m st/slot 30/1 cause contact-engage
+E1_sky         lane 3 militia men 12 STOP late  +2.8s travel 36.6 m st/slot 30/1 cause other(43ADE800->439255C8 st 30->8)
+E1_storm       lane 1 spear   men 1 no early stop (verdict travel 53.74)
+E1_storm       lane 2 halb    men 1 no early stop (verdict travel 57.34)
+E1_storm       lane 3 militia men 1 no early stop (verdict travel 57.86)
+E1_taurus      lane 1 spear   men 1 no early stop (verdict travel 51.7)
+E1_taurus      lane 2 halb    men 1 no early stop (verdict travel 51.13)
+E1_taurus      lane 3 militia men 1 STOP late  +6.8s travel 25.2 m st/slot 30/484 cause other(43ADE800->43ADE800 st 30->30)
+E1_terradon    lane 1 spear   men 10 STOP EARLY +0.4s travel 11.2 m st/slot 30/104 cause other(43ADE800->43ADE800 st 30->30)
+E1_terradon    lane 2 halb    men 10 STOP EARLY +0.1s travel 1.1 m st/slot 30/104 cause other(43ADE800->43ADE800 st 30->30)
+E1_terradon    lane 3 militia men 10 STOP EARLY +0.0s travel 2.4 m st/slot 30/104 cause other(43ADE800->43ADE800 st 30->30)
+E1_terror      lane 1 spear   men 1 STOP late  +3.2s travel 40.6 m st/slot 30/1 cause re-order
+E1_terror      lane 2 halb    men 1 STOP late  +6.7s travel 16.3 m st/slot 30/484 cause re-order
+E1_terror      lane 3 militia men 1 STOP late  +3.6s travel 50.1 m st/slot 30/484 cause re-order
+E1_varg        lane 1 spear   men 16 STOP EARLY +1.0s travel 7.2 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_varg        lane 2 halb    men 16 STOP EARLY +0.8s travel 7.0 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E1_varg        lane 3 militia men 16 STOP late  +3.0s travel 38.2 m st/slot 30/484 cause other(43ADE800->43ADE800 st 30->30)
+E1_wyvern      lane 1 spear   men 1 STOP EARLY +4.9s travel 9.5 m st/slot 41/534 cause other(43ADE470->43ADE470 st 41->41)
+E1_wyvern      lane 2 halb    men 1 no early stop (verdict travel 55.0)
+E1_wyvern      lane 3 militia men 1 STOP EARLY +1.0s travel 12.8 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_bats        lane 1 militia men 60 STOP EARLY +0.5s travel 14.0 m st/slot 30/1 cause flight-ended
+E2_bats        lane 2 spear   men 60 STOP EARLY +0.7s travel 11.2 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_bats        lane 3 halb    men 60 STOP EARLY +0.4s travel 2.0 m st/slot 30/1 cause flight-ended
+E2_bt          lane 1 militia men 1 no early stop (verdict travel 61.38)
+E2_bt          lane 2 spear   men 1 STOP late  +2.8s travel 42.0 m st/slot 16/91 cause contact-engage
+E2_bt          lane 3 halb    men 1 STOP late  +3.1s travel 41.5 m st/slot 16/91 cause re-order
+E2_carrion     lane 1 militia men 24 STOP EARLY +0.4s travel 10.3 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_carrion     lane 2 spear   men 24 STOP EARLY +0.1s travel 4.9 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_carrion     lane 3 halb    men 24 STOP EARLY +0.8s travel 3.4 m st/slot 30/1 cause contact-engage
+E2_chim        lane 1 militia men 1 no early stop (verdict travel 55.08)
+E2_chim        lane 2 spear   men 1 STOP EARLY +7.7s travel 8.0 m st/slot 16/484 cause contact-engage
+E2_chim        lane 3 halb    men 1 no early stop (verdict travel 31.81)
+E2_cock        lane 1 militia men 1 no early stop (verdict travel 49.24)
+E2_cock        lane 2 spear   men 1 STOP late  +4.4s travel 35.1 m st/slot 30/484 cause re-order
+E2_cock        lane 3 halb    men 1 STOP late  +4.4s travel 33.9 m st/slot 33/1 cause re-order
+E2_dragon      lane 1 militia men 1 STOP late  +2.8s travel 38.1 m st/slot 30/484 cause re-order
+E2_dragon      lane 2 spear   men 1 no early stop (verdict travel 51.75)
+E2_dragon      lane 3 halb    men 1 no early stop (verdict travel 43.37)
+E2_drone       lane 1 militia men 12 STOP late  +0.4s travel 16.9 m st/slot 30/90 cause other(43ADE800->43ADE800 st 30->30)
+E2_drone       lane 2 spear   men 12 STOP late  +0.0s travel 22.5 m st/slot 30/89 cause other(43ADE800->43ADE800 st 30->30)
+E2_drone       lane 3 halb    men 12 STOP late  +0.2s travel 20.1 m st/slot 30/88 cause other(43ADE800->43ADE800 st 30->30)
+E2_eagle       lane 1 militia men 1 no early stop (verdict travel 60.3)
+E2_eagle       lane 2 spear   men 1 no early stop (verdict travel 8.72)
+E2_eagle       lane 3 halb    men 1 STOP EARLY +3.6s travel 9.2 m st/slot 55/455 cause other(43ADE470->43ADE470 st 55->55)
+E2_frostwyrm   lane 1 militia men 1 STOP late  +6.7s travel 24.0 m st/slot 30/484 cause re-order
+E2_frostwyrm   lane 2 spear   men 1 no early stop (verdict travel 45.29)
+E2_frostwyrm   lane 3 halb    men 1 no early stop (verdict travel 44.94)
+E2_grif        lane 1 militia men 4 STOP late  +4.0s travel 37.9 m st/slot 30/1 cause contact-engage
+E2_grif        lane 2 spear   men 4 STOP late  +3.0s travel 29.8 m st/slot 30/1 cause contact-engage
+E2_grif        lane 3 halb    men 4 STOP late  +3.4s travel 52.6 m st/slot 16/1 cause contact-engage
+E2_hippo       lane 1 militia men 12 STOP EARLY +0.1s travel 3.6 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_hippo       lane 2 spear   men 12 STOP EARLY +0.1s travel 14.7 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_hippo       lane 3 halb    men 12 STOP EARLY +0.0s travel 0.6 m st/slot 0/1 cause other(43ADE800->43ADE800 st 0->0)
+E2_lamm        lane 1 militia men 1 STOP late  +7.0s travel 29.7 m st/slot 16/484 cause contact-engage
+E2_lamm        lane 2 spear   men 1 STOP late  +4.3s travel 30.8 m st/slot 30/484 cause re-order
+E2_lamm        lane 3 halb    men 1 STOP late  +4.4s travel 33.7 m st/slot 30/1 cause re-order
+E2_lion        lane 1 militia men 1 no early stop (verdict travel 55.0)
+E2_lion        lane 2 spear   men 1 no early stop (verdict travel 38.34)
+E2_lion        lane 3 halb    men 1 STOP late  +3.3s travel 37.3 m st/slot 30/1 cause re-order
+E2_mant        lane 1 militia men 1 no early stop (verdict travel 65.38)
+E2_mant        lane 2 spear   men 1 no early stop (verdict travel 35.4)
+E2_mant        lane 3 halb    men 1 STOP late  +3.1s travel 46.5 m st/slot 30/1 cause re-order
+E2_peg         lane 1 militia men 24 STOP late  +6.7s travel 30.3 m st/slot 16/1 cause contact-engage
+E2_peg         lane 2 spear   men 24 STOP EARLY +1.4s travel 12.3 m st/slot 30/1 cause contact-engage
+E2_peg         lane 3 halb    men 24 STOP EARLY +0.1s travel 5.7 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->0)
+E2_scream      lane 1 militia men 16 STOP EARLY +1.3s travel 7.5 m st/slot 30/91 cause other(43ADE800->43ADE800 st 30->30)
+E2_scream      lane 2 spear   men 16 STOP EARLY +0.1s travel 7.0 m st/slot 30/91 cause flight-ended
+E2_scream      lane 3 halb    men 16 STOP EARLY +0.1s travel 7.8 m st/slot 30/91 cause other(43ADE800->43ADE800 st 30->30)
+E2_sky         lane 1 militia men 12 STOP late  +2.8s travel 54.7 m st/slot 16/1 cause contact-engage
+E2_sky         lane 2 spear   men 12 no early stop (verdict travel None)
+E2_sky         lane 3 halb    men 12 STOP late  +1.7s travel 29.1 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_storm       lane 1 militia men 1 no early stop (verdict travel 56.57)
+E2_storm       lane 2 spear   men 1 no early stop (verdict travel 56.75)
+E2_storm       lane 3 halb    men 1 no early stop (verdict travel 54.57)
+E2_taurus      lane 1 militia men 1 no early stop (verdict travel 58.3)
+E2_taurus      lane 2 spear   men 1 STOP late  +3.5s travel 41.5 m st/slot 16/92 cause re-order
+E2_taurus      lane 3 halb    men 1 no early stop (verdict travel 52.99)
+E2_terradon    lane 1 militia men 10 STOP late  +0.6s travel 15.1 m st/slot 30/104 cause flight-ended
+E2_terradon    lane 2 spear   men 10 STOP EARLY +1.0s travel 1.8 m st/slot 55/456 cause flight-ended
+E2_terradon    lane 3 halb    men 10 STOP EARLY +0.1s travel 9.2 m st/slot 30/88 cause other(43ADE800->43ADE800 st 30->30)
+E2_terror      lane 1 militia men 1 no early stop (verdict travel 56.1)
+E2_terror      lane 2 spear   men 1 STOP late  +2.9s travel 39.0 m st/slot 30/1 cause re-order
+E2_terror      lane 3 halb    men 1 STOP EARLY +0.4s travel 4.1 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_varg        lane 1 militia men 16 STOP late  +3.5s travel 48.2 m st/slot 33/1 cause other(439255C8->43ADE800 st 33->0)
+E2_varg        lane 2 spear   men 16 STOP late  +4.0s travel 25.8 m st/slot 33/1 cause other(439255C8->43ADE800 st 33->30)
+E2_varg        lane 3 halb    men 16 STOP EARLY +1.1s travel 7.7 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E2_wyvern      lane 1 militia men 1 STOP late  +8.0s travel 28.6 m st/slot 16/484 cause contact-engage
+E2_wyvern      lane 2 spear   men 1 STOP EARLY +4.6s travel 6.7 m st/slot 41/534 cause other(43ADE470->43ADE470 st 41->41)
+E2_wyvern      lane 3 halb    men 1 no early stop (verdict travel 50.87)
+E3_bats        lane 1 halb    men 60 STOP EARLY +0.5s travel 5.4 m st/slot 55/489 cause flight-ended
+E3_bats        lane 2 militia men 60 STOP late  +5.9s travel 45.6 m st/slot 8/1 cause other(43ADE470->43ADE470 st 8->8)
+E3_bats        lane 3 spear   men 60 STOP EARLY +0.6s travel 5.7 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E3_bt          lane 1 halb    men 1 STOP late  +3.1s travel 41.7 m st/slot 16/90 cause contact-engage
+E3_bt          lane 2 militia men 1 no early stop (verdict travel 42.65)
+E3_bt          lane 3 spear   men 1 STOP late  +2.8s travel 38.0 m st/slot 16/89 cause contact-engage
+E3_carrion     lane 1 halb    men 24 STOP EARLY +0.3s travel 2.0 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E3_carrion     lane 2 militia men 24 STOP EARLY +1.5s travel 14.8 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E3_carrion     lane 3 spear   men 24 STOP EARLY +0.6s travel 5.4 m st/slot 0/1 cause flight-ended
+E3_chim        lane 1 halb    men 1 no early stop (verdict travel 34.52)
+E3_chim        lane 2 militia men 1 no early stop (verdict travel 55.54)
+E3_chim        lane 3 spear   men 1 no early stop (verdict travel 31.02)
+E3_cock        lane 1 halb    men 1 STOP late  +5.4s travel 20.7 m st/slot 16/1 cause contact-engage
+E3_cock        lane 2 militia men 1 STOP late  +3.4s travel 48.1 m st/slot 30/484 cause re-order
+E3_cock        lane 3 spear   men 1 STOP late  +4.2s travel 33.4 m st/slot 33/1 cause re-order
+E3_dragon      lane 1 halb    men 1 no early stop (verdict travel 52.88)
+E3_dragon      lane 2 militia men 1 no early stop (verdict travel 53.55)
+E3_dragon      lane 3 spear   men 1 no early stop (verdict travel 50.34)
+E3_drone       lane 1 halb    men 12 STOP EARLY +0.8s travel 9.5 m st/slot 30/89 cause other(43ADE800->43ADE800 st 30->30)
+E3_drone       lane 2 militia men 12 STOP EARLY +0.2s travel 1.3 m st/slot 30/90 cause other(43ADE800->43ADE800 st 30->30)
+E3_drone       lane 3 spear   men 12 STOP EARLY +0.0s travel 10.1 m st/slot 30/89 cause other(43ADE800->43ADE800 st 30->30)
+E3_eagle       lane 1 halb    men 1 STOP EARLY +4.1s travel 10.0 m st/slot 55/455 cause other(43ADE470->43ADE470 st 55->55)
+E3_eagle       lane 2 militia men 1 no early stop (verdict travel 58.93)
+E3_eagle       lane 3 spear   men 1 no early stop (verdict travel 9.07)
+E3_frostwyrm   lane 1 halb    men 1 no early stop (verdict travel 51.92)
+E3_frostwyrm   lane 2 militia men 1 STOP late  +3.9s travel 55.0 m st/slot 33/1 cause re-order
+E3_frostwyrm   lane 3 spear   men 1 STOP late  +3.1s travel 40.4 m st/slot 33/1 cause re-order
+E3_grif        lane 1 halb    men 4 STOP late  +3.5s travel 53.6 m st/slot 30/1 cause contact-engage
+E3_grif        lane 2 militia men 4 STOP late  +3.5s travel 41.0 m st/slot 16/1 cause flight-ended
+E3_grif        lane 3 spear   men 4 STOP late  +3.4s travel 29.5 m st/slot 30/1 cause contact-engage
+E3_hippo       lane 1 halb    men 12 STOP late  +0.7s travel 22.6 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E3_hippo       lane 2 militia men 12 STOP EARLY +1.0s travel 13.5 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E3_hippo       lane 3 spear   men 12 STOP EARLY +0.1s travel 7.0 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->30)
+E3_lamm        lane 1 halb    men 1 no early stop (verdict travel 30.94)
+E3_lamm        lane 2 militia men 1 no early stop (verdict travel 47.41)
+E3_lamm        lane 3 spear   men 1 STOP late  +4.4s travel 30.8 m st/slot 33/1 cause re-order
+E3_lion        lane 1 halb    men 1 STOP late  +2.2s travel 20.2 m st/slot 16/1 cause contact-engage
+E3_lion        lane 2 militia men 1 no early stop (verdict travel 53.85)
+E3_lion        lane 3 spear   men 1 no early stop (verdict travel 37.2)
+E3_mant        lane 1 halb    men 1 STOP EARLY +5.8s travel 10.9 m st/slot 30/484 cause contact-engage
+E3_mant        lane 2 militia men 1 no early stop (verdict travel 62.46)
+E3_mant        lane 3 spear   men 1 STOP late  +3.1s travel 45.6 m st/slot 33/1 cause re-order
+E3_peg         lane 1 halb    men 24 STOP EARLY +0.1s travel 8.2 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->0)
+E3_peg         lane 2 militia men 24 STOP late  +2.8s travel 30.4 m st/slot 30/1 cause contact-engage
+E3_peg         lane 3 spear   men 24 no early stop (verdict travel None)
+E3_scream      lane 1 halb    men 16 STOP EARLY +0.1s travel 4.4 m st/slot 30/89 cause other(43ADE800->43ADE800 st 30->30)
+E3_scream      lane 2 militia men 16 STOP late  +1.9s travel 16.7 m st/slot 30/91 cause other(43ADE800->43ADE800 st 30->30)
+E3_scream      lane 3 spear   men 16 STOP EARLY +0.1s travel 14.9 m st/slot 30/91 cause other(43ADE800->43ADE800 st 30->30)
+E3_sky         lane 1 halb    men 12 STOP late  +0.7s travel 17.1 m st/slot 16/1 cause contact-engage
+E3_sky         lane 2 militia men 12 STOP late  +2.3s travel 35.7 m st/slot 30/1 cause contact-engage
+E3_sky         lane 3 spear   men 12 STOP EARLY +1.4s travel 10.2 m st/slot 16/1 cause contact-engage
+E3_storm       lane 1 halb    men 1 STOP late  +2.5s travel 38.2 m st/slot 16/88 cause contact-engage
+E3_storm       lane 2 militia men 1 no early stop (verdict travel 56.9)
+E3_storm       lane 3 spear   men 1 STOP late  +3.1s travel 47.2 m st/slot 16/88 cause contact-engage
+E3_taurus      lane 1 halb    men 1 no early stop (verdict travel 51.3)
+E3_taurus      lane 2 militia men 1 no early stop (verdict travel 59.16)
+E3_taurus      lane 3 spear   men 1 no early stop (verdict travel 52.67)
+E3_terradon    lane 1 halb    men 10 STOP EARLY +0.0s travel 1.5 m st/slot 0/104 cause other(43ADE800->43ADE800 st 0->30)
+E3_terradon    lane 2 militia men 10 STOP late  +0.1s travel 16.3 m st/slot 30/104 cause other(43ADE800->43ADE800 st 30->0)
+E3_terradon    lane 3 spear   men 10 STOP late  +0.0s travel 16.3 m st/slot 30/89 cause flight-ended
+E3_terror      lane 1 halb    men 1 no early stop (verdict travel 49.24)
+E3_terror      lane 2 militia men 1 no early stop (verdict travel 53.4)
+E3_terror      lane 3 spear   men 1 STOP late  +3.2s travel 39.7 m st/slot 30/1 cause re-order
+E3_varg        lane 1 halb    men 16 STOP EARLY +1.2s travel 6.4 m st/slot 30/1 cause contact-engage
+E3_varg        lane 2 militia men 16 STOP late  +2.5s travel 30.3 m st/slot 30/1 cause other(43ADE800->439255C8 st 30->33)
+E3_varg        lane 3 spear   men 16 STOP EARLY +1.8s travel 8.2 m st/slot 30/1 cause contact-engage
+E3_wyvern      lane 1 halb    men 1 STOP late  +7.3s travel 15.2 m st/slot 16/484 cause contact-engage
+E3_wyvern      lane 2 militia men 1 STOP late  +5.1s travel 31.5 m st/slot 16/1 cause contact-engage
+E3_wyvern      lane 3 spear   men 1 STOP EARLY +0.4s travel 3.2 m st/slot 30/1 cause other(43ADE800->43ADE800 st 30->33)

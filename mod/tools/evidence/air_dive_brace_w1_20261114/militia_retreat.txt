@@ -1,0 +1,3 @@
+# retreat_old.py: target movement before touchdown on the old harness (lane: (lanes, median m, max m)); militia were never set to hold
+E {'halb': (69, 0.0, 0.2), 'militia': (69, 35.8, 45.5), 'spear': (69, 0.0, 0.2)}
+H {'halb': (35, 0.0, 0.1), 'militia': (35, 37.7, 61.8), 'spear': (35, 0.0, 0.1)}

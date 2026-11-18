@@ -1,0 +1,1 @@
+A1_dragon ld_adb_A charge wh2_main_hef_mon_star_dragon,wh2_main_hef_mon_star_dragon,wh2_main_hef_mon_star_dragon --lane-offsets=-250,-160,160 --targets=wh_main_emp_inf_spearmen_1,wh_main_emp_inf_halberdiers,wh_dlc04_emp_inf_free_company_militia_0

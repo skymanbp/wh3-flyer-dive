@@ -1,0 +1,5705 @@
+{
+ "summary": {
+  "vanilla_flying_units": 442,
+  "vanilla_dive": 335,
+  "our_flying_units": 20,
+  "our_dive": 17
+ },
+ "ours": {
+  "ld_chs_chaos_dragon_unit": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh2_main_def_mon_black_dragon"
+  },
+  "ld_hef_dragon_mage": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh2_dlc15_hef_cha_mage_fire_3"
+  },
+  "ld_vmp_bat_swarms": {
+   "entity": "wh_main_flying_fell_bat_blood",
+   "table": "ba1_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ],
+   "source": "wh_main_vmp_mon_fell_bats"
+  },
+  "ld_chs_chimera": {
+   "entity": "wh3_dlc27_nor_mon_chimera",
+   "table": "bc3b_dlc27_chimera",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh3_dlc27_nor_mon_chimera"
+  },
+  "ld_dwf_shard_dragon": {
+   "entity": "wh_dlc08_flying_chaos_frost_dragon_blood",
+   "table": "dr1b_wyrm_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh_dlc08_nor_mon_frost_wyrm_0"
+  },
+  "ld_vmp_abyssal_terror": {
+   "entity": "wh_main_flying_vargheists_blood",
+   "table": "hu8b_vargheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh_main_vmp_mon_vargheists"
+  },
+  "ld_tmb_tomb_swarms": {
+   "entity": "wh2_dlc09_tmb_flying_carrion",
+   "table": "bi1b_carrion",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ],
+   "source": "wh2_dlc09_tmb_mon_carrion_0"
+  },
+  "ld_hef_emperor_dragon": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh2_dlc15_hef_mon_star_dragon_imrik"
+  },
+  "ld_cth_vermilion_warbird": {
+   "entity": "wh3_dlc24_cth_mon_celestial_lion",
+   "table": "bc2_deathclaw",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh3_cp1_cth_mon_celestial_lion_summoned"
+  },
+  "ld_chs_warpfire_dragon": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh2_main_def_mon_black_dragon"
+  },
+  "ld_chr_galrauch": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1b_chaos_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh_dlc08_nor_mon_frost_wyrm_boss"
+  },
+  "ld_chr_melekh_the_changer": {
+   "entity": "wh3_dlc20_chs_cha_chaos_sorcerer_tzeentch_mtze_disc",
+   "table": "hu1c_wh3_dlc20_tzeentch_sorcerer_wm_disc01_staff_sword",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ],
+   "source": "wh3_dlc20_chs_cha_chaos_sorcerer_lord_tzeentch_mtze_disc"
+  },
+  "ld_chr_vraznak": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh3_dlc23_chd_cha_overseer_great_taurus"
+  },
+  "ld_chr_tchzen": {
+   "entity": "wh3_main_tze_cha_exalted_lord_of_change",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ],
+   "source": "wh3_main_tze_cha_exalted_lord_of_change_tzeentch_0"
+  },
+  "ld_chr_karavox": {
+   "entity": "wh3_main_kho_cha_exalted_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_axe_and_whip",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh3_main_kho_cha_exalted_bloodthirster_0"
+  },
+  "ld_chr_kabandha": {
+   "entity": "wh3_main_kho_mon_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_great_axe",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh3_main_kho_mon_bloodthirster_0"
+  },
+  "ld_chr_blacktoof": {
+   "entity": "wh_main_flying_wyvern_blood",
+   "table": "bi2_wyvern",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh3_dlc26_grn_cha_savage_orc_great_shaman_wyvern"
+  },
+  "ld_chr_jasperre_le_beau": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ],
+   "source": "wh_main_brt_cha_paladin_3"
+  },
+  "ld_chr_maranith": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh2_main_def_cha_dreadlord_4"
+  },
+  "ld_chr_yrellian": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ],
+   "source": "wh2_main_hef_cha_prince_4"
+  }
+ },
+ "vanilla": {
+  "wh2_dlc09_tmb_mon_carrion_0": {
+   "entity": "wh2_dlc09_tmb_flying_carrion",
+   "table": "bi1b_carrion",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc09_tmb_mon_carrion_ror": {
+   "entity": "wh2_dlc09_tmb_flying_carrion_ror",
+   "table": "bi1b_carrion",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc09_tmb_mon_fell_bats": {
+   "entity": "wh3_main_arkhan_tmb_flying_fell_bat_blood",
+   "table": "ba1_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc09_tmb_mon_morghast_archai": {
+   "entity": "wh3_dlc29_vmp_mon_morghast",
+   "table": "hu10_dlc29_morghast_archai_halberd",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc09_tmb_mon_morghast_harbingers": {
+   "entity": "wh3_dlc29_vmp_mon_morghast",
+   "table": "hu10_dlc29_morghast_harbingers_dual_swords",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cav_raven_heralds_ror_0": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_crone_5": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_sorceress_beasts_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_sorceress_death_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_beasts_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_beasts_4": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_beasts_5": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_dark_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_dark_4": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_dark_5": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_death_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_death_4": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_death_5": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_fire_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_fire_4": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_fire_5": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_shadow_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_shadow_4": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_cha_supreme_sorceress_shadow_5": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_def_mon_feral_manticore_0": {
+   "entity": "wh_dlc01_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_hef_cha_alarielle_the_radiant_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc10_nor_mon_phoenix_flamespyre_boss": {
+   "entity": "wh2_dlc10_hef_mon_phoenix_boss",
+   "table": "bi1_eagle_boss",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_cst_cav_deck_droppers_0": {
+   "entity": "wh2_dlc11_cst_mon_deck_dropper_bat",
+   "table": "ba1_drop_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_cst_cav_deck_droppers_1": {
+   "entity": "wh2_dlc11_cst_mon_deck_dropper_bat",
+   "table": "ba1_drop_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_cst_cav_deck_droppers_2": {
+   "entity": "wh2_dlc11_cst_mon_deck_dropper_bat",
+   "table": "ba1_drop_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_cst_cav_deck_droppers_ror_0": {
+   "entity": "wh2_dlc11_cst_mon_deck_dropper_bat",
+   "table": "ba1_drop_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_cst_cha_luthor_harkon_1": {
+   "entity": "wh2_dlc11_cst_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_cst_mon_fell_bats": {
+   "entity": "wh_main_flying_fell_bat_blood",
+   "table": "ba1_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc11_cst_mon_terrorgheist": {
+   "entity": "wh2_dlc11_cst_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_def_cha_lokhir_fellheart_1": {
+   "entity": "wh2_dlc11_def_black_dragon_lokhir_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_blood_dragon_lord_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_blood_dragon_lord_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_lahmian_lord_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_lahmian_lord_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_necrarch_lord_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_necrarch_lord_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_strigoi_lord_1": {
+   "entity": "wh_main_flying_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_von_carstein_lord_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc11_vmp_cha_bloodline_von_carstein_lord_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cav_ripperdactyl_riders_0": {
+   "entity": "wh2_dlc12_lzd_ripperdactyl_blood",
+   "table": "bi3_ripperdactyl",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cav_ripperdactyl_riders_0_blessed": {
+   "entity": "wh2_dlc12_lzd_ripperdactyl_blood",
+   "table": "bi3_ripperdactyl",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cav_ripperdactyl_riders_ror_0": {
+   "entity": "wh2_dlc12_lzd_ripperdactyl_blood",
+   "table": "bi3_ripperdactyl",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cav_terradon_riders_0_tlaqua": {
+   "entity": "wh2_main_lzd_terradon_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cav_terradon_riders_1_tlaqua": {
+   "entity": "wh2_main_lzd_terradon_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cav_terradon_riders_ror_0": {
+   "entity": "wh2_main_lzd_terradon_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cha_skink_chief_red_crested_2": {
+   "entity": "wh2_dlc12_lzd_ripperdactyl_hero_blood",
+   "table": "bi3_ripperdactyl",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cha_tehenhauin_2": {
+   "entity": "wh2_dlc12_lzd_ripperdactyl_hero_blood",
+   "table": "bi3_ripperdactyl",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc12_lzd_cha_tiktaqto_1": {
+   "entity": "wh2_main_lzd_terradon_hero_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc13_huntmarshall_veh_obsinite_gyrocopter_0": {
+   "entity": "wh_main_dwf_flying_gyrocopter",
+   "table": "wm_gyrocopter01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc14_brt_cha_henri_le_massif_3": {
+   "entity": "wh_main_brt_mnt_hippogryph_hero_blood",
+   "table": "bc2b_hippogryph",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc14_def_cha_high_beastmaster_2": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc14_def_cha_master_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc14_def_inf_harpies_ror_0": {
+   "entity": "wh2_main_infantry_harpies_blood_ror",
+   "table": "hu10b_harpy",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc15_grn_mon_wyvern_waaagh_0": {
+   "entity": "wh_main_flying_wyvern_blood",
+   "table": "bi2_wyvern",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_beasts_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_beasts_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_death_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_death_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_fire_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_fire_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_heavens_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_heavens_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_high_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_high_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_life_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_life_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_light_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_light_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_metal_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_metal_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_shadows_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_archmage_shadows_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_eltharion_the_grim_2": {
+   "entity": "wh_main_flying_griffon_legendary_blood",
+   "table": "bc2_griffon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_imrik_2": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_mage_fire_3": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_prince_6": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_princess_6": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_cha_teclis_2": {
+   "entity": "wh2_dlc15_hef_mon_arcane_phoenix_0",
+   "table": "bi1_dlc15_phoenix",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_inf_mistwalkers_griffon_knights_0": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_arcane_phoenix_0": {
+   "entity": "wh2_dlc15_hef_mon_arcane_phoenix_0",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_arcane_phoenix_ror_0": {
+   "entity": "wh2_dlc15_hef_mon_arcane_phoenix_0",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_black_dragon_imrik": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_black_dragon_imrik_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_forest_dragon_0": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_forest_dragon_imrik": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_forest_dragon_imrik_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_moon_dragon_imrik": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_moon_dragon_imrik_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_star_dragon_imrik": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_star_dragon_imrik_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_sun_dragon_imrik": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc15_hef_mon_sun_dragon_imrik_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_sisters_of_twilight_0": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle_sisters_of_twilight",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_sisters_of_twilight_1": {
+   "entity": "wh2_dlc16_flying_dragon_blood_360",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_spellweaver_beasts_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_spellweaver_dark_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_spellweaver_high_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_spellweaver_life_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_cha_spellweaver_shadows_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_mon_cave_bats": {
+   "entity": "wh_main_flying_fell_bat_blood",
+   "table": "ba1_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc16_wef_mon_ceithin_har_summoned": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_mon_feral_manticore": {
+   "entity": "wh_dlc01_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_mon_gwindalor_summoned": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc16_wef_mon_harpies_0": {
+   "entity": "wh_dlc05_bst_inf_harpy",
+   "table": "hu10b_harpy",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc16_wef_mon_hawks_0": {
+   "entity": "wh_dlc05_wef_hawk_blood",
+   "table": "bi1_hawk",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_dlc17_lzd_mon_coatl_0": {
+   "entity": "wh2_dlc17_lzd_mon_coatl",
+   "table": "bi4_dlc17_coatl",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_dlc17_lzd_mon_coatl_ror_0": {
+   "entity": "wh2_dlc17_lzd_mon_coatl_ror",
+   "table": "bi4_dlc17_coatl",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_def_cha_dreadlord_4": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_def_cha_dreadlord_5": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_cha_dreadlord_female_4": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_def_cha_dreadlord_female_5": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_cha_malekith_3": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_def_cha_morathi_1": {
+   "entity": "wh2_main_def_mnt_dark_pegasus_sulephet",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_cha_sorceress_dark_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_cha_sorceress_fire_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_cha_sorceress_shadow_3": {
+   "entity": "wh2_main_def_mnt_dark_pegasus",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_inf_harpies": {
+   "entity": "wh2_main_infantry_harpies_blood",
+   "table": "hu10b_harpy",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_main_def_mon_black_dragon": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_alastar_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_alastar_4": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_alastar_5": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_noble_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_prince_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_prince_4": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_prince_5": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_princess_3": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_princess_4": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_cha_princess_5": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_great_eagle": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_great_eagle_summoned": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_moon_dragon": {
+   "entity": "wh2_main_hef_mon_moon_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_phoenix_flamespyre": {
+   "entity": "wh2_main_hef_mon_phoenix",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_phoenix_frostheart": {
+   "entity": "wh2_main_hef_mon_phoenix_frostheart",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_star_dragon": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_hef_mon_sun_dragon": {
+   "entity": "wh2_main_hef_mon_sun_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cav_terradon_riders_0": {
+   "entity": "wh2_main_lzd_terradon_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cav_terradon_riders_0_blessed": {
+   "entity": "wh2_main_lzd_terradon_blessed_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cav_terradon_riders_1": {
+   "entity": "wh2_main_lzd_terradon_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cav_terradon_riders_blessed_1": {
+   "entity": "wh2_main_lzd_terradon_blessed_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cha_skink_chief_1": {
+   "entity": "wh2_main_lzd_terradon_hero_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cha_skink_priest_beasts_1": {
+   "entity": "wh2_main_lzd_terradon_hero_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_main_lzd_cha_skink_priest_heavens_1": {
+   "entity": "wh2_main_lzd_terradon_hero_blood",
+   "table": "bi3_terradon",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_pro07_emp_cha_wizard_death_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh2_twa02_wef_cha_glade_captain_2": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_twa03_def_cha_rakarth_2": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh2_twa03_def_cha_rakarth_3": {
+   "entity": "wh2_main_def_black_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_cp1_cth_mon_celestial_lion_summoned": {
+   "entity": "wh3_dlc24_cth_mon_celestial_lion",
+   "table": "bc2_deathclaw",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_cp1_tze_cha_qb_exalted_lord_of_change_boss": {
+   "entity": "wh3_main_tze_cha_exalted_lord_of_change",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc20_chs_cha_chaos_sorcerer_lord_metal_mtze_disc": {
+   "entity": "wh3_dlc20_chs_cha_chaos_sorcerer_metal_mtze_disc",
+   "table": "hu1c_wh3_dlc20_tzeentch_sorcerer_wm_disc01_staff_sword",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc20_chs_cha_chaos_sorcerer_lord_tzeentch_mtze_disc": {
+   "entity": "wh3_dlc20_chs_cha_chaos_sorcerer_tzeentch_mtze_disc",
+   "table": "hu1c_wh3_dlc20_tzeentch_sorcerer_wm_disc01_staff_sword",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc20_chs_cha_chaos_sorcerer_metal_mtze_disc": {
+   "entity": "wh3_dlc20_chs_cha_chaos_sorcerer_metal_mtze_disc",
+   "table": "hu1c_wh3_dlc20_tzeentch_sorcerer_wm_disc01_staff_sword",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc20_chs_cha_chaos_sorcerer_tzeentch_mtze_disc": {
+   "entity": "wh3_dlc20_chs_cha_chaos_sorcerer_tzeentch_mtze_disc",
+   "table": "hu1c_wh3_dlc20_tzeentch_sorcerer_wm_disc01_staff_sword",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc20_chs_cha_daemon_prince": {
+   "entity": "wh3_dlc20_chs_cha_daemon_prince",
+   "table": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc20_chs_cha_daemon_prince_mkho": {
+   "entity": "wh3_dlc20_chs_cha_daemon_prince_mkho",
+   "table": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc20_chs_cha_daemon_prince_mnur": {
+   "entity": "wh3_dlc20_chs_cha_daemon_prince_mnur",
+   "table": "hu10e_dlc20_daemon_prince_2h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc20_chs_cha_daemon_prince_msla": {
+   "entity": "wh3_dlc20_chs_cha_daemon_prince_msla",
+   "table": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc20_chs_cha_daemon_prince_mtze": {
+   "entity": "wh3_dlc20_chs_cha_daemon_prince_mtze",
+   "table": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc20_kho_cha_valkia": {
+   "entity": "wh3_dlc20_kho_cha_valkia",
+   "table": "hu16c_wh3_dlc20_valkia_spear_shield",
+   "dive": "kept: already at or past the dive rule",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc20_sla_cha_azazel": {
+   "entity": "wh3_dlc20_sla_cha_azazel",
+   "table": "hu6g_wh3_dlc20_azazel_sword",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_death_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_death_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_death_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_fire_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_fire_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_fire_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_hashut_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_hashut_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_hashut_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_metal_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_metal_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_daemonsmith_sorcerer_metal_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_drazhoath_the_ashen_bale_taurus_cinderbreath": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus_cinderbreath",
+   "table": "ox1_dlc23_taurus_cages",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_overseer_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_overseer_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_death_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_death_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_death_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_fire_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_fire_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_fire_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_hashut_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_hashut_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_hashut_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_metal_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_bale_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_metal_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_sorcerer_prophet_metal_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_zhatan_the_black_great_taurus": {
+   "entity": "wh3_dlc23_chd_mnt_great_taurus",
+   "table": "ox1_dlc23_taurus_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_cha_zhatan_the_black_lammasu": {
+   "entity": "wh3_dlc23_chd_mnt_lammasu",
+   "table": "bc2c_dlc23_lammasu_mount",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_mon_bale_taurus": {
+   "entity": "wh3_dlc23_chd_mon_bale_taurus",
+   "table": "ox1_dlc23_taurus_feral",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_mon_great_taurus": {
+   "entity": "wh3_dlc23_chd_mon_great_taurus",
+   "table": "ox1_dlc23_taurus_feral",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc23_chd_mon_lammasu": {
+   "entity": "wh3_dlc23_chd_mon_lammasu",
+   "table": "bc2c_dlc23_lammasu_feral",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_chs_cha_chaos_lord_mtze_disc": {
+   "entity": "wh3_dlc20_chs_cha_chaos_lord_hero_mtze_disc",
+   "table": "hu1c_dlc24_chaos_lord_tzeentch_wm_disc01_halberd_and_shield",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc24_chs_cha_exalted_hero_mtze_disc": {
+   "entity": "wh3_dlc20_chs_cha_chaos_lord_hero_mtze_disc",
+   "table": "hu1m_dlc24_exalted_hero_tzeentch_wm_disc01_2h_halberd",
+   "dive": "kept: animroot drop -0.09 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc24_cth_cha_astromancer_great_moon_bird": {
+   "entity": "wh3_dlc24_cth_mon_great_moon_bird",
+   "table": "bi1_dlc24_moon_bird",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_cth_cha_celestial_general_yang_celestial_lion": {
+   "entity": "wh3_dlc24_cth_mon_celestial_lion",
+   "table": "bc2_deathclaw",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_cth_cha_celestial_general_yang_longma": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_wh3_longma",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc24_cth_cha_yuan_bo_dragon": {
+   "entity": "wh3_dlc24_cth_cha_yuan_bo_dragon_blood",
+   "table": "dr04_dlc24_dragon_jade",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target"
+   ]
+  },
+  "wh3_dlc24_cth_inf_onyx_crowmen": {
+   "entity": "wh3_dlc24_cth_inf_onyx_crowmen",
+   "table": "hu22_dlc24_onyx_crowmen",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc24_cth_inf_onyx_crowmen_ror": {
+   "entity": "wh3_dlc24_cth_inf_onyx_crowmen_ror",
+   "table": "hu22_dlc24_onyx_crowmen",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc24_cth_mon_celestial_lion": {
+   "entity": "wh3_dlc24_cth_mon_celestial_lion",
+   "table": "bc2_deathclaw",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_cth_mon_great_moon_bird": {
+   "entity": "wh3_dlc24_cth_mon_great_moon_bird",
+   "table": "bi1_dlc24_moon_bird",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_tze_cha_blue_scribes": {
+   "entity": "wh3_dlc24_tze_cha_blue_scribes_rider_blood",
+   "table": "hu14_t1_dlc21_blue_scribes",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc24_tze_mon_cockatrice": {
+   "entity": "wh3_dlc22_tze_mon_cockatrice",
+   "table": "co1_dlc22_cockatrice",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_tze_mon_flamers_changebringers": {
+   "entity": "wh3_dlc24_tze_mon_flamers_changebringers_disc",
+   "table": "gh3_dlc24_flamer_wm_disc01_changebringer",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc24_tze_mon_screamers_ror": {
+   "entity": "wh3_dlc24_tze_mon_flying_screamer_ror",
+   "table": "mt1_wh3_screamers",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc25_dwf_veh_gyrocopter_1_grudge_unit": {
+   "entity": "wh_main_dwf_flying_gyrocopter",
+   "table": "wm_gyrocopter01_trollhammer",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_dwf_veh_gyrocopter_summoned_0": {
+   "entity": "wh_main_dwf_flying_gyrocopter",
+   "table": "wm_gyrocopter01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_dwf_veh_thunderbarge": {
+   "entity": "wh3_dlc25_dwf_mnt_veh_thunderbarge",
+   "table": "zeppelin01_dlc25_thunderbarge",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_dwf_veh_thunderbarge_grungni": {
+   "entity": "wh3_dlc25_dwf_mnt_veh_thunderbarge_grungni",
+   "table": "zeppelin01_dlc25_thunderbarge_grungni",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_dwf_veh_thunderbarge_grungni_mp": {
+   "entity": "wh3_dlc25_dwf_mnt_veh_thunderbarge_grungni",
+   "table": "zeppelin01_dlc25_thunderbarge_grungni",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_emp_cha_elspeth_von_draken_carmine_dragon": {
+   "entity": "wh3_dlc25_emp_mnt_carmine_dragon",
+   "table": "dr1_dragon_carmine",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc25_emp_cha_wizard_metal_pegasus": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_emp_mon_hawks_summoned": {
+   "entity": "wh_dlc05_wef_hawk_blood",
+   "table": "bi1_hawk",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_hef_mon_sun_dragon_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc25_nur_cav_plague_drones_1_ror": {
+   "entity": "wh3_main_flying_rot_fly_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc25_nur_cha_exalted_hero_chieftain_chaos_dragon": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc26_grn_cha_savage_orc_great_shaman_wyvern": {
+   "entity": "wh_main_flying_wyvern_blood",
+   "table": "bi2_wyvern",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc26_grn_mon_wyvern_summoned": {
+   "entity": "wh_main_flying_wyvern_blood",
+   "table": "bi2_wyvern",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc26_ogr_mon_blood_vultures": {
+   "entity": "wh3_dlc26_ogr_blood_vultures",
+   "table": "bi1b_carrion",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc27_chd_mon_bale_taurus_boss": {
+   "entity": "wh3_dlc27_chd_mon_bale_taurus_boss",
+   "table": "ox1_dlc23_taurus_feral",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_chd_mon_lammasu_boss": {
+   "entity": "wh3_dlc27_chd_mon_lammasu_boss",
+   "table": "bc2c_dlc23_lammasu_feral",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_chs_cha_daemon_prince_mkho_qb": {
+   "entity": "wh3_dlc20_chs_cha_daemon_prince_mkho",
+   "table": "hu10e_dlc20_daemon_prince_2h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_chs_feral_manticore_boss": {
+   "entity": "wh3_dlc27_chs_feral_manticore_boss",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_cth_mon_celestial_lion_boss": {
+   "entity": "wh3_dlc27_cth_mon_celestial_lion_boss",
+   "table": "bc2_deathclaw",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_def_mon_black_dragon_boss": {
+   "entity": "wh3_dlc27_def_mon_black_dragon_boss",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_caradryan_ashtari": {
+   "entity": "wh3_dlc27_hef_mnt_ashtari",
+   "table": "bi1_dlc15_phoenix",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_mist_mage_eagle": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_mist_mage_skycutter": {
+   "entity": "wh3_dlc27_hef_mnt_skycutter_lords",
+   "table": "sky1_dlc27_skycutter01",
+   "dive": "dive",
+   "data_cells": [
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_sea_helm_eagle": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_sea_helm_skycutter": {
+   "entity": "wh3_dlc27_hef_mnt_skycutter_lords",
+   "table": "sky1_dlc27_skycutter01",
+   "dive": "dive",
+   "data_cells": [
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_sea_lord_aislinn_dragon": {
+   "entity": "wh2_main_hef_mon_star_dragon",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_cha_sea_lord_aislinn_skycutter": {
+   "entity": "wh3_dlc27_hef_mnt_skycutter_lords",
+   "table": "sky1_dlc27_skycutter01",
+   "dive": "dive",
+   "data_cells": [
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_veh_skycutter_bolt_thrower": {
+   "entity": "wh3_dlc27_hef_mnt_skycutter_bolt",
+   "table": "sky1_dlc27_skycutter01",
+   "dive": "dive",
+   "data_cells": [
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_veh_skycutter_bows": {
+   "entity": "wh3_dlc27_hef_mnt_skycutter",
+   "table": "sky1_dlc27_skycutter01",
+   "dive": "dive",
+   "data_cells": [
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_hef_veh_skycutter_ror": {
+   "entity": "wh3_dlc27_hef_mnt_skycutter",
+   "table": "sky1_dlc27_skycutter01",
+   "dive": "dive",
+   "data_cells": [
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_nor_mon_chimera": {
+   "entity": "wh3_dlc27_nor_mon_chimera",
+   "table": "bc3b_dlc27_chimera",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_nor_mon_chimera_boss": {
+   "entity": "wh3_dlc27_nor_mon_chimera_boss",
+   "table": "bc3b_dlc27_chimera",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_nor_mon_chimera_ror": {
+   "entity": "wh3_dlc27_nor_mon_chimera",
+   "table": "bc3b_dlc27_chimera",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_sla_inf_chaos_furies_summoned": {
+   "entity": "wh3_main_infantry_sla_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc27_sla_inf_vengeful_furies_summoned": {
+   "entity": "wh3_main_infantry_sla_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc27_sla_mon_preyton": {
+   "entity": "wh3_dlc27_sla_mon_preyton",
+   "table": "bi2_dlc27_preyton",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_sla_mon_preyton_boss": {
+   "entity": "wh3_dlc27_sla_mon_preyton_boss",
+   "table": "bi2_dlc27_preyton",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_sla_mon_preyton_ror": {
+   "entity": "wh3_dlc27_sla_mon_preyton_ror",
+   "table": "bi2_dlc27_preyton",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_tmb_mon_carrion_boss": {
+   "entity": "wh3_dlc27_tmb_mon_carrion_boss",
+   "table": "bi1b_carrion",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc27_tze_mon_cockatrice_boss": {
+   "entity": "wh3_dlc27_tze_mon_cockatrice_boss",
+   "table": "co1_dlc22_cockatrice",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_chs_cav_nur_plague_drones_1_summoned": {
+   "entity": "wh3_main_flying_rot_fly_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_chs_cav_nur_plague_drones_summoned": {
+   "entity": "wh3_main_flying_rot_fly_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_emp_cha_boris_todbringer_toddy_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_emp_cha_boris_todbringer_toddy_3": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon_draught",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_tmb_cha_arkhan_dread_abyssal": {
+   "entity": "wh3_dlc29_vmp_mnt_dread_abyssal_arkhan",
+   "table": "bc3ca_dlc29_mnt_dread_abyssal",
+   "dive": "kept: already at or past the dive rule",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_dieter_helsnicht_undead_manticore": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_lahmian_vampire_hellsteed": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_mannfred_von_carstein_dread_abyssal": {
+   "entity": "wh3_dlc29_vmp_mnt_dread_abyssal_mannfred",
+   "table": "bc3ca_dlc29_mnt_dread_abyssal",
+   "dive": "kept: already at or past the dive rule",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_mannfred_von_carstein_hellsteed_mp": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_mannfred_von_carstein_zombie_dragon_mp": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_master_necromancer_undeath_hellsteed": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_nagash": {
+   "entity": "wh3_dlc29_vmp_cha_nagash",
+   "table": "hu1p_dlc29_nagash_sword_staff",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_nagash_vampire_lord_hellsteed": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_nagash_vampire_lord_zombie_dragon": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_neferata_dread_abyssal": {
+   "entity": "wh3_dlc29_vmp_mnt_dread_abyssal_neferata",
+   "table": "bc3ca_dlc29_mnt_dread_abyssal",
+   "dive": "kept: already at or past the dive rule",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_neferata_hellsteed": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_neferata_hellsteed_mp": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_neferata_zombie_dragon": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_cha_neferata_zombie_dragon_mp": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_morghast_archai": {
+   "entity": "wh3_dlc29_vmp_mon_morghast",
+   "table": "hu10_dlc29_morghast_archai_halberd",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_morghast_archai_ror": {
+   "entity": "wh3_dlc29_vmp_mon_morghast_ror",
+   "table": "hu10_dlc29_morghast_archai_halberd",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_morghast_archai_summon": {
+   "entity": "wh3_dlc29_vmp_mon_morghast",
+   "table": "hu10_dlc29_morghast_archai_halberd",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_morghast_harbingers": {
+   "entity": "wh3_dlc29_vmp_mon_morghast",
+   "table": "hu10_dlc29_morghast_harbingers_dual_swords",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_terrorgheist_summoned": {
+   "entity": "wh_main_flying_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_zombie_dragon": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_dlc29_vmp_mon_zombie_dragon_summoned": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_cth_cav_jade_longma_riders_0": {
+   "entity": "wh3_main_flying_jade_longma_blood",
+   "table": "hr1_wh3_longma",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_cth_cha_alchemist_2": {
+   "entity": "wh3_main_cth_flying_sky_lantern",
+   "table": "sj1_wh3_skylantern01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_cth_cha_dragon_blooded_shugengan_lord_yang_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_wh3_longma",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_cth_cha_dragon_blooded_shugengan_lord_yin_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_wh3_longma",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_cth_cha_iron_dragon_1": {
+   "entity": "wh3_main_cth_mon_iron_dragon_blood",
+   "table": "dr04_dragon_iron",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target"
+   ]
+  },
+  "wh3_main_cth_cha_lord_magistrate_2": {
+   "entity": "wh3_main_cth_flying_sky_lantern",
+   "table": "sj1_wh3_skylantern01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_cth_cha_storm_dragon_1": {
+   "entity": "wh3_main_cth_mon_storm_dragon_blood",
+   "table": "dr04_dragon_storm",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target"
+   ]
+  },
+  "wh3_main_cth_veh_sky_junk_0": {
+   "entity": "wh3_main_cth_flying_sky_junk",
+   "table": "sj1_wh3_skyjunk01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_cth_veh_sky_lantern_0": {
+   "entity": "wh3_main_cth_flying_sky_lantern",
+   "table": "sj1_wh3_skylantern01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_dae_cha_be_lakor_0": {
+   "entity": "wh3_main_dae_cha_be_lakor",
+   "table": "hu10_belakor",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_0": {
+   "entity": "wh3_main_dae_cha_daemon_prince",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_MP": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_khorne_0": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_2h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_khorne_MP": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_2h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_nurgle_0": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_nurgle_MP": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_slaanesh_0": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_slaanesh_MP": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_tzeentch_0": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_cha_daemon_prince_tzeentch_MP": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_dae_inf_chaos_furies_0": {
+   "entity": "wh3_main_infantry_dae_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_dae_inf_chaos_furies_summoned_0": {
+   "entity": "wh3_main_infantry_dae_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_kho_cha_exalted_bloodthirster_0": {
+   "entity": "wh3_main_kho_cha_exalted_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_axe_and_whip",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_kho_inf_chaos_furies_0": {
+   "entity": "wh3_main_infantry_kho_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_kho_mon_bloodthirster_0": {
+   "entity": "wh3_main_kho_mon_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_great_axe",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_kho_mon_bloodthirster_summoned_0": {
+   "entity": "wh3_main_kho_mon_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_great_axe",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_nur_cav_plague_drones_0": {
+   "entity": "wh3_main_flying_rot_fly_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_cav_plague_drones_1": {
+   "entity": "wh3_main_flying_rot_fly_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_cha_herald_of_nurgle_death_2": {
+   "entity": "wh3_main_flying_rot_fly_hero_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_cha_herald_of_nurgle_nurgle_2": {
+   "entity": "wh3_main_flying_rot_fly_hero_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_cha_plagueridden_death_2": {
+   "entity": "wh3_main_flying_rot_fly_hero_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_cha_plagueridden_nurgle_2": {
+   "entity": "wh3_main_flying_rot_fly_hero_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_inf_chaos_furies_0": {
+   "entity": "wh3_main_infantry_nur_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_nur_mon_rot_flies_0": {
+   "entity": "wh3_main_flying_rot_fly_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_ogr_feral_manticore_summoned": {
+   "entity": "wh3_main_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_pro_kho_inf_chaos_furies_0": {
+   "entity": "wh3_main_infantry_kho_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_pro_tze_cha_herald_of_tzeentch_tzeentch_1": {
+   "entity": "wh3_main_tze_herald_disc_blood",
+   "table": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_pro_tze_cha_herald_of_tzeentch_tzeentch_2": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_pro_tze_mon_screamers_0": {
+   "entity": "wh3_main_tze_flying_screamer",
+   "table": "mt1_wh3_screamers",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_sla_inf_chaos_furies_0": {
+   "entity": "wh3_main_infantry_sla_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_cav_doom_knights_0": {
+   "entity": "wh3_main_cavalry_tze_disc_knight_blood",
+   "table": "hu1c_wh3_chaos_wm_disc01_lance_and_shield",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_cha_exalted_lord_of_change_metal_0": {
+   "entity": "wh3_main_tze_cha_exalted_lord_of_change",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_cha_exalted_lord_of_change_tzeentch_0": {
+   "entity": "wh3_main_tze_cha_exalted_lord_of_change",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_cha_herald_of_tzeentch_metal_1": {
+   "entity": "wh3_main_tze_herald_disc_blood",
+   "table": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_cha_herald_of_tzeentch_metal_2": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_cha_herald_of_tzeentch_tzeentch_1": {
+   "entity": "wh3_main_tze_herald_disc_blood",
+   "table": "hu14_wh3_herald_of_tzeentch_wm_disc01_staff_and_book",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_cha_herald_of_tzeentch_tzeentch_2": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_cha_iridescent_horror_metal_1": {
+   "entity": "wh3_main_tze_iridescent_horror_disc_blood",
+   "table": "hu14_wh3_iridescent_horror_wm_disc01_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_cha_iridescent_horror_metal_2": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_cha_iridescent_horror_tzeentch_1": {
+   "entity": "wh3_main_tze_iridescent_horror_disc_blood",
+   "table": "hu14_wh3_iridescent_horror_wm_disc01_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_cha_iridescent_horror_tzeentch_2": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_cha_kairos_fateweaver_0": {
+   "entity": "wh3_main_tze_cha_kairos_fateweaver",
+   "table": "hu10f_wh3_fate_weaver_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_inf_chaos_furies_0": {
+   "entity": "wh3_main_infantry_tze_furies_blood",
+   "table": "hu10d_wh3_furies",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_main_tze_mon_lord_of_change_0": {
+   "entity": "wh_main_chs_lord_of_change_blood",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_mon_lord_of_change_summoned_0": {
+   "entity": "wh_main_chs_lord_of_change_blood",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_mon_screamers_0": {
+   "entity": "wh3_main_tze_flying_screamer",
+   "table": "mt1_wh3_screamers",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_main_tze_veh_burning_chariot_0": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_pro10_tze_cha_daemon_prince_of_tzeentch": {
+   "entity": "wh3_pro10_tze_cha_daemon_prince_of_tzeentch",
+   "table": "hu10e_dlc20_daemon_prince_1h_noarmoury",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_dae_cha_be_lakor_01": {
+   "entity": "wh3_main_dae_cha_be_lakor",
+   "table": "hu10_belakor",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_dae_cha_be_lakor_02": {
+   "entity": "wh3_main_dae_cha_be_lakor",
+   "table": "hu10_belakor",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_kho_cha_daemon_prince_of_khorne": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_2h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_kho_cha_exalted_bloodthirster": {
+   "entity": "wh3_main_kho_cha_exalted_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_axe_and_whip",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_kho_cha_exalted_bloodthirster_0": {
+   "entity": "wh3_main_kho_cha_exalted_bloodthirster",
+   "table": "hu10_wh3_bloodthirster_axe_and_whip",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_nur_cha_daemon_prince_of_nurgle": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_nur_cha_plagueridden_death": {
+   "entity": "wh3_main_flying_rot_fly_hero_blood",
+   "table": "in1_wh3_rot_fly",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_survival_sla_cha_daemon_prince_of_slaanesh": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_tze_cha_daemon_prince_of_tzeentch": {
+   "entity": "wh3_main_dae_cha_daemon_prince_generic",
+   "table": "hu10e_wh3_daemon_prince_1h",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_tze_cha_exalted_lord_of_change_tzeentch": {
+   "entity": "wh3_main_tze_cha_exalted_lord_of_change",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_survival_tze_cha_iridescent_horror_metal": {
+   "entity": "wh3_main_flying_tze_burning_chariot",
+   "table": "wm_wh3_burning_chariot01",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_twa07_cth_cav_jade_longma_riders_ror_0": {
+   "entity": "wh3_main_flying_jade_longma_blood",
+   "table": "hr1_wh3_longma",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_twa07_tze_cav_doom_knights_ror_0": {
+   "entity": "wh3_main_cavalry_tze_disc_knight_blood",
+   "table": "hu1c_wh3_chaos_wm_disc01_lance_and_shield",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh3_twa08_kho_mon_bloodthirster_0_ror": {
+   "entity": "wh3_twa08_kho_mon_bloodthirster_ror",
+   "table": "hu10_wh3_bloodthirster_great_axe",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh3_twa08_tze_mon_lord_of_change_0_ror": {
+   "entity": "wh_main_chs_lord_of_change_blood_ror",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_lord_10": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_lord_2": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_death_10": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_death_9": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_fire_10": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_fire_9": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_metal_10": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_metal_9": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_shadows_3": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_lord_shadows_4": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_chaos_sorcerer_shadows_3": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_exalted_hero_10": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc01_chs_cha_qb_lord_of_change_0": {
+   "entity": "wh_main_chs_lord_of_change_blood",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc03_bst_cha_malagor_the_dark_omen_0": {
+   "entity": "wh2_dlc17_bst_cha_malagor_blood",
+   "table": "hu6_malagor_flight_staff_and_sword",
+   "dive": "kept: bone 1 cancels the animroot descent: the clip moves the entity under a still mesh",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc03_bst_feral_manticore": {
+   "entity": "wh_dlc01_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc03_emp_cha_boris_todbringer_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc03_emp_cha_boris_todbringer_3": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon_draught",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc03_emp_cha_wizard_beasts_3": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc03_emp_cha_wizard_beasts_4": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc04_vmp_cha_strigoi_ghoul_king_1": {
+   "entity": "wh_main_flying_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc04_vmp_mon_devils_swartzhafen_0": {
+   "entity": "wh_main_flying_vargheists_blood",
+   "table": "hu8b_vargheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_bst_mon_harpies_0": {
+   "entity": "wh_dlc05_bst_inf_harpy",
+   "table": "hu10b_harpy",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc05_emp_cha_wizard_life_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc05_emp_cha_wizard_shadows_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc05_vmp_cha_red_duke_1": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc05_vmp_cha_red_duke_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_vmp_cha_vampire_shadows_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc05_wef_cav_hawk_riders_0": {
+   "entity": "wh_dlc05_wef_hawk_blood",
+   "table": "bi1_hawk",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc05_wef_cha_female_glade_lord_2": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_female_glade_lord_2_qb": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_female_glade_lord_3": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_glade_lord_2": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_glade_lord_3": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_spellsinger_beasts_2": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_spellsinger_life_2": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_cha_spellsinger_shadows_2": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_forest_dragon_0": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc05_wef_mon_great_eagle_0": {
+   "entity": "wh_dlc05_wef_mon_great_eagle_blood",
+   "table": "bi1_eagle",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc06_chs_cha_chaos_sorcerer_death_9": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc06_chs_cha_chaos_sorcerer_fire_9": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc06_chs_cha_chaos_sorcerer_metal_9": {
+   "entity": "wh_dlc01_mnt_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc06_chs_feral_manticore": {
+   "entity": "wh_dlc01_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc06_dwf_veh_skyhammer_0": {
+   "entity": "wh_main_dwf_flying_gyrobomber",
+   "table": "wm_gyrobomber01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc07_brt_cav_royal_hippogryph_knights_0": {
+   "entity": "wh_dlc07_brt_mnt_hippogryph_blood",
+   "table": "bc2b_hippogryph",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc07_brt_cav_royal_pegasus_knights_0": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc07_brt_cha_alberic_bordeleaux_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc07_brt_cha_alberic_bordeleaux_3": {
+   "entity": "wh_main_brt_mnt_hippogryph_hero_blood",
+   "table": "bc2b_hippogryph",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc07_brt_cha_prophetess_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc07_brt_cha_prophetess_beasts_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc07_brt_cha_prophetess_heavens_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_dlc08_chs_cha_chaos_lord_2_qb": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_nor_cha_arzik_0": {
+   "entity": "wh_main_chs_lord_of_change_blood",
+   "table": "hu10c_exalted_lord_of_change_staff",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_nor_cha_kihar_0": {
+   "entity": "wh_main_flying_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_nor_feral_manticore": {
+   "entity": "wh_dlc01_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_nor_mon_frost_wyrm_0": {
+   "entity": "wh_dlc08_flying_chaos_frost_dragon_blood",
+   "table": "dr1b_wyrm_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_nor_mon_frost_wyrm_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1b_chaos_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_nor_mon_frost_wyrm_ror_0": {
+   "entity": "wh_dlc08_flying_chaos_frost_dragon_blood",
+   "table": "dr1b_chaos_dragon",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_vmp_mon_terrorgheist_boss": {
+   "entity": "wh_dlc08_vmp_mon_terrorgheist_boss",
+   "table": "bi2_terrorgheist_boss",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_commence_run",
+    "locomotion_constants"
+   ]
+  },
+  "wh_dlc08_wef_forest_dragon_boss": {
+   "entity": "wh_main_flying_dragon_blood_boss",
+   "table": "dr1_dragon_boss",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_brt_cav_pegasus_knights": {
+   "entity": "wh_main_flying_pegasus_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_brt_cha_king_louen_leoncoeur_1": {
+   "entity": "wh_main_brt_mnt_hippogryph_beaquis_blood",
+   "table": "bc2b_hippogryph",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_brt_cha_king_louen_leoncoeur_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_brt_cha_king_louen_leoncoeur_4": {
+   "entity": "wh_main_brt_mnt_hippogryph_hero_blood",
+   "table": "bc2b_hippogryph",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_brt_cha_lord_2": {
+   "entity": "wh_main_brt_mnt_hippogryph_hero_blood",
+   "table": "bc2b_hippogryph",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_brt_cha_lord_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_brt_cha_paladin_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_bst_feral_manticore_summoned": {
+   "entity": "wh_dlc01_flying_manticore_blood",
+   "table": "bc3_manticore",
+   "dive": "dive",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_chs_cha_lord_of_change_0": {
+   "entity": "wh_main_chs_lord_of_change_blood",
+   "table": "hu10c_lord_of_change_staff_sarthorael",
+   "dive": "kept: animroot drop -0.00 m < 1.0 m: the descent is not clip-driven",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_dwf_veh_gyrobomber": {
+   "entity": "wh_main_dwf_flying_gyrobomber",
+   "table": "wm_gyrobomber01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_dwf_veh_gyrocopter_0": {
+   "entity": "wh_main_dwf_flying_gyrocopter",
+   "table": "wm_gyrocopter01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_dwf_veh_gyrocopter_1": {
+   "entity": "wh_main_dwf_flying_gyrocopter",
+   "table": "wm_gyrocopter01",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_balthasar_gelt_1": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_captain_3": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_general_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_general_3": {
+   "entity": "wh_main_flying_griffon_blood",
+   "table": "bc2_griffon_draught",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_emp_cha_karl_franz_1": {
+   "entity": "wh_main_flying_griffon_legendary_blood",
+   "table": "bc2_deathclaw",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_emp_cha_karl_franz_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_wizard_fire_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_wizard_heavens_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_emp_cha_wizard_light_2": {
+   "entity": "wh_main_flying_pegasus_hero_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_grn_cha_azhag_the_slaughterer_1": {
+   "entity": "wh_main_flying_wyvern_blood",
+   "table": "bi2_wyvern",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_grn_cha_orc_warboss_1": {
+   "entity": "wh_main_flying_wyvern_blood",
+   "table": "bi2_wyvern",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_vmp_cha_mannfred_von_carstein_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_vmp_cha_mannfred_von_carstein_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_vmp_cha_master_necromancer_4": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_vmp_cha_vampire_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_vmp_cha_vampire_lord_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_vmp_cha_vampire_lord_3": {
+   "entity": "wh3_dlc29_flying_zombie_dragon_blood",
+   "table": "dr1_dragon_zombie",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_vmp_mon_fell_bats": {
+   "entity": "wh_main_flying_fell_bat_blood",
+   "table": "ba1_bat",
+   "dive": "kept: table has no FLY_CHARGE_LAND slot",
+   "data_cells": [
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  },
+  "wh_main_vmp_mon_terrorgheist": {
+   "entity": "wh_main_flying_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_vmp_mon_terrorgheist_qb": {
+   "entity": "wh_main_flying_terrorgheist_blood",
+   "table": "bi2_terrorgheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_main_vmp_mon_vargheists": {
+   "entity": "wh_main_flying_vargheists_blood",
+   "table": "hu8b_vargheist",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed",
+    "locomotion_constants"
+   ]
+  },
+  "wh_pro02_vmp_cha_isabella_von_carstein_2": {
+   "entity": "wh_main_vmp_cavalry_flying_hellsteed_blood",
+   "table": "hr1_pegasus",
+   "dive": "dive",
+   "data_cells": [
+    "acceleration",
+    "charge_distance_adopt_charge_pose",
+    "charge_distance_commence_run",
+    "charge_distance_pick_target",
+    "flying_charge_speed"
+   ]
+  }
+ }
+}

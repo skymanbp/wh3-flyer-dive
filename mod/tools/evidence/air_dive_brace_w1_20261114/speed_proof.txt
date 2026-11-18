@@ -1,0 +1,16 @@
+S1x1_dragon  PASS SPEED 1 (no file) wall 129.0s  probe 10.0/model-s (span 87s)  entity_read 5.00 ticks/model-s (437)  early stops 0  entity_read problems 0
+    v_td 14.99 travel 69.64 stopped False | v_td 14.74 travel 51.93 stopped False | v_td 13.71 travel 52.6 stopped False
+S1x1_grif    PASS SPEED 1 (no file) wall 136.3s  probe 40.0/model-s (span 90s)  entity_read 5.00 ticks/model-s (451)  early stops 0  entity_read problems 0
+    v_td None travel None stopped None | v_td None travel None stopped None | v_td None travel None stopped None
+S1x2_dragon  PASS SPEED 1 (no file) wall 130.0s  probe 10.0/model-s (span 87s)  entity_read 5.00 ticks/model-s (436)  early stops 0  entity_read problems 0
+    v_td 14.84 travel 66.63 stopped False | v_td 14.64 travel 51.59 stopped False | v_td 14.9 travel 67.23 stopped False
+S1x2_grif    PASS SPEED 1 (no file) wall 129.0s  probe 40.0/model-s (span 88s)  entity_read 5.00 ticks/model-s (440)  early stops 0  entity_read problems 0
+    v_td None travel None stopped None | v_td None travel None stopped None | v_td None travel None stopped None
+S4x1_dragon  PASS SPEED 4 set  wall 78.7s  probe 10.0/model-s (span 131s)  entity_read 5.00 ticks/model-s (655)  early stops 1  entity_read problems 0
+    v_td 14.99 travel 9.63 stopped True | v_td 14.81 travel 49.41 stopped False | v_td 14.6 travel 48.84 stopped False
+S4x1_grif    PASS SPEED 4 set  wall 73.6s  probe 40.0/model-s (span 102s)  entity_read 5.00 ticks/model-s (508)  early stops 0  entity_read problems 0
+    v_td None travel None stopped None | v_td None travel None stopped None | v_td None travel None stopped None
+S4x2_dragon  PASS SPEED 4 set  wall 68.6s  probe 10.0/model-s (span 104s)  entity_read 5.00 ticks/model-s (521)  early stops 2  entity_read problems 0
+    v_td 14.81 travel 51.18 stopped False | v_td 14.47 travel 51.64 stopped False | v_td 14.78 travel 9.22 stopped True
+S4x2_grif    PASS SPEED 4 set  wall 67.9s  probe 40.0/model-s (span 101s)  entity_read 5.00 ticks/model-s (505)  early stops 0  entity_read problems 0
+    v_td None travel None stopped None | v_td None travel None stopped None | v_td None travel None stopped None

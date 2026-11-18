@@ -1,0 +1,78 @@
+A1_dragon      lane 1 spear   men 1 no early stop (verdict travel 50.42)
+A1_dragon      lane 2 halb    men 1 STOP +3.0s travel 41.7 m st/slot 30/1 order 43ADE800->43AED8C8
+A1_dragon      lane 3 militia men 1 no early stop (verdict travel 54.31)
+A1_frostwyrm   lane 1 spear   men 1 no early stop (verdict travel 50.24)
+A1_frostwyrm   lane 2 halb    men 1 no early stop (verdict travel 53.72)
+A1_frostwyrm   lane 3 militia men 1 STOP +3.2s travel 43.7 m st/slot 30/484 order 43ADE800->43AED8C8
+A1_storm       lane 1 spear   men 1 STOP +5.1s travel 37.8 m st/slot 16/88 order 43AED8C8->43ADE470
+A1_storm       lane 2 halb    men 1 no early stop (verdict travel 57.35)
+A1_storm       lane 3 militia men 1 STOP +0.1s travel 1.7 m st/slot 0/89 order 43ADE800->43ADE800
+
+== A1_dragon lane 2 wh2_main_hef_mon_star_dragon -> halb  touchdown 52.5s  brake 55.5s (+3.0)  travel 41.7 m
+     54.9 st 30 sl   1 tk  7 v 14.23 1c8  14.23 238  14.69 23c  14.23 fm4 goal  20.1m g7  20.1m order CHG tgt 0 ab0 0 324 0 N n6 15 front 9 braced 1/18 immov 0 bcmax 5.4 react 18 near 0.8
+     55.0 st 30 sl   1 tk  7 v 14.04 1c8  14.05 238  14.23 23c  14.05 fm4 goal  18.7m g7  18.7m order CHG tgt 0 ab0 0 324 0 N n6 17 front 11 braced 1/18 immov 0 bcmax 5.4 react 18 near 0.6
+     55.1 st 30 sl   1 tk  7 v 14.13 1c8  14.14 238  14.05 23c  14.14 fm4 goal  17.3m g7  17.3m order CHG tgt 0 ab0 0 324 0 N n6 17 front 8 braced 1/18 immov 0 bcmax 5.4 react 18 near 0.3
+     55.2 st 30 sl   1 tk  7 v 14.42 1c8  14.42 238  14.14 23c  14.42 fm4 goal  15.9m g7  15.9m order CHG tgt 0 ab0 0 324 0 N n6 15 front 7 braced 1/18 immov 0 bcmax 5.4 react 18 near 1.2
+     55.3 st 30 sl   1 tk  7 v 14.61 1c8  14.61 238  14.42 23c  14.61 fm4 goal  14.4m g7  14.4m order CHG tgt B74B76C0 ab0 0 324 0 N n6 14 front 6 braced 0/17 immov 0 bcmax 1.0 react 17 near 1.2
+     55.4 st 30 sl   1 tk  7 v 14.87 1c8  14.88 238  14.61 23c  14.88 fm4 goal  12.9m g7  12.9m order CHG tgt B74B76C0 ab0 0 324 0 N n6 12 front 3 braced 0/18 immov 0 bcmax 1.0 react 18 near 0.4
+ <-  55.5 st 16 sl   1 tk  7 v  6.50 1c8   6.50 238  14.88 23c   6.50 fm4 goal  20.1m g7  20.1m order 43AED8C8 tgt 43219F90 ab0 0 324 0 N n6 11 front 2 braced 0/18 immov 0 bcmax 1.0 react 18 near 0.5
+     55.6 st 16 sl   1 tk  7 v  3.50 1c8   3.50 238   6.50 23c   3.50 fm4 goal  20.4m g7  20.4m order 43AED8C8 tgt 43219F90 ab0 0 324 0 N n6 10 front 1 braced 0/18 immov 0 bcmax 1.0 react 18 near 0.6
+     55.7 st 16 sl   1 tk  7 v  0.98 1c8   0.98 238   3.50 23c   0.98 fm4 goal  20.5m g7  20.5m order 43AED8C8 tgt 43219F90 ab0 0 324 0 N n6 10 front 1 braced 0/18 immov 0 bcmax 1.0 react 18 near 0.6
+     55.8 st  8 sl   1 tk  7 v  1.36 1c8   1.37 238   0.98 23c   1.37 fm4 goal  20.6m g7  20.6m order 43AED8C8 tgt 43219F90 ab0 0 324 0 N n6 10 front 1 braced 0/16 immov 0 bcmax 1.0 react 16 near 0.7
+     55.9 st  8 sl   1 tk  7 v  1.75 1c8   1.75 238   1.37 23c   1.75 fm4 goal  20.7m g7  20.7m order 43AED8C8 tgt 43219F90 ab0 0 324 0 N n6 10 front 1 braced 0/16 immov 0 bcmax 1.0 react 16 near 0.8
+     56.0 st 30 sl   1 tk  7 v  2.34 1c8   2.35 238   1.75 23c   2.35 fm0 goal 100.1m g7  20.8m order CHG tgt B74B76C0 ab0 0 324 0 N n6 9 front 1 braced 0/16 immov 0 bcmax 1.0 react 16 near 1.0
+     56.1 st 30 sl   1 tk  7 v  2.94 1c8   2.94 238   2.35 23c   2.94 fm4 goal  28.0m g7  28.0m order CHG tgt B74B76C0 ab0 0 324 0 N n6 9 front 1 braced 0/16 immov 0 bcmax 1.0 react 16 near 0.8
+     56.2 st 30 sl   1 tk  7 v  3.53 1c8   3.53 238   2.94 23c   3.53 fm4 goal  27.9m g7  27.9m order CHG tgt B74B76C0 ab0 0 324 0 N n6 9 front 1 braced 0/16 immov 0 bcmax 1.0 react 16 near 0.5
+   R 56000 3 1003 B77C0AC0 000000014307B700 8 1.46 -0.97 4 0 66048 41180000 00007FF4E696FA60 1 00B7074301000000C00A7CB700000000B9FA96E6F47F000090FB96E6F47F0000F00D7CB70000000020FB96E6F47F000000000000000000
+== A1_frostwyrm lane 3 wh_dlc08_nor_mon_frost_wyrm_0 -> militia  touchdown 72.3s  brake 75.5s (+3.2)  travel 43.7 m
+     74.9 st 30 sl 484 tk 25 v 13.69 1c8  13.69 238  13.62 23c  13.69 fm4 goal  14.0m g7  14.0m order CHG tgt 0 ab0 0 324 0 N n6 10 front 5 braced 5/13 immov 0 bcmax 2.7 react 13 near 1.3
+     75.0 st 30 sl 484 tk 26 v 13.84 1c8  13.84 238  13.69 23c  13.84 fm4 goal  12.6m g7  12.6m order CHG tgt 0 ab0 0 324 0 N n6 10 front 3 braced 5/14 immov 0 bcmax 2.7 react 14 near 0.1
+     75.1 st 30 sl 484 tk 27 v 13.73 1c8  13.73 238  13.84 23c  13.73 fm4 goal  11.2m g7  11.2m order CHG tgt 0 ab0 0 324 0 N n6 10 front 2 braced 5/13 immov 0 bcmax 2.7 react 13 near 1.4
+     75.2 st 30 sl 484 tk 28 v 13.46 1c8  13.46 238  13.73 23c  13.46 fm4 goal   9.9m g7   9.9m order CHG tgt 0 ab0 0 324 0 N n6 7 front 2 braced 5/13 immov 0 bcmax 2.7 react 13 near 1.8
+     75.3 st 30 sl 484 tk 29 v 13.14 1c8  13.14 238  13.46 23c  13.14 fm4 goal   8.6m g7   8.6m order CHG tgt 0 ab0 0 324 0 N n6 7 front 2 braced 5/12 immov 0 bcmax 2.7 react 12 near 2.5
+     75.4 st 30 sl 484 tk 30 v 12.82 1c8  12.81 238  13.14 23c  12.81 fm4 goal   7.3m g7   7.3m order CHG tgt 0 ab0 0 324 0 N n6 6 front 3 braced 5/13 immov 0 bcmax 2.7 react 13 near 1.6
+ <-  75.5 st 16 sl 484 tk 31 v  6.50 1c8   6.50 238  12.81 23c   6.50 fm4 goal  21.6m g7  21.6m order 43AED8C8 tgt C2E80554 ab0 0 324 0 N n6 6 front 3 braced 4/11 immov 0 bcmax 2.7 react 11 near 1.3
+     75.6 st 16 sl 484 tk 32 v  3.50 1c8   3.50 238   6.50 23c   3.50 fm4 goal  21.9m g7  21.9m order 43AED8C8 tgt C2E80554 ab0 0 324 0 N n6 5 front 3 braced 4/10 immov 0 bcmax 2.7 react 10 near 1.2
+     75.7 st 16 sl 484 tk 33 v  0.99 1c8   0.99 238   3.50 23c   0.99 fm4 goal  22.0m g7  22.0m order 43AED8C8 tgt C2E80554 ab0 0 324 0 N n6 5 front 3 braced 4/10 immov 0 bcmax 2.7 react 10 near 1.2
+     75.8 st  8 sl 484 tk 34 v  1.29 1c8   1.30 238   0.99 23c   1.30 fm4 goal  22.1m g7  22.1m order 43AED8C8 tgt C2E80554 ab0 0 324 0 N n6 4 front 2 braced 4/10 immov 0 bcmax 2.7 react 10 near 1.3
+     75.9 st  8 sl 484 tk 35 v  1.77 1c8   1.77 238   1.30 23c   1.77 fm4 goal  21.3m g7  21.3m order 43AED8C8 tgt C2E8DFCD ab0 0 324 0 N n6 4 front 1 braced 4/10 immov 0 bcmax 2.7 react 10 near 1.3
+     76.0 st  8 sl 484 tk 36 v  2.09 1c8   2.09 238   1.77 23c   2.09 fm4 goal  21.3m g7  21.3m order 43AED8C8 tgt C2E8DFCD ab0 0 324 0 N n6 4 front 1 braced 4/10 immov 0 bcmax 2.7 react 10 near 1.4
+     76.1 st  8 sl 484 tk 37 v  2.43 1c8   2.43 238   2.09 23c   2.43 fm4 goal  21.4m g7  21.4m order 43AED8C8 tgt C2E8DFCD ab0 0 324 0 N n6 4 front 1 braced 2/8 immov 0 bcmax 2.7 react 8 near 1.6
+     76.2 st  8 sl 484 tk 38 v  2.78 1c8   2.78 238   2.43 23c   2.78 fm4 goal  21.3m g7  21.3m order 43AED8C8 tgt C2E8DFCD ab0 0 324 0 N n6 4 front 0 braced 1/8 immov 0 bcmax 2.7 react 7 near 1.9
+   R 76500 7 1004 B2D3C370 000000014307B700 16 -3.00 -1.87 4 0 66048 41180000 00007FF4C3AFFA60 484 00B707430100000070C3D3B200000000B9FAAFC3F47F000090FBAFC3F47F0000A0C6D3B20000000020FBAFC3F47F00000000000000
+== A1_storm lane 1 wh3_main_cth_cha_storm_dragon_1 -> spear  touchdown 30.6s  brake 35.7s (+5.1)  travel 37.8 m
+     35.1 st 16 sl  88 tk 27 v  6.67 1c8   6.67 238   6.46 23c   6.67 fm4 goal  21.0m g7  21.0m order 43AED8C8 tgt 43731665 ab0 0 324 0 N n6 13 front 7 braced 0/18 immov 0 bcmax 1.0 react 18 near 2.0
+     35.2 st 16 sl  88 tk 27 v  6.37 1c8   6.37 238   6.67 23c   6.37 fm4 goal  24.3m g7  24.3m order 43AED8C8 tgt 43760F58 ab0 0 324 0 N n6 10 front 6 braced 0/18 immov 0 bcmax 1.0 react 18 near 1.9
+     35.3 st 16 sl  88 tk 27 v  6.71 1c8   6.71 238   6.37 23c   6.71 fm4 goal  23.7m g7  23.7m order 43AED8C8 tgt 43760F58 ab0 0 324 0 N n6 9 front 5 braced 0/18 immov 0 bcmax 1.0 react 18 near 2.0
+     35.4 st 16 sl  88 tk 27 v  6.73 1c8   6.73 238   6.71 23c   6.73 fm4 goal  23.0m g7  23.0m order 43AED8C8 tgt 43760F58 ab0 0 324 0 N n6 9 front 4 braced 0/18 immov 0 bcmax 1.0 react 18 near 1.5
+     35.5 st 16 sl  88 tk 27 v  6.75 1c8   6.76 238   6.73 23c   6.76 fm4 goal  22.3m g7  22.3m order 43AED8C8 tgt 43760F58 ab0 0 324 0 N n6 9 front 4 braced 0/18 immov 0 bcmax 1.0 react 18 near 0.8
+     35.6 st 16 sl  88 tk 27 v  6.84 1c8   6.84 238   6.76 23c   6.84 fm4 goal  21.6m g7  21.6m order 43AED8C8 tgt 43760F58 ab0 0 324 0 N n6 9 front 4 braced 0/17 immov 0 bcmax 1.0 react 17 near 0.3
+ <-  35.7 st 55 sl 454 tk  0 v  3.37 1c8   3.37 238   6.84 23c   3.37 fm0 goal  21.3m g7  21.3m order MEL tgt B349B0E0 ab0 0 324 0 N n6 9 front 3 braced 0/17 immov 0 bcmax 1.0 react 17 near 0.4
+     35.8 st 55 sl 454 tk  1 v  0.02 1c8   0.00 238   3.37 23c   0.00 fm0 goal  21.3m g7  21.3m order MEL tgt B349B0E0 ab0 0 324 0 N n6 9 front 0 braced 0/17 immov 0 bcmax 1.0 react 17 near 0.4
+     35.9 st 55 sl 454 tk  2 v  2.19 1c8   2.05 238   0.00 23c   2.05 fm0 goal  21.1m g7  21.1m order MEL tgt B349B0E0 ab0 0 324 0 N n6 9 front 3 braced 0/17 immov 0 bcmax 1.0 react 17 near 0.6
+     36.0 st 55 sl 454 tk  3 v  8.81 1c8   8.76 238   2.05 23c   8.76 fm0 goal  20.2m g7  20.2m order MEL tgt B349B0E0 ab0 0 324 0 N n6 7 front 3 braced 2/18 immov 0 bcmax 5.4 react 17 near 1.4
+     36.1 st 55 sl 454 tk  4 v 11.27 1c8  11.26 238   8.76 23c  11.26 fm0 goal  19.1m g7  19.1m order MEL tgt B349B0E0 ab0 0 324 0 N n6 7 front 3 braced 3/15 immov 0 bcmax 5.4 react 12 near 2.5
+     36.2 st 55 sl 454 tk  5 v 10.88 1c8  10.86 238  11.26 23c  10.86 fm0 goal  18.0m g7  18.0m order MEL tgt B31F3FB0 ab0 0 324 1 N n6 5 front 3 braced 4/11 immov 0 bcmax 5.4 react 8 near 2.5
+     36.3 st 55 sl 454 tk  6 v 10.84 1c8  10.72 238  10.86 23c  10.72 fm0 goal  16.9m g7  16.9m order MEL tgt B37E06D0 ab0 0 324 1 N n6 5 front 3 braced 3/11 immov 0 bcmax 5.4 react 8 near 2.4
+     36.4 st 55 sl 454 tk  7 v 10.54 1c8  10.16 238  10.72 23c  10.16 fm0 goal  15.9m g7  15.9m order MEL tgt B349B0E0 ab0 0 324 1 N n6 5 front 3 braced 5/10 immov 0 bcmax 5.4 react 8 near 2.3
+   O 34400 33 1002 B37495B0 0000000143076EC0 8 -3.70 0.30 4 0 1131528064 1158555264 88 C06E07430100000000000000000000000000000000000000000000000000000080F9ADC8F47F0000589A74B3000000004F66F84201000000589A74
+   O 34800 35 1002 B37495B0 0000000143076EC0 16 -3.26 4.27 4 0 1131615872 1158554112 88 C06E07430100000000000000000000000000000000000000000000000000000080F9BFF5F47F0000589A74B3000000004F66F84201000000589A7
+   O 35200 36 1002 B37495B0 0000000143076EC0 16 -1.03 6.59 4 0 1131810688 1158552448 88 C06E07430100000000000000000000000000000000000000000000000000000080F92AE4F47F0000589A74B3000000004F66F84201000000589A7
+   M 35700 0 1002 B37495B0 0000000143075EBD 16 -0.07 6.84 4 0 1 0 88 BD5E074301000000000000000000000021FD084301000000FFC1DC42000000000000000000000000589A74B3000000008861F84201000000589A74B30000000002000000
+   M 36200 1 1002 B37495B0 0000000143075EBD 55 -0.49 11.26 0 0 0 0 454 BD5E074301000000684A1FB3000000000000000000000000B03F1FB300000000B03F1FB300000000B03F1FB300000000DEDD054301000000B09574B300000000B03F1F
+   M 36300 2 1002 B37495B0 0000000143075EBD 55 0.38 10.87 0 0 0 0 454 BD5E07430100000000000041000000000000000000000000F00C000000000000D0067EB300000000D0067EB300000000E412094301000000B09574B3000000000000000
+   M 36500 3 1002 B37495B0 0000000143075EBD 55 2.69 10.19 0 0 0 0 454 BD5E07430100000000000041000000000000000000000000F00C000000000000A04886C100000000A04886C100000000E412094301000000B09574B3000000000700000
+   M 36700 4 1002 B37495B0 0000000143075EBD 55 3.31 8.19 0 0 0 0 454 BD5E07430100000000000041000000000000000000000000F00C00000000000060535EB30000000060535EB300000000E412094301000000B09574B30000000002000000
+== A1_storm lane 3 wh3_main_cth_cha_storm_dragon_1 -> militia  touchdown 70.7s  brake 70.8s (+0.1)  travel 1.7 m
+     70.6 st 30 sl  89 tk 60 v 17.00 1c8  17.00 238  17.00 23c  17.00 fm4 goal  48.1m g7  48.1m order CHG tgt B32DF280 ab0 0 324 0
+     70.7 st  0 sl  89 tk 60 v 12.49 1c8  12.49 238   0.00 23c  12.49 fm4 goal  46.8m g7  46.8m order CHG tgt B32DF280 ab0 0 324 0 N n6 0 front 0 braced 22/23 immov 0 bcmax 2.7 react 1 near 6.3
+ <-  70.8 st 30 sl  89 tk 60 v  9.28 1c8   9.28 238  12.49 23c   9.28 fm0 goal  45.9m g7  45.9m order CHG tgt B32DF280 ab0 2 324 0 N n6 0 front 0 braced 25/26 immov 0 bcmax 2.7 react 5 near 6.3
+     70.9 st 30 sl  89 tk 60 v  6.15 1c8   6.16 238   9.28 23c   6.16 fm0 goal  45.3m g7  45.3m order CHG tgt B32DF280 ab0 2 324 0 N n6 1 front 1 braced 34/35 immov 0 bcmax 2.7 react 7 near 6.0
+     71.0 st 30 sl  89 tk 60 v  3.05 1c8   3.05 238   6.16 23c   3.05 fm0 goal  45.0m g7  45.0m order MEL tgt B37A70F0 ab0 2 324 1 N n6 1 front 1 braced 36/36 immov 0 bcmax 2.7 react 6 near 5.7
+     71.1 st  8 sl  89 tk 60 v  2.02 1c8   0.00 238   3.05 23c   2.02 fm0 goal  11.7m g7  45.1m order MEL tgt B37A70F0 ab0 1 324 1 N n6 1 front 0 braced 36/36 immov 0 bcmax 2.7 react 6 near 5.9
+     71.2 st 55 sl 456 tk  0 v  1.00 1c8   0.00 238   2.02 23c   0.00 fm0 goal  11.6m g7  45.2m order MEL tgt B37A70F0 ab0 0 324 1 N n6 0 front 0 braced 33/34 immov 0 bcmax 2.7 react 7 near 6.0
+     71.3 st 55 sl 456 tk  1 v  0.00 1c8   0.00 238   0.00 23c   0.00 fm0 goal  11.6m g7  45.2m order MEL tgt B37A70F0 ab0 0 324 1 N n6 0 front 0 braced 30/34 immov 0 bcmax 2.7 react 7 near 6.0
+     71.4 st 55 sl 456 tk  2 v  0.00 1c8   0.00 238   0.00 23c   0.00 fm0 goal  11.6m g7  45.2m order MEL tgt B37A70F0 ab0 0 324 1 N n6 0 front 0 braced 28/34 immov 0 bcmax 2.7 react 7 near 6.0
+     71.5 st 55 sl 456 tk  3 v  0.00 1c8   0.00 238   0.00 23c   0.00 fm0 goal  11.6m g7  45.2m order MEL tgt B37A70F0 ab0 0 324 1 N n6 0 front 0 braced 27/34 immov 0 bcmax 2.7 react 7 near 6.0
+   M 71000 10 1004 B38C1EA0 0000000143075EBD 30 -0.18 -6.15 0 0 0 0 89 BD5E074301000000A87B7AB3000000000000000000000000F00C000000000000F0707AB300000000F0707AB300000000E412094301000000A01E8CB300000000030000
+   R 71100 33 1004 B38C1EA0 00000000DC7F00BF 30 -0.10 -3.05 0 0 17120 40D00096 00007FF4E42AF9C8 89 BF007FDC000000000000000000000000D0218CB300000000806585E400000000C4960843010000007E982AC35F0D0F4598ECF0C200

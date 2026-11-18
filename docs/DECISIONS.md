@@ -1,0 +1,210 @@
+# Decisions
+
+Rulings by the mod's owner, oldest first. A ruling is quoted in the owner's own words where one
+was given. An entry marked *assessment* is the maintainer's answer to a question the owner
+asked, not a ruling; it stands until the owner says otherwise.
+
+Two parts:
+
+* **E1–E8, before 2026-11-17.** Made while the mod was still built inside the Lore Disasters
+  repository. Copied here word for word from that repository's ledger (in Chinese, as written),
+  so this file is complete on its own. The old section numbers are kept in each heading because
+  the code comments and `docs/HISTORY.md` still cite them.
+* **D1 onward, from 2026-11-17.** Written here.
+
+Old number → entry here: §C8-45 item 3 → E1, §C8-57 → E2, §C8-58 → E3, §C8-59 → E4, §C8-60 → E5,
+§C8-61 → E6, §C8-78 → E7, §C8-88 → E8, §C8-112 → D1–D5. A citation of the form `§C11 <NAME>`
+points at the section of that name in `docs/HISTORY.md`; "ARCHITECTURE「飞兽俯冲统一规格」" is
+`docs/SPEC.md`.
+
+## Before 2026-11-17 (imported)
+
+### E1 · 空军俯冲冲锋：做换动作的完整版（原 §C8-45 第 3 条，2026-11-09 用户裁定）
+
+> 原条目另有三条与飞行模组无关（兵模数量、军队容量、递增攻势），留在主模组的台账里，这里只收第 3 条。
+
+空军俯冲冲锋：直接做换动作的完整版——逐个飞行骨架换上带前向位移的空对地冲锋动作（动画表 `FLY_CHARGE_AIR_TO_GROUND` 103 号、`FLY_CHARGE_LAND` 104 号槽位），配合 `battle_entities.flying_charge_speed` 等数据调整；做成本模组内容，并可另出独立小模组。调研报告 `research_1109/air_dive_charge.md`。承载步 ccm 125。
+
+### E2 · 近战中起飞：引擎补丁给全体飞行单位（2026-11-12 用户裁定）（原 §C8-57）
+
+> 编号说明：integrate-1113（2026-11-13）合并时改号，车道 `air-dive-takeoff-w1 / air-dive-mp-dive-w1` 原记 §C8-49；该车道的提交说明与冻结证据仍写旧号。
+
+1. 用户原话（经协调者转达）：起飞补丁用于**全部飞行单位**（双方、含 AI）。
+2. 做法：经 memreader Plus 的 `handle:patch` 在 `0x143053d05`（9.0.5）把交战判定后的条件跳转 `0f 84 80 00 00 00` 改为无条件跳转 `e9 81 00 00 00 90`：起飞前的 3.0 秒计时不再被交战判定一直按满，总是倒数。特征码须恰好命中一次、原字节相符才写，可撤回。单一源 `tools/lib/air_dive_rules.py`（TAKEOFF_*），主包与独立小模组 `ld_air_dive.pack` 同发（小模组以 memreader Plus 为声明前置）。
+3. 联机：补丁改的是各端都执行的战斗模拟代码。战役里经 memreader 协商步骤，各端一致才装；战役外的联机战斗撤回；单机直接装。经过与实测见 §C11 AIR-DIVE-TAKEOFF-W1。
+4. 2026-11-12 同日被 §C8-58 取代：这一版「计时一律倒数」的字节补丁不再发货，改为「过半模型挨打才按住」。
+
+### E3 · 近战起飞改为「过半模型挨打才按住」并发货；飞兽加速度下限撤回（2026-11-12 用户裁定）（原 §C8-58）
+
+> 编号说明：integrate-1113（2026-11-13）合并时改号，车道 `air-dive-takeoff-w1 / air-dive-mp-dive-w1` 原记 §C8-50；该车道的提交说明与冻结证据仍写旧号。
+
+1. 用户裁定（经协调者转达）：飞行单位只有在**真的挨打**时才被按在近战里。多模型单位要**过半存活模型**在最近 1.5 秒（15 个战斗时刻）内被近战打中才按住；单模型单位（龙）看它那一个模型。这条规则发货，取代 §C8-57 的字节补丁（那一版挨着打也能在下令 3 秒后飞走，可以冲完就走、反复冲）。
+2. 用户裁定：飞兽加速度下限 8 撤回，用原版加速度。
+3. 做法：三个代码洞，经 memreader Plus 位点加载器安装——两个在近战命中结算处记「哪个飞行实体在哪个时刻挨了打」，一个在起飞计时处按「现存模型里过半在窗口内挨过打」回答。唯一源 `tools/pipelines/pin_cave_asm.py`，主包与独立小模组 `ld_air_dive.pack` 同发。只算近战武器命中；远程、爆炸、冲撞伤害不算。
+4. 联机与 §C8-57 相同：战役里经 memreader 协商，各端一致才开；战役外的联机战斗一律关闭；单机直接开。经过、数字与未验证项见 §C11 AIR-DIVE-TAKEOFF-W1 九。
+
+### E4 · 连贯俯冲定 K 方案；穿阵按飞兽自身动量待研究地面骑兵后再定（2026-11-12 用户裁定，经协调者转达）（原 §C8-59）
+
+> 编号说明：integrate-1113（2026-11-13）合并时改号，车道 `air-dive-continuous-w1` 原记 §C8-51；该车道的提交说明与冻结证据仍写旧号。
+
+1. 采用 §C11 AIR-DIVE-CONTINUOUS-W1 的 K 方案为设计：489 号冲阵动作从落地速度起步只减不加，飞兽减速度 30，去掉 W13 的体型加重。暂不发货：先补完缺的实机局（飞马骑士、狮鹫骑士的原版落地对照），并实测减速度 30 对飞兽平常移动（不冲锋时的停步与转向）的副作用；之后再接进 `air_dive_rules`（唯一源），小模组与主包同走这一处。
+2. 穿阵：用户倾向按飞兽自身质量×速度定冲多远，但担心对重甲反大型精锐步兵（拒马的戟兵、大剑士、混沌勇士、铁锤卫士之类）或骑兵这种中型目标也一样冲散不对。故：(a) 先查原版地面骑兵冲锋的冲击与穿阵由什么决定（质量、速度、冲锋加成、目标质量、拒马/反大型、阵型、碰撞门槛、冲撞攻击），要数据与实机读数（骑士对民兵、对拒马长矛、对重步兵、对骑兵）；(b) 把按自身动量的方案做成测试包，量它对这几类目标的效果；(c) 引擎路线保留为正式选项：静态查清引擎在哪决定冲锋者继续走还是停下、能否做成看目标的规则，报告改动要做什么；这一步不写游戏内存。
+3. 车道规矩：用户在玩任何别的游戏时不启动战锤（每次启动前查进程表，有 StarSavior.exe 等就等）。
+
+### E5 · 飞兽俯冲收成一份规格：动作一次连贯、穿深看相对动量（2026-11-12 用户令，经协调者转达）（原 §C8-60）
+
+> 编号说明：integrate-1113（2026-11-13）合并时改号，车道 `air-dive-continuous-w1` 原记 §C8-52；该车道的提交说明与冻结证据仍写旧号。
+
+1. 动作：全部飞兽的移动与攻击动作重做成真的俯冲冲进敌阵；一并修原版起飞降落直上直下、飞在目标头顶不打的毛病。
+2. 机制：冲多深、打多重按双方相对动量定，与原版地面骑兵一样（用户例：银盔质量 1000、速度 115 能冲过站定的 250 质量步兵；1300 质量、速度 100 的飞行怪物应冲过 100 质量步兵；飞马也应如此）。引擎路线是正式选项（网络防护风险、联机须同包已知），报告要做什么。
+3. 交付顺序：(a) 现有全部飞兽改动逐条清点（做什么、证据、保留 / 改 / 撤及理由，明确答狮鹫骑士现有做法是否保留、喷吐与起飞要不要改）；(b) 统一规格写进 `docs/ARCHITECTURE.md` 一节（两根支柱、规则、谁管什么、数只在 `air_dive_rules`）并附步骤；(c) 继续原版骑兵实测与引擎研究（落地在哪结束冲锋、落地的飞兽能否接着按地面冲锋走、由原版规则判停）。
+4. 暂不发货；K 仍是已采用未发货，到符合规格再发。车道规矩不变。
+
+落地：规格与清点见 `docs/ARCHITECTURE.md`「飞兽俯冲统一规格（AIR-DIVE-SPEC）」，实测见 §C11 AIR-DIVE-CONTINUOUS-W1。
+
+### E6 · 冲多深、打多重由碰撞算出，不按兵种事先定；不做隐藏被动（2026-11-12 用户裁定，经协调者转达）（原 §C8-61）
+
+> 编号说明：integrate-1113（2026-11-13）合并时改号，车道 `air-dive-continuous-w1` 原记 §C8-53；该车道的提交说明与冻结证据仍写旧号。
+
+1. 用户原话：「减速要不要只靠被冲部队来给，让飞行单位自然减速，而不是用减速动作（去掉速度清零、减速的动作）？…冲不冲穿交给质量和速度自然决定？冲击伤害也是？根据被冲的部队类型来决定有点舍本逐末了吧」；「应该由计算得出，而不是事先用兵种来决定。」
+   落实：触地不清零速度、不放减速的动作，飞兽带着落地速度往前走，只被撞上的身体减速；穿深、穿不穿与冲击伤害由质量、速度与引擎自己的碰撞算法（含拒马质量倍数，那也是算出来的）得出。不写按兵种的深度目标，不按兵种设深度上限。这就是引擎路线：用运行时探针找到触地清零速度的那一处与强加冲阵 / 减速的那一处，绕开它们，其余交给原版碰撞。数据层的 R、M 两条不再做。
+2. D 档（冲锋时自动开的隐藏被动）不发。用户原话：「我们不做隐藏被动」——通则：不做隐藏被动。
+3. 协调者告诉用户：用户测到的冲锋没有改引擎（数据 + 动作；只有起飞是引擎补丁）。本车道核对属实：冲阵、冲撞攻击都是数据与动作，读数器只读内存；起飞补丁在起飞车道。
+4. 车道规矩不变：GAME_LOCK；用户在玩任何游戏（StarSavior、Overwatch 等）时不启动战锤；memreader Plus 位点 + 联机协商照起飞补丁；不跑 pytest、不建包。若引擎工作被安全防护拦下，停下报告，不绕。
+
+落地：`docs/ARCHITECTURE.md`「飞兽俯冲统一规格（AIR-DIVE-SPEC）」按本条改写；原版骑兵停下的原因（碰撞还是接战锁定）与探针结果见 §C11 AIR-DIVE-CONTINUOUS-W1。
+
+### E7 · 单体飞兽挨打窗口放宽到 3 秒（2026-11-16 用户裁定）（原 §C8-78）
+
+> 接 §C11 FLYER-TAKEOFF-HITS：记录洞补全后，单体飞兽面对巨人、领主仍会在两次出手之间飞走——这些单位几秒才出手一次，长过 §C8-58 的 1.5 秒窗口。
+
+改 §C8-58 的规则本身：一个飞行单位**只剩一个存活模型**时，那个模型最近 **3 秒**（30 个战斗时刻）内被近战打中就按住；两个及以上存活模型的单位仍是「过半存活模型 1.5 秒内挨打」。「存活」按引擎自己的现存飞行实体表数（模型死亡即离表），所以多模型单位死到只剩一个模型时也按 3 秒。其余不变：只算近战（引擎伤害类型 0），全体飞行单位、双方含 AI，联机走同一条协商。
+
+### E8 · 飞行模组独立开发，主模组与它解耦（2026-11-17 用户裁定）（原 §C8-88）
+
+用户原话：「同步到独立出去的开发目录，以后这个飞行mod在那边开发，主mod解耦飞行mod（以后主mod不包含飞行mod的更改）。GitHub那边也记得建仓库推送。」
+
+1. **飞兽俯冲 / 起飞模组（创意工坊 3840651516，`ld_air_dive.pack`）只在独立仓库开发**：`D:/Projects/wh3-flyer-dive`，GitHub `skymanbp/wh3-flyer-dive`。主仓库不再存它的文件，也不再与它双向同步。
+2. **主包 `ld_mod.pack` 不含飞行模组的任何改动**：俯冲与近战起飞的脚本与代码洞位点表、改名飞行动作表、对原版 / 自建 / 捐赠方飞兽实体与坐骑的俯冲改写（冲锋速度、减速度、冲锋距离、转向动作、跳击、质量下调、冲撞攻击与冲锋被动）、喷吐技能接战可放的整表替换，全部退出主包。
+3. **取代**用户令 `minimods-in-main-1113`（「主包必须包含全部小模组」）中飞行模组那一半；引擎抗性等其余小模组仍按该令与主包同源。
+4. **判别规矩**（本批定）：某行改动只为俯冲模组而存在（速度、质量、动作表重指）→ 出主包；属于该单位自己的设计（例如月盘骑士身体 `ld_moncav_tze_disc` 的 large 体型与质量下限、加尔劳赫去马鞍的身体）→ 留主包。逐行处置见 §C11 FLYER-DECOUPLE。
+5. **共用件留主包**：`lib/ld_cave_common.lua`（只剩引擎抗性战斗入口用的记录行）、memreader Plus、动作编解码库、DB 写入器与 schema、`entity_read` 读取器；测试驱动共用件改放 `tools/pipelines/battle_autotest_harness.py`。
+6. 落地：2026-11-17，车道 flyer-decouple（§C11 FLYER-DECOUPLE，墓碑 §C10.7）。
+
+## 2026-11-17
+
+Research behind D1–D5: `docs/research/2026-11-17-next-version-design.md`.
+
+### D1 · Balance changes move to an optional submod
+
+> 「这次把submod也做了，把接战中吐息和质量调整之类的平衡调整挪出来，单独作为一个submod发布。」
+> Asked what exactly moves: 「只挪吐息和质量」.
+
+- The main pack keeps the dive, the take-off rule, the per-flyer charge speeds and the
+  collision attack.
+- Two things leave it for the submod `flyer_dive_balance.pack`: breath attacks usable while
+  engaged in melee, and the mass cut for large (×0.85) and very large (×0.75) flyers, with its
+  exceptions (the celestial-lion override, the machine bodies left untouched).
+- The submod requires the main mod. Both packs come out of one build run so they cannot disagree.
+
+### D2 · Workshop pages carry one language per page version
+
+> 「steam创意工坊是可以分开做中文/英文（不同语言）版本的。不用在同一个页面做两个版本。」
+
+Each Workshop item gets a separate title and description per language (English, Simplified
+Chinese). The texts are kept in `workshop/<item>/<language>/`.
+
+### D3 · Take-off from melee: per model, by body size
+
+> 「对于起飞，我们可以按照体型进行分档，不同体型起飞所需的"未被击中"时间改成不同的。」
+> On the direction: 「越小等越久」. On multi-model units: 「按照单个兵模来算，这个兵模xx秒内被攻击击中就不能起飞。具体时间看上一条」.
+
+One rule replaces the two earlier ones ("more than half of the living models struck within
+1.5 s", and "the last living model struck within 3.0 s"):
+
+**A flying model that was hit by a melee attack within the last N seconds cannot take off.**
+
+| body size | N |
+|---|---|
+| very large | 3.0 s |
+| large | 3.5 s |
+| medium | 4.0 s |
+| small | 4.5 s |
+
+- Decided for each model on its own: in a unit of many models, the ones struck recently stay
+  down and the others may lift off.
+- Unchanged: only melee hits count; every flying unit, both sides, AI included; multiplayer
+  through the same agreement. A ridden unit uses its mount's body size.
+- Why this direction: the game's own data makes small bodies the easiest to interrupt
+  (median chance to ignore a hit reaction: small 0 %, medium 25 %, large 50 %, very large 70 %),
+  and no size becomes easier to pull out than it is today (3.0 s).
+- Why per model: in the recorded fights a 24-model unit was never held under the old rule at any
+  window up to 6 s, because at most 17–45 % of its models were struck at once.
+
+### D4 · A dive into braced spears hurts the flyer, and does not stop it
+
+> 「趁着这次更新，把这个impact damage to flyers也做了吧。」 Asked which form: 「照冲，但受伤」.
+
+- A flyer that dives head-on into braced infantry carrying the game's `charge_reflection`
+  attribute (136 units, spears and halberds for the most part) takes one reflection hit.
+- **The hit is twice the game's own reflection damage** (owner, later the same night:
+  「提高飞行部队受伤数值，让冲锋反制对飞行单位的威胁提高。可以直接翻倍伤害。」). The factor 2 is the
+  mod's one number here; everything under it (the braced soldier's weapon, the game's
+  `charge_reflect_*` and `impact_reflection_*` values) stays the game's.
+- Scope of the doubling: the reflection hit this rule gives a diving flyer. A flyer's ordinary
+  charge along the ground is left to the game unless the measurement shows both go through one
+  engine path, in which case the owner is told before it ships.
+- Whether the dive is stopped stays decided by mass and speed, as before. The vanilla bounce
+  (the charger thrown back) is not brought back.
+- No native mechanic does exactly this. Order of work: measure first (a ground-cavalry positive
+  control and the flyer lanes), then choose the mechanism from the measurement. If it cannot be
+  done without the bounce, the question goes back to the owner.
+
+### D5 · Second carry-through: no change (assessment, not a ruling)
+
+> 「落地之后，飞行单位能否再次把步兵撞飞/撞穿应该也只看质量和速度……之前我们是怎么改的？应不应该是我说的这样？我也不确定，你需要研究和评估」
+
+The answer below was given to the owner on 2026-11-17; he raised no objection.
+
+- Fix in `80953c6`: the dive's special handling ends at the first melee engage (a body already
+  in melee is never carried; any engage closes the slide window; an air re-charge ordered while
+  engaged keeps it closed).
+- After that fix a second charge from the ground is the game's own charge: mass, speed and
+  bracing decide it. That is the behaviour the owner described.
+- A speed threshold cannot replace those rules: for 15 flyers the dive's arrival speed and the
+  ground charge speed differ by 2 m/s or less (burning chariot 0.7, the Tzeentch discs 1.2), and
+  a threshold would also cut the slow end of every first dive.
+- Not added: a "carried only within a few seconds of touchdown" bound. No remaining fault was
+  measured after the fix, and it would change the multiplayer agreement for nothing.
+
+### D6 · This repository is the mod's only home: rules, records and memory live here
+
+> 「创意工坊、mod相关内容等等的更新、新的上传规则，还有一些决定啥的，全部同步更新到飞行mod开发目录，以后飞行mod的修改我就在那边进行了，你把相关规则和记忆搬过去，同时让那边跟这里解耦。」
+> The same night, on a misreading: 「飞行仓库不是已经有了吗？本地和GitHub都有啊？……我的意思是把新的规则、记忆、更新，等等，搬过去，不是新建啊」
+
+- Nothing new is created: everything moves **into** this existing repository (local
+  `D:/Projects/wh3-flyer-dive`, GitHub `skymanbp/wh3-flyer-dive`).
+- Moved here: the working rules (`CLAUDE.md`), every earlier ruling (E1–E8 above), the batch
+  records (`docs/HISTORY.md`), the dive specification (`docs/SPEC.md`), the Workshop procedure
+  and rules (`docs/WORKSHOP.md`), the state of the work in flight (`docs/STATUS.md`), and the
+  assistant's project memory and plan for this directory.
+- Decoupled: building, re-deriving the staged tables and running the tests need only this
+  repository and the installed game. The retired two-way sync with the Lore Disasters repository
+  is deleted. The Lore Disasters ledger keeps one-line pointers to here.
+- The main mod's own flying bodies and donor flyers get the dive through a separate adapter pack
+  later (owner, the same evening: personal mods are decoupled 「并做对主mod的适配」; the adapter
+  waits for the main mod's rename, because every key it would name changes then). Until then the
+  data for it is kept in this repository as a recorded snapshot and the shipped packs do not
+  contain it.
+- Pushing to GitHub, uploading to the Workshop, editing a Workshop page and creating a new
+  Workshop item each need the owner's go-ahead in the conversation, every time.
+
+### D7 · The flyer mod's working data moves to this side, with a record here
+
+> 「飞行mod相关的数据全部搬过去。记得在那边仓库补上记录」 (owner, 2026-11-17 night, when asked what to
+> do with the scratch folders; in the same answer he chose to delete the scratch older than
+> 2026-11-16, 16.9 GB, and to keep the unpacked donor mods.)
+
+- The scratch folders of the flyer work (test runs, probe output, builds, upload staging) move
+  from the Lore Disasters scratch area to `D:/Projects/.worktrees/wh3-flyer-dive/`.
+- What moved, from where and how large is recorded in `docs/HISTORY.md` (section DATA-MOVE-1117).

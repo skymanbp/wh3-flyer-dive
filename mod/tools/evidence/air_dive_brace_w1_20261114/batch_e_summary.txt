@@ -1,0 +1,28 @@
+batch E: 69 runs
+type       bodies   spear halb militia | causes
+bats       multi60  3/3 3/3 1/3  | {'contact-engage': 1, 'other': 3, 'flight-ended': 3}
+bt         single   0/3 0/3 0/3  | {}
+carrion    multi24  2/3 3/3 2/3  | {'other': 5, 'contact-engage': 1, 'flight-ended': 1}
+chim       single   1/3 0/3 0/3  | {'contact-engage': 1}
+cock       single   0/3 0/3 0/3  | {}
+dragon     single   0/3 0/3 0/3  | {}
+drone      multi12  2/3 2/3 1/3  | {'other': 4, 'flight-ended': 1}
+eagle      single   0/3 3/3 1/3  | {'contact-engage': 1, 're-order': 1, 'other': 2}
+frostwyrm  single   0/3 0/3 0/3  | {}
+grif       multi4   0/3 0/3 0/3  | {}
+hippo      multi12  2/3 2/3 3/3  | {'other': 7}
+lamm       single   0/3 0/3 0/3  | {}
+lion       single   0/3 0/3 0/3  | {}
+mant       single   0/3 1/3 0/3  | {'contact-engage': 1}
+peg        multi24  2/3 3/3 0/3  | {'other': 4, 'contact-engage': 1}
+scream     multi16  3/3 3/3 2/3  | {'flight-ended': 4, 'other': 4}
+sky        multi12  1/3 0/3 0/3  | {'contact-engage': 1}
+storm      single   0/3 0/3 0/3  | {}
+taurus     single   0/3 0/3 0/3  | {}
+terradon   multi10  2/3 3/3 1/3  | {'other': 5, 'flight-ended': 1}
+terror     single   0/3 1/3 0/3  | {'other': 1}
+varg       multi16  2/3 3/3 0/3  | {'other': 3, 'contact-engage': 2}
+wyvern     single   3/3 0/3 1/3  | {'other': 4}
+single, spear+halb: 9 / 78
+single, militia: 2 / 39
+multi (lead model), all: 51 / 90

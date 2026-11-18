@@ -1,0 +1,16 @@
+prefixes ['H']: 35 runs (single-model lanes only)
+type       spear   halb    militia | collapse | causes
+bt         0/1     0/1     0/1     | 0 | {}
+chim       0/2     0/2     0/2     | 0 | {}
+cock       0/1     0/1     0/1     | 0 | {}
+dragon     0/2     0/2     0/2     | 0 | {}
+eagle      2/2     0/2     0/2     | 0 | {'contact-engage': 2}
+frostwyrm  0/2     0/2     0/2     | 0 | {}
+lamm       0/2     0/2     0/2     | 0 | {}
+lion       0/2     0/2     0/2     | 0 | {}
+mant       0/2     0/2     0/2     | 0 | {}
+storm      0/2     0/2     0/2     | 0 | {}
+taurus     0/1     0/1     0/1     | 0 | {}
+terror     0/2     1/2     0/2     | 0 | {'other': 1}
+wyvern     0/2     0/2     0/2     | 0 | {}
+spear+halb: 3 / 46  militia: 0 / 23  goal-collapse: 0

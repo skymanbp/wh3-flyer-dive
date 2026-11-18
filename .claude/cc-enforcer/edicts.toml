@@ -1,0 +1,31 @@
+# cc-enforcer — project edicts for the flyer dive mod (wh3-flyer-dive).
+#
+# A project edicts file replaces the machine-wide one (the first file found wins), so the
+# machine-wide WT01 is repeated here word for word.
+#
+# severity "must" + deny_bash / deny_edit -> the hook refuses the action; "must" without
+# patterns and "should" are shown to the assistant every turn.
+
+[[edicts]]
+id = "WT01"
+text = "仓库外的一切临时产物一律建在 D:\\Projects\\.worktrees\\<项目名>\\<车道名>\\ 下——并行工作树、每条车道的 CARGO_TARGET_DIR / *_DATA_DIR / --target-dir、实验与普查输出、对照图、日志；不得在盘根或用户主目录下另起 scratch 根"
+severity = "must"
+note = "用户令 2026-09-19，本机全用户环境通用。起因：D:\\t 里积了 111 GB v1.4.1/v1.5.0 遗留（67 个 cargo target 目录 45.8 GB + 55 GB 对照渲染图），此前 D:\\wt 同病。仓库内的 target/ 等 gitignore 路径不受此规约束。"
+deny_bash = ["git\\s+worktree\\s+add\\s+(?![^\\n]*\\.worktrees)", "(?:CARGO_TARGET_DIR|BATTERY_TARGET_ROOT|BATTERY_DATA_ROOT|[A-Z][A-Z0-9_]*_DATA_DIR|[A-Z][A-Z0-9_]*_TARGET_DIR)=[\\\"']?(?:[A-Za-z]:[\\\\/]|/[a-zA-Z]/)(?![^\\s\\\"']*\\.worktrees)", "mkdir\\s+(?:-p\\s+)?[\\\"']?(?:[A-Za-z]:[\\\\/]|/[a-zA-Z]/)(?:t|tmp|temp|wt|work|scratch)[\\\\/\\s\\\"']", "--target-dir[= ]+[\\\"']?(?:[A-Za-z]:[\\\\/]|/[a-zA-Z]/)(?![^\\s\\\"']*\\.worktrees)"]
+
+[[edicts]]
+id = "FDOCS1"
+text = "docs/ 是本仓库唯一的准则来源：先把裁定记进 docs/DECISIONS.md 再改代码；每批收尾同批更新 docs/STATUS.md，并在 docs/HISTORY.md 末尾追加一节；文档与代码对不上就是缺陷"
+severity = "must"
+
+[[edicts]]
+id = "FINDEP1"
+text = "本仓库独立：建包、派生动作表、跑测试只用本仓库与安装好的游戏；不读、不写 Lore Disasters 主模组的仓库（D:/Projects/lore_disaster 及其工作树）"
+severity = "must"
+
+[[edicts]]
+id = "FOUT1"
+text = "对外的事先问：推送到 GitHub、上传或更新创意工坊都要模组主人在本次对话里明确同意，同意只管那一次。得到同意后，在那条命令末尾加注释 # owner-ok <日期> 才放行"
+severity = "must"
+deny_bash = ['''git\s+push\b(?![^\n]*owner-ok)''', '''workshop_build_item(?![^\n]*owner-ok)''']
+note = "docs/DECISIONS.md D6；步骤与上传后的核对见 docs/WORKSHOP.md。改工坊页面、建新条目、回复评论同样要先问（评论只起草，由主人自己发）。"

@@ -53,6 +53,8 @@ python -P tools/pipelines/build_air_dive_minimod.py --out <目录>/ld_air_dive.p
 python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 ```
 
+- `main` 的代码是已发布的那一版：那里的建包命令没有 `--balance-out`，测试还要靠主模组的仓库。
+  子模组、断开后的测试与数据快照都在下一版的分支上，位置见 `docs/STATUS.md`。
 - 两个包必须出自同一次建包（包里带同一个版本戳，对不上时战斗日志会写出来）。
 - 建包每次都读安装好的游戏；游戏更新后重建，代码洞的位点要重新核对（特征码必须恰好命中一次、原字节相符，
   否则拒绝建包，不许猜）。

@@ -242,3 +242,52 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   `ld_air_dive.pack` left in the game's `data` folder must be deleted, or both versions load.
 - Old and new versions do not pair in a multiplayer campaign (the memreader Plus owners changed); the
   change notes say so, as they do whenever the agreement changes.
+
+### D10 · The balance submod is withdrawn; breath while engaged becomes an MCT switch
+
+> 「飞行模组之前说要再做一个平衡性submod，我想了下，撤回，吐息和质量改动依旧是放在同一个飞行mod里，但是开不开接战中吐息可以用mct去调整」
+> (owner, 2026-11-18)
+
+- D1 is withdrawn. The mod ships **one pack**, `flyer_dive_takeoff.pack`. Breath attacks usable while
+  engaged in melee, and the mass cut for large (×0.85) and very large (×0.75) flyers with its exceptions,
+  go back into it. There is no `flyer_dive_balance.pack` and no second Workshop item.
+- Whether breath can be used while engaged in melee is a setting in the Mod Configuration Tool (MCT).
+  The mass cut is not a setting.
+- Maintainer's choices under this ruling (they stand until the owner says otherwise): the setting
+  defaults to **on**, which is what the published version does; a player without MCT gets the default;
+  MCT is optional, not a requirement.
+- How the switch works is not chosen yet. The published version unlocks breath by leaving rows out of
+  a DB table, and a setting cannot change a DB table while the game runs. The mechanism is picked from
+  a measurement (offline first, then in game). If none holds up, the question goes back to the owner.
+- What follows from it: D9's reason for the pack name (it had to sort after the submod) no longer
+  applies, and the name `flyer_dive_takeoff.pack` stays, because the branch, its in-game records and
+  the rename table already use it. D2's Workshop texts lose the submod item.
+
+### D11 · The next version is uploaded only when the braced-spear damage is in and the take-off gap is explained
+
+> Asked how the next version should be uploaded: 「等「撞长矛受伤」做完一起传」
+> Asked about the one-or-two-tick gap in the take-off rule: 「查清再发」 (owner, 2026-11-18)
+
+- No upload of the next version until all of these are built and checked in game: D4 (a dive into
+  braced spears hurts the flyer), D10 (one pack, the MCT switch), and the gap recorded in
+  `docs/STATUS.md` (a flyer whose countdown had long run out is hit once, ordered away on the next
+  tick and airborne one tick later). The gap must be explained by a measurement, and fixed if it is
+  the mod's.
+- This replaces the maintainer's earlier call that the gap need not hold the release.
+- The upload itself is still asked when everything is ready.
+
+### D12 · No compatibility patch for other mods' ridden units for now
+
+> Asked whether to make a patch for the six ridden units of two subscribed mods: 「先不做」 (owner, 2026-11-18)
+
+- The six units (the sword-and-shield pegasus knights of `lbm`, five ridden vampire units of
+  `kaylika_auri_lahmians`) are left as they are. Their riders may come off the mount in a dive; that
+  was never looked at in game. The note stays in `docs/STATUS.md`.
+
+### D13 · Branch `rename-1118` is pushed
+
+> Asked which repositories to push: 「飞行模组分支推公开仓库」 (owner, 2026-11-18)
+
+- `rename-1118` (at `0a3b2c4`) is on GitHub as a branch. `main` is unchanged and still the published
+  version. For this branch it replaces D8's "stay local until the in-game checks are done".
+- The go-ahead covered that one push. Commits made after it stay local until asked again.

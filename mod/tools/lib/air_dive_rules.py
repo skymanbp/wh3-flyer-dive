@@ -92,7 +92,16 @@ with ``fly_speed > 0``; ``research_1109/air_dive_charge.md`` §1.1):
   chance) about 0-5 m, canary 13 (both) 24.26 / 24.28 m, 6.5-10 m into the
   line (autotest, user-confirmed).
 
-* ``mass`` [AIR-DIVE-BRACE-W1, user ruling 2026-11-14]: large flyers x0.85,
+BALANCE SUBMOD (user ruling 2026-11-17: only breath-while-engaged and the
+mass cut move out of the main pack). :func:`tuned_cells` is the main pack's
+rule and no longer touches ``mass``; :func:`balance_cells` is the mass cut,
+shipped only in ``flyer_dive_balance.pack``
+(``pipelines/build_air_dive_minimod.balance_entries``), whose rows are the
+main pack's full rows plus the cut mass. The breath usage-flag table
+(:func:`breath_usage_writer`, below) ships only there as well.
+
+* ``mass`` [AIR-DIVE-BRACE-W1, user ruling 2026-11-14; balance submod since
+  2026-11-17]: large flyers x0.85,
   very_large x0.75 (``MASS_FACTOR``), the same large-flyer rule as
   :func:`flyer_units` (``fly_speed > 0``, not fauna, by the body row's
   size). Flying war machines and chariots keep their mass
@@ -101,8 +110,9 @@ with ``fly_speed > 0``; ``research_1109/air_dive_charge.md`` §1.1):
   installed 9.0 tables and ld_mod 2026-11-14, flyer-balance_scratch). The
   cut ignores a declared ``mass`` (no flying character spec declares one,
   measured 2026-11-14: 3 of 256 specs do, all on foot). The W16 collision
-  attack is still sized on the UNCUT mass (:func:`uncut_mass`), so the cut
-  changes the body's mass and nothing else.
+  attack is sized on the UNCUT mass (:func:`uncut_mass`: since the split the
+  main pack's rows carry it), so the cut changes the body's mass and nothing
+  else.
   Per-entity exceptions (``MASS_SIZE_OVERRIDE``, each with its ruling): the
   celestial lion takes the large-flyer factor x0.85 although its body is
   very_large (user ruling 2026-11-15: at x0.75 the crowd slowed it below the
@@ -495,10 +505,11 @@ def mass_factor(row):
 
 
 def uncut_mass(row):
-    """[AIR-DIVE-BRACE-W1] The mass a row had before :func:`tuned_cells` cut it -- the collision
-    attack is sized on it, so the cut changes nothing but the body's mass."""
-    f = mass_factor(row)
-    return float(row["mass"]) if f == 1.0 else round(float(row["mass"]) / f, 3)
+    """[AIR-DIVE-BRACE-W1] The mass the collision attack is sized on: the row's mass before
+    :func:`balance_cells` cut it. Since the balance split (2026-11-17) :func:`tuned_cells` never
+    cuts mass, so a row the main pack ships carries its uncut mass and this is that mass; a row
+    with the cut applied is never fed back here (the balance pack ships no collision attack)."""
+    return float(row["mass"])
 
 
 def tuned_cells(row, declared=()):
@@ -533,10 +544,19 @@ def tuned_cells(row, declared=()):
             and int(row["jump_attack_chance"]) != JUMP_ATTACK_CHANCE):
         out["jump_attack_chance"] = JUMP_ATTACK_CHANCE
     out.update(knock_cells(row, declared))   # [AIR-DIVE-W16] stage C and up
-    f = mass_factor(row)                     # [AIR-DIVE-BRACE-W1] a declared mass is cut too
-    if f != 1.0:
-        out["mass"] = round(float(row["mass"]) * f, 3)
+    # [balance split 2026-11-17] no mass here: balance_cells, balance pack only
     return out
+
+
+def balance_cells(row):
+    """[balance split 2026-11-17] ``{"mass": cut mass}`` for one entity row the
+    balance submod changes (:func:`mass_factor` != 1), ``{}`` otherwise. A
+    declared mass is cut too (AIR-DIVE-BRACE-W1). The balance row is the main
+    pack's full row (installed row + :func:`tuned_cells`) plus this cell."""
+    f = mass_factor(row)
+    if f == 1.0:
+        return {}
+    return {"mass": round(float(row["mass"]) * f, 3)}
 
 
 def _tsv_cell(text):
@@ -812,9 +832,9 @@ USAGE_FLAGS_FRAGMENT = "data__"   # the vanilla path: a junction row cannot be d
 def breath_usage_writer(db_pack, local_en_pack, flags=BREATH_BLOCK_FLAGS):
     """``(writer, removed rows, breath)``: the vanilla-path replacement of the
     usage-flag table (:func:`installed_breath_table`) as a DBTableWriter under
-    the installed fragment's GUID; ld_mod.pack (dbw_balance) and the
-    stand-alone ld_air_dive.pack ship it at
-    ``db/<USAGE_FLAGS_TABLE>/<USAGE_FLAGS_FRAGMENT>``."""
+    the installed fragment's GUID; [balance split 2026-11-17] only the
+    balance submod (flyer_dive_balance.pack) ships it, at
+    ``db/<USAGE_FLAGS_TABLE>/<USAGE_FLAGS_FRAGMENT>``; the main pack does not."""
     import flyer_db as db_writer   # [FLYER-FIX-1117] self-contained build
     kept, removed, breath, header = installed_breath_table(db_pack, local_en_pack, flags)
     schema = dict(db_writer.SCHEMAS[USAGE_FLAGS_TABLE])
@@ -865,6 +885,15 @@ IMPACT_STAGES = ("A", "B", "C", "D")
 # again (5 s 13.6%) through a stat the player cannot see, at an unchanged
 # price -- left for a user ruling, not shipped.
 IMPACT_STAGE = "B"
+# [update-1117, user ruling 2026-11-17, docs/DECISIONS.md D4] A flyer that dives head-on into braced
+# infantry with the game's charge_reflection attribute takes one reflection hit, and that hit is
+# TWICE the game's own reflection damage ("raise the damage flyers take so charge reflection is a
+# real threat to flying units; just double it"). This factor is the mod's one number; everything
+# under it (charge_reflect_*, impact_reflection_*, bracing_*) stays the game's. The dive is not
+# stopped or bounced by this rule. NOT SHIPPED YET: no mechanism carries it before the in-game probe
+# (pipelines/reflect_probe_asm.py, reflect_probe.lua) has shown which engine path can; the probe
+# report reads it to print the expected hit.
+REFLECTION_FLYER_DAMAGE_FACTOR = 2.0
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)
@@ -1264,7 +1293,7 @@ def impact_assembly(fragment_lists, db_pack, catalog=None, stage=None,
     mounts, ents = merged["mounts_tables"], merged["battle_entities_tables"]
     weapons = merged[COLLISION_ATTACK_TABLE]
     # [AIR-DIVE-BRACE-W1] sized on the uncut mass: an installed body's own (vanilla) mass, any other
-    # body's mass before tuned_cells cut it -- the shipped rows here already carry the cut
+    # body's own row mass (uncut_mass; since the 2026-11-17 balance split tuned_cells cuts no mass)
     inst_ent = inst["battle_entities_tables"]
     cells, clones, repoint = flyer_weapon_plan(
         land, mounts, ents, weapons, stage, anchors=anchors,
@@ -1393,3 +1422,21 @@ TAKEOFF_PIN_WINDOW_TICKS = 15
 # monster come seconds apart. Multi-model units keep the 1.5 s window.
 # / 单体（存活模型数 = 1）挨打窗口 3 秒，多模型仍 1.5 秒。
 TAKEOFF_PIN_WINDOW_SINGLE_TICKS = 30
+# [update-1117, user ruling 2026-11-17, docs/DECISIONS.md D3] THE NEXT RULE, one per model (replaces
+# both constants above once the cave carries it): "a flying model that was hit by a melee attack
+# within the last N seconds cannot take off", N by the model's body size (battle_entities.size of
+# the flying body; a ridden unit: its mount's), smaller waits longer. Battle ticks, 10 a second.
+# NOT SHIPPED YET: the cave needs each flying model's size class, and the only engine field the
+# static read offers (entity +0x74) is unverified -- pipelines/flyer_size_probe.lua reads it in a
+# battle (pipelines/flyer_size_probe_report.py prints the window each model would get). Until that
+# run settles the source, the shipped cave keeps the two constants above.
+TAKEOFF_PIN_WINDOWS = {"very_large": 30, "large": 35, "medium": 40, "small": 45}
+
+
+def takeoff_pin_window(size):
+    """[D3] Battle ticks a flying model of body size ``size`` stays down after a melee hit; an
+    unknown size is a refusal."""
+    if size not in BODY_SIZES or size not in TAKEOFF_PIN_WINDOWS:
+        raise RuntimeError(f"[air_dive_rules] REFUSING: body size {size!r} has no take-off window "
+                           f"(sizes {BODY_SIZES})")
+    return TAKEOFF_PIN_WINDOWS[size]

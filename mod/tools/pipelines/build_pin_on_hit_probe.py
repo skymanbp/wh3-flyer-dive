@@ -7,7 +7,10 @@ movement recorder plus:
 
   --base probe   recorder only (vanilla flight data)
   --base full    the stand-alone air-dive content (flight tables, impact
-                 stage, breath flags) WITHOUT its take-off scripts
+                 stage) WITHOUT its take-off scripts, plus the balance
+                 submod's breath flags (taken from the balance entries; the
+                 balance pack's mass cut is not included, so a full base is
+                 the main pack's flyer rows, uncut) [balance split 2026-11-17]
   --rule         + the shipped take-off scripts (battle entry, rule module,
                  generated site table: build_air_dive_minimod.takeoff_entries)
   --record       (with --rule) + pin_on_hit_probe.lua, which writes what the
@@ -47,7 +50,11 @@ def full_entries():
     dbs, _n_ent, _n_loco = mini.db_entries(mini.GAME_DIR / "db.pack")
     impact, repoint, _report = mini.impact_entries(mini.GAME_DIR / "db.pack")
     renamed, _counts = mini.rename_entries(mini.GAME_DIR / "db.pack", repoint)
-    usage, _removed, _breath = mini.usage_entries()
+    balance, _report = mini.balance_entries(mini.GAME_DIR / "db.pack", dbs)
+    usage_path = f"db\\{air_dive_rules.USAGE_FLAGS_TABLE}\\{air_dive_rules.USAGE_FLAGS_FRAGMENT}"
+    usage = [(p, d) for p, d in balance if p == usage_path]
+    if len(usage) != 1:
+        raise SystemExit(f"[pin_probe] REFUSING: the balance entries carry {len(usage)} {usage_path}")
     return anims + dbs + impact + renamed + usage
 
 

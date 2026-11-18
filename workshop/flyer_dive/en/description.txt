@@ -1,0 +1,42 @@
+[h1]Flyer Dive & Take-off[/h1]
+
+Flying units charge like flying units: a dive keeps its speed when it lands, and a flyer caught in melee can take off again.
+
+[h2]What it does[/h2]
+[list]
+[*][b]Physics dive.[/b] A flying unit that dives onto the ground keeps its speed when it lands. Only the bodies it actually hits slow it down, so a dive carries into the enemy line instead of stopping dead at touchdown.
+[*][b]Take-off from melee.[/b] A flyer engaged in melee can take off again. It is held on the ground only while more than half of its living models are being struck in melee (a single-model unit: while it was struck in the last 3 seconds). Contact alone, ranged hits and charge impacts do not hold it.
+[*][b]Charge speed per flyer.[/b] Every flyer has its own charge speed, set by its role and background (light skirmishers fastest, dragons slower but heavier), plus longer charge distances and a collision attack on its first contact.
+[*]Every flying unit, both sides, the AI included.
+[/list]
+
+[h2]Coming next (not in this version)[/h2]
+[list]
+[*][b]Take-off by body size.[/b] PLACEHOLDER: the size-based take-off rule is still being measured in game. This line will describe it once it ships.
+[*][b]Diving into braced spears.[/b] PLACEHOLDER: damage to a flyer that dives head-on into braced Charge Reflection infantry is still being measured in game. This line will describe it once it ships.
+[/list]
+
+[h2]Balance submod (optional)[/h2]
+Breath attacks while engaged in melee and the lower mass of large flyers are no longer part of this mod. They are in the optional [url=https://steamcommunity.com/sharedfiles/filedetails/?id=SUBMOD_ID_PLACEHOLDER]Flyer Dive & Take-off: Balance[/url] submod, which needs this mod.
+
+[h2]Requirements[/h2]
+[list]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3811098873]memreader Plus[/url] (required). Without it the dive and take-off rules stay off and those two behave as in the base game.
+[/list]
+
+[h2]Multiplayer[/h2]
+[list]
+[*]Single player: works.
+[*]Multiplayer campaign battles: works when every player runs the same version (memreader Plus checks it).
+[*]Multiplayer custom and quick battles: works (the game's own mod check keeps both sides on one version).
+[/list]
+
+[h2]Compatibility[/h2]
+Mods that overwrite the same flying unit rows win or lose by load order.
+
+[h2]Credits[/h2]
+[list]
+[*]memreader Plus: Druwski (GitHub: PKozdra), MIT.
+[*]memreader: Cpecific, MIT.
+[*]Flight animations and data are Creative Assembly's, renamed and re-wired. Total War: WARHAMMER III is (c) Creative Assembly / SEGA and Games Workshop.
+[/list]

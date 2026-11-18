@@ -16,9 +16,10 @@ Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=38406515
   `mod/tools/pipelines/pin_cave_asm.py`).
 * **Flight animation tables.** The vanilla flight tables are shipped under new
   names (`<name>_ld_dive`) with the landing hand-off changed, registered and
-  repointed through DB rows, plus flyer entity / locomotion / impact rows and
-  the breath-ability usage flags (`mod/tools/lib/air_dive_rules.py` is the
-  single source of these rules).
+  repointed through DB rows, plus flyer entity rows (charge speed per flyer,
+  charge distances, deceleration, turning), two locomotion rows and the
+  collision attack (`mod/tools/lib/air_dive_rules.py` is the single source of
+  these rules).
 * Works in single player, in multiplayer campaign battles when every player
   runs the same version (memreader Plus agreement), and in multiplayer custom /
   quick battles (the game's own mod checksum keeps both sides on one version).
@@ -26,6 +27,30 @@ Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=38406515
 **Prerequisite:** [memreader Plus](https://steamcommunity.com/sharedfiles/filedetails/?id=3811098873)
 (Workshop 3811098873). Without it the rule scripts log "not installed" and the
 game runs as vanilla for those two rules.
+
+## Balance submod (optional)
+
+A second pack, `flyer_dive_balance.pack`, carries the two balance changes that
+used to be in the main pack (user ruling 2026-11-17, `docs/DECISIONS.md` D1):
+
+* **Breath attacks while engaged.** Breath abilities can be used while the
+  flyer is engaged in melee and while it is on the ground (the game's own
+  usage-flag table, shipped whole under its vanilla path minus those rows).
+* **Mass cut.** Large flyers weigh ×0.85, very large ones ×0.75. The celestial
+  lion and The Wise One (the boss lion) are cut as large; the game's nine flying
+  war machine and chariot bodies (thunderbarges, sky-junk, sky lantern,
+  skycutters, burning chariot, gyrocopter, gyrobomber) keep their mass
+  (`MASS_CUT_MACHINES` also names two Lore Disasters bodies this pack never ships).
+
+It **requires the main mod** and is built by the same run (below), so the two
+packs always match: its flyer rows are the main pack's rows with only the mass
+changed, and both packs carry the same build stamp. When they come from
+different builds, the battle log `ld_flyer_dive.txt` gets a
+`BALANCE MISMATCH` line. Load order needs no manual step: a project measurement
+(Lore Disasters ledger, RESIST-W2) found that the row from the pack whose name
+sorts first wins, and both the submod's pack name and every one of its table
+fragment names sort before the main pack's, so it holds whichever of the two
+names the game goes by (a swap test with these two packs is still to be run).
 
 ## Repository layout
 
@@ -51,8 +76,10 @@ time, so a game patch is a re-run.
 
 ```
 cd mod
-python -P tools/pipelines/build_air_dive_minimod.py --out <path>/ld_air_dive.pack
+python -P tools/pipelines/build_air_dive_minimod.py --out <path>/ld_air_dive.pack --balance-out <path>/flyer_dive_balance.pack
 ```
+
+One run writes both packs (the names are fixed: the build refuses others).
 
 Set `LD_WH3_DATA` to your game's `data` folder if it is not the default path in
 the script. The DB tables are written by `mod/tools/lib/flyer_db.py` (the table
@@ -100,16 +127,33 @@ as history.
 * **近战起飞**：接战中的飞兽可以再起飞；只有现存模型过半正在挨打时才被按在地上
   （位点表由 `pin_cave_asm.py` 生成）。
 * **飞行动作表**：原版飞行动作表改名（`<名>_ld_dive`）发货、改落地交接，经数据表登记
-  并改指；另有飞兽实体、移动常数、冲撞与喷吐技能可用条件（规则唯一源
-  `mod/tools/lib/air_dive_rules.py`）。
+  并改指；另有飞兽实体（逐个飞兽的冲锋速度、冲锋距离、减速、转向）、两行移动常数与冲撞攻击
+  （规则唯一源 `mod/tools/lib/air_dive_rules.py`）。
 * 单机可用；联机战役各端版本一致时可用（memreader Plus 协商）；联机自定义 / 快速战斗
   可用（游戏自己的模组校验保证两端同一版本）。
 
 **前置模组**：memreader Plus（创意工坊 3811098873）。没装时两条规则不生效、按原版运行。
 
+## 平衡子模组（可选）
+
+第二个包 `flyer_dive_balance.pack` 装着原来在主包里的两项平衡调整（用户 2026-11-17 裁定，
+`docs/DECISIONS.md` D1）：
+
+* **陷入近战时可用吹息**：吹息类技能在陷入近战时、已落地时都能释放（游戏自己的技能可用条件表，
+  按原版路径整表发货，只去掉这几行）。
+* **质量下调**：大型飞兽质量 ×0.85，超大型 ×0.75。昊天狮与「智者」按大型算；游戏里九种飞行战争机器
+  与战车的实体（雷霆空艇、天舟、天灯、斩天者、浴焰战车、矮人直升机、矮人轰炸机）质量不变。
+
+它**需要主模组**，并且和主包由同一次建包生成（见下），两包始终一致：它的飞兽行就是主包的行、
+只改了质量，两包带同一个建包戳；来自不同建包时，战斗日志 `ld_flyer_dive.txt` 会写一行
+`BALANCE MISMATCH`。加载顺序不用手动调：本项目此前实测（主模组台账 RESIST-W2）是名字排序在前的
+包的行生效，子模组的包名和每个表片段名都排在主包之前，所以不论游戏看的是哪个名字都成立
+（这两个包的对调实测还没做）。
+
 ## 建包
 
-自 2026-11-17 起建包只需要本仓库、安装的游戏和几个 PyPI 包（`lz4`、`zstandard`、
+建包命令一次写出两个包（`--out <路径>/ld_air_dive.pack --balance-out <路径>/flyer_dive_balance.pack`，
+包名固定，别的名字会被拒绝）。自 2026-11-17 起建包只需要本仓库、安装的游戏和几个 PyPI 包（`lz4`、`zstandard`、
 `pefile`），命令见上面英文部分。数据表由 `mod/tools/lib/flyer_db.py`（从主模组照搬的
 表读写器）按 `mod/tools/data/flyer_db_schemas.json` 里记录的表结构写出；建包读到的
 每张原版表仍须逐字节往返，游戏更新改了表就拒绝而不是猜。重生代码洞位点表与模拟器检查

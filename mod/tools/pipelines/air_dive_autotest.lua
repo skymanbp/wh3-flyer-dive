@@ -86,6 +86,9 @@ cfg.engage_ms, cfg.breath_ms, cfg.away_ms, cfg.away_m = 3000, 15000, 25000, 150
 -- retreat_<i>=<ms>: from that battle time lane i's target withdraws 80 m
 -- straight away from its flyer, at a run (the enemy stops attacking).
 cfg.melee_off, cfg.retreat = {}, {}
+-- [update-1117 part C] target_turn_<i>=<deg>: lane i's target is teleported facing that many degrees
+-- away from its flyer (90 = the flyer comes in on its flank); the probe's flank lane.
+cfg.target_turn = {}
 cfg.fight_ms, cfg.cycle_away_ms, cfg.cycle_back_ms = 90000, -1, 6000
 -- [FLYER-FIX-1117 2026-11-17] PUSH scenarios (player report "dive or trash": a unit already in melee was
 -- dragged back into its own missile line when the flyer charged it again).
@@ -112,6 +115,8 @@ for line in probe:lines() do
     if mi then cfg.melee_off[tonumber(mi)] = tonumber(val) end
     local ri = k and k:match("^retreat_(%d+)$")
     if ri then cfg.retreat[tonumber(ri)] = tonumber(val) end
+    local ti = k and k:match("^target_turn_(%d+)$")
+    if ti then cfg.target_turn[tonumber(ti)] = tonumber(val) end
     local sk, sval = line:match("^%s*(scenario)%s*=%s*([%w_]+)%s*$")
     if sk then cfg.scenario = sval end
     local blist = line:match("^%s*breath%s*=%s*([%w_,]+)%s*$")
@@ -511,7 +516,7 @@ local function run()
         local lx, lz = cx + px * off, cz + pz * off
         local t_x, t_z = lx + ux * cfg.dist / 2, lz + uz * cfg.dist / 2
         local f_x, f_z = lx - ux * cfg.dist / 2, lz - uz * cfg.dist / 2
-        lane.target.uc:teleport_to_location(v(t_x, t_z), face_flyer, 40)
+        lane.target.uc:teleport_to_location(v(t_x, t_z), face_flyer + (cfg.target_turn[i] or 0), 40)
         lane.flyer.uc:teleport_to_location(v(f_x, f_z), face_target, 20)
         if lane.ally then   -- [FLYER-FIX-1117] 30 m in front of the target, facing it
             lane.ally.uc:teleport_to_location(v(t_x - ux * 30, t_z - uz * 30), face_target, 40)

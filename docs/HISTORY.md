@@ -1755,3 +1755,5 @@ RENAME-1118 第四节说 `kaylika_auri_lahmians` 有 3 行、`lbm` 有 1 行与�
 - 游戏目录里留着第 3 局写的 `flyer_size_probe.txt`（追加写的探针文件，下一局开跑前照规矩删）。
 
 **之后补的（2026-11-18，没进游戏）：** 测试驱动加了开关 `free_targets_ms`（`--cmd free_targets_ms=0`）：摆好位之后把每道的目标交还给它那一方的电脑（`uc:release_control()`，原版 `lib_battle_script_unit.lua:1067`），每道在状态文件里写一行 `free_target <i> ok=…`；默认 -1 不放。只过了 LuaJIT 语法检查，等下一局实机。
+
+**逐兵模起飞那一局的工具（2026-11-18，没进游戏）：** 原先记的「同一命令加 `--entity-read`」跑不了——逐兵模读取器和它的建包脚本在拆模组时留在了韧性模组，本仓库的驱动还在 `import build_entity_read_minimod`，会在改完游戏目录之后才报错。改法：驱动在解析参数时就拒绝并说明；起飞记录器 `pin_on_hit_probe.lua` 加 `E` 行（逐实体 `+0x104` 离地标志、飞行控制器 `+0x90` 阶段、`+0x44` 倒计时，只在标志或阶段变化时写）与 `Z` 行（逐实体 `+0x74` 体型），由 `pin_probe.cfg` 的 `entities 1` 打开，`sample <毫秒>` 改采样间隔；这些偏移都是本项目 AIR-DIVE-TAKEOFF-W1（2026-11-12）自己量的。新读数脚本 `pin_probe_report.py`：每个兵模「最后一次挨打到离地」的时刻数，早于本体型窗口判失败。测试 `test_pin_probe_entities.py`（LuaJIT 跑真文件，5 条；两种改坏的副本各自转红）与 `test_pin_probe_report.py`（11 条）；全仓测试 113 条通过。

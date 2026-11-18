@@ -1188,6 +1188,15 @@ def main(argv=None):
     ap.add_argument("--judge-only", metavar="DIR",
                     help="re-judge a saved run (status.txt + probe_slice.txt)")
     args = ap.parse_args(argv)
+    if args.entity_read and not args.judge_only:
+        import importlib.util
+        if importlib.util.find_spec("build_entity_read_minimod") is None:
+            # refused before anything in the game folder is touched: the import used to fail in the
+            # middle of the run, after the control files were written
+            raise SystemExit("[air_dive_autotest] REFUSING --entity-read: the per-soldier reader and its builder "
+                             "(build_entity_read_minimod) are not in this repository (they stayed with the "
+                             "toughness mod when the mods were split). For per-model take-off use the take-off "
+                             "recorder with 'entities 1' in pin_probe.cfg and tools/pipelines/pin_probe_report.py")
     if args.dist is None:
         args.dist = ENGAGE_DIST if args.scenario == "engage" else 250.0
     if args.judge_only:

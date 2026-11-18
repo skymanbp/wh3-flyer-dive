@@ -51,7 +51,13 @@
    - 另看：hp 文件 F 行里每次 `cycle away` 之后到 `flying` 变 1 的秒数，四道都要能离地。
    - **结果（series 2 第 1 局）**：判据通过——`… 45/40/35/30/45 ticks`；最后 S 行 `held=3763 free=33293 unsized=0 unmatched=0`。
      F 行的 `flying` 是整队的：24 次撤退令里 6 秒内整队离地只有 1 次（蝎尾狮，0.7 秒），而且不在近战、窗口内没挨打的单位也常不变 flying，
-     所以这个指标量不出 D3。**还欠一局**：同一命令加 `--entity-read`（逐实体飞行状态），最好再让目标撤走（`retreat_<i>`）免得撤退途中一直挨打。
+     所以这个指标量不出 D3。**还欠一局**逐兵模的。原先写的「同一命令加 `--entity-read`」跑不了：那个逐兵模读取器和它的建包脚本在拆模组时
+     留在了韧性模组，本仓库只剩读数脚本（2026-11-18 查出；驱动现在一开始就拒绝这个参数并说明原因）。改用本仓库自己的起飞记录器：
+     它加了两种行（`E` 逐实体的离地标志与起飞阶段、`Z` 逐实体体型），在游戏目录的 `pin_probe.cfg` 里写 `entities 1` 和 `sample 100` 打开；
+     `pin_record.pack` 要用新记录器重建。命令同上，`--cmd` 里再加 `retreat_1=39000,retreat_2=39000,retreat_3=39000,retreat_4=39000`
+     （第三次撤退令那一刻目标也撤走，之后不再追打）。跑完 `python -P tools/pipelines/pin_probe_report.py "<游戏目录>/pin_probe.txt"`：
+     每个飞兽一行，给出各兵模「最后一次挨打到离地」的时刻数；早于本体型窗口就判失败，预期在「窗口 + 30」上下（窗口过后引擎自己的 3 秒还要走完）。
+     记录器的新行只过了离线测试（LuaJIT 跑真文件，`test_pin_probe_entities.py`），没进过游戏。
 2. **冲锋反制对照组**（约 3 分钟）。拷 `probe_impact.pack`。
    `python -P tools/pipelines/air_dive_autotest.py --test-pack probe_impact.pack --memreader --target wh_main_emp_inf_spearmen_1 --flyers wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm,wh_main_brt_cav_knights_of_the_realm`
    然后 `python -P tools/pipelines/reflect_probe_report.py "<游戏目录>/reflect_probe.txt"`（自动判定会写 FAIL，骑兵不会「落地」）。

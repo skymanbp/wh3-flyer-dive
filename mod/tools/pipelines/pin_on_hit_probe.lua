@@ -12,8 +12,10 @@
 --                    other value is written to all five window slots
 --   mode <1|2>       default 1; 2 = hits recorded, the game's own engaged
 --                    check still answers (the vanilla arm, with the record)
+--   sample <ms>      default 200; the sampling period (100 = one battle tick)
+--   entities <0|1>   default 0; 1 = also write the E lines
 -- WRITES pin_probe.txt next to Warhammer3.exe:
---   BATTLE <stamp> window=<n> mode=<m> table=<entries>
+--   BATTLE <stamp> window=<n> mode=<m> table=<entries> sample=<ms> entities=<0|1>
 --   UNIT <uid> <alliance> <key> obj=<id> flyer=<0|1>
 --   L <ms> <uid> <n> <id> ...     a flyer's living flight entities (unit +0x184
 --                                 / +0x188), at the start and when they change
@@ -24,6 +26,24 @@
 --                                 the caves' own, counted in S)
 --                                 while any flyer has a struck model, or when
 --                                 a count changed
+--   E <ms> <tick> <uid> <id>:<fly>:<phase>:<count> ...
+--                                 [INGAME-1118] with "entities 1": every living
+--                                 flight entity of one flyer, when a <fly> or a
+--                                 <phase> of that unit changed. fly = entity
+--                                 +0x104 (2 = airborne), phase = its flight
+--                                 controller's +0x90 (1 -> 2 when asked to take
+--                                 off, 3 once airborne), count = the
+--                                 controller's +0x44 (the engine's own countdown
+--                                 before lift-off); "-" for the last two when
+--                                 the entity has no controller (+0x128 null).
+--                                 Offsets: this project's own static read and
+--                                 measurement, AIR-DIVE-TAKEOFF-W1 2026-11-12
+--                                 (docs/HISTORY.md; the take-off sequence is
+--                                 written out in takeoff_gate_report.py).
+--   Z <ms> <uid> <id>:<size> ...  with "entities 1", once per flyer: each living
+--                                 flight entity's body size code (entity +0x74:
+--                                 1 small .. 4 very large, the field the hold
+--                                 cave reads; pin_cave_asm.py SIZE_OFF)
 --   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> unsized=<n> unmatched=<n>
 --     used=<entries> stray=<n>
 --                                 every 2 s; stray = entries that never were
@@ -35,6 +55,7 @@ local LOG_FILE, CFG_FILE = "pin_probe.txt", "pin_probe.cfg"
 local CALLBACK_NAME = "pin_on_hit_probe_tick"
 local SAMPLE_MS, SUMMARY_MS = 200, 2000
 local U_ENT_N, U_ENT, U_CTL = 0x184, 0x188, 0x3e30
+local E_FLY, E_FC, FC_COUNT, FC_PHASE, E_SIZE = 0x104, 0x128, 0x44, 0x90, 0x74
 local BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 local BLOCK = 256                                   -- bytes compared at once when scanning the table
 
@@ -62,7 +83,7 @@ local function id_of(p)
 end
 
 local function read_cfg(defaults)
-    local cfg = { window = 0, mode = 1 }
+    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0 }
     local f = io.open(CFG_FILE, "r")
     if not f then return cfg end
     for line in f:lines() do
@@ -88,6 +109,7 @@ local takeoff, buffer, layout, window = nil, nil, nil, nil
 local flyers = {}                 -- {uid, unit, obj, list = "id id ..", n, alive, struck}
 local ever, seen = {}, {}         -- ids that were in a flyer's list; id -> "tick:hits" last written
 local last_summary = -SUMMARY_MS
+local with_entities = false       -- cfg "entities 1": the E lines
 
 -- {id = {tick, hits}} of every table entry, read in 4096-byte pieces
 local function read_table()
@@ -133,7 +155,7 @@ local function sample()
     -- the living flight entities of every flyer
     for _, f in ipairs(flyers) do
         local n = mr.read_int32(f.obj, U_ENT_N)
-        local ids = {}
+        local ids, ents = {}, {}
         f.first = nil
         if n > 0 and n <= 256 then
             local data = mr.read_pointer(f.obj, U_ENT)
@@ -142,6 +164,7 @@ local function sample()
                 if not mr.is_null(e) then
                     f.first = f.first or e
                     ids[#ids + 1] = id_of(e)
+                    ents[#ents + 1] = e
                     ever[ids[#ids]] = true
                 end
             end
@@ -151,8 +174,36 @@ local function sample()
             f.list, f.ids = list, ids
             emit(fmt("L %d %s %d %s", ms, tostring(f.uid), #ids, list))
         end
+        f.ents = ents
     end
     local now = tick_now()
+    if with_entities then
+        for _, f in ipairs(flyers) do
+            if not f.sized and #f.ents > 0 then
+                f.sized = true
+                local sizes = {}
+                for i, e in ipairs(f.ents) do sizes[i] = fmt("%s:%d", f.ids[i], mr.read_int32(e, E_SIZE)) end
+                emit(fmt("Z %d %s %s", ms, tostring(f.uid), table.concat(sizes, " ")))
+            end
+            local cells, key = {}, {}
+            for i, e in ipairs(f.ents) do
+                local fly, fc = mr.read_int32(e, E_FLY), mr.read_pointer(e, E_FC)
+                if mr.is_null(fc) then
+                    cells[i] = fmt("%s:%d:-:-", f.ids[i], fly)
+                    key[i] = fmt("%s:%d:-", f.ids[i], fly)
+                else
+                    local phase = mr.read_int32(fc, FC_PHASE)
+                    cells[i] = fmt("%s:%d:%d:%d", f.ids[i], fly, phase, mr.read_int32(fc, FC_COUNT))
+                    key[i] = fmt("%s:%d:%d", f.ids[i], fly, phase)
+                end
+            end
+            local sig = table.concat(key, " ")
+            if sig ~= f.esig then
+                f.esig = sig
+                emit(fmt("E %d %d %s %s", ms, now, tostring(f.uid), table.concat(cells, " ")))
+            end
+        end
+    end
     local map, used = read_table()
     local changed, stray = {}, 0
     for id, e in pairs(map) do
@@ -218,7 +269,9 @@ local function start()
         for _, w in ipairs(layout.windows) do window = math.max(window, w) end
     end
     takeoff.arm(buffer, windows, cfg.mode)
-    emit(fmt("BATTLE %s window=%d mode=%d table=%d", stamp, cfg.window, cfg.mode, layout.table_slots))
+    with_entities = cfg.entities == 1
+    emit(fmt("BATTLE %s window=%d mode=%d table=%d sample=%d entities=%d", stamp, cfg.window, cfg.mode,
+        layout.table_slots, cfg.sample, cfg.entities))
     each_unit(function(alliance, unit)
         local obj = mr.read_pointer(mr.ud_topointer(unit), 8)
         local flyer = not mr.is_null(mr.read_pointer(obj, U_CTL))
@@ -230,7 +283,7 @@ local function start()
     bm:repeat_callback(function()
         local done, err = pcall(sample)
         if not done then emit("FAIL tick " .. tostring(err)); flush(); bm:remove_callback(CALLBACK_NAME) end
-    end, SAMPLE_MS, CALLBACK_NAME)
+    end, math.max(cfg.sample, 50), CALLBACK_NAME)
 end
 
 if bm and type(bm.register_phase_change_callback) == "function" then

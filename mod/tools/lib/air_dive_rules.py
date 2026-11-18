@@ -652,6 +652,31 @@ def table_renames():
     return _RENAMES
 
 
+def rider_renames():
+    """[FLYER-SEAT-1117 2026-11-17] ``(records, units, renames)`` for the rider
+    table copies the air-dive manifest records under ``riders_renamed``
+    (``pipelines/air_dive.py rider_copies``): the records (as
+    :func:`anim_table_rename.rename_bin` returns them, plus ``land_units``),
+    ``{land unit: (rider source, rider copy)}`` and ``{rider source: {land
+    unit: rider copy}}`` (the culture-row form). Fail-closed: a missing or
+    empty list, or one land unit given two copies, is a refusal."""
+    import json
+    import anim_table_rename
+    import rolepath
+    manifest = rolepath.TOOLS_DIR.parent / "assets" / "air_dive" / "air_dive_manifest.json"
+    records = json.loads(manifest.read_text(encoding="utf-8")).get("riders_renamed")
+    if not records:
+        raise anim_table_rename.Refused(f"{manifest}: no 'riders_renamed' records")
+    units, renames = {}, {}
+    for rec in records:
+        for unit in rec["land_units"]:
+            if unit in units:
+                raise anim_table_rename.Refused(f"{unit}: rider copies {units[unit][1]} and {rec['renamed']}")
+            units[unit] = (rec["source"], rec["renamed"])
+            renames.setdefault(rec["source"], {})[unit] = rec["renamed"]
+    return records, units, renames
+
+
 def dive_table(man_animation, entity):
     """The animation table a land unit on ``man_animation`` with battle
     entity ``entity`` must name so it plays the dive: the renamed copy for

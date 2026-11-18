@@ -210,6 +210,12 @@ def registry_rows(records, db_pack, tag):
         src = by_key.get(rec["source"])
         if src is None:
             unregistered.append(rec["source"])
+        elif rec.get("registry_skeleton") == "source":
+            # [FLYER-SEAT-1117] a rider copy registers exactly as CA registers its source table: one vanilla
+            # rider (hu1b_dlc15_princess_bc2_griffon_wb_sword_bow) is registered humanoid01d against a
+            # humanoid01b bin header, and the copy must play as the source does
+            out.append({"key": rec["renamed"], "skeleton": src["skeleton"]})
+            continue
         elif src["skeleton"] != rec["skeleton"]:
             raise Refused(f"{rec['source']}: registry skeleton "
                           f"{src['skeleton']!r} != bin header {rec['skeleton']!r}")
@@ -254,6 +260,47 @@ def land_unit_rows(renames, db_pack, tag, skip=()):
     another emitter, which repoints them itself (one row, one owner)."""
     return _repointed_rows(LAND_TABLE, "man_animation", "man_entity",
                            renames, db_pack, tag, skip)
+
+
+def rider_land_unit_rows(land_rows, rider_copies, db_pack, tag):
+    """[FLYER-SEAT-1117 2026-11-17] ``land_rows`` [(row, raw)] (the land units
+    an emitter already ships whole) with ``man_animation`` set to the rider
+    table copy of every unit in ``rider_copies`` {land unit: (rider source
+    table, rider copy)}, plus the installed row, whole, of every such unit not
+    among them (other cells replayed byte for byte). The rider copy is the
+    rider table whose header ``s1`` names the renamed mount copy the unit
+    rides (``pipelines/air_dive.py rider_copies``): with ``s1`` still naming
+    the source mount table the engine plays rider and mount out of step and
+    the rider leaves the saddle. A unit whose ``man_animation`` is not the
+    recorded source is a refusal (the data moved under the manifest)."""
+    import flyer_db as installed_db_table
+
+    def _moved(row, raw):
+        src, new = rider_copies[row["key"]]
+        if row["man_animation"] != src:
+            raise Refused(f"{row['key']}: man_animation {row['man_animation']!r}, "
+                          f"the rider copy {new} was made from {src!r}")
+        row, raw = dict(row), dict(raw or {})
+        row["man_animation"] = new
+        raw.pop("man_animation", None)
+        return row, raw or None
+
+    out, have = [], set()
+    for row, raw in land_rows:
+        if row["key"] in rider_copies:
+            row, raw = _moved(row, raw)
+        out.append((row, raw))
+        have.add(row["key"])
+    missing = sorted(set(rider_copies) - have)
+    if missing:
+        rows, _header, replay = installed_db_table.decode_round_trip_with_replay(
+            db_pack, LAND_TABLE, tag)
+        by_key = {r["key"]: (r, x) for r, x in zip(rows, replay)}
+        for key in missing:
+            if key not in by_key:
+                raise Refused(f"{key}: rider-copy land unit is not installed")
+            out.append(_moved(*by_key[key]))
+    return out
 
 
 def mount_rows(renames, db_pack, tag, skip=()):

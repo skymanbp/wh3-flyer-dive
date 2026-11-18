@@ -82,7 +82,9 @@
 | 上传用的文件 | `from_lore_disaster/flyer-publish_scratch/`，用法见 `docs/WORKSHOP.md` |
 | 仓库里的两批旧证据 | `mod/tools/evidence/` |
 
-## 本地还没推送的提交
+## 推送状态
 
-`rider-seat-1117`（`c658e17`）、`update-1117`（`e0018f5`、`d635f71` 及其后的搬家提交）和 `main` 上搬家当晚的
-文档提交都只在本地。GitHub 上的 `main` 还是 `34dfbf3`。推送要主人同意。
+- `main` 已推到 GitHub（2026-11-17 夜，主人同意，`docs/DECISIONS.md` D8）：内容是已发布的那一版代码，加上搬进来的
+  规矩与记录。
+- `rider-seat-1117`（`c658e17`）、`update-1117`（`e0018f5`、`d635f71` 及其后的搬家提交）只在本机，等实机核对完再问。
+- 以后每次推送都要主人同意。

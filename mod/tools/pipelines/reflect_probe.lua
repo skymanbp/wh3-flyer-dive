@@ -15,7 +15,16 @@
 --   R <ms> <tick> <reflector8> <charger8> <ret> <speed> <reflector unit8> <charger unit8>
 --     <charger flyer> <reflector +0xbc> <reflector +0x6c>          every impact reflection
 --   D <ms> <tick> <ret> <victim8> <victim unit8> <damage> <type> <flyer> <flyer entity8> <thread> <clock>
---                                                               every damage-applier call
+--     <victim +0x318> <verdict> <attacker8> <attacker flying entity8> <victim max hp> <victim hp>
+--     <attacker max hp> <attacker hp> <mark state> <ticks since the mark> <attacker unit8> <attacker size code>
+--                                     every damage-applier call; [d15-1118] the twelve fields after <clock> are
+--                                     8 hex digits each (game Lua numbers are float32: 0xFFFFFFFF is a marker,
+--                                     never printed as a number): see reflect_probe_asm.py's D15 docstring
+--   M <ms> <tick> <kind> <entity8> <unit8> <extra hex8>
+--                                     [d15-1118] a change of a dive mark (dive_mark_asm.py): kind 1 armed,
+--                                     2 stamped (touchdown), 3 spent (would-be cost), 4 expired
+--   MARK on: dive buffer <address>, window <ticks> | MARK off: <why>
+--                                     [d15-1118] once, when the probe installs: whether rf_dmg can see marks
 --   C <ms> <which> <target if8> <source if8> <ret1> <ret2> <xmm0> <xmm6> <xmm7> <xmm8> <thread> <clock>
 --     <[target+8]8> <[target+0x10]8> <[source+8]8> <[source+0x10]8>
 --                                     [d10-1118] the damage calculator 0x142e5fcb0 passed its charge-reflect
@@ -32,7 +41,7 @@
 --                                     every 2 s: every call since the last summary, by those fields
 --   U <ms> <uid>:<unary hp>:<men alive>:<in melee> ...          every 100 ms, every unit
 --   S <ms> refl=<n> dmg=<n> brace=<n> act=<n> lost_refl=<n> lost_dmg=<n> lost_brace=<n> lost_act=<n>
---     cr=<n> lost_cr=<n>
+--     cr=<n> lost_cr=<n> mark=<n> lost_mark=<n>
 --                                                                every 2 s
 --   END
 -- id8 = the low 8 hex digits of a pointer (the units' obj ids match a D / R line's unit8).
@@ -83,6 +92,39 @@ local function f32hex(raw) return hexle(raw) end   -- the report decodes the flo
 local function id8(p) local t = mr.tostring(p); return sub(t, #t - 7, #t) end
 
 local buf, site, l = nil, nil, nil
+local dbuf, dl = nil, nil          -- [d15-1118] the marked dive caves' buffer and layout (nil: no marks)
+
+-- [d15-1118] 8 little-endian bytes of a pointer, from its hex text (never through a Lua number: float32)
+local function ptr_bytes(p)
+    local t = string.gsub(string.gsub(mr.tostring(p), "^0[xX]", ""), "[^%x]", "")
+    if #t > 16 or #t == 0 then return nil end
+    t = string.rep("0", 16 - #t) .. t
+    local out = {}
+    for i = 15, 1, -2 do out[#out + 1] = string.char(tonumber(sub(t, i, i + 1), 16)) end
+    return table.concat(out)
+end
+
+-- [d15-1118] The marked dive caves (build_probe_pack.py --dive-mark) share their buffer with lib/dive.lua;
+-- find it, clear the mark table and ring of an earlier battle, and write its address into rf_dmg's header.
+-- Returns a MARK line.
+local function hand_marks()
+    local ok, dive = pcall(require, "script/campaign/flyer_dive/lib/dive")
+    if not ok or type(dive) ~= "table" then return "MARK off: lib/dive did not load: " .. tostring(dive) end
+    local found = dive.find()
+    local lay = dive.layout()
+    if not found then return "MARK off: no dive caves installed" end
+    if type(lay) ~= "table" or not lay.mark_table_at then
+        return "MARK off: the dive caves carry no mark (shipped dive site table: build with --dive-mark)"
+    end
+    local bytes = ptr_bytes(found)
+    if not bytes then return "MARK off: the dive buffer's address did not parse" end
+    local zeros = string.rep("\0", lay.bytes - lay.mark_count_at)
+    mr.write(found, lay.mark_count_at, zeros)
+    mr.write(buf, l.dive_at, bytes)
+    dbuf, dl = found, lay
+    return fmt("MARK on: dive buffer %s, window %d ticks, braced state 0x%X", mr.tostring(found), l.cost_window,
+        l.braced)
+end
 
 local function install()
     if not mr then return nil, "no memreader_plus" end
@@ -133,6 +175,7 @@ local seen_r, seen_d, lost_r, lost_d, last_s = 0, 0, 0, 0, -SUMMARY_MS
 local seen_b, seen_a, lost_b, lost_a, lines_b, lines_a = 0, 0, 0, 0, 0, 0
 local agg_b, agg_a = {}, {}
 local seen_c, lost_c, lines_c, agg_c = 0, 0, 0, {}
+local seen_m, lost_m = 0, 0        -- [d15-1118]
 
 -- entries of one ring not read yet; `size` / `seq_at` default to the 64-byte rings (seq at +60)
 local function drain(count_at, ring_at, slots, seen, lost, line, size, seq_at)
@@ -163,9 +206,31 @@ local function tick()
             u32(e, 48), f32hex(sub(e, 53, 56)), u32(e, 56))
     end)
     seen_d, lost_d, nd = drain(l.dmg_count_at, l.dmg_ring_at, l.dmg_slots, seen_d, lost_d, function(e)
-        return fmt("D %d %d %s %s %s %d %d %d %s %d %d", ms, u32(e, 32), hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)),
-            low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36), low8(sub(e, 41, 48)), u32(e, 48), u32(e, 52))
-    end)
+        return fmt("D %d %d %s %s %s %d %d %d %s %d %d %s %s %s %s %s %s %s %s %s %s %s %s", ms, u32(e, 32),
+            hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)), low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36),
+            low8(sub(e, 41, 48)), u32(e, 48), u32(e, 52),
+            hexle(sub(e, 57, 60)), hexle(sub(e, 61, 64)), low8(sub(e, 73, 80)), low8(sub(e, 81, 88)),
+            hexle(sub(e, 89, 92)), hexle(sub(e, 93, 96)), hexle(sub(e, 97, 100)), hexle(sub(e, 101, 104)),
+            hexle(sub(e, 105, 108)), hexle(sub(e, 109, 112)), low8(sub(e, 113, 120)), hexle(sub(e, 121, 124)))
+    end, l.dmg_entry, 124)
+    local nm = 0
+    if dbuf then
+        -- [d15-1118] the dive marks' events (ring in the dive buffer, seq at +28)
+        local function mread(off, n) return mr.read(dbuf, off, n) end
+        local count = u32(mread(dl.mark_count_at, 4), 0)
+        nm = count
+        if count - seen_m > dl.mark_ring then
+            lost_m = lost_m + (count - seen_m - dl.mark_ring)
+            seen_m = count - dl.mark_ring
+        end
+        while seen_m < count do
+            local e = mread(dl.mark_ring_at + (seen_m % dl.mark_ring) * dl.mark_entry, dl.mark_entry)
+            if u32(e, 28) ~= seen_m + 1 then break end
+            emit(fmt("M %d %d %d %s %s %s", ms, u32(e, 16), u32(e, 20), low8(sub(e, 1, 8)), low8(sub(e, 9, 16)),
+                hexle(sub(e, 25, 28))))
+            seen_m = seen_m + 1
+        end
+    end
     local nb, na
     seen_b, lost_b, nb = drain(l.brace_count_at, l.brace_ring_at, l.brace_slots, seen_b, lost_b, function(e)
         bump(agg_b, fmt("%s %s %d %d %s", low8(sub(e, 9, 16)), hexle(sub(e, 17, 20)), u32(e, 20), u32(e, 24),
@@ -212,8 +277,8 @@ local function tick()
         for key, n in pairs(agg_a) do emit(fmt("AS %d %s n=%d", ms, key, n)) end
         for key, n in pairs(agg_c) do emit(fmt("CS %d %s n=%d", ms, key, n)) end
         agg_b, agg_a, agg_c = {}, {}, {}
-        emit(fmt("S %d refl=%d dmg=%d brace=%d act=%d lost_refl=%d lost_dmg=%d lost_brace=%d lost_act=%d cr=%d lost_cr=%d",
-            ms, nr, nd, nb, na, lost_r, lost_d, lost_b, lost_a, nc, lost_c))
+        emit(fmt("S %d refl=%d dmg=%d brace=%d act=%d lost_refl=%d lost_dmg=%d lost_brace=%d lost_act=%d cr=%d lost_cr=%d "
+            .. "mark=%d lost_mark=%d", ms, nr, nd, nb, na, lost_r, lost_d, lost_b, lost_a, nc, lost_c, nm, lost_m))
     end
     flush()
 end
@@ -228,6 +293,8 @@ bm:register_phase_change_callback("Deployed", function()
     end
     buf, site, l = b, s, s.layout
     emit(fmt("BATTLE %s on: buffer %s", stamp, mr.tostring(buf)))
+    local mok, mline = pcall(hand_marks)
+    emit(mok and mline or ("MARK off: error " .. tostring(mline)))
     pcall(list_units)
     mr.write(buf, l.mode_at, mr.uint32(1))
     flush()

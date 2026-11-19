@@ -82,6 +82,32 @@ rf_dmg gains +48 u32 thread id and +52 u32 clock; clock = one counter all caves 
 multiplier and the damage call it feeds can be paired on one thread. ``APPLIER_CALLS`` classes each of the
 applier's 25 call sites by its caller (pin_cave_asm's own notes and the callers' functions).
 
+[d15-1118, D15] rf_dmg's entry grows to DMG_ENTRY (128) bytes; the fields above keep their offsets, the
+sequence moves to +124, and it logs what the D15 design needs from every applier call:
+  +56 u32 victim +0x318 (the soldier's action; 0x69 = braced, the engine's own test at 0x14325bdd6)
+  +60 u32 verdict (type 5 / 6 only, else 0): 1 would-be cost (the mark is spent), 2 the mark expired (more
+      than DIVE_COST_WINDOW_TICKS after the stamp), 3 fresh mark but the victim is not braced, 4 the attacker's
+      mark is armed only (no touchdown yet), 5 the mark was already spent or expired
+  +64 u64 r12 (the applier's attacker struct: its r9)  +72 u64 [r12] (the attacker entity; 0 if r12 is 0)
+  +80 u64 the attacker's flying entity (the attacker itself when it has a flight controller, else the first of
+      up to three +0x2e0 ancestors that has one; 0: none)
+  +88 u32 victim +0xb18 (maximum hit points)  +92 u32 victim +0xb1c (current hit points)
+  +96 u32 / +100 u32 the same two for the attacker's flying entity (0xFFFFFFFF when there is none)
+  +104 u32 mark state seen (0xFFFFFFFF: not looked up -- not type 5 / 6 or no flying attacker; 0xFFFFFFFE: no
+      dive buffer known; 0: no entry; 1 armed, 2 stamped, 3 spent, 4 expired)
+  +108 u32 ticks since the entry's tick (the stamp; for an armed mark the arm), 0xFFFFFFFF when not looked up
+  +112 u64 the attacker's unit (+0x2e8 of the attacker, else of its flying entity)
+  +120 u32 the attacker's flying entity's size code (+0x74: 1 small .. 4 very large, the field the shipped
+       take-off cave reads, anchor pin_layout_size; 0xFFFFFFFF when there is none)
+The applier itself reads [r12] (0x14325aa9e) and [[r12]+0x2e8] (0x14325abde) on these paths, and the victim's
++0x58 / +0x2e8 / +0xb1c; the parent chain is the engine's own (0x14325d45e). Every pointer is null-checked.
+The mark table and its event ring live in the dive buffer of the marked dive caves (dive_mark_asm.py); the
+recorder writes that buffer's address at DIVE_AT before it switches the probe on (0 = no mark: logged as
+0xFFFFFFFE). A spent / expired mark is changed with lock cmpxchg from "stamped" only, and the change is an
+event in the dive buffer's ring (kinds 3 / 4) with the same layout as the dive caves' own events.
+The C records (rf_cgate / rf_cmul) are unchanged: they share the clock with the D records (pair on thread +
+clock), and [rdi+8] is not dereferenced (not every interface was shown to hold an entity there).
+
 ``python reflect_probe_asm.py [--write-site PATH]`` (keystone + unicorn) assembles the caves,
 runs them in Unicorn against synthetic objects, runs mutated sources that must each fail, and
 writes the site table to PATH (default: print only).
@@ -92,6 +118,13 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+if str(HERE.parent) not in sys.path:
+    sys.path.insert(0, str(HERE.parent))
+import rolepath  # noqa: F401,E402 -- imported because it puts the role directories on sys.path
+
+import air_dive_rules  # noqa: E402 -- because rolepath above puts lib/ on sys.path
+import dive_mark_asm as mark  # noqa: E402 -- same reason (pipelines/)
+
 OWNER, FEATURE = "reflect_probe", "reflect_probe"
 SITE_REQUIRE = "script/reflect_probe/reflect_probe_site"     # Lua require name of the site table
 REFL_PATTERN = ("48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 48 89 78 20 41 56 48 81 EC 40 01 00 00 "
@@ -150,11 +183,13 @@ APPLIER_CALLS = {site + 5: cls for cls, sites in _APPLIER_SITES.items() for site
 
 MODE_AT, MAGIC_AT, REFL_COUNT_AT, DMG_COUNT_AT, BRACE_COUNT_AT, ACT_COUNT_AT = 0, 8, 16, 20, 24, 28
 CLOCK_AT, CR_COUNT_AT = 32, 36       # [d10-1118]
-MAGIC = b"RFPROBE3"                 # 2: + rf_brace, rf_act1, rf_act2 (d3-1118); 3: + rf_cgate, rf_cmul, clock
+DIVE_AT = 40                        # [d15-1118] u64: the marked dive caves' buffer (0: none)
+# 2: + rf_brace, rf_act1, rf_act2 (d3-1118); 3: + rf_cgate, rf_cmul, clock; 4: rf_dmg 128 bytes, the D15 mark
+MAGIC = b"RFPROBE4"
 REFL_RING_AT, REFL_SLOTS = 64, 4096
-DMG_RING_AT, DMG_SLOTS = REFL_RING_AT + REFL_SLOTS * 64, 32768
+DMG_RING_AT, DMG_SLOTS, DMG_ENTRY = REFL_RING_AT + REFL_SLOTS * 64, 16384, 128
 ENTRY = 64
-BRACE_RING_AT, BRACE_SLOTS, BRACE_ENTRY = DMG_RING_AT + DMG_SLOTS * ENTRY, 8192, 128
+BRACE_RING_AT, BRACE_SLOTS, BRACE_ENTRY = DMG_RING_AT + DMG_SLOTS * DMG_ENTRY, 8192, 128
 ACT_RING_AT, ACT_SLOTS = BRACE_RING_AT + BRACE_SLOTS * BRACE_ENTRY, 8192
 CR_RING_AT, CR_SLOTS, CR_ENTRY = ACT_RING_AT + ACT_SLOTS * ENTRY, 8192, 128
 BYTES = CR_RING_AT + CR_SLOTS * CR_ENTRY
@@ -163,6 +198,12 @@ ACT_ID, ACT_FLAG1, ACT_FLAG2 = 0x38, 0x48, 0x7C
 BUF = 0x1122334455667788
 FC, PARENT, UNIT, BATTLE, TICKS, TICK = 0x128, 0x2E0, 0x2E8, 0x58, 0x440, 0x98
 BRACE_MULT, IMMOVABLE = 0xBC, 0x6C
+# [d15-1118] the D15 probe: the soldier's braced action, health fields, the window and the verdicts
+BRACED, MAX_HP, CUR_HP, SIZE = 0x69, 0xB18, 0xB1C, 0x74
+COST_WINDOW = air_dive_rules.DIVE_COST_WINDOW_TICKS
+V_COST, V_EXPIRED, V_NOT_BRACED, V_ARMED_ONLY, V_ALREADY = 1, 2, 3, 4, 5
+NOT_LOOKED, NO_DIVE_BUF = 0xFFFFFFFF, 0xFFFFFFFE
+CHAIN = 4                           # the attacker and up to three +0x2e0 ancestors
 
 
 def _tick(reg, out, tag):
@@ -263,7 +304,138 @@ done:
     return _mutate(s, mutate)
 
 
+def _attacker():
+    """[d15-1118] r12 -> +64; [r12] -> +72; its flying entity -> +80 with its health; its unit -> +112.
+    Uses rax, rcx, r8 (free here: saved by the cave or pushed by _d15)."""
+    return f"""
+    mov qword ptr [r11 + 64], r12
+    test r12, r12
+    jz att_done
+    mov rcx, qword ptr [r12]
+    mov qword ptr [r11 + 72], rcx
+    test rcx, rcx
+    jz att_done
+    mov rax, qword ptr [rcx + {UNIT:#x}]
+    mov qword ptr [r11 + 112], rax
+    mov r8d, {CHAIN}
+att_chain:
+    cmp qword ptr [rcx + {FC:#x}], 0
+    jne att_fly
+    mov rcx, qword ptr [rcx + {PARENT:#x}]
+    test rcx, rcx
+    jz att_done
+    dec r8d
+    jnz att_chain
+    jmp att_done
+att_fly:
+    mov qword ptr [r11 + 80], rcx
+    mov eax, dword ptr [rcx + {MAX_HP:#x}]
+    mov dword ptr [r11 + 96], eax
+    mov eax, dword ptr [rcx + {CUR_HP:#x}]
+    mov dword ptr [r11 + 100], eax
+    mov eax, dword ptr [rcx + {SIZE:#x}]
+    mov dword ptr [r11 + 120], eax
+    cmp qword ptr [r11 + 112], 0
+    jne att_done
+    mov rax, qword ptr [rcx + {UNIT:#x}]
+    mov qword ptr [r11 + 112], rax
+att_done:
+"""
+
+
+def _d15():
+    """[d15-1118] The D15 fields and the mark (rdx = the victim, kept; r10 = this buffer, r11 = the entry;
+    rbx rdx rsi r8 r13 are pushed here and popped at the end; r9d (the seq) is not touched)."""
+    return f"""
+    push rbx
+    push rdx
+    push rsi
+    push r8
+    push r13
+    mov dword ptr [r11 + 96], -1
+    mov dword ptr [r11 + 100], -1
+    mov dword ptr [r11 + 120], -1
+    mov dword ptr [r11 + 104], {NOT_LOOKED}
+    mov dword ptr [r11 + 108], -1
+    mov dword ptr [r11 + 56], -1
+    mov dword ptr [r11 + 88], -1
+    mov dword ptr [r11 + 92], -1
+    test rdx, rdx
+    jz d15_novictim
+    mov eax, dword ptr [rdx + {STATE_OFF:#x}]
+    mov dword ptr [r11 + 56], eax
+    mov eax, dword ptr [rdx + {MAX_HP:#x}]
+    mov dword ptr [r11 + 88], eax
+    mov eax, dword ptr [rdx + {CUR_HP:#x}]
+    mov dword ptr [r11 + 92], eax
+d15_novictim:
+{_attacker()}    mov eax, dword ptr [rbp + 0x6f]
+    cmp eax, 5
+    je d15_type
+    cmp eax, 6
+    jne d15_done
+d15_type:
+    mov r13, qword ptr [r11 + 80]
+    test r13, r13
+    jz d15_done
+    mov rsi, qword ptr [r10 + {DIVE_AT}]
+    test rsi, rsi
+    jnz d15_buf
+    mov dword ptr [r11 + 104], {NO_DIVE_BUF}
+    jmp d15_done
+d15_buf:
+{mark.find("rsi", "r13", False, "rf")}    mov dword ptr [r11 + 104], 0
+    test rdx, rdx
+    jz d15_done
+    mov eax, dword ptr [rdx + 8]
+    mov dword ptr [r11 + 104], eax
+    mov ebx, dword ptr [r11 + 32]
+    mov ecx, ebx
+    sub ecx, dword ptr [rdx + 12]
+    mov dword ptr [r11 + 108], ecx
+    cmp eax, {mark.STAMPED}
+    je d15_stamped
+    mov dword ptr [r11 + 60], {V_ALREADY}
+    cmp eax, {mark.ARMED}
+    jne d15_done
+    mov dword ptr [r11 + 60], {V_ARMED_ONLY}
+    jmp d15_done
+d15_stamped:
+    cmp ecx, {COST_WINDOW}
+    jbe d15_fresh
+    mov eax, {mark.STAMPED}
+    mov r8d, {mark.EXPIRED}
+    lock cmpxchg dword ptr [rdx + 8], r8d
+    jne d15_raced
+    mov dword ptr [r11 + 60], {V_EXPIRED}
+    mov edx, ecx
+{mark.event("rsi", "r13", mark.EV_EXPIRED, "rfx")}    jmp d15_done
+d15_fresh:
+    cmp dword ptr [r11 + 56], {BRACED}
+    je d15_cost
+    mov dword ptr [r11 + 60], {V_NOT_BRACED}
+    jmp d15_done
+d15_cost:
+    mov eax, {mark.STAMPED}
+    mov r8d, {mark.SPENT}
+    lock cmpxchg dword ptr [rdx + 8], r8d
+    jne d15_raced
+    mov dword ptr [r11 + 60], {V_COST}
+    mov edx, ecx
+{mark.event("rsi", "r13", mark.EV_SPENT, "rfc")}    jmp d15_done
+d15_raced:
+    mov dword ptr [r11 + 60], {V_ALREADY}
+d15_done:
+    pop r13
+    pop r8
+    pop rsi
+    pop rdx
+    pop rbx
+"""
+
+
 def dmg_source(mutate=None):
+    zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, DMG_ENTRY, 8))
     s = f"""
     pushfq
     push rax
@@ -278,14 +450,12 @@ def dmg_source(mutate=None):
     lock xadd dword ptr [r10 + {DMG_COUNT_AT}], r9d
     mov r11d, r9d
     and r11d, {DMG_SLOTS - 1}
-    shl r11, 6
+    shl r11, 7
     mov rcx, {DMG_RING_AT}
     add r11, rcx
     add r11, r10
-    mov dword ptr [r11 + 60], 0
-    mov dword ptr [r11 + 36], 0
-    mov qword ptr [r11 + 40], 0
-    mov rcx, qword ptr [rbp + 0x3f]
+    xor eax, eax
+{zero}    mov rcx, qword ptr [rbp + 0x3f]
     mov qword ptr [r11], rcx
     mov qword ptr [r11 + 8], rdx
     mov ecx, dword ptr [rsp + 32]
@@ -324,8 +494,8 @@ no_victim:
     mov eax, 1
     lock xadd dword ptr [r10 + {CLOCK_AT}], eax
     mov dword ptr [r11 + 52], eax
-    inc r9d
-    mov dword ptr [r11 + 60], r9d
+{_d15()}    inc r9d
+    mov dword ptr [r11 + 124], r9d
 done:
     pop r11
     pop r10
@@ -666,53 +836,7 @@ def check(mutate=None, which=None):
                 if (cnt, got) != (1, exp):
                     fails.append(f"rf_refl {name}: count {cnt} entry {got} want {exp}")
     if which in (None, "rf_dmg"):
-        code = assemble("rf_dmg", mutate if which == "rf_dmg" else None)
-        for name, mode, kind, want_flyer in (("ground victim", 1, "ground", 0), ("flying victim", 1, "flyer", 1),
-                                             ("rider of a flyer", 1, "rider", 1), ("null victim", 1, "null", 0),
-                                             ("off", 0, "ground", None),
-                                             ("rider without unit: the mount's unit", 1, "rider_nounit", 1)):
-            for flags in (0x202, 0x8D7):
-                mu = _machine(code)
-                e = _entities(mu, tick=777)
-                victim, flyer, unit = e[0], 0, 0xAA0000 + e[0]
-                if kind == "flyer":
-                    mu.mem_write(victim + FC, struct.pack("<Q", 0x77))
-                    flyer = victim
-                elif kind in ("rider", "rider_nounit"):
-                    mu.mem_write(victim + PARENT, struct.pack("<Q", e[2]))
-                    mu.mem_write(e[2] + FC, struct.pack("<Q", 0x77))
-                    flyer = e[2]
-                    if kind == "rider_nounit":
-                        mu.mem_write(victim + UNIT, struct.pack("<Q", 0))
-                        unit = 0xAA0000 + e[2]
-                elif kind == "null":
-                    victim, unit = 0, 0
-                mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
-                mu.mem_write(B + DMG_COUNT_AT, struct.pack("<I", DMG_SLOTS + 3))
-                mu.mem_write(B + CLOCK_AT, struct.pack("<I", 41))
-                frame = STACK + 0x6000                   # rbp = entry rsp - 0x3f
-                mu.mem_write(frame + 0x3F, struct.pack("<Q", REFLECT_DAMAGE_RETURN))
-                mu.mem_write(frame + 0x6F, struct.pack("<I", 5))
-                rsp = STACK + 0x4000
-                # the ring slot holds junk: a reused slot must not keep stale fields
-                mu.mem_write(B + DMG_RING_AT + 3 * ENTRY, b"\xEE" * ENTRY)
-                changed = _run(mu, code, {"rdx": victim, "rax": 0xFFFFFFFF00000033, "rbp": frame,
-                                          "rsp": rsp}, flags)
-                if changed:
-                    fails.append(f"rf_dmg {name}/{flags:#x}: registers changed {changed}")
-                cnt = _u32(mu, B + DMG_COUNT_AT) - (DMG_SLOTS + 3)
-                ent = bytes(mu.mem_read(B + DMG_RING_AT + 3 * ENTRY, ENTRY))
-                if want_flyer is None:
-                    if cnt or ent != b"\xEE" * ENTRY:
-                        fails.append(f"rf_dmg {name}: logged in mode 0")
-                    continue
-                got = struct.unpack_from("<QQQiIIIQII", ent, 0) + struct.unpack_from("<I", ent, 60)
-                exp = (REFLECT_DAMAGE_RETURN, victim, unit, 0x33, 5, 777 if victim else 0, want_flyer,
-                       flyer, THREAD, 41, DMG_SLOTS + 4)
-                if _u32(mu, B + CLOCK_AT) != 42:
-                    fails.append(f"rf_dmg {name}: clock not advanced")
-                if (cnt, got) != (1, exp):
-                    fails.append(f"rf_dmg {name}: count {cnt} entry {got} want {exp}")
+        fails += _check_dmg(mutate if which == "rf_dmg" else None)
     if which in (None, "rf_brace"):
         fails += _check_brace(mutate if which == "rf_brace" else None)
     for act, n in (("rf_act1", 1), ("rf_act2", 2)):
@@ -721,6 +845,180 @@ def check(mutate=None, which=None):
     for cr, n in (("rf_cgate", 1), ("rf_cmul", 2)):
         if which in (None, cr):
             fails += _check_cr(cr, n, mutate if which == cr else None)
+    return fails
+
+
+DIVEB = 0x6000000                   # [d15-1118] the marked dive caves' buffer in the emulator
+
+
+def _dmg_call(code, mode, victim, attacker_struct, dtype, dive, flags, slot=3):
+    """One rf_dmg call -> (mu, count delta, entry bytes, registers changed)."""
+    mu = _machine(code)
+    mu.mem_map(DIVEB, 0x2000)
+    for w in dive:
+        w(mu)
+    mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+    mu.mem_write(B + DIVE_AT, struct.pack("<Q", DIVEB if dive else 0))
+    mu.mem_write(B + DMG_COUNT_AT, struct.pack("<I", DMG_SLOTS + slot))
+    mu.mem_write(B + CLOCK_AT, struct.pack("<I", 41))
+    frame = STACK + 0x6000                   # rbp = entry rsp - 0x3f
+    mu.mem_write(frame + 0x3F, struct.pack("<Q", REFLECT_DAMAGE_RETURN))
+    mu.mem_write(frame + 0x6F, struct.pack("<I", dtype))
+    mu.mem_write(B + DMG_RING_AT + slot * DMG_ENTRY, b"\xEE" * DMG_ENTRY)     # a reused slot: junk
+    regs = {"rdx": victim, "rax": 0xFFFFFFFF00000033, "rbp": frame, "rsp": STACK + 0x4000,
+            "r12": attacker_struct, "r13": 0x1313, "rsi": 0x5151, "rbx": 0xB0B0}
+    return mu, regs, frame, slot
+
+
+def _check_dmg(mutate):
+    """[d15-1118] rf_dmg on synthetic calls. The fields kept from RFPROBE3 (return address, victim and its unit,
+    damage, type, tick, flyer, thread, clock) at the 128-byte layout, a junk slot, the mode switch; then the D15
+    fields and the mark: a would-be cost spends a fresh stamped mark once (a second contact in the same dive
+    gets nothing), a rider is judged on its mount, a soldier that is not braced, a mark past the window, an
+    armed-only mark, no entry, no dive buffer, a ground attacker, no attacker, type 0 never judged; every
+    register and the flags kept."""
+    fails = []
+    code = assemble("rf_dmg", mutate)
+    for name, mode, kind, want_flyer in (("ground victim", 1, "ground", 0), ("flying victim", 1, "flyer", 1),
+                                         ("rider of a flyer", 1, "rider", 1), ("null victim", 1, "null", 0),
+                                         ("off", 0, "ground", None),
+                                         ("rider without unit: the mount's unit", 1, "rider_nounit", 1)):
+        for flags in (0x202, 0x8D7):
+            mu, regs, frame, slot = _dmg_call(code, mode, 0, 0, 5, [], flags)
+            e = _entities(mu, tick=777)
+            victim, flyer, unit = e[0], 0, 0xAA0000 + e[0]
+            if kind == "flyer":
+                mu.mem_write(victim + FC, struct.pack("<Q", 0x77))
+                flyer = victim
+            elif kind in ("rider", "rider_nounit"):
+                mu.mem_write(victim + PARENT, struct.pack("<Q", e[2]))
+                mu.mem_write(e[2] + FC, struct.pack("<Q", 0x77))
+                flyer = e[2]
+                if kind == "rider_nounit":
+                    mu.mem_write(victim + UNIT, struct.pack("<Q", 0))
+                    unit = 0xAA0000 + e[2]
+            elif kind == "null":
+                victim, unit = 0, 0
+            regs["rdx"] = victim
+            try:
+                changed = _run(mu, code, regs, flags)
+            except Exception as exc:          # unicorn's UcError: a fault is a failing case
+                fails.append(f"rf_dmg {flags:#x}: fault {exc}")
+                continue
+            if changed:
+                fails.append(f"rf_dmg {name}/{flags:#x}: registers changed {changed}")
+            cnt = _u32(mu, B + DMG_COUNT_AT) - (DMG_SLOTS + slot)
+            ent = bytes(mu.mem_read(B + DMG_RING_AT + slot * DMG_ENTRY, DMG_ENTRY))
+            if want_flyer is None:
+                if cnt or ent != b"\xEE" * DMG_ENTRY:
+                    fails.append(f"rf_dmg {name}: logged in mode 0")
+                continue
+            got = struct.unpack_from("<QQQiIIIQII", ent, 0) + struct.unpack_from("<I", ent, 124)
+            exp = (REFLECT_DAMAGE_RETURN, victim, unit, 0x33, 5, 777 if victim else 0, want_flyer,
+                   flyer, THREAD, 41, DMG_SLOTS + slot + 1)
+            if _u32(mu, B + CLOCK_AT) != 42:
+                fails.append(f"rf_dmg {name}: clock not advanced")
+            if (cnt, got) != (1, exp):
+                fails.append(f"rf_dmg {name}: count {cnt} entry {got} want {exp}")
+    fails += _check_dmg_mark(code)
+    return fails
+
+
+def _check_dmg_mark(code):
+    """The D15 fields and verdicts (see _check_dmg). The mark table is the dive buffer's (dive_mark_asm)."""
+    fails = []
+    NOW = 4321
+    W = COST_WINDOW
+
+    def table(key, state, tick):
+        def w(mu):
+            slot = (key >> 4) & (mark.MARK_SLOTS - 1)
+            mu.mem_write(DIVEB + mark.MARK_TABLE_AT + slot * 16, struct.pack("<QII", key, state, tick))
+        return w
+    # (label, attacker, victim +0x318, mark state, mark tick, damage type, verdict, state seen, age,
+    #  table state after, events added [(kind, extra)])
+    cases = (
+        ("would-be cost", "flyer", 0x69, mark.STAMPED, NOW - 21, 5, V_COST, 2, 21, mark.SPENT, [(3, 21)]),
+        ("type 6 cost", "flyer", 0x69, mark.STAMPED, NOW - 3, 6, V_COST, 2, 3, mark.SPENT, [(3, 3)]),
+        ("second contact in the same dive", "flyer", 0x69, mark.SPENT, NOW - 22, 5, V_ALREADY, 3, 22,
+         mark.SPENT, []),
+        ("rider: judged on its mount", "rider", 0x69, mark.STAMPED, NOW - 10, 6, V_COST, 2, 10, mark.SPENT,
+         [(3, 10)]),
+        ("soldier not braced", "flyer", 0x31, mark.STAMPED, NOW - 10, 5, V_NOT_BRACED, 2, 10, mark.STAMPED, []),
+        ("past the window", "flyer", 0x69, mark.STAMPED, NOW - (W + 1), 5, V_EXPIRED, 2, W + 1, mark.EXPIRED,
+         [(4, W + 1)]),
+        ("at the window's end", "flyer", 0x69, mark.STAMPED, NOW - W, 5, V_COST, 2, W, mark.SPENT, [(3, W)]),
+        ("armed only (no touchdown)", "flyer", 0x69, mark.ARMED, NOW - 2, 5, V_ARMED_ONLY, 1, 2, mark.ARMED, []),
+        ("no entry", "flyer", 0x69, None, 0, 5, 0, 0, -1, None, []),
+        ("no dive buffer", "flyer", 0x69, "nobuf", 0, 5, 0, NO_DIVE_BUF, -1, None, []),
+        ("ground attacker", "ground", 0x69, mark.STAMPED, NOW - 2, 5, 0, NOT_LOOKED, -1, mark.STAMPED, []),
+        ("no attacker", "none", 0x69, mark.STAMPED, NOW - 2, 5, 0, NOT_LOOKED, -1, mark.STAMPED, []),
+        ("type 0 is never judged", "flyer", 0x69, mark.STAMPED, NOW - 2, 0, 0, NOT_LOOKED, -1, mark.STAMPED, []),
+    )
+    for (label, att_kind, state318, mstate, mtick, dtype, want_v, want_seen, want_age, want_after,
+         want_ev) in cases:
+        for flags in (0x202, 0x8D7):
+            mu, regs, frame, slot = _dmg_call(code, 1, 0, 0, dtype, [], flags)
+            e = _entities(mu, tick=NOW)
+            victim, att, mount = e[0], e[1], e[2]
+            mu.mem_write(victim + STATE_OFF, struct.pack("<I", state318))
+            mu.mem_write(victim + MAX_HP, struct.pack("<II", 1200, 950))
+            fly = 0
+            if att_kind == "flyer":
+                mu.mem_write(att + FC, struct.pack("<Q", 0x77))
+                fly = att
+            elif att_kind == "rider":
+                mu.mem_write(att + PARENT, struct.pack("<Q", mount))
+                mu.mem_write(mount + FC, struct.pack("<Q", 0x77))
+                fly = mount
+            if fly:
+                mu.mem_write(fly + MAX_HP, struct.pack("<II", 9400, 9100))
+                mu.mem_write(fly + SIZE, struct.pack("<I", 4))
+            astruct = OBJ + 0xA0000
+            mu.mem_write(astruct, struct.pack("<Q", 0 if att_kind == "none" else att))
+            if mstate == "nobuf":
+                mu.mem_write(B + DIVE_AT, struct.pack("<Q", 0))
+            else:
+                mu.mem_write(B + DIVE_AT, struct.pack("<Q", DIVEB))
+                if mstate is not None and fly:
+                    table(fly, mstate, mtick)(mu)
+            regs.update({"rdx": victim, "r12": astruct})
+            try:
+                changed = _run(mu, code, regs, flags)
+            except Exception as exc:          # unicorn's UcError: a fault is a failing case
+                fails.append(f"rf_dmg {flags:#x}: fault {exc}")
+                continue
+            tag = f"rf_dmg mark {label}/{flags:#x}"
+            if changed:
+                fails.append(f"{tag}: registers changed {changed}")
+            ent = bytes(mu.mem_read(B + DMG_RING_AT + slot * DMG_ENTRY, DMG_ENTRY))
+            v318, verdict, r12, a_ent, a_fly, vmax, vcur, amax, acur, seen, age, a_unit = struct.unpack_from(
+                "<IIQQQIIIIIiQ", ent, 56)
+            exp_unit = 0 if att_kind == "none" else 0xAA0000 + att
+            want = (state318, want_v, astruct, 0 if att_kind == "none" else att, fly, 1200, 950,
+                    9400 if fly else 0xFFFFFFFF, 9100 if fly else 0xFFFFFFFF, want_seen & 0xFFFFFFFF, want_age,
+                    exp_unit, 4 if fly else 0xFFFFFFFF)
+            got = (v318, verdict, r12, a_ent, a_fly, vmax, vcur, amax, acur, seen, age, a_unit,
+                   _u32(mu, B + DMG_RING_AT + slot * DMG_ENTRY + 120))
+            if got != want:
+                fails.append(f"{tag}: entry {got} want {want}")
+            if fly and mstate not in (None, "nobuf"):
+                slotk = (fly >> 4) & (mark.MARK_SLOTS - 1)
+                after = struct.unpack("<QII", bytes(mu.mem_read(DIVEB + mark.MARK_TABLE_AT + slotk * 16, 16)))
+                if after[1] != want_after:
+                    fails.append(f"{tag}: mark state after {after[1]} want {want_after}")
+            n_ev = _u32(mu, DIVEB + mark.MARK_COUNT_AT)
+            evs = []
+            for s in range(n_ev):
+                raw = bytes(mu.mem_read(DIVEB + mark.MARK_RING_AT + s * mark.MARK_ENTRY, mark.MARK_ENTRY))
+                ev_ent, ev_unit, ev_tick, ev_kind, ev_extra, ev_seq = struct.unpack("<QQIIiI", raw)
+                evs.append((ev_kind, ev_extra))
+                if (ev_ent, ev_unit, ev_tick, ev_seq) != (fly, 0xAA0000 + fly, NOW, s + 1):
+                    fails.append(f"{tag}: event {s} {(hex(ev_ent), hex(ev_unit), ev_tick, ev_seq)}")
+            if evs != want_ev:
+                fails.append(f"{tag}: events {evs} want {want_ev}")
+            if _u32(mu, B + DMG_RING_AT + slot * DMG_ENTRY + 124) != DMG_SLOTS + slot + 1:
+                fails.append(f"{tag}: sequence not written")
     return fails
 
 
@@ -888,7 +1186,21 @@ MUTANTS = (
     ("rf_dmg", "mov rcx, qword ptr [rbp + 0x3f]", "mov rcx, qword ptr [rbp + 0x37]"),
     ("rf_dmg", "mov ecx, dword ptr [rbp + 0x6f]", "mov ecx, dword ptr [rbp + 0x67]"),
     ("rf_dmg", "mov ecx, dword ptr [rsp + 32]", "mov ecx, dword ptr [rsp + 24]"),
-    ("rf_dmg", "    mov dword ptr [r11 + 36], 0\n", "    nop\n"),
+    ("rf_dmg", "    mov qword ptr [r11 + 40], rax\n", "    nop\n"),
+    # [d15-1118] the D15 fields and the mark
+    ("rf_dmg", f"    cmp dword ptr [r11 + 56], {BRACED}\n    je d15_cost\n", "    jmp d15_cost\n"),
+    ("rf_dmg", f"    cmp ecx, {COST_WINDOW}\n    jbe d15_fresh\n", "    jmp d15_fresh\n"),
+    ("rf_dmg", f"    mov r8d, {mark.SPENT}\n", f"    mov r8d, {mark.STAMPED}\n"),
+    ("rf_dmg", "    mov rcx, qword ptr [r12]\n", "    mov rcx, rdx\n"),
+    ("rf_dmg", "    cmp eax, 6\n    jne d15_done\n", "    jmp d15_done\n"),
+    ("rf_dmg", "    cmp eax, 6\n    jne d15_done\n", "    nop\n"),
+    ("rf_dmg", f"    mov rcx, qword ptr [rcx + {PARENT:#x}]\n", "    xor ecx, ecx\n"),
+    ("rf_dmg", "    mov dword ptr [rcx + 20], 3\n", "    mov dword ptr [rcx + 20], 4\n"),
+    ("rf_dmg", "    mov dword ptr [r11 + 124], r9d\n", "    nop\n"),
+    ("rf_dmg", f"    mov eax, dword ptr [rdx + {MAX_HP:#x}]\n", f"    mov eax, dword ptr [rdx + {CUR_HP:#x}]\n"),
+    ("rf_dmg", "    jnz d15_buf\n", "    jmp d15_buf\n"),
+    ("rf_dmg", f"    mov eax, dword ptr [rcx + {SIZE:#x}]\n", "    mov eax, 3\n"),
+    ("rf_dmg", f"    mov eax, dword ptr [rcx + {MAX_HP:#x}]\n", "    mov eax, -1\n"),
     ("rf_dmg", "    pop r9\n", "    pop rax\n"),
     ("rf_brace", f"[rsp + {8 * (BRACE_PUSHES + 1) + 0x30}]", f"[rsp + {8 * (BRACE_PUSHES + 1) + 0x28}]"),
     ("rf_brace", f"mov ecx, dword ptr [rdx + {STATE_OFF:#x}]", "mov ecx, dword ptr [rdx + 0x31c]"),
@@ -971,7 +1283,8 @@ def site_lua(codes):
               f"magic = '{MAGIC.decode()}',",
               f"        refl_count_at = {REFL_COUNT_AT}, refl_ring_at = {REFL_RING_AT}, "
               f"refl_slots = {REFL_SLOTS},",
-              f"        dmg_count_at = {DMG_COUNT_AT}, dmg_ring_at = {DMG_RING_AT}, dmg_slots = {DMG_SLOTS},",
+              f"        dmg_count_at = {DMG_COUNT_AT}, dmg_ring_at = {DMG_RING_AT}, dmg_slots = {DMG_SLOTS}, "
+              f"dmg_entry = {DMG_ENTRY}, dive_at = {DIVE_AT}, cost_window = {COST_WINDOW}, braced = {BRACED},",
               f"        brace_count_at = {BRACE_COUNT_AT}, brace_ring_at = {BRACE_RING_AT}, "
               f"brace_slots = {BRACE_SLOTS}, brace_entry = {BRACE_ENTRY},",
               f"        act_count_at = {ACT_COUNT_AT}, act_ring_at = {ACT_RING_AT}, act_slots = {ACT_SLOTS},",

@@ -114,6 +114,10 @@ cfg.assist_ms, cfg.push_ms = 12000, 45000
 cfg.recharge_away_ms = 0       -- > 0: a move-away order (away_m back) this long before each re-charge
 cfg.cam_lane, cfg.cam_every_ms, cfg.cam_dist, cfg.cam_up = 0, 500, 45, 22
 cfg.cam_flyer = 0          -- 1: follow lane cam_lane's flyer instead of its target
+-- [d15-1118, D15 control] short_m=<m> (charge scenario): at its lane time each flyer is first ordered to a point
+-- short_m short of its target on the line between them ("short <i> ordered"), and short_ms later to charge
+-- ("charge <i> ordered ... flying=<bool>"): a charge that starts on the ground must get no dive mark. 0 = off.
+cfg.short_m, cfg.short_ms = 0, 20000
 for line in probe:lines() do
     local k, val = line:match("^%s*([%w_]+)%s*=%s*([%d%.%-]+)%s*$")
     if k and cfg[k] ~= nil then cfg[k] = tonumber(val) end
@@ -657,8 +661,22 @@ local function run()
         run_engage(lanes, ux, uz)
         return
     end
+    local short = cfg.short_m > 0
     for i, lane in ipairs(lanes) do
         local at = cfg.settle_ms + (i - 1) * cfg.stagger_ms
+        if short then
+            bm:callback(function()
+                local ok, err = pcall(function()
+                    local p, q = lane.flyer.unit:position(), lane.target.unit:position()
+                    local dx, dz = q:get_x() - p:get_x(), q:get_z() - p:get_z()
+                    local d = math.sqrt(dx * dx + dz * dz)
+                    local f = math.max(0, d - cfg.short_m) / math.max(d, 1)
+                    lane.flyer.uc:goto_location(v(p:get_x() + dx * f, p:get_z() + dz * f), false)
+                end)
+                status(fmt("short %d ordered ok=%s %s", i, tostring(ok), ok and "" or tostring(err)))
+            end, at)
+            at = at + cfg.short_ms
+        end
         bm:callback(function()
             ordered[i] = true
             local ok, err = pcall(function()
@@ -668,14 +686,15 @@ local function run()
                 local p = lane.flyer.unit:position()
                 local q = lane.target.unit:position()
                 local dx, dz = q:get_x() - p:get_x(), q:get_z() - p:get_z()
-                status(fmt("charge %d ordered uid=%s dist=%.1f", i,
-                    tostring(lane.flyer.unit:unique_ui_id()), math.sqrt(dx * dx + dz * dz)))
+                status(fmt("charge %d ordered uid=%s dist=%.1f flying=%s", i,
+                    tostring(lane.flyer.unit:unique_ui_id()), math.sqrt(dx * dx + dz * dz),
+                    tostring(lane.flyer.unit:is_currently_flying())))
             else
                 status(fmt("FAIL charge %d order: %s", i, tostring(err)))
             end
         end, at)
     end
-    local done_at = cfg.settle_ms + (n - 1) * cfg.stagger_ms + cfg.tail_ms
+    local done_at = cfg.settle_ms + (n - 1) * cfg.stagger_ms + cfg.tail_ms + (short and cfg.short_ms or 0)
     bm:callback(function()
         bm:remove_callback("flyer_dive_autotest_track")
         bm:remove_callback("flyer_dive_autotest_hp")

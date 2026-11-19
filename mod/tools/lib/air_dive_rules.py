@@ -960,15 +960,18 @@ IMPACT_STAGES = ("A", "B", "C", "D")
 # again (5 s 13.6%) through a stat the player cannot see, at an unchanged
 # price -- left for a user ruling, not shipped.
 IMPACT_STAGE = "B"
-# [update-1117, user ruling 2026-11-17, docs/DECISIONS.md D4] A flyer that dives head-on into braced
-# infantry with the game's charge_reflection attribute takes one reflection hit, and that hit is
-# TWICE the game's own reflection damage ("raise the damage flyers take so charge reflection is a
-# real threat to flying units; just double it"). This factor is the mod's one number; everything
-# under it (charge_reflect_*, impact_reflection_*, bracing_*) stays the game's. The dive is not
-# stopped or bounced by this rule. NOT SHIPPED YET: no mechanism carries it before the in-game probe
-# (pipelines/reflect_probe_asm.py, reflect_probe.lua) has shown which engine path can; the probe
-# report reads it to print the expected hit.
-REFLECTION_FLYER_DAMAGE_FACTOR = 2.0
+# [D15, d15-1118] Braced-spear cost of a dive. D4's "twice the game's own reflection damage" (the
+# removed REFLECTION_FLYER_DAMAGE_FACTOR) is replaced by D15: once per model per dive, at the dive's
+# contact with a bracing charge_reflection soldier, a share of the model's own maximum health. NOT BUILT:
+# only the test-only probe reads these (pipelines/dive_mark_asm.py, reflect_probe_asm.py rf_dmg,
+# reflect_probe_report.py); the shipped pack carries none of them.
+# DIVE_COST_WINDOW_TICKS: battle ticks (10 a second) after the touchdown in which a contact counts.
+# First guess from series 4 run 3: every flyer's impact and collision damage on the braced line fell
+# within 3 s of the first driver sample on the ground (d15-1118 lane, impact_at_dive.py).
+DIVE_COST_WINDOW_TICKS = 30
+# DIVE_COST_SHARE: share of the model's own maximum health per paying model, by body size (first guess:
+# one value for every size; kept per size so the measurement can set them apart).
+DIVE_COST_SHARE = {"small": 0.03, "medium": 0.03, "large": 0.03, "very_large": 0.03}
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)

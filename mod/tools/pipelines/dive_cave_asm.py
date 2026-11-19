@@ -856,6 +856,9 @@ def _fill(code, buf, resume=0, orig=0):
 
 
 FAST, SLOW = (0.9, -14.97), (1.0, -1.0)
+# [d15-1118] every rig's instruction budget is multiplied by this (1 here; the test-only marked caves of
+# dive_mark_asm.py run more instructions per call and raise it while the shipped cases run on them)
+STEP_FACTOR = 1
 
 
 def check_through(code):
@@ -891,7 +894,7 @@ def check_through(code):
                             X.UC_X86_REG_RSP: STACK + 0x8000, X.UC_X86_REG_RAX: 0x5555_0000_1234}
                     for r, v in vals.items():
                         mu.reg_write(r, v)
-                    mu.emu_start(CODE, RESUME + 1, count=100)
+                    mu.emu_start(CODE, RESUME + 1, count=100 * STEP_FACTOR)
                     flyer = fc_self or bool(fc_parent)
                     want = BL if (mode == 1 and flyer) else (1 if layer in (1, 2) or flags & 2 else BL)
                     r8 = mu.reg_read(X.UC_X86_REG_R8)
@@ -932,7 +935,7 @@ def _ret_or_pass(name, code, build, want_ret):
     end = CODE + len(code)
     fault = None
     try:
-        mu.emu_start(CODE, RET if want_ret else end, count=200)
+        mu.emu_start(CODE, RET if want_ret else end, count=200 * STEP_FACTOR)
     except UcError as e:              # the cave went the other way: a failing case, reported below
         fault = str(e)
     rip, rsp_after = mu.reg_read(X.UC_X86_REG_RIP), mu.reg_read(X.UC_X86_REG_RSP)
@@ -1112,7 +1115,7 @@ def check_call_skip(name, code):
             mu.hook_add(UC_HOOK_CODE, on_call, begin=ORIG, end=ORIG)
             fault = None
             try:
-                mu.emu_start(CODE, RESUME + 1, count=300)
+                mu.emu_start(CODE, RESUME + 1, count=300 * STEP_FACTOR)
             except UcError as exc:            # a fault is a failing case, reported below
                 fault = str(exc)
             cnt = struct.unpack("<I", bytes(mu.mem_read(BUF + c["counter"], 4)))[0]
@@ -1190,7 +1193,7 @@ def _window_rig(hold_code, through_code):
         mu.reg_write(X.UC_X86_REG_EFLAGS, 0x202)
         stop.clear()
         try:
-            mu.emu_start(HOLD, 0, count=8000)
+            mu.emu_start(HOLD, 0, count=8000 * STEP_FACTOR)
         except UcError as exc:        # a fault is a failing case, reported by the caller
             return f"fault {exc}"
         bad = [r for r in vals if mu.reg_read(r) != vals[r]]
@@ -1209,7 +1212,7 @@ def _window_rig(hold_code, through_code):
             mu.reg_write(r, v)
         stop.clear()
         try:
-            mu.emu_start(THR, 0, count=4000)
+            mu.emu_start(THR, 0, count=4000 * STEP_FACTOR)
         except UcError:               # a fault is a failing case: the caller sees False
             return False
         mu.mem_write(ent + LAYER_OFF, struct.pack("<i", 0))
@@ -1526,7 +1529,7 @@ def check_commit(code):
                  uc.reg_read(X.UC_X86_REG_R9) & 0xFF, uc.reg_read(X.UC_X86_REG_RSP))), begin=ORIG, end=ORIG)
             fault = None
             try:
-                mu.emu_start(CODE, RESUME + 1, count=200)
+                mu.emu_start(CODE, RESUME + 1, count=200 * STEP_FACTOR)
             except UcError as exc:            # a fault is a failing case, reported below
                 fault = str(exc)
             cnt = struct.unpack("<I", bytes(mu.mem_read(BUF + COMMITTED_AT, 4)))[0]

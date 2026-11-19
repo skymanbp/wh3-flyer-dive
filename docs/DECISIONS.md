@@ -398,7 +398,14 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   test-only packs, one run each, after a probe run, while a ready-made engine or battle-script way of
   damaging a unit is looked for. The third turns "at the contact" into "paid on the next hit" and is not
   used without the owner's word.
-- Not verified: whether 80 is the whole front arc or half of it. Nothing of D15 is built yet.
+- **A ready-made way to take health was found (2026-11-18, `docs/HISTORY.md` D15-PROBE-1118):** the game's
+  battle scripts have `unit:reduce_hitpoints_unary(proportion, hide_bodies)`, and CA's own scripts use it.
+  The maintainer tries this first: the hook only recognises the dive contact and records it, and the mod's
+  battle script takes the share off through the game's own command. It acts on a whole unit, so for a unit
+  of several models the share is scaled by the number of models that pay. Second choice: the damage
+  routine's own branch that hits the attacker back. Both stay in test-only packs until measured in game.
+- Not verified: whether 80 is the whole front arc or half of it. Of D15 only the test-only probe is built
+  (offline); the rule itself is not.
 
 ### D16 · Branch `rename-1118` is pushed again
 

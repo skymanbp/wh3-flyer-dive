@@ -91,8 +91,12 @@ class RuledNumbers(unittest.TestCase):
         self.assertEqual(len(fields), len(set(fields)))
         self.assertTrue(all(f < lay["windows_at"] for f in fields))
 
-    def test_reflection_factor(self):
-        self.assertEqual(air_dive_rules.REFLECTION_FLYER_DAMAGE_FACTOR, 2.0)
+    def test_dive_cost_numbers(self):
+        # [D15] the probe's window and the per-size share; the superseded D4 factor is gone
+        self.assertFalse(hasattr(air_dive_rules, "REFLECTION_FLYER_DAMAGE_FACTOR"))
+        self.assertEqual(set(air_dive_rules.DIVE_COST_SHARE), set(air_dive_rules.BODY_SIZES))
+        self.assertTrue(all(0 < v < 0.5 for v in air_dive_rules.DIVE_COST_SHARE.values()))
+        self.assertGreater(air_dive_rules.DIVE_COST_WINDOW_TICKS, 0)
 
 
 class SizeProbeVerdict(unittest.TestCase):

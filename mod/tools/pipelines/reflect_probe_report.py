@@ -5,10 +5,7 @@ Per unit of the battle (key, side, flyer or not):
   * impact reflections it took as the CHARGER (rf_refl): count, closing speed min / median / max;
   * damage it took (rf_dmg), by damage type and call site, and in particular the reflection's
     own damage call (call site returning to REFLECT_DAMAGE_RETURN, damage type 0): hits and the
-    damage of each -- the game's reflection hit. With the user's ruling D4 a diving flyer is to
-    take REFLECTION_FLYER_DAMAGE_FACTOR times that hit; this report prints the factor and, when a
-    flyer took reflection hits, each hit next to its expected doubled value is a later run's job
-    (a run with the mechanism in place against a run without);
+    damage of each -- the game's reflection hit (D4's doubling factor is gone: D15 replaced it);
   * hit points: unary hp at its first melee sample, and its loss 1.5 s and 5 s later.
 Verdict lines: CONTROL (some non-flyer took reflection damage: the logger can see a reflection),
 FLYER (some flyer took reflection damage), and the counts behind both. A file with no BATTLE
@@ -28,6 +25,14 @@ CHARGE REFLECT GATE n / MULTIPLIER n by caller, and for each multiplier the firs
 same thread (by the shared clock): its class, victim unit and damage -- the hit the multiplier fed, if the
 pairing holds. CANDIDATES says which logged interface field equals that victim (the field that names the
 entity, read by one run). A file without C lines says "not logged", never "not applied".
+
+[d15-1118, D15] DIVE COST: the log-only dive mark (dive_mark_asm.py) judged by rf_dmg on every impact (type 5)
+and collision-attack (type 6) call. Per flyer unit: its mark events (armed / stamped / spent / expired), each
+would-be cost (model, ticks since touchdown, the soldier's +0x318 and whether it is the braced 0x69, the model's
+maximum and current health, the cost at DIVE_COST_SHARE of its body size), how many models would pay within
+DIVE_COST_WINDOW_TICKS and what that is as a share of the unit's health. ATTACKER IDENTITY: on type-5 / 6 calls,
+how often the applier's attacker is itself the flying entity, a rider of one, or no flyer at all. A file with no
+MARK on line, lost D or M records, no M line or no type-5 / 6 call with a flying attacker is a FAIL (exit 1).
 
 usage: python -P tools/pipelines/reflect_probe_report.py [reflect_probe.txt]
 """
@@ -73,10 +78,15 @@ def parse(text):
             refl.append({"ms": int(p[1]), "tick": int(p[2]), "charger_unit": p[8].upper(), "reflector_unit": p[7].upper(),
                          "ret": p[5], "speed": f32(p[6]), "charger_flyer": p[9] == "1",
                          "brace": f32(p[10]), "immovable": int(p[11])})
-        elif p[0] == "D" and len(p) in (10, 12):
+        elif p[0] == "D" and len(p) in (10, 12, 24):
             dmg.append({"ms": int(p[1]), "tick": int(p[2]), "ret": p[3].upper(), "unit": p[5].upper(), "damage": int(p[6]),
                         "type": int(p[7]), "flyer": p[8] == "1", "victim": p[4].upper(),
-                        "thread": int(p[10]) if len(p) == 12 else None, "clock": int(p[11]) if len(p) == 12 else None})
+                        "thread": int(p[10]) if len(p) >= 12 else None, "clock": int(p[11]) if len(p) >= 12 else None})
+            if len(p) == 24:                   # [d15-1118] the D15 fields, hex
+                dmg[-1].update({"v318": int(p[12], 16), "verdict": int(p[13], 16), "attacker": p[14].upper(),
+                                "att_fly": p[15].upper(), "v_max": int(p[16], 16), "v_hp": int(p[17], 16),
+                                "a_max": int(p[18], 16), "a_hp": int(p[19], 16), "mark": int(p[20], 16),
+                                "age": int(p[21], 16), "att_unit": p[22].upper(), "a_size": int(p[23], 16)})
         elif p[0] == "U":
             row = {"ms": int(p[1])}
             for cell in p[2:]:
@@ -206,6 +216,101 @@ def charge_reflect_summary(other, dmg, units):
     return out
 
 
+NONE32 = 0xFFFFFFFF
+MARK_KINDS = {1: "armed", 2: "stamped", 3: "spent", 4: "expired"}
+VERDICTS = {0: "-", 1: "WOULD-BE COST", 2: "mark expired", 3: "not braced", 4: "armed only", 5: "already spent"}
+SIZE_BY_CODE = {code: size for size, code in air_dive_rules.TAKEOFF_SIZE_CODES.items()}
+
+
+def _s32(v):
+    return v - 2**32 if v >= 2**31 else v
+
+
+def dive_cost_summary(on, units, dmg, other):
+    """[d15-1118] (lines, problems): the DIVE COST section and the attacker identity statistics. Problems are
+    missing or lost records; the caller fails on any."""
+    out, problems = [], []
+    mark_line = next((ln for ln in other if ln.startswith("MARK ")), None)
+    if mark_line is None:
+        problems.append("no MARK line (recorder older than d15-1118?)")
+    elif not mark_line.startswith("MARK on:"):
+        problems.append(mark_line)
+    else:
+        out.append(mark_line)
+    s_lines = [ln for ln in other if ln.startswith("S ")]
+    if not s_lines or "lost_mark=" not in s_lines[-1]:
+        problems.append("no S line with mark counts")
+    else:
+        last = dict(kv.split("=") for kv in s_lines[-1].split()[2:])
+        for k in ("lost_dmg", "lost_mark"):
+            if int(last.get(k, "0")):
+                problems.append(f"{k}={last[k]}: records were overwritten before they were read")
+    ev = []
+    for ln in other:
+        p = ln.split()
+        if p and p[0] == "M" and len(p) == 7:
+            ev.append({"ms": int(p[1]), "tick": int(p[2]), "kind": int(p[3]), "ent": p[4].upper(),
+                       "unit": p[5].upper(), "extra": _s32(int(p[6], 16))})
+    if not ev:
+        problems.append("no M line: no dive was marked")
+    d15 = [d for d in dmg if "verdict" in d]
+    if dmg and not d15:
+        problems.append("D lines without the D15 fields (recorder older than d15-1118)")
+    contact = [d for d in d15 if d["type"] in (5, 6)]
+    flying = [d for d in contact if d["att_fly"] != "00000000"]
+    if not flying:
+        problems.append("no type-5 / 6 call with a flying attacker")
+    # attacker identity on type 5 / 6
+    n = len(contact)
+    own = sum(1 for d in contact if d["att_fly"] != "00000000" and d["att_fly"] == d["attacker"])
+    rider = sum(1 for d in contact if d["att_fly"] != "00000000" and d["att_fly"] != d["attacker"])
+    none_att = sum(1 for d in contact if d["attacker"] == "00000000")
+    flyer_units = {o for o, u in units.items() if u["flyer"]}
+    of_flyer_unit = sum(1 for d in contact if d["att_unit"] in flyer_units)
+    out.append(f"ATTACKER IDENTITY on type-5 / 6 calls: N={n}; attacker is the flying entity {own}/{n}, a rider "
+               f"of one {rider}/{n}, no attacker {none_att}/{n}, no flyer {n - own - rider - none_att}/{n}; "
+               f"attacker's unit is a flyer unit {of_flyer_unit}/{n}")
+    window = air_dive_rules.DIVE_COST_WINDOW_TICKS
+    for obj, u in sorted(units.items(), key=lambda kv: kv[1]["uid"]):
+        if not u["flyer"]:
+            continue
+        mine_ev = [e for e in ev if e["unit"] == obj]
+        mine = [d for d in contact if d["att_unit"] == obj]
+        models = {d["att_fly"]: d["a_max"] for d in mine if d["att_fly"] != "00000000" and d["a_max"] != NONE32}
+        models.update({d["victim"]: d["v_max"] for d in d15 if d["unit"] == obj and d["flyer"]
+                       and d["victim"] not in models and d["v_max"] != NONE32})
+        counts = {k: sum(1 for e in mine_ev if e["kind"] == k) for k in MARK_KINDS}
+        out.append(f"DIVE COST {u['key']} uid {u['uid']}: marks " + ", ".join(
+            f"{MARK_KINDS[k]} {counts[k]}" for k in MARK_KINDS) + f"; type-5/6 calls as attacker {len(mine)}")
+        for e in mine_ev:
+            if e["kind"] == 2:
+                out.append(f"  touchdown model {e['ent']} tick {e['tick']} ({e['extra']} ticks after its arm)")
+        payers, cost = {}, 0.0
+        for d in mine:
+            if d["verdict"] != 1:
+                continue
+            size = SIZE_BY_CODE.get(d["a_size"])
+            share = air_dive_rules.DIVE_COST_SHARE.get(size)
+            c = share * d["a_max"] if share is not None else None
+            payers.setdefault(d["att_fly"], c)
+            braced = "braced" if d["v318"] == reflect_probe_asm.BRACED else f"NOT braced ({d['v318']:#x})"
+            victim_key = units.get(d["unit"], {}).get("key", d["unit"])
+            out.append(f"  would-be cost: model {d['att_fly']} tick {d['tick']} ({_s32(d['age'])} ticks after "
+                       f"touchdown), soldier {d['victim']} of {victim_key} {braced}, model health {d['a_hp']} / "
+                       f"{d['a_max']} (size {size or d['a_size']}), cost "
+                       + (f"{c:.0f} ({share:.0%})" if c is not None else "UNKNOWN: unreadable size code"))
+            if c is None:
+                problems.append(f"{u['key']}: model {d['att_fly']} has size code {d['a_size']}")
+        cost = sum(c for c in payers.values() if c is not None)
+        total = sum(models.values())
+        if payers:
+            out.append(f"  models paying within {window} ticks: {len(payers)} of {len(models)} seen; cost {cost:.0f} of "
+                       f"{total} = {cost / total:.1%} of the unit's health (models seen; UNIT men {u['men']})")
+        else:
+            out.append(f"  models paying within {window} ticks: 0 of {len(models)} seen")
+    return out, problems
+
+
 def main(argv):
     path = Path(argv[0]) if argv else GAME_ROOT / "reflect_probe.txt"
     on, units, refl, dmg, hp, other = parse(path.read_text("utf-8", errors="replace"))
@@ -216,7 +321,6 @@ def main(argv):
     for line in other:
         if line.startswith(("STOP", "FAIL", "S ")):
             print(line)
-    factor = air_dive_rules.REFLECTION_FLYER_DAMAGE_FACTOR
     control = flyer = 0
     for obj, u in sorted(units.items(), key=lambda kv: (kv[1]["alliance"], kv[1]["uid"])):
         mine_r = [r for r in refl if r["charger_unit"] == obj]
@@ -236,8 +340,7 @@ def main(argv):
             tag = "  <- the reflection's damage call" if ret == REFLECT_RET else ""
             print(f"  damage {t:16s} site {ret} [{call_class(ret)}]: {len(vals)} calls, {sum(vals)} total{tag}")
         if reflect_hits:
-            print(f"  reflection hits: {reflect_hits} (the game's own; the ruled flyer hit is x{factor}: "
-                  f"{[h * factor for h in reflect_hits]})")
+            print(f"  reflection hits: {reflect_hits} (the game's own)")
             if u["flyer"]:
                 flyer += 1
             else:
@@ -258,7 +361,12 @@ def main(argv):
     if not refl and not dmg:
         print("INCOMPLETE: no R or D line")
         return 1
-    return 0
+    lines, problems = dive_cost_summary(on, units, dmg, other)
+    for line in lines:
+        print(line)
+    for p in problems:
+        print("FAIL D15:", p)
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":

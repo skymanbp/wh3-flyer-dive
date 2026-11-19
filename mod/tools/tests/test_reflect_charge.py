@@ -156,16 +156,26 @@ local function u32(v) return string.char(v % 256, math.floor(v / 256) % 256, mat
     math.floor(v / 16777216) % 256) end
 local function u64(v) return u32(v % 4294967296) .. u32(math.floor(v / 4294967296)) end
 local NULL = { null = true }
+dive_buf_mem = {}
 local buf = { mem = {}, text = "0x0000000150000000" }
 local function put(off, s) for i = 1, #s do buf.mem[off + i - 1] = s:byte(i) end end
+local function dput(off, s) for i = 1, #s do dive_buf_mem[off + i - 1] = s:byte(i) end end
 local written = {}
 io.open = function() return { write = function(_, s) written[#written + 1] = s end, close = function() end } end
-local L = { bytes = 4096, mode_at = 0, magic_at = 8, magic = "RFPROBE3", refl_count_at = 16, refl_ring_at = 64,
-    refl_slots = 4, dmg_count_at = 20, dmg_ring_at = 320, dmg_slots = 4, brace_count_at = 24, brace_ring_at = 576,
-    brace_slots = 2, brace_entry = 128, act_count_at = 28, act_ring_at = 832, act_slots = 2, entry = 64,
-    clock_at = 32, cr_count_at = 36, cr_ring_at = 960, cr_slots = 4, cr_entry = 128 }
+local L = { bytes = 4096, mode_at = 0, magic_at = 8, magic = "RFPROBE4", refl_count_at = 16, refl_ring_at = 64,
+    refl_slots = 4, dmg_count_at = 20, dmg_ring_at = 320, dmg_slots = 4, dmg_entry = 128, dive_at = 40,
+    cost_window = 30, braced = 105, brace_count_at = 24, brace_ring_at = 960,
+    brace_slots = 2, brace_entry = 128, act_count_at = 28, act_ring_at = 1216, act_slots = 2, entry = 64,
+    clock_at = 32, cr_count_at = 36, cr_ring_at = 1344, cr_slots = 4, cr_entry = 128 }
 package.preload["script/reflect_probe/reflect_probe_site"] = function()
     return { owner = "t", feature = "t", entries = {}, caves = { "rf_dmg" }, layout = L }
+end
+-- [d15-1118] the marked dive caves' buffer, found through lib/dive
+local dive_buf = { mem = dive_buf_mem, text = "00007FF4DFFA0010" }
+local DL = { bytes = 512, mark_count_at = 64, mark_full_at = 68, mark_table_at = 128, mark_slots = 8,
+    mark_ring_at = 256, mark_ring = 4, mark_entry = 32 }
+package.preload["script/campaign/flyer_dive/lib/dive"] = function()
+    return { find = function() return dive_buf, true end, layout = function() return DL end }
 end
 _G.memreader_plus = {
     patcher = function() return { sites = function() return {
@@ -193,8 +203,16 @@ phases.Deployed()
 -- one damage call (victim 0xAB00CD01, thread 7, clock 12) and one multiplier (thread 7, clock 11)
 local d = L.dmg_ring_at
 put(d, u64(0x14326D217)); put(d + 8, u64(0x1AB00CD01)); put(d + 16, u64(0x1EE00FF02)); put(d + 24, u32(40))
-put(d + 28, u32(0)); put(d + 32, u32(500)); put(d + 36, u32(1)); put(d + 40, u64(0x1AB00CD01))
-put(d + 48, u32(7)); put(d + 52, u32(12)); put(d + 60, u32(1)); put(L.dmg_count_at, u32(1))
+put(d + 28, u32(5)); put(d + 32, u32(500)); put(d + 36, u32(1)); put(d + 40, u64(0x1AB00CD01))
+put(d + 48, u32(7)); put(d + 52, u32(12))
+-- [d15-1118] victim braced 0x69, verdict 1, attacker 0x1A1000010 riding 0x1A1000020, healths, mark 2 age 21
+put(d + 56, u32(0x69)); put(d + 60, u32(1)); put(d + 64, u64(0x150000100)); put(d + 72, u64(0x1A1000010))
+put(d + 80, u64(0x1A1000020)); put(d + 88, u32(1200)); put(d + 92, u32(950)); put(d + 96, u32(9400))
+put(d + 100, u32(9100)); put(d + 104, u32(2)); put(d + 108, u32(21)); put(d + 112, u64(0x1BB00CC03))
+put(d + 120, u32(4)); put(d + 124, u32(1)); put(L.dmg_count_at, u32(1))
+-- [d15-1118] one mark event: stamped, 25 ticks after its arm
+dput(DL.mark_ring_at, u64(0x1A1000020) .. u64(0x1BB00CC03) .. u32(480) .. u32(2) .. u32(25) .. u32(1))
+dput(DL.mark_count_at, u32(1))
 local c = L.cr_ring_at
 put(c, u64(0x1C0000010)); put(c + 8, u64(0x1D0000020)); put(c + 16, u64(0x142E60306)); put(c + 24, u64(0x1430AF7B4))
 put(c + 32, u32(2)); put(c + 36, string.char(0x9A, 0x99, 0x59, 0x3F)); put(c + 40, string.char(0x33, 0x33, 0x33, 0x3F))
@@ -202,6 +220,9 @@ put(c + 44, string.char(0, 0, 0, 0x40)); put(c + 48, u32(7)); put(c + 52, u32(11
 put(c + 56, string.char(0, 0, 0xA0, 0x3F)); put(c + 64, u64(0x1AB00CD01)); put(c + 124, u32(1)); put(L.cr_count_at, u32(1))
 tick()
 for _, chunk in ipairs(written) do io.stdout:write(chunk) end
+local ptr = {}
+for i = L.dive_at + 7, L.dive_at, -1 do ptr[#ptr + 1] = string.format("%02X", buf.mem[i] or 0) end
+io.stdout:write("PTR " .. table.concat(ptr) .. "\n")
 '''
 
 
@@ -217,14 +238,21 @@ class Recorder(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr[:600])
         lines = proc.stdout.splitlines()
         self.assertFalse([ln for ln in lines if ln.startswith(("STOP", "FAIL"))], lines)
-        self.assertIn("D 1000 500 000000014326D217 AB00CD01 EE00FF02 40 0 1 AB00CD01 7 12",
+        self.assertIn("D 1000 500 000000014326D217 AB00CD01 EE00FF02 40 5 1 AB00CD01 7 12 00000069 00000001 "
+                      "A1000010 A1000020 000004B0 000003B6 000024B8 0000238C 00000002 00000015 BB00CC03 00000004",
                       lines)
+        # [d15-1118] the dive buffer's address went into rf_dmg's header, little-endian; the mark event
+        self.assertTrue(any(ln.startswith("MARK on: dive buffer 00007FF4DFFA0010, window 30 ticks") for ln in lines),
+                        lines)
+        self.assertIn("M 1000 480 2 A1000020 BB00CC03 00000019", lines)
+        self.assertIn("PTR 00007FF4DFFA0010", lines)
+        self.assertTrue(any(ln.startswith("S ") and ln.endswith("mark=1 lost_mark=0") for ln in lines), lines)
         c = next(ln for ln in lines if ln.startswith("C ")).split()
         self.assertEqual(c[1:7], ["1000", "2", "C0000010", "D0000020", "0000000142E60306", "00000001430AF7B4"])
         self.assertAlmostEqual(rrep.f32(c[7]), 0.85, places=5)
         self.assertEqual((rrep.f32(c[9]), rrep.f32(c[10]), c[11], c[12], c[13]), (2.0, 1.25, "7", "11", "AB00CD01"))
         self.assertTrue(any(ln.startswith("CS 1000 2 0000000142E60306 00000001430AF7B4 n=1") for ln in lines), lines)
-        self.assertTrue(any(ln.startswith("S ") and ln.endswith("cr=1 lost_cr=0") for ln in lines), lines)
+        self.assertTrue(any(ln.startswith("S ") and "cr=1 lost_cr=0" in ln for ln in lines), lines)
         # and the report reads the same lines
         on, units, refl, dmg, hp, other = rrep.parse("BATTLE x on: buffer\n" + "\n".join(lines) + "\n")
         out = rrep.charge_reflect_summary(other, dmg, units)

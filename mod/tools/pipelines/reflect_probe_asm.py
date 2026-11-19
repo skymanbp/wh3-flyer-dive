@@ -201,6 +201,9 @@ BRACE_MULT, IMMOVABLE = 0xBC, 0x6C
 # [d15-1118] the D15 probe: the soldier's braced action, health fields, the window and the verdicts
 BRACED, MAX_HP, CUR_HP, SIZE = 0x69, 0xB18, 0xB1C, 0x74
 COST_WINDOW = air_dive_rules.DIVE_COST_WINDOW_TICKS
+# [d15-1118, cost] the recorder's reduce_hitpoints_unary step: the share by the engine's size code 1..4
+COST_SHARE_BY_CODE = [air_dive_rules.DIVE_COST_SHARE[s] for s in
+                      sorted(air_dive_rules.TAKEOFF_SIZE_CODES, key=air_dive_rules.TAKEOFF_SIZE_CODES.get)]
 V_COST, V_EXPIRED, V_NOT_BRACED, V_ARMED_ONLY, V_ALREADY = 1, 2, 3, 4, 5
 NOT_LOOKED, NO_DIVE_BUF = 0xFFFFFFFF, 0xFFFFFFFE
 CHAIN = 4                           # the attacker and up to three +0x2e0 ancestors
@@ -1285,6 +1288,10 @@ def site_lua(codes):
               f"refl_slots = {REFL_SLOTS},",
               f"        dmg_count_at = {DMG_COUNT_AT}, dmg_ring_at = {DMG_RING_AT}, dmg_slots = {DMG_SLOTS}, "
               f"dmg_entry = {DMG_ENTRY}, dive_at = {DIVE_AT}, cost_window = {COST_WINDOW}, braced = {BRACED},",
+              "        cost_share = { " + ", ".join(repr(v) for v in COST_SHARE_BY_CODE) + " }, "
+              f"cost_max_call = {air_dive_rules.DIVE_COST_MAX_CALL}, "
+              f"cost_keep = {air_dive_rules.DIVE_COST_KEEP_UNARY}, "
+              f"cost_follow = {air_dive_rules.DIVE_COST_FOLLOW_TICKS},",
               f"        brace_count_at = {BRACE_COUNT_AT}, brace_ring_at = {BRACE_RING_AT}, "
               f"brace_slots = {BRACE_SLOTS}, brace_entry = {BRACE_ENTRY},",
               f"        act_count_at = {ACT_COUNT_AT}, act_ring_at = {ACT_RING_AT}, act_slots = {ACT_SLOTS},",

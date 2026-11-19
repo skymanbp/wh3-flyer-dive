@@ -25,6 +25,20 @@
 --                                     2 stamped (touchdown), 3 spent (would-be cost), 4 expired
 --   MARK on: dive buffer <address>, window <ticks> | MARK off: <why>
 --                                     [d15-1118] once, when the probe installs: whether rf_dmg can see marks
+--   COST on (cost=1) | COST off (<why>)
+--                                     [d15-1118, cost] once at Deployed: the switch, read from the autotest
+--                                     command file (a line cost=1; anything else or no file = off)
+--   X|XOFF|XREF <ms> <tick> <uid> <key> <paying models> <p wanted> <p applied> <unary hp before> <men alive>
+--     <initial men>                   [d15-1118, cost] once per flyer unit per recorder tick with would-be costs
+--                                     (D lines with verdict 1): X = unit:reduce_hitpoints_unary(p, false) called;
+--                                     XOFF = the switch is off, nothing called (same numbers); XREF = refused,
+--                                     nothing called (p <= 0, p > cost_max_call, or no readable count / health)
+--   XA <ms> <uid> <k> <unary hp> <men alive>
+--                                     [d15-1118, cost] the k-th reading (k = 1..cost_follow, one per recorder
+--                                     tick) after an X line of that unit
+--   XERR <ms> <tick> <unit8 or uid> ...
+--                                     [d15-1118, cost] no unit object for the paying unit, an unknown size code,
+--                                     or the call raised: nothing applied (the report fails on it)
 --   C <ms> <which> <target if8> <source if8> <ret1> <ret2> <xmm0> <xmm6> <xmm7> <xmm8> <thread> <clock>
 --     <[target+8]8> <[target+0x10]8> <[source+8]8> <[source+0x10]8>
 --                                     [d10-1118] the damage calculator 0x142e5fcb0 passed its charge-reflect
@@ -153,6 +167,8 @@ local function install()
 end
 
 local units = {}
+-- [d15-1118, cost] the units by the low 8 hex digits of their engine object (the D lines' unit fields)
+local by_obj = {}
 local function list_units()
     local alliances = bm:alliances()
     for a = 1, alliances:count() do
@@ -164,6 +180,7 @@ local function list_units()
                 local obj = mr.read_pointer(mr.ud_topointer(unit), 8)
                 local flyer = mr.is_null(mr.read_pointer(obj, 0x3e30)) and 0 or 1
                 units[#units + 1] = { uid = tostring(unit:unique_ui_id()), unit = unit }
+                by_obj[id8(obj)] = { uid = tostring(unit:unique_ui_id()), unit = unit, key = unit:type() }
                 emit(fmt("UNIT %s %d %s obj=%s men=%d flyer=%d", tostring(unit:unique_ui_id()), a, unit:type(),
                     id8(obj), unit:number_of_men_alive(), flyer))
             end
@@ -176,6 +193,93 @@ local seen_b, seen_a, lost_b, lost_a, lines_b, lines_a = 0, 0, 0, 0, 0, 0
 local agg_b, agg_a = {}, {}
 local seen_c, lost_c, lines_c, agg_c = 0, 0, 0, {}
 local seen_m, lost_m = 0, 0        -- [d15-1118]
+
+-- [d15-1118, cost] The D15 cost through the game's own battle-script call, test-only. The damage logger marks a
+-- would-be cost (verdict 1) on the D entry; the paying models of one flyer unit in one recorder tick are summed
+-- and the unit loses p = sum of their shares (l.cost_share by size code) / unit:initial_number_of_men() of its
+-- health in ONE call (CA's kill_proportion: the proportion is of "the unit's starting number of soldiers").
+local CMD_FILE = "flyer_dive_autotest_cmd.txt"
+local cost_on, cost_why = false, "off (no cost=1 in " .. CMD_FILE .. ")"
+local tally, pending = {}, {}
+
+local function read_cost_switch()
+    local f = io.open(CMD_FILE, "r")
+    if not f then return end
+    for line in f:lines() do
+        local v = line:match("^%s*cost%s*=%s*(%d+)%s*$")
+        if v then
+            cost_on = (v == "1")
+            cost_why = cost_on and "on (cost=1)" or ("off (cost=" .. v .. ")")
+        end
+    end
+    f:close()
+end
+
+-- a D entry with verdict 1: one paying model of the attacker's unit
+local function note_cost(e)
+    if u32(e, 60) ~= 1 then return end
+    local key = low8(sub(e, 113, 120))
+    local t = tally[key]
+    if not t then
+        t = { n = 0, share = 0, tick = 0 }
+        tally[key] = t
+    end
+    t.n = t.n + 1
+    local code = u32(e, 120)
+    local s = l.cost_share and l.cost_share[code]
+    if s then t.share = t.share + s else t.bad = code end
+    if u32(e, 32) > t.tick then t.tick = u32(e, 32) end
+end
+
+-- once per recorder tick, after the D lines were drained: one call per flyer unit
+local function apply_costs(ms)
+    for key, t in pairs(tally) do
+        local u = by_obj[key]
+        if not u then
+            emit(fmt("XERR %d %d %s no unit object: the cost of %d models not applied", ms, t.tick, key, t.n))
+        elseif t.bad then
+            emit(fmt("XERR %d %d %s %s size code %s has no share: the cost of %d models not applied", ms, t.tick,
+                u.uid, u.key, tostring(t.bad), t.n))
+        else
+            local init, before, men = -1, -1, -1
+            pcall(function() init = u.unit:initial_number_of_men() end)
+            pcall(function() before = u.unit:unary_hitpoints() end)
+            pcall(function() men = u.unit:number_of_men_alive() end)
+            local want = init > 0 and t.share / init or -1
+            local p = math.min(want, before - l.cost_keep)
+            local head = fmt("%d %d %s %s %d %.6f %.6f %.6f %d %d", ms, t.tick, u.uid, u.key, t.n, want, p, before,
+                men, init)
+            if init <= 0 or before < 0 or p <= 0 or want > l.cost_max_call then
+                emit("XREF " .. head)
+            elseif not cost_on then
+                emit("XOFF " .. head)
+            else
+                local ok, err = pcall(function() u.unit:reduce_hitpoints_unary(p, false) end)
+                if ok then
+                    emit("X " .. head)
+                    pending[#pending + 1] = { u = u, k = 0 }
+                else
+                    emit("XERR " .. head .. " the call raised: " .. tostring(err))
+                end
+            end
+        end
+    end
+    tally = {}
+end
+
+-- at the start of every recorder tick: the readings after earlier calls
+local function follow_costs(ms)
+    local keep = {}
+    for _, c in ipairs(pending) do
+        c.k = c.k + 1
+        local hp, men = -1, -1
+        pcall(function() hp = c.u.unit:unary_hitpoints() end)
+        pcall(function() men = c.u.unit:number_of_men_alive() end)
+        emit(fmt("XA %d %s %d %.6f %d", ms, c.u.uid, c.k, hp, men))
+        if c.k < l.cost_follow then keep[#keep + 1] = c end
+    end
+    pending = keep
+end
 
 -- entries of one ring not read yet; `size` / `seq_at` default to the 64-byte rings (seq at +60)
 local function drain(count_at, ring_at, slots, seen, lost, line, size, seq_at)
@@ -200,12 +304,14 @@ local function bump(agg, key) agg[key] = (agg[key] or 0) + 1 end
 local function tick()
     local ms = bm:time_elapsed_ms()
     local nr, nd
+    if l.cost_share then follow_costs(ms) end
     seen_r, lost_r, nr = drain(l.refl_count_at, l.refl_ring_at, l.refl_slots, seen_r, lost_r, function(e)
         return fmt("R %d %d %s %s %s %s %s %s %d %s %d", ms, u32(e, 28), low8(sub(e, 1, 8)), low8(sub(e, 9, 16)),
             hexle(sub(e, 17, 24)), f32hex(sub(e, 25, 28)), low8(sub(e, 33, 40)), low8(sub(e, 41, 48)),
             u32(e, 48), f32hex(sub(e, 53, 56)), u32(e, 56))
     end)
     seen_d, lost_d, nd = drain(l.dmg_count_at, l.dmg_ring_at, l.dmg_slots, seen_d, lost_d, function(e)
+        if l.cost_share then note_cost(e) end
         return fmt("D %d %d %s %s %s %d %d %d %s %d %d %s %s %s %s %s %s %s %s %s %s %s %s", ms, u32(e, 32),
             hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)), low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36),
             low8(sub(e, 41, 48)), u32(e, 48), u32(e, 52),
@@ -262,6 +368,7 @@ local function tick()
                 low8(sub(e, 65, 72)), low8(sub(e, 73, 80)), low8(sub(e, 81, 88)), low8(sub(e, 89, 96)))
         end, l.cr_entry, 124)
     end
+    if l.cost_share then apply_costs(ms) end
     local cells = {}
     for _, u in ipairs(units) do
         local hp, men, melee = -1, -1, false
@@ -295,6 +402,9 @@ bm:register_phase_change_callback("Deployed", function()
     emit(fmt("BATTLE %s on: buffer %s", stamp, mr.tostring(buf)))
     local mok, mline = pcall(hand_marks)
     emit(mok and mline or ("MARK off: error " .. tostring(mline)))
+    local cok, cerr = pcall(read_cost_switch)
+    if not cok then cost_on, cost_why = false, "off (the command file did not read: " .. tostring(cerr) .. ")" end
+    emit("COST " .. cost_why)
     pcall(list_units)
     mr.write(buf, l.mode_at, mr.uint32(1))
     flush()

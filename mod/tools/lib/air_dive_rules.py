@@ -972,6 +972,21 @@ DIVE_COST_WINDOW_TICKS = 30
 # DIVE_COST_SHARE: share of the model's own maximum health per paying model, by body size (first guess:
 # one value for every size; kept per size so the measurement can set them apart).
 DIVE_COST_SHARE = {"small": 0.03, "medium": 0.03, "large": 0.03, "very_large": 0.03}
+# [d15-1118, maintainer] The probe applies the cost through the game's own battle-script call
+# unit:reduce_hitpoints_unary(p, false) (CA: lib_battle_script_unit.lua kill_proportion), once per flyer
+# unit per recorder tick, p = the paying models' shares summed / unit:initial_number_of_men() (CA's doc of
+# kill_proportion: the proportion is of "the unit's starting number of soldiers"). Only with cost=1 in the
+# autotest command file. A call is refused (logged, not made) for p <= 0 or p > DIVE_COST_MAX_CALL, and p is
+# capped so the unit keeps DIVE_COST_KEEP_UNARY of its health: whether the call can kill the last model is
+# not readable statically (its command executor was not found), so a dive cost never takes the last
+# DIVE_COST_KEEP_UNARY -- one model-share of the largest share, the size of a single dive cost.
+DIVE_COST_MAX_CALL = 0.5
+DIVE_COST_KEEP_UNARY = 0.03
+# Recorder ticks (100 ms each) the unit's health is read after a call. The call only queues a command
+# (0x142ea4778); a single-player battle runs one simulation tick per 100 ms, so the effect is expected on the
+# next reading. Five readings allow for a queue delay of several ticks; no drop within them is the report's
+# "command not executed" FAIL (e.g. the two flags at 0x142f0f633 / 0x142f0f63c that skip the submit).
+DIVE_COST_FOLLOW_TICKS = 5
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)

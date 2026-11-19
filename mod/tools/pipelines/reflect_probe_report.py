@@ -34,6 +34,14 @@ DIVE_COST_WINDOW_TICKS and what that is as a share of the unit's health. ATTACKE
 how often the applier's attacker is itself the flying entity, a rider of one, or no flyer at all. A file with no
 MARK on line, lost D or M records, no M line or no type-5 / 6 call with a flying attacker is a FAIL (exit 1).
 
+[d15-1118, maintainer] COST: the recorder's test-only step that applies the would-be costs through
+unit:reduce_hitpoints_unary (switch cost=1). Per flyer unit: calls, p requested, the measured health drop (the
+reading before each call minus the lowest of the DIVE_COST_FOLLOW_TICKS readings after it), the ordinary damage
+the D lines put on that unit in the same windows (as a share of the unit: initial men x the model's maximum
+health), the drop attributable to the calls, models lost; with the switch off, the would-have calls. FAIL: no
+COST line; an XERR line; a call after which no reading fell (the queued command was not executed -- the submit
+is skipped when [[g]+0x468]+0x3b0 / +0x3b1 is set, 0x142f0f633); verdicts for a unit with no cost line at all.
+
 usage: python -P tools/pipelines/reflect_probe_report.py [reflect_probe.txt]
 """
 import os as _os, sys as _sys
@@ -311,6 +319,74 @@ def dive_cost_summary(on, units, dmg, other):
     return out, problems
 
 
+DROP_EPS = 1e-4                       # a reading this much below the one before the call counts as a change
+
+
+def cost_summary(units, dmg, other):
+    """[d15-1118] (lines, problems) for the COST section; problems fail the report."""
+    out, problems = [], []
+    cost_line = next((ln for ln in other if ln.startswith("COST ")), None)
+    if cost_line is None:
+        return out, ["no COST line (recorder older than the cost step)"]
+    out.append(cost_line)
+    calls, xa = [], {}
+    for ln in other:
+        p = ln.split()
+        if not p:
+            continue
+        if p[0] in ("X", "XOFF", "XREF") and len(p) == 11:
+            calls.append({"kind": p[0], "ms": int(p[1]), "tick": int(p[2]), "uid": p[3], "key": p[4], "n": int(p[5]),
+                          "want": float(p[6]), "p": float(p[7]), "before": float(p[8]), "men": int(p[9]),
+                          "init": int(p[10])})
+        elif p[0] == "XA" and len(p) == 6:
+            xa.setdefault(p[2], []).append({"ms": int(p[1]), "k": int(p[3]), "hp": float(p[4]), "men": int(p[5])})
+        elif p[0] == "XERR":
+            problems.append(ln)
+    for obj, u in sorted(units.items(), key=lambda kv: kv[1]["uid"]):
+        if not u["flyer"]:
+            continue
+        mine = [c for c in calls if c["uid"] == u["uid"]]
+        verdicts = [d for d in dmg if d.get("verdict") == 1 and d.get("att_unit") == obj]
+        if verdicts and not mine and not any(u["uid"] in pr or obj in pr for pr in problems):
+            problems.append(f"{u['key']} uid {u['uid']}: {len(verdicts)} would-be cost verdicts but no cost line")
+        if not mine:
+            continue
+        maxes = [d["v_max"] for d in dmg if d["unit"] == obj and d.get("v_max", 0xFFFFFFFF) != 0xFFFFFFFF]
+        maxes += [d["a_max"] for d in verdicts if d.get("a_max", 0xFFFFFFFF) != 0xFFFFFFFF]
+        model_max = max(maxes) if maxes else None
+        made = [c for c in mine if c["kind"] == "X"]
+        drop = ordinary = 0.0
+        lost = 0
+        for i, c in enumerate(made):
+            nxt = made[i + 1]["ms"] if i + 1 < len(made) else None
+            after = [a for a in xa.get(u["uid"], []) if a["ms"] > c["ms"] and (nxt is None or a["ms"] <= nxt)]
+            if not after:
+                problems.append(f"{u['key']} uid {u['uid']}: call at {c['ms']} ms has no reading after it")
+                continue
+            low = min(a["hp"] for a in after)
+            if low > c["before"] - DROP_EPS:
+                problems.append(f"{u['key']} uid {u['uid']}: call at {c['ms']} ms (p {c['p']:.4f}) and no health "
+                                f"change in {len(after)} readings (the queued command was not executed?)")
+            drop += c["before"] - low
+            lost += c["men"] - after[-1]["men"]
+            hp_dmg = sum(d["damage"] for d in dmg if d["unit"] == obj and c["ms"] < d["ms"] <= after[-1]["ms"])
+            if hp_dmg and model_max and c["init"] > 0:
+                ordinary += hp_dmg / (c["init"] * model_max)
+            elif hp_dmg:
+                problems.append(f"{u['key']} uid {u['uid']}: ordinary damage {hp_dmg} with no model maximum health")
+            c["hp_dmg"] = hp_dmg
+        hp_total = sum(c.get("hp_dmg", 0) for c in made)
+        out.append(f"COST {u['key']} uid {u['uid']}: calls {len(made)}, p requested "
+                   f"{sum(c['p'] for c in made):.4f}, measured drop {drop:.4f}, ordinary damage in the windows "
+                   f"{hp_total} ({ordinary:.4f} of the unit), attributable {drop - ordinary:.4f}, models lost {lost}; "
+                   f"would-have calls {sum(1 for c in mine if c['kind'] == 'XOFF')}, refused "
+                   f"{sum(1 for c in mine if c['kind'] == 'XREF')}")
+        for c in mine:
+            out.append(f"  {c['kind']} {c['ms']} ms tick {c['tick']}: {c['n']} paying models, p {c['want']:.4f} "
+                       f"wanted / {c['p']:.4f} applied, health before {c['before']:.4f}, men {c['men']} of {c['init']}")
+    return out, problems
+
+
 def main(argv):
     path = Path(argv[0]) if argv else GAME_ROOT / "reflect_probe.txt"
     on, units, refl, dmg, hp, other = parse(path.read_text("utf-8", errors="replace"))
@@ -362,6 +438,9 @@ def main(argv):
         print("INCOMPLETE: no R or D line")
         return 1
     lines, problems = dive_cost_summary(on, units, dmg, other)
+    cost_lines, cost_problems = cost_summary(units, dmg, other)
+    lines += cost_lines
+    problems += cost_problems
     for line in lines:
         print(line)
     for p in problems:

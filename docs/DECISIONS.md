@@ -381,6 +381,14 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   charge factor is at least 0.7. In game it was seen in one direction only, the braced soldier's hit on
   the charger: 151 times against knights, 58 times against flyers. The mod keeps those conditions and
   changes only how much such a hit costs a diving flyer.
+- **Direction of the mechanism (maintainer, 2026-11-18, from the series 4 records; `docs/HISTORY.md`
+  D15-ANALYSIS-1118):** a larger multiplier alone is ruled out. In the recorded flyer battle the three
+  larger flyers lost no health at all in the seconds they dived through the braced line (their first loss
+  came 5 to 12 seconds after landing, in the melee that followed), and by arithmetic on the recorded hits a
+  multiplier of 8 would cost the star dragon about 3% in five seconds and the manticore about 35%. So the
+  cost is taken once per model per dive, at the dive's contact with a bracing `charge_reflection` soldier,
+  as a share of the model's own maximum health; the game's own doubling stays as it is. How it is done and
+  the share are fixed after an offline build and an in-game measurement.
 - Not verified: whether 80 is the whole front arc or half of it. Nothing of D15 is built yet.
 
 ### D16 · Branch `rename-1118` is pushed again

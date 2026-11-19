@@ -439,3 +439,30 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   this entry (D15 from the first analysis to the shipped pack, the one test standard and runner, the three
   standard battles). `main` is unchanged and still the published version.
 - As before, the go-ahead covered that one push. Commits made after it stay local until asked again.
+
+### D18 · In-game runs go alongside the main mod's offline background work (2026-11-19)
+
+> Told that the in-game checks owed before the upload were waiting for a two-hour offline comparison of the
+> main mod to finish: 「你直接开游戏就行。同时跑，加快开发进度」 (owner, 2026-11-19 afternoon)
+
+- The in-game runs of this mod are started while that offline job of the main mod is still running. This is
+  the owner's exception to "one heavy job at a time" for this pairing (a game run here, an offline
+  comparison there). The runner's own refusals stay as they are (the owner's game, another game, the
+  heavy-job lock, a test or build job), and it still never touches a game it did not start.
+- Maintainer's reading, not the owner's words: the exception is about not waiting for the main mod's offline
+  job. It does not cover two game runs at once, and it is not an approval to upload: the upload is asked
+  separately, with the pack's size and checksum, the update note and the page text (`docs/WORKSHOP.md`).
+- Checked before the first run: no game was running; 6.6 GB of 31 GB memory was available, so a run that
+  dies for lack of memory is read as that, not as a defect of the mod.
+
+### D19 · The text is shown to the owner before it is published (2026-11-19)
+
+> 「文字描述发之前先给我看」 (owner, 2026-11-19 afternoon, while the in-game checks of D18 were being
+> written up and the page text was being finished)
+
+- Before an upload or a page change, the whole text that would be published is put in front of the owner in
+  the conversation: title and description of each language, and the update note. Nothing is published until
+  the owner has answered. This is the standing rule of `docs/WORKSHOP.md` and D6, said again for this
+  version.
+- Maintainer's reading, not the owner's words: 「文字描述」 covers the page descriptions and the update note
+  alike, and a later change to a text that was already shown is shown again.

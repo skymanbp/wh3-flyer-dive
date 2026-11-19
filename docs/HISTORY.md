@@ -2121,3 +2121,25 @@ D4 的「两倍」落在这种结算方式上是什么意思、范围是只算�
 **没变的**：工坊页面里那一行占位照旧留着（`workshop/README.md`：规则发货之前不替换）。
 
 **还欠的**（和 D15-STD-1119 末尾一样，没有新做）：正式包本身（不带记录的那个）进一次游戏；用真的 MCT 看设置页；「只算正面」的拒付在游戏里没见过；多兵模的飞兽每次有几个兵模付钱会变，标准场景下只各量了一局。上传创意工坊之前还要再问主人。
+
+## INGAME-1119 2026-11-19 下午：欠的四项实机核对做完，十一局都判通过（D18）
+
+**主人的话**（D18）：这四项原本要等主模组那件约两小时的离线比对跑完，主人答「你直接开游戏就行。同时跑，加快开发进度」。15:32 起开跑，主模组的离线比对同时在跑。开跑前没有游戏在运行，空闲内存 6.8 GB。
+
+十一局都走唯一入口 `flyer_run.py`（15:32–15:59，一次一局；每局跑完游戏自己退出，`used_mods OK data OK`）。任务单与脚本在 `D:/Projects/.worktrees/wh3-flyer-dive/ingame-1119_scratch/`（`jobs_ingame_1119.txt`、`run_mct_series.sh`、`run_mct_series2.sh`、读数脚本 `read_runs_1119.py`），输出在 `D:/Projects/.worktrees/wh3-flyer-dive/runs/` 下同名目录。正式包从分支头重建：`ingame-1119_scratch/ship/flyer_dive_takeoff.pack`，14,090,541 字节，sha256 `7646de33402323d8e030dfc6f1a2ba3cce38d2664cb202668b119b4d484480b5`，和 2026-11-18 夜建的那个逐字节相同。
+
+- **① 正式包本身进了游戏**（`ship_spear`、`ship_sword`，标准场景）。驱动不接受不带记录器的包，所以正式包原样部署，旁边另放一个只含记录器脚本的小包（`build_air_dive_minimod.py --probe-only`，9,066 字节）当测试包。撞帝国长矛兵：模组自己的战斗日志里星龙 1 个兵模付 3.00%、蝎尾狮 1 个付 3.00%、狮鹫骑士 4 个里 2 个付（整队 1.50%）、飞马骑士 24 个里 5 个付（整队约 0.6%）。撞帝国剑士：0 条扣血记录。吹息：`BREATH on (default (MCT not installed); read on load (no MCT))`。
+- **③「只算正面」的拒付见到了**（测试包 `probe_d15.pack`，目标用驱动的 `target_turn_<i>` 转向）。
+  - `arc_back`（四种飞兽，长矛兵全部背对，转 180 度）：付钱 0 次，判「架着但在正面范围外」61 次（四条道 11、8、21、21 次，来袭方向与朝向夹角的余弦 −1.000 到 −0.229），一点血没扣。
+  - `arc_mix`（四条星龙，目标分别转 0、90、135、180 度）：转 0 度的付 3.00%（余弦 +1.000）；转 90 度的先被拒 1 次（余弦 −0.018），0.1 秒后撞到正面范围内的兵（+0.291）付了 3.00%；转 135、180 度的各被拒 11、19 次（余弦最大 −0.047），没付。
+  - 读出来的两点：被拒不花掉俯冲记号，之后撞到正面内的兵照付；本规则实际按朝向两侧各 80 度判（界线量在 −0.018 与 +0.291 之间，规则里 80 度的余弦是 0.174；若按总共 80 度判，+0.291 这次和 D15-STD-1119 里 +0.48 的那次都不会付）。原版自己怎么用这个 80，没另查。
+- **④ 多兵模的飞兽每次几个付**（`multi_r1`、`multi_r2`，每局狮鹫骑士、飞马骑士各两道；加上 `d15std_spear`、`ship_spear` 各一次，标准场景下各 6 次俯冲）：狮鹫骑士 6 次都是 4 个里 2 个付（整队 1.50%）；飞马骑士 24 个里付 6、5、3、6、5、5 个（平均 5.0 个，整队约 0.4% 到 0.75%）。狮鹫骑士为什么总是 2 个，没查。
+- **② 真的 MCT**（创意工坊 2927955021 的 `groovy_mct.pack` 原样部署，与正式包同场），五局。驱动新加控制项 `mct_open_ms` / `mct_close_ms` / `mct_settings_ms` / `mct_set`：经 MCT 自己的脚本调用打开面板、选中本模组的页，可选地按「点勾选框再点保存」的同一条路改设置（`set_selected_setting` → `mct:finalize`），并把页面状态写进状态文件。
+  - 设置页（`mct_page`、`mct_view_on`）：`mct page opened=true mod=flyer_dive_takeoff found=true option=breath_while_engaged found=true value=true default=true locked=false`，标题「飞兽俯冲与近战起飞」、选项「陷入近战时可用吹息」（中文客户端，页面是中文）。截图 `runs/mct_view_on/shots/0008_00083.6s.jpg`：Settings 子页上勾选框是勾上的。
+  - 读取顺序：战斗日志 `BREATH on (MCT; read on MctInitialized)`，即等 MCT 就绪后才读、读的是 MCT 里的值。
+  - 改成关再读（`mct_set_off` → `mct_read_off`）：`mct set want=false value=false`，MCT 的设置文件多了 2 字节；下一局 `BREATH off (MCT; read on MctInitialized): 20 abilities locked by hand every 100 ms`，上锁 1 次。截图 `runs/mct_view_off/shots/0008_00058.4s.jpg`：勾选框是空的。
+  - 主人自己的 MCT 设置文件（游戏的用户脚本目录里的 `mct_registry.lua`、`mct_profiles.lua`）跑之前备份、跑完放回，两轮都核对过 sha256 与备份相同（`500e57ce…f71e1`、`58c5c91b…bbfd`）。MCT 一加载就会重写这个文件（第一局后 800,144 → 800,848 字节），所以带真 MCT 的局必须这样做。
+- **顺带查出并修掉的一处**：`arc_back`、`arc_mix` 两局带了 `--cmd`（让目标转向），`run.json` 却写 `standard: true`。根因：判定偏离标准的 `nonstandard()` 不看 `--cmd`。修法：凡带 `--cmd` 都记成偏离并写出内容；此后 MCT 的五局都标成了 `NONSTANDARD`。那两局的数据不受影响，只是标签错（`runs/LOG.md` 里那两行仍写着 standard）。
+- **测试**：238 项全过（原 235 项，加打开 MCT 页的 3 项；`--cmd` 算偏离的断言加在原有的一项里）。反向核对：把新加的五处各故意弄坏一次，五次都变红，文件随即复原（`ingame-1119_scratch/negative_control_1119.py`）。
+- **页面文字**：`workshop/flyer_dive/{en,zh}/description.txt` 里那行占位换成了正式写法（规则已做进包、已在游戏里核对）；更新说明草稿在 `workshop/flyer_dive/changenote.txt`。
+- **没验证的**：MCT 的面板是在战斗里打开的，主菜单里的入口没点过（同一套面板代码）；设置页上的分组标题「Default Category」和子页名「Settings」是 MCT 自带的英文，没改；联机里两边每 100 毫秒扣的是否完全一致没验证；真人联机没跑过。没有上传，没有推送。

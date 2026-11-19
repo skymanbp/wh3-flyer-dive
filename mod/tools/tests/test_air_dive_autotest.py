@@ -159,7 +159,7 @@ class StandardSetup(unittest.TestCase):
     def args(self, **kw):
         import types
         base = dict(spacing=adt.STANDARD["lane_spacing_m"], offset=0.0, stagger=0.0, scenario="charge",
-                    dist=250.0, window="normal")
+                    dist=250.0, window="normal", cmd=None)
         base.update(kw)
         return types.SimpleNamespace(**base)
 
@@ -180,6 +180,10 @@ class StandardSetup(unittest.TestCase):
         self.assertEqual(adt.nonstandard(self.args(stagger=20.0), adt.standard_offsets(4)), ["stagger 20 s"])
         self.assertEqual(adt.nonstandard(self.args(dist=300.0), adt.standard_offsets(4)), ["dist 300 m"])
         self.assertEqual(adt.nonstandard(self.args(window="behind"), adt.standard_offsets(4)), ["window behind"])
+        # [ingame-1119] extra control lines are a deviation, named with the lines themselves
+        self.assertEqual(adt.nonstandard(self.args(cmd="target_turn_2=90"), adt.standard_offsets(4)),
+                         ["extra control lines target_turn_2=90"])
+        self.assertEqual(adt.nonstandard(self.args(cmd="  "), adt.standard_offsets(4)), [])
         self.assertEqual(adt.nonstandard(self.args(), (-250.0, -160.0, 160.0, 80.0)),
                          ["lane offsets -250,-160,160,80"])
         self.assertEqual(adt.nonstandard(self.args(), ()), ["lanes by --spacing 175.0 / --offset 0.0"])
@@ -211,6 +215,41 @@ class StandardSetup(unittest.TestCase):
         at = lua.index("target_setup skirmish_off")
         self.assertIn("local uc = lane.target.uc", lua[at - 600:at])
 
+
+
+class MctPageKeys(unittest.TestCase):
+    """[ingame-1119] the driver's keys that open the real MCT's settings page: off by default, inert when off,
+    and every MCT call sits inside a protected call (a missing MCT gives a status line, not an error)."""
+
+    def setUp(self):
+        text = (TOOLS / "pipelines" / "air_dive_autotest.lua").read_text("utf-8")
+        self.text = text
+        start = text.index("if cfg.mct_open_ms >= 0 then")
+        self.block = text[start:text.index('if cfg.scenario == "cycle" then', start)]
+
+    def test_off_by_default(self):
+        self.assertIn("cfg.mct_open_ms, cfg.mct_close_ms, cfg.mct_set = -1, 15000, -1", self.text)
+        self.assertEqual(self.text.count("if cfg.mct_open_ms >= 0 then"), 1)
+        self.assertEqual(self.block.count("if cfg.mct_set >= 0 then"), 1)
+        self.assertIn("cfg.mct_settings_ms = 6000", self.text)
+
+    def test_calls_are_guarded(self):
+        self.assertIn('if type(get_mct) ~= "function" then', self.block)
+        self.assertIn('status("mct page: no MCT")', self.block)
+        # MCT's own calls: each once, each after the opening of a protected call that reports its failure
+        for call, fail in (("ui:open_frame()", "FAIL mct page: "), ("ui:set_selected_mod(", "FAIL mct page: "),
+                           ("option:set_selected_setting(want)", "FAIL mct set: "),
+                           ("mct:finalize()", "FAIL mct set: "), ("get_ui():close_frame()", "mct page closed ok="),
+                           ("mod:get_default_settings_page())", "FAIL mct settings page: ")):
+            self.assertEqual(self.block.count(call), 1, call)
+            at = self.block.index(call)
+            self.assertIn("pcall(function()", self.block[:at], call)
+            self.assertIn(fail, self.block[at:], call)
+
+    def test_keys_come_from_the_mod(self):
+        self.assertIn('require("script/campaign/flyer_dive/data/breath_rows")', self.block)
+        self.assertIn("rows.mct_mod", self.block)
+        self.assertIn("rows.mct_option", self.block)
 
 
 if __name__ == "__main__":

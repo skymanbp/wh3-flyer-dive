@@ -118,6 +118,20 @@ cfg.cam_flyer = 0          -- 1: follow lane cam_lane's flyer instead of its tar
 -- short_m short of its target on the line between them ("short <i> ordered"), and short_ms later to charge
 -- ("charge <i> ordered ... flying=<bool>"): a charge that starts on the ground must get no dive mark. 0 = off.
 cfg.short_m, cfg.short_ms = 0, 20000
+-- [ingame-1119] mct_open_ms=<ms> (-1 = off): that long after the layout the Mod Configuration Tool's own panel
+-- is opened through MCT's script calls (groovy_mct.pack, script/groovy/modules/mct/systems/ui/main.lua:
+-- UI_Main:open_frame / set_selected_mod / close_frame), this mod's page is selected (keys from the mod's own
+-- data/breath_rows) and one status line says what the page holds: "mct page opened=<bool> mod=<key> found=<bool>
+-- option=<key> found=<bool> value=<v> default=<v> locked=<bool> title=<...> text=<...>"; mct_close_ms later the
+-- panel is closed. The Python side's --shots pictures show the page. Without MCT: "mct page: no MCT".
+-- mct_set=<0|1> (-1 = leave it): one second after the page is shown the option is set the way a click and the
+-- "Finalize settings" button do (objects/options/obj.lua mct_option:set_selected_setting, main.lua mct:finalize,
+-- which saves MCT's settings file), and "mct set want=<bool> value=<v>" is written. MCT's settings file belongs to
+-- the player: whoever passes this key saves that file before the run and puts it back afterwards.
+cfg.mct_open_ms, cfg.mct_close_ms, cfg.mct_set = -1, 15000, -1
+-- mct_settings_ms=<ms> after the panel opens the mod's default settings page is selected (the page that shows
+-- the checkbox; MCT's objects/mods/obj.lua mct_mod:get_default_settings_page): "mct settings page ...".
+cfg.mct_settings_ms = 6000
 for line in probe:lines() do
     local k, val = line:match("^%s*([%w_]+)%s*=%s*([%d%.%-]+)%s*$")
     if k and cfg[k] ~= nil then cfg[k] = tonumber(val) end
@@ -678,6 +692,58 @@ local function run()
             end)
         end, cfg.cam_every_ms, "flyer_dive_autotest_cam")
         status(fmt("camera on lane %d", cfg.cam_lane))
+    end
+    -- [ingame-1119] the real MCT's settings page (see the keys' note above); inert unless mct_open_ms >= 0
+    if cfg.mct_open_ms >= 0 then
+        local function page_line(tag)
+            local rows = require("script/campaign/flyer_dive/data/breath_rows")
+            local mct = get_mct()
+            local mod = mct:get_mod_by_key(rows.mct_mod)
+            local option = mod and mod:get_option_by_key(rows.mct_option)
+            status(fmt("%s opened=%s mod=%s found=%s option=%s found=%s value=%s default=%s locked=%s "
+                .. "title=<%s> text=<%s>", tag, tostring(mct:get_ui():is_open()), tostring(rows.mct_mod),
+                tostring(mod ~= nil), tostring(rows.mct_option), tostring(option ~= nil),
+                tostring(option and option:get_finalized_setting()),
+                tostring(option and option:get_default_value()), tostring(option and option:is_locked()),
+                tostring(mod and mod:get_title()), tostring(option and option:get_text())))
+            return mct, mod, option
+        end
+        bm:callback(function()
+            if type(get_mct) ~= "function" then
+                status("mct page: no MCT")
+                return
+            end
+            local ok, err = pcall(function()
+                local ui = get_mct():get_ui()
+                ui:open_frame()
+                local _, mod = page_line("mct page")
+                if mod then ui:set_selected_mod(mod, mod:get_main_page()) end
+            end)
+            if not ok then status("FAIL mct page: " .. tostring(err)) end
+        end, math.max(cfg.mct_open_ms, 1))
+        if cfg.mct_set >= 0 then
+            bm:callback(function()
+                local want = cfg.mct_set > 0
+                local ok, err = pcall(function()
+                    local mct, _, option = page_line("mct before set")
+                    option:set_selected_setting(want)
+                    mct:finalize()
+                    status(fmt("mct set want=%s value=%s", tostring(want), tostring(option:get_finalized_setting())))
+                end)
+                if not ok then status("FAIL mct set: " .. tostring(err)) end
+            end, math.max(cfg.mct_open_ms, 1) + 1000)
+        end
+        bm:callback(function()
+            local ok, err = pcall(function()
+                local mct, mod = page_line("mct settings page")
+                mct:get_ui():set_selected_mod(mod, mod:get_default_settings_page())
+            end)
+            if not ok then status("FAIL mct settings page: " .. tostring(err)) end
+        end, math.max(cfg.mct_open_ms, 1) + cfg.mct_settings_ms)
+        bm:callback(function()
+            local ok, err = pcall(function() get_mct():get_ui():close_frame() end)
+            status(fmt("mct page closed ok=%s %s", tostring(ok), ok and "" or tostring(err)))
+        end, math.max(cfg.mct_open_ms, 1) + cfg.mct_close_ms)
     end
     if cfg.scenario == "cycle" then
         run_cycle(lanes, ux, uz)

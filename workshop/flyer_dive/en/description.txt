@@ -9,16 +9,12 @@ Flying units charge like flying units: a dive keeps its speed when it lands, and
 [*][b]Charge speed per flyer.[/b] Every flyer has its own charge speed, set by its role and background (light skirmishers fastest, dragons slower but heavier), plus longer charge distances and a collision attack on its first contact.
 [*][b]Breath attacks while engaged.[/b] Flying units can use their Breath abilities while engaged in melee and while grounded (20 abilities the base game blocks in melee, for example Star Dragon's Breath, Frost Breath and Noxious Breath). This one can be turned off, see Settings.
 [*][b]Lighter large flyers.[/b] Large flyers have 15 % less mass and the largest flyers 25 % less, so a crowd slows them down more. Exceptions: the Celestial Lion and The Wise One count as large (15 %); flying war machines and chariots keep their mass (Thunderbarges, Sky-junk, Sky Lantern, Skycutters, Burning Chariot, Gyrocopter, Gyrobomber).
+[*][b]Diving into braced spears costs health.[/b] A flying model that dives head-on into braced infantry with Charge Reflection loses 3 % of its own maximum health when it hits them, once per dive. A lone monster loses 3 %; in a unit of several models only the models that actually hit braced soldiers pay. Hitting them from the side or rear, or hitting infantry without Charge Reflection, costs nothing, and this cost never takes a unit below 3 % of its health. The base game's own extra damage against chargers is unchanged.
 [*]Every flying unit, both sides, the AI included.
 [/list]
 
 [h2]Settings[/h2]
 With the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021]Mod Configuration Tool[/url] (optional) you can turn off breath attacks while engaged: off, breath abilities are blocked in melee and on the ground as in the base game. Without the Mod Configuration Tool it stays on. In a multiplayer campaign the host's setting applies to every player; multiplayer battles outside a campaign always keep it on, so both players play by the same rules. Everything else is not a setting.
-
-[h2]Coming next (not in this version)[/h2]
-[list]
-[*][b]Diving into braced spears.[/b] PLACEHOLDER: damage to a flyer that dives head-on into braced Charge Reflection infantry is still being measured in game. This line will describe it once it ships.
-[/list]
 
 [h2]Requirements[/h2]
 [list]

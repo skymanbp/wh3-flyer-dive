@@ -114,6 +114,7 @@ usage: python -P tools/pipelines/air_dive_autotest.py
            deviations from the standard (each is reported as NONSTANDARD):
            [--map M] [--catchment C|-] [--environment E] [--dist 250]
            [--lane-offsets a,b,c | spacing] [--spacing 175] [--offset 0] [--stagger 0]
+           [--cmd key=value,...]
            [--startup-via argv|user_script] [--out-dir DIR] [--keep-helper]
        python -P tools/pipelines/air_dive_autotest.py --judge-only DIR
            (re-judge a finished run's saved status + probe slice + hp.txt)
@@ -857,6 +858,10 @@ def nonstandard(args, lane_offsets):
         out.append(f"dist {args.dist:g} m")
     if args.window != STANDARD["window"]:
         out.append(f"window {args.window}")
+    # [ingame-1119] extra control lines change the scene (target_turn_<i>, free_targets_ms, short_m, mct_*):
+    # two battles with turned targets were labelled standard on 2026-11-19 because this was not looked at
+    if (args.cmd or "").strip():
+        out.append(f"extra control lines {args.cmd.strip()}")
     return out
 
 

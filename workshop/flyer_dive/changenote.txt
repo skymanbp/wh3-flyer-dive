@@ -1,0 +1,17 @@
+Flyer Dive & Take-off: new version
+
+- The pack is now flyer_dive_takeoff.pack (it was ld_air_dive.pack). You may have to tick the mod again in the launcher. If you copied ld_air_dive.pack into the data folder by hand, delete it.
+- Fixed: riders on pegasus-type mounts no longer come apart from their mount in a dive.
+- Take-off from melee is now decided for each model, by body size: a model hit by a melee attack cannot take off for 4.5 s (small), 4.0 s (medium), 3.5 s (large) or 3.0 s (very large). A gap that let a model leave a moment too early is closed.
+- New: a flying model that dives head-on into braced infantry with Charge Reflection loses 3 % of its own maximum health, once per dive. Hits from the side or rear, and infantry without Charge Reflection, cost nothing.
+- New setting (optional, needs the Mod Configuration Tool): breath attacks while engaged can be turned off. Default: on, as before.
+- Multiplayer: this version and the previous one do not pair with each other. Not tested with real players.
+
+飞兽俯冲与近战起飞：新版本
+
+- 包名改为 flyer_dive_takeoff.pack（原来是 ld_air_dive.pack），可能需要在启动器里重新勾选一次。手动拷进 data 文件夹的 ld_air_dive.pack 请删掉。
+- 修复：天马类坐骑俯冲时骑手与坐骑分离。
+- 近战起飞改为每个兵模单独计算，按体型：被近战攻击击中的兵模在小型 4.5 秒、中型 4.0 秒、大型 3.5 秒、超大型 3.0 秒内不能起飞。修掉了兵模可能提前一瞬间起飞的空当。
+- 新增：飞兽正面俯冲撞上阵列齐整、带冲锋反制的步兵时，每个撞上的兵模损失自身生命值上限的 3%，每次俯冲只算一次。从侧面或背后撞上、或者对方不带冲锋反制，都不扣。
+- 新增设置（可选，需要 Mod Configuration Tool）：可以关掉「陷入近战时可用吹息」。默认开，与之前相同。
+- 多人游戏：本版与上一版互不配对。没有在真人联机里跑过。

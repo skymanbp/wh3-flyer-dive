@@ -413,6 +413,14 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   doubling does not test that angle. Nothing of it has run in game yet, and every in-game number of
   2026-11-18 was taken on the old sloped map (`docs/HISTORY.md` TEST-STD-1118), so the losses are measured
   again under the standard setup and reported to the owner before any upload.
+- **The owner accepted 3% for every body size (2026-11-19).** The losses measured under the standard setup
+  (`docs/HISTORY.md` D15-STD-1119: star dragon 282 of 9,424 and manticore 153 of 5,103, each 3.0%; griffon
+  knights 1.5% and pegasus knights 0.8% of the whole unit; nothing against swordsmen) were reported, and the
+  owner was asked: 「飞行模组：飞兽俯冲撞上正面架矛的步兵时，每个撞上的飞兽模型扣自己血量上限的 3%（实测星龙一次扣
+  282 / 9,424；撞剑士这类不架矛的不扣）。四种体型都用 3%，可以吗？」 Answer: 「就用 3%」. So 3% is the number
+  that ships, no longer a test value. The front-arc condition was named in the question (「正面架矛」) and
+  stays. Still owed before the upload: the shipped pack itself (the one without the recorder) once in the
+  game, and the refusal outside the front arc, which has not been seen in game.
 
 ### D16 · Branch `rename-1118` is pushed again
 
@@ -420,4 +428,14 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 
 - `rename-1118` is on GitHub at `76e1228` (pushed `0a3b2c4..76e1228`: the rulings D10–D13, the one pack
   with the breath switch, the take-off gap fix, D14). `main` is unchanged and still the published version.
+- As before, the go-ahead covered that one push. Commits made after it stay local until asked again.
+
+### D17 · The local commits are pushed (2026-11-19)
+
+> Asked whether to push the commits that were only local, in the main mod's repository, here and in the
+> toughness mod's repository: 「三个仓库都推」 (owner, 2026-11-19)
+
+- Here that is branch `rename-1118`: everything after `76e1228`, up to and including the commit that records
+  this entry (D15 from the first analysis to the shipped pack, the one test standard and runner, the three
+  standard battles). `main` is unchanged and still the published version.
 - As before, the go-ahead covered that one push. Commits made after it stay local until asked again.

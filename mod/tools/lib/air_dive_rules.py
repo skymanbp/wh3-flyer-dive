@@ -970,8 +970,9 @@ IMPACT_STAGE = "B"
 # First guess from series 4 run 3: every flyer's impact and collision damage on the braced line fell
 # within 3 s of the first driver sample on the ground (d15-1118 lane, impact_at_dive.py).
 DIVE_COST_WINDOW_TICKS = 30
-# DIVE_COST_SHARE: share of the model's own maximum health per paying model, by body size (first guess:
-# one value for every size; kept per size so the measurement can set them apart).
+# DIVE_COST_SHARE: share of the model's own maximum health per paying model, by body size. 3% for every
+# size: measured under the standard setup and accepted by the owner on 2026-11-19 (docs/DECISIONS.md
+# D15, docs/HISTORY.md D15-STD-1119); kept per size so that a later measurement can set them apart.
 DIVE_COST_SHARE = {"small": 0.03, "medium": 0.03, "large": 0.03, "very_large": 0.03}
 # [d15-1118, maintainer] The probe applies the cost through the game's own battle-script call
 # unit:reduce_hitpoints_unary(p, false) (CA: lib_battle_script_unit.lua kill_proportion), once per flyer

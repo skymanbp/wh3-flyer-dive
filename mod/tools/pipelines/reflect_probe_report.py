@@ -86,7 +86,7 @@ def parse(text):
             refl.append({"ms": int(p[1]), "tick": int(p[2]), "charger_unit": p[8].upper(), "reflector_unit": p[7].upper(),
                          "ret": p[5], "speed": f32(p[6]), "charger_flyer": p[9] == "1",
                          "brace": f32(p[10]), "immovable": int(p[11])})
-        elif p[0] == "D" and len(p) in (10, 12, 24):
+        elif p[0] == "D" and len(p) in (10, 12, 24, 26):
             dmg.append({"ms": int(p[1]), "tick": int(p[2]), "ret": p[3].upper(), "unit": p[5].upper(), "damage": int(p[6]),
                         "type": int(p[7]), "flyer": p[8] == "1", "victim": p[4].upper(),
                         "thread": int(p[10]) if len(p) >= 12 else None, "clock": int(p[11]) if len(p) >= 12 else None})
@@ -95,6 +95,12 @@ def parse(text):
                                 "att_fly": p[15].upper(), "v_max": int(p[16], 16), "v_hp": int(p[17], 16),
                                 "a_max": int(p[18], 16), "a_hp": int(p[19], 16), "mark": int(p[20], 16),
                                 "age": int(p[21], 16), "att_unit": p[22].upper(), "a_size": int(p[23], 16)})
+            elif len(p) == 26:                 # [d15-1118 round 3] + the soldier's +0x68 and the unit's +0x3c18
+                dmg[-1].update({"v68": int(p[12], 16), "verdict": int(p[13], 16), "u_brace": f32(p[14]),
+                                "v318": int(p[15], 16), "attacker": p[16].upper(), "att_fly": p[17].upper(),
+                                "v_max": int(p[18], 16), "v_hp": int(p[19], 16), "a_max": int(p[20], 16),
+                                "a_hp": int(p[21], 16), "mark": int(p[22], 16), "age": int(p[23], 16),
+                                "att_unit": p[24].upper(), "a_size": int(p[25], 16)})
         elif p[0] == "U":
             row = {"ms": int(p[1])}
             for cell in p[2:]:
@@ -234,7 +240,26 @@ def _s32(v):
     return v - 2**32 if v >= 2**31 else v
 
 
-def dive_cost_summary(on, units, dmg, other):
+VERDICT_REASONS = {0: "no verdict", 1: "would-be cost", 2: "mark expired", 3: "soldier not braced",
+                   4: "armed only", 5: "already spent"}
+
+
+def _braced(d):
+    """the soldier's braced flag (+0x68 bit 3) on a round-3 record; None on an older one."""
+    if "v68" not in d:
+        return None
+    return bool(d["v68"] & reflect_probe_asm.BRACED_BIT) and d["v68"] <= 0xFF
+
+
+def _float_hist(values, edges=(0.0, 0.25, 0.5, 0.75, 1.0)):
+    out = {}
+    for v in values:
+        k = next((f"<={e}" for e in edges if v <= e), f">{edges[-1]}")
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
+def dive_cost_summary(on, units, dmg, other, threshold=None):
     """[d15-1118] (lines, problems): the DIVE COST section and the attacker identity statistics. Problems are
     missing or lost records; the caller fails on any."""
     out, problems = [], []
@@ -301,7 +326,9 @@ def dive_cost_summary(on, units, dmg, other):
             share = air_dive_rules.DIVE_COST_SHARE.get(size)
             c = share * d["a_max"] if share is not None else None
             payers.setdefault(d["att_fly"], c)
-            braced = "braced" if d["v318"] == reflect_probe_asm.BRACED else f"NOT braced ({d['v318']:#x})"
+            b = _braced(d)
+            braced = (f"braced (+0x68 {d['v68']:#04x})" if b else f"NOT braced (+0x68 {d['v68']:#x})") \
+                if b is not None else f"(+0x318 {d['v318']:#x}, older record)"
             victim_key = units.get(d["unit"], {}).get("key", d["unit"])
             out.append(f"  would-be cost: model {d['att_fly']} tick {d['tick']} ({_s32(d['age'])} ticks after "
                        f"touchdown), soldier {d['victim']} of {victim_key} {braced}, model health {d['a_hp']} / "
@@ -316,6 +343,38 @@ def dive_cost_summary(on, units, dmg, other):
                        f"{total} = {cost / total:.1%} of the unit's health (models seen; UNIT men {u['men']})")
         else:
             out.append(f"  models paying within {window} ticks: 0 of {len(models)} seen")
+        # [round 3] the bracing values at contacts with a stamped mark, and the verdicts by reason
+        stamped = [d for d in mine if d["mark"] == 2 or d["verdict"] in (1, 2, 3)]
+        if stamped and "v68" in stamped[0]:
+            bits = {"bit 3 set": sum(1 for d in stamped if _braced(d)),
+                    "bit 3 clear": sum(1 for d in stamped if not _braced(d))}
+            flags = {}
+            for d in stamped:
+                flags[f"{d['v68']:#04x}"] = flags.get(f"{d['v68']:#04x}", 0) + 1
+            fractions = [d["u_brace"] for d in stamped if d["u_brace"] == d["u_brace"]]
+            above = (f", unit fraction above the threshold {threshold}: "
+                     f"{sum(1 for v in fractions if v > threshold)}/{len(fractions)}") if threshold is not None else ""
+            out.append(f"  BRACING at {len(stamped)} contacts with a stamped mark: soldier +0x68 {bits} "
+                       f"(values {dict(sorted(flags.items()))}); unit +0x3c18 {_float_hist(fractions)}{above}")
+        reasons = {}
+        for d in mine:
+            r = VERDICT_REASONS.get(d["verdict"], f"verdict {d['verdict']}")
+            reasons[r] = reasons.get(r, 0) + 1
+        out.append(f"  VERDICTS {dict(sorted(reasons.items()))}")
+        # [round 3] a ground re-charge never pays: arms in the battle, and the charge-factor multiplies on the
+        # unit's models more than the window after its last stamp (with no new arm, they were not dives)
+        ents = set(models) | {d["att_fly"] for d in mine}
+        stamps = [e["ms"] for e in mine_ev if e["kind"] == 2]
+        late = 0
+        if stamps:
+            cutoff = max(stamps) + window * 100
+            for ln in other:
+                p = ln.split()
+                if p and p[0] == "C" and len(p) >= 14 and p[2] == "2" and p[13].upper() in ents \
+                        and int(p[1]) > cutoff and f32(p[7]) >= 0.7:
+                    late += 1
+        out.append(f"  RECHARGE arms {counts[1]}, multiplies (charge factor >= 0.7) on its models more than {window} "
+                   f"ticks after its last stamp {late}" + ("" if stamps else " (no stamp)"))
     return out, problems
 
 
@@ -329,7 +388,7 @@ def cost_summary(units, dmg, other):
     if cost_line is None:
         return out, ["no COST line (recorder older than the cost step)"]
     out.append(cost_line)
-    calls, xa = [], {}
+    calls, xa, noattr = [], {}, {}
     for ln in other:
         p = ln.split()
         if not p:
@@ -342,13 +401,21 @@ def cost_summary(units, dmg, other):
             xa.setdefault(p[2], []).append({"ms": int(p[1]), "k": int(p[3]), "hp": float(p[4]), "men": int(p[5])})
         elif p[0] == "XERR":
             problems.append(ln)
+        elif p[0] == "XNOATTR" and len(p) == 7:
+            noattr.setdefault(p[5].upper(), []).append(ln)
     for obj, u in sorted(units.items(), key=lambda kv: kv[1]["uid"]):
         if not u["flyer"]:
             continue
         mine = [c for c in calls if c["uid"] == u["uid"]]
         verdicts = [d for d in dmg if d.get("verdict") == 1 and d.get("att_unit") == obj]
-        if verdicts and not mine and not any(u["uid"] in pr or obj in pr for pr in problems):
-            problems.append(f"{u['key']} uid {u['uid']}: {len(verdicts)} would-be cost verdicts but no cost line")
+        skipped = noattr.get(obj, [])
+        if skipped:
+            keys = sorted({ln.split()[4] for ln in skipped})
+            out.append(f"COST {u['key']} uid {u['uid']}: {len(skipped)} braced contacts skipped, the soldier's unit "
+                       f"lacks charge_reflection ({', '.join(keys)})")
+        if len(verdicts) > len(skipped) and not mine and not any(u["uid"] in pr or obj in pr for pr in problems):
+            problems.append(f"{u['key']} uid {u['uid']}: {len(verdicts) - len(skipped)} would-be cost verdicts "
+                            "but no cost line")
         if not mine:
             continue
         maxes = [d["v_max"] for d in dmg if d["unit"] == obj and d.get("v_max", 0xFFFFFFFF) != 0xFFFFFFFF]
@@ -437,7 +504,9 @@ def main(argv):
     if not refl and not dmg:
         print("INCOMPLETE: no R or D line")
         return 1
-    lines, problems = dive_cost_summary(on, units, dmg, other)
+    import unit_attributes
+    threshold = unit_attributes.kv_rules(GAME_ROOT / "data" / "db.pack")["unit_braced_status_threshold"]
+    lines, problems = dive_cost_summary(on, units, dmg, other, threshold)
     cost_lines, cost_problems = cost_summary(units, dmg, other)
     lines += cost_lines
     problems += cost_problems

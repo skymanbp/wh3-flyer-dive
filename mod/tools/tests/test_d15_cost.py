@@ -44,22 +44,32 @@ io.open = function(name, mode)
 end
 local L = { bytes = 4096, mode_at = 0, magic_at = 8, magic = "RFPROBE4", refl_count_at = 16, refl_ring_at = 64,
     refl_slots = 4, dmg_count_at = 20, dmg_ring_at = 320, dmg_slots = 4, dmg_entry = 128, dive_at = 40,
-    cost_window = 30, braced = 105, brace_count_at = 24, brace_ring_at = 960,
+    cost_window = 30, braced_bit = 8, brace_count_at = 24, brace_ring_at = 960,
     brace_slots = 2, brace_entry = 128, act_count_at = 28, act_ring_at = 1216, act_slots = 2, entry = 64,
     clock_at = 32, cr_count_at = 36, cr_ring_at = 1344, cr_slots = 4, cr_entry = 128,
     cost_share = { 0.03, 0.03, 0.03, case == "big" and 1.5 or 0.03 }, cost_max_call = 0.5, cost_keep = 0.03,
     cost_follow = 2 }
 package.preload["script/reflect_probe/reflect_probe_site"] = function()
-    return { owner = "t", feature = "t", entries = {}, caves = { "rf_dmg" }, layout = L }
+    return { owner = "t", feature = "t", entries = {}, caves = { "rf_dmg" }, layout = L, braced_threshold = 0.75,
+        reflect_units = { ["wh_main_emp_inf_spearmen_1"] = true } }
 end
 local calls, hp = {}, (case == "low") and 0.02 or 0.8
-local unit = {
+local unit = { obj = "00000001BB00CC03",
     unique_ui_id = function() return 1005 end, type = function() return "wh_main_brt_cav_pegasus_knights" end,
     number_of_men_alive = function() return 2 end, initial_number_of_men = function() return 4 end,
     unary_hitpoints = function() return hp end, is_in_melee = function() return true end,
     reduce_hitpoints_unary = function(_, p, hide) calls[#calls + 1] = { p, hide }; hp = hp - p end,
 }
+-- [round 3] the soldiers' unit: carries charge_reflection unless the case is "noattr"
+local soldiers = { obj = "000000015B000001",
+    unique_ui_id = function() return 1007 end,
+    type = function() return case == "noattr" and "wh_main_emp_inf_swordsmen" or "wh_main_emp_inf_spearmen_1" end,
+    number_of_men_alive = function() return 120 end, initial_number_of_men = function() return 120 end,
+    unary_hitpoints = function() return 1.0 end, is_in_melee = function() return true end,
+    reduce_hitpoints_unary = function(_, p, hide) calls[#calls + 1] = { p, hide, "soldiers" } end,
+}
 local one = function(x) return { count = function() return 1 end, item = function() return x end } end
+local two = function(x, y) return { count = function() return 2 end, item = function(_, i) return i == 1 and x or y end } end
 _G.memreader_plus = {
     patcher = function() return { sites = function() return {
         found = function() return true end, why = function() end,
@@ -70,15 +80,15 @@ _G.memreader_plus = {
     write = function(p, off, s) put(off, s) end,
     uint32 = u32,
     tostring = function(p) return p.text end,
-    ud_topointer = function() return { text = "00000001BB00CC03" } end,
+    ud_topointer = function(u) return { text = u.obj } end,
     read_pointer = function(p, off) if off == 8 then return p end return { text = "1" } end,
     is_null = function(p) return p.null == true end,
 }
 local phases, tick = {}, nil
 bm = {
     is_multiplayer = function() return false end,
-    alliances = function() return one({ armies = function() return one({ units = function() return one(unit) end })
-        end }) end,
+    alliances = function() return one({ armies = function() return one({ units = function()
+        return two(unit, soldiers) end }) end }) end,
     register_phase_change_callback = function(_, name, fn) phases[name] = fn end,
     repeat_callback = function(_, fn) tick = fn end, remove_callback = function() end,
     time_elapsed_ms = function() return 1000 end,
@@ -102,7 +112,7 @@ for _, chunk in ipairs(written) do io.stdout:write(chunk) end
 for _, c in ipairs(calls) do io.stdout:write(string.format("CALL %.6f %s\n", c[1], tostring(c[2]))) end
 '''
 
-CASES = ("on", "off", "big", "low", "missing")
+CASES = ("on", "off", "big", "low", "missing", "noattr")
 
 
 def run(probe_text, case):
@@ -143,9 +153,12 @@ def problems(case, lines):
         want = {"off": "XOFF 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 0.015000 0.015000 0.800000 2 4",
                 "big": "XREF 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 0.750000 0.750000 0.800000 2 4",
                 "low": "XREF 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 0.015000 -0.010000 0.020000 2 4",
-                "missing": "XERR 1000 501 DEAD0001 no unit object: the cost of 2 models not applied"}[case]
+                "missing": "XERR 1000 501 DEAD0001 no unit object: the cost of 2 models not applied",
+                "noattr": "XNOATTR 1000 501 1007 wh_main_emp_inf_swordsmen BB00CC03 A1000011"}[case]
         if want not in lines:
             out.append(f"no line {want!r}: {[ln for ln in lines if ln.startswith('X')]}")
+        if case == "noattr" and [ln for ln in lines if ln.split()[0] in ("X", "XOFF", "XREF", "XERR")]:
+            out.append("a skipped contact still reached the cost step")
     return out
 
 
@@ -166,6 +179,9 @@ class CostStep(unittest.TestCase):
         ("missing unit silent", '            emit(fmt("XERR %d %d %s no unit object', '            (fmt("XERR %d %d %s no unit object'),
         ("no reading after", '        emit(fmt("XA %d %s %d %.6f %d"', '        (fmt("XA %d %s %d %.6f %d"'),
         ("switch default on", 'local cost_on, cost_why = false,', 'local cost_on, cost_why = true,'),
+        ("attribute not checked", "    if not site.reflect_units[victim.key] then", "    if false then"),
+        ("attribute of the attacker's unit", "local victim = by_obj[low8(sub(e, 17, 24))]",
+         "local victim = by_obj[low8(sub(e, 113, 120))]"),
     )
 
     def test_mutants_fail(self):

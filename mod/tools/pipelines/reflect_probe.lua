@@ -15,9 +15,10 @@
 --   R <ms> <tick> <reflector8> <charger8> <ret> <speed> <reflector unit8> <charger unit8>
 --     <charger flyer> <reflector +0xbc> <reflector +0x6c>          every impact reflection
 --   D <ms> <tick> <ret> <victim8> <victim unit8> <damage> <type> <flyer> <flyer entity8> <thread> <clock>
---     <victim +0x318> <verdict> <attacker8> <attacker flying entity8> <victim max hp> <victim hp>
---     <attacker max hp> <attacker hp> <mark state> <ticks since the mark> <attacker unit8> <attacker size code>
---                                     every damage-applier call; [d15-1118] the twelve fields after <clock> are
+--     <victim +0x68> <verdict> <victim unit +0x3c18 (F32 bits)> <victim +0x318> <attacker8>
+--     <attacker flying entity8> <victim max hp> <victim hp> <attacker max hp> <attacker hp> <mark state>
+--     <ticks since the mark> <attacker unit8> <attacker size code>
+--                                     every damage-applier call; [d15-1118] the fourteen fields after <clock> are
 --                                     8 hex digits each (game Lua numbers are float32: 0xFFFFFFFF is a marker,
 --                                     never printed as a number): see reflect_probe_asm.py's D15 docstring
 --   M <ms> <tick> <kind> <entity8> <unit8> <extra hex8>
@@ -36,6 +37,10 @@
 --   XA <ms> <uid> <k> <unary hp> <men alive>
 --                                     [d15-1118, cost] the k-th reading (k = 1..cost_follow, one per recorder
 --                                     tick) after an X line of that unit
+--   XNOATTR <ms> <tick> <victim uid> <victim key> <attacker unit8> <model8>
+--                                     [d15-1118 round 3] a would-be cost (braced soldier, fresh mark) on a soldier
+--                                     whose unit key is not in the site table's reflect_units (the land units with
+--                                     charge_reflection): not counted
 --   XERR <ms> <tick> <unit8 or uid> ...
 --                                     [d15-1118, cost] no unit object for the paying unit, an unknown size code,
 --                                     or the call raised: nothing applied (the report fails on it)
@@ -136,8 +141,9 @@ local function hand_marks()
     mr.write(found, lay.mark_count_at, zeros)
     mr.write(buf, l.dive_at, bytes)
     dbuf, dl = found, lay
-    return fmt("MARK on: dive buffer %s, window %d ticks, braced state 0x%X", mr.tostring(found), l.cost_window,
-        l.braced)
+    return fmt("MARK on: dive buffer %s, window %d ticks, braced = soldier +0x68 bit 0x%X, unit threshold %s, "
+        .. "%s attribute units", mr.tostring(found), l.cost_window, l.braced_bit, tostring(site.braced_threshold),
+        tostring(site.reflect_units and "with" or "WITHOUT"))
 end
 
 local function install()
@@ -215,9 +221,25 @@ local function read_cost_switch()
     f:close()
 end
 
--- a D entry with verdict 1: one paying model of the attacker's unit
-local function note_cost(e)
+-- a D entry with verdict 1: one paying model of the attacker's unit, when the soldier's unit carries the
+-- attribute (the cave judges the bracing only; the attribute is the game data the site table brings)
+local function note_cost(e, ms)
     if u32(e, 60) ~= 1 then return end
+    local victim = by_obj[low8(sub(e, 17, 24))]
+    if not victim then
+        emit(fmt("XERR %d %d %s victim unit unknown: the cost not counted", ms, u32(e, 32), low8(sub(e, 17, 24))))
+        return
+    end
+    if type(site.reflect_units) ~= "table" then
+        emit(fmt("XERR %d %d %s no reflect_units in the site table: the cost not counted", ms, u32(e, 32),
+            victim.key))
+        return
+    end
+    if not site.reflect_units[victim.key] then
+        emit(fmt("XNOATTR %d %d %s %s %s %s", ms, u32(e, 32), victim.uid, victim.key, low8(sub(e, 113, 120)),
+            low8(sub(e, 81, 88))))
+        return
+    end
     local key = low8(sub(e, 113, 120))
     local t = tally[key]
     if not t then
@@ -311,11 +333,12 @@ local function tick()
             u32(e, 48), f32hex(sub(e, 53, 56)), u32(e, 56))
     end)
     seen_d, lost_d, nd = drain(l.dmg_count_at, l.dmg_ring_at, l.dmg_slots, seen_d, lost_d, function(e)
-        if l.cost_share then note_cost(e) end
-        return fmt("D %d %d %s %s %s %d %d %d %s %d %d %s %s %s %s %s %s %s %s %s %s %s %s", ms, u32(e, 32),
-            hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)), low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28), u32(e, 36),
-            low8(sub(e, 41, 48)), u32(e, 48), u32(e, 52),
-            hexle(sub(e, 57, 60)), hexle(sub(e, 61, 64)), low8(sub(e, 73, 80)), low8(sub(e, 81, 88)),
+        if l.cost_share then note_cost(e, ms) end
+        return fmt("D %d %d %s %s %s %d %d %d %s %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s", ms,
+            u32(e, 32), hexle(sub(e, 1, 8)), low8(sub(e, 9, 16)), low8(sub(e, 17, 24)), i32(e, 24), u32(e, 28),
+            u32(e, 36), low8(sub(e, 41, 48)), u32(e, 48), u32(e, 52),
+            hexle(sub(e, 57, 60)), hexle(sub(e, 61, 64)), hexle(sub(e, 65, 68)), hexle(sub(e, 69, 72)),
+            low8(sub(e, 73, 80)), low8(sub(e, 81, 88)),
             hexle(sub(e, 89, 92)), hexle(sub(e, 93, 96)), hexle(sub(e, 97, 100)), hexle(sub(e, 101, 104)),
             hexle(sub(e, 105, 108)), hexle(sub(e, 109, 112)), low8(sub(e, 113, 120)), hexle(sub(e, 121, 124)))
     end, l.dmg_entry, 124)

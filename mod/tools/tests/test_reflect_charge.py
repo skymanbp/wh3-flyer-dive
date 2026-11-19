@@ -164,7 +164,7 @@ local written = {}
 io.open = function() return { write = function(_, s) written[#written + 1] = s end, close = function() end } end
 local L = { bytes = 4096, mode_at = 0, magic_at = 8, magic = "RFPROBE4", refl_count_at = 16, refl_ring_at = 64,
     refl_slots = 4, dmg_count_at = 20, dmg_ring_at = 320, dmg_slots = 4, dmg_entry = 128, dive_at = 40,
-    cost_window = 30, braced = 105, brace_count_at = 24, brace_ring_at = 960,
+    cost_window = 30, braced_bit = 8, brace_count_at = 24, brace_ring_at = 960,
     brace_slots = 2, brace_entry = 128, act_count_at = 28, act_ring_at = 1216, act_slots = 2, entry = 64,
     clock_at = 32, cr_count_at = 36, cr_ring_at = 1344, cr_slots = 4, cr_entry = 128 }
 package.preload["script/reflect_probe/reflect_probe_site"] = function()
@@ -238,9 +238,10 @@ class Recorder(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr[:600])
         lines = proc.stdout.splitlines()
         self.assertFalse([ln for ln in lines if ln.startswith(("STOP", "FAIL"))], lines)
+        # [round 3] +56 soldier flags, +60 verdict, +64 unit braced fraction bits, +68 the soldier's +0x318
         self.assertIn("D 1000 500 000000014326D217 AB00CD01 EE00FF02 40 5 1 AB00CD01 7 12 00000069 00000001 "
-                      "A1000010 A1000020 000004B0 000003B6 000024B8 0000238C 00000002 00000015 BB00CC03 00000004",
-                      lines)
+                      "50000100 00000001 A1000010 A1000020 000004B0 000003B6 000024B8 0000238C 00000002 00000015 "
+                      "BB00CC03 00000004", lines)
         # [d15-1118] the dive buffer's address went into rf_dmg's header, little-endian; the mark event
         self.assertTrue(any(ln.startswith("MARK on: dive buffer 00007FF4DFFA0010, window 30 ticks") for ln in lines),
                         lines)

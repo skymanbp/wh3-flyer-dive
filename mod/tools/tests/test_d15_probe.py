@@ -124,7 +124,8 @@ class DiveCostReport(unittest.TestCase):
         self.assertEqual(text.count("would-be cost:"), 1, text)
         share = air_dive_rules.DIVE_COST_SHARE["very_large"]
         self.assertIn(f"would-be cost: model A1000020 tick 331 (1 ticks after touchdown), soldier 5A000001 of "
-                      f"wh_main_emp_inf_spearmen_1 braced, model health 9100 / 9400 (size very_large), cost "
+                      f"wh_main_emp_inf_spearmen_1 (+0x318 0x69, older record), model health 9100 / 9400 "
+                      f"(size very_large), cost "
                       f"{share * 9400:.0f} ({share:.0%})", text)
         self.assertIn(f"models paying within {air_dive_rules.DIVE_COST_WINDOW_TICKS} ticks: 1 of 1 seen; cost "
                       f"{share * 9400:.0f} of 9400 = {share:.1%}", text)

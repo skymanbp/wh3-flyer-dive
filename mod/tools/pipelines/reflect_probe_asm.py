@@ -84,11 +84,20 @@ applier's 25 call sites by its caller (pin_cave_asm's own notes and the callers'
 
 [d15-1118, D15] rf_dmg's entry grows to DMG_ENTRY (128) bytes; the fields above keep their offsets, the
 sequence moves to +124, and it logs what the D15 design needs from every applier call:
-  +56 u32 victim +0x318 (the soldier's action; 0x69 = braced, the engine's own test at 0x14325bdd6)
+  +56 u32 victim +0x68 (a byte, zero-extended; 0xFFFFFF00 without a victim): bit 3 (0x8) is the soldier's
+      braced flag -- the damage calculator's source->vfunc[0x50] is 0x1408fc020 ``movzx eax, byte [[rcx+8]+0x68];
+      shr al, 3; and al, 1`` (the attack interface's vtable 0x143ae0278, built by 0x1430a2b78 with [+8] = the
+      entity), and the multiply at 0x142e600af is skipped when it answers 0 (0x142e60084). The verdict uses it.
+      [d15-1118 round 3; was +0x318, which read 0xc / 0x0 at every contact of run_d15_cost, never 0x69]
   +60 u32 verdict (type 5 / 6 only, else 0): 1 would-be cost (the mark is spent), 2 the mark expired (more
       than DIVE_COST_WINDOW_TICKS after the stamp), 3 fresh mark but the victim is not braced, 4 the attacker's
       mark is armed only (no touchdown yet), 5 the mark was already spent or expired
-  +64 u64 r12 (the applier's attacker struct: its r9)  +72 u64 [r12] (the attacker entity; 0 if r12 is 0)
+  +64 u32 the victim's unit +0x3c18 (raw F32 bits; 0xFFFFFFFF without a unit): the share of the unit's living
+      entities whose +0x68 bit 3 is set (written by 0x14304e78f..0x14304e803), which 0x143041c56 compares with
+      unit_braced_status_threshold (kv +0x6740, 0.75; registered at 0x1405c17de). Logged, not judged on: a
+      second candidate (the unit counts as braced above the threshold), weaker than the soldier's own bit
+  +68 u32 victim +0x318 (kept for comparison; the earlier candidate)
+  +72 u64 [r12] (the attacker entity; 0 if r12 is 0; r12 = the applier's attacker struct, its r9)
   +80 u64 the attacker's flying entity (the attacker itself when it has a flight controller, else the first of
       up to three +0x2e0 ancestors that has one; 0: none)
   +88 u32 victim +0xb18 (maximum hit points)  +92 u32 victim +0xb1c (current hit points)
@@ -199,7 +208,10 @@ BUF = 0x1122334455667788
 FC, PARENT, UNIT, BATTLE, TICKS, TICK = 0x128, 0x2E0, 0x2E8, 0x58, 0x440, 0x98
 BRACE_MULT, IMMOVABLE = 0xBC, 0x6C
 # [d15-1118] the D15 probe: the soldier's braced action, health fields, the window and the verdicts
-BRACED, MAX_HP, CUR_HP, SIZE = 0x69, 0xB18, 0xB1C, 0x74
+MAX_HP, CUR_HP, SIZE = 0xB18, 0xB1C, 0x74
+# [d15-1118 round 3] the soldier's braced flag (0x1408fc020) and the unit's braced fraction (0x143041c56)
+BRACE_FLAGS, BRACED_BIT, UNIT_BRACED = 0x68, 0x8, 0x3C18
+NO_FLAGS = 0xFFFFFF00               # no victim: bit 3 clear, and not a byte value
 COST_WINDOW = air_dive_rules.DIVE_COST_WINDOW_TICKS
 # [d15-1118, cost] the recorder's reduce_hitpoints_unary step: the share by the engine's size code 1..4
 COST_SHARE_BY_CODE = [air_dive_rules.DIVE_COST_SHARE[s] for s in
@@ -311,7 +323,6 @@ def _attacker():
     """[d15-1118] r12 -> +64; [r12] -> +72; its flying entity -> +80 with its health; its unit -> +112.
     Uses rax, rcx, r8 (free here: saved by the cave or pushed by _d15)."""
     return f"""
-    mov qword ptr [r11 + 64], r12
     test r12, r12
     jz att_done
     mov rcx, qword ptr [r12]
@@ -360,17 +371,26 @@ def _d15():
     mov dword ptr [r11 + 120], -1
     mov dword ptr [r11 + 104], {NOT_LOOKED}
     mov dword ptr [r11 + 108], -1
-    mov dword ptr [r11 + 56], -1
+    mov dword ptr [r11 + 56], {NO_FLAGS}
+    mov dword ptr [r11 + 64], -1
+    mov dword ptr [r11 + 68], -1
     mov dword ptr [r11 + 88], -1
     mov dword ptr [r11 + 92], -1
     test rdx, rdx
     jz d15_novictim
-    mov eax, dword ptr [rdx + {STATE_OFF:#x}]
+    movzx eax, byte ptr [rdx + {BRACE_FLAGS:#x}]
     mov dword ptr [r11 + 56], eax
+    mov eax, dword ptr [rdx + {STATE_OFF:#x}]
+    mov dword ptr [r11 + 68], eax
     mov eax, dword ptr [rdx + {MAX_HP:#x}]
     mov dword ptr [r11 + 88], eax
     mov eax, dword ptr [rdx + {CUR_HP:#x}]
     mov dword ptr [r11 + 92], eax
+    mov rax, qword ptr [rdx + {UNIT:#x}]
+    test rax, rax
+    jz d15_novictim
+    mov eax, dword ptr [rax + {UNIT_BRACED:#x}]
+    mov dword ptr [r11 + 64], eax
 d15_novictim:
 {_attacker()}    mov eax, dword ptr [rbp + 0x6f]
     cmp eax, 5
@@ -414,8 +434,8 @@ d15_stamped:
     mov edx, ecx
 {mark.event("rsi", "r13", mark.EV_EXPIRED, "rfx")}    jmp d15_done
 d15_fresh:
-    cmp dword ptr [r11 + 56], {BRACED}
-    je d15_cost
+    test dword ptr [r11 + 56], {BRACED_BIT}
+    jnz d15_cost
     mov dword ptr [r11 + 60], {V_NOT_BRACED}
     jmp d15_done
 d15_cost:
@@ -852,6 +872,7 @@ def check(mutate=None, which=None):
 
 
 DIVEB = 0x6000000                   # [d15-1118] the marked dive caves' buffer in the emulator
+VUNIT = OBJ + 0xB0000               # [d15-1118 round 3] a mapped victim unit (its +0x3c18 is read)
 
 
 def _dmg_call(code, mode, victim, attacker_struct, dtype, dive, flags, slot=3):
@@ -889,7 +910,9 @@ def _check_dmg(mutate):
         for flags in (0x202, 0x8D7):
             mu, regs, frame, slot = _dmg_call(code, mode, 0, 0, 5, [], flags)
             e = _entities(mu, tick=777)
-            victim, flyer, unit = e[0], 0, 0xAA0000 + e[0]
+            victim, flyer, unit = e[0], 0, VUNIT
+            mu.mem_write(victim + UNIT, struct.pack("<Q", VUNIT))
+            mu.mem_write(VUNIT + UNIT_BRACED, struct.pack("<f", 0.8))
             if kind == "flyer":
                 mu.mem_write(victim + FC, struct.pack("<Q", 0x77))
                 flyer = victim
@@ -938,25 +961,28 @@ def _check_dmg_mark(code):
             slot = (key >> 4) & (mark.MARK_SLOTS - 1)
             mu.mem_write(DIVEB + mark.MARK_TABLE_AT + slot * 16, struct.pack("<QII", key, state, tick))
         return w
-    # (label, attacker, victim +0x318, mark state, mark tick, damage type, verdict, state seen, age,
-    #  table state after, events added [(kind, extra)])
+    # (label, attacker, victim +0x68 flags, mark state, mark tick, damage type, verdict, state seen, age,
+    #  table state after, events added [(kind, extra)]); 0x2C has bit 3 set among others, 0x37 / 0x0C... not
+    B_ON, B_OFF = 0x2C, 0x37
     cases = (
-        ("would-be cost", "flyer", 0x69, mark.STAMPED, NOW - 21, 5, V_COST, 2, 21, mark.SPENT, [(3, 21)]),
-        ("type 6 cost", "flyer", 0x69, mark.STAMPED, NOW - 3, 6, V_COST, 2, 3, mark.SPENT, [(3, 3)]),
-        ("second contact in the same dive", "flyer", 0x69, mark.SPENT, NOW - 22, 5, V_ALREADY, 3, 22,
+        ("would-be cost", "flyer", B_ON, mark.STAMPED, NOW - 21, 5, V_COST, 2, 21, mark.SPENT, [(3, 21)]),
+        ("type 6 cost", "flyer", B_ON, mark.STAMPED, NOW - 3, 6, V_COST, 2, 3, mark.SPENT, [(3, 3)]),
+        ("second contact in the same dive", "flyer", B_ON, mark.SPENT, NOW - 22, 5, V_ALREADY, 3, 22,
          mark.SPENT, []),
-        ("rider: judged on its mount", "rider", 0x69, mark.STAMPED, NOW - 10, 6, V_COST, 2, 10, mark.SPENT,
+        ("rider: judged on its mount", "rider", B_ON, mark.STAMPED, NOW - 10, 6, V_COST, 2, 10, mark.SPENT,
          [(3, 10)]),
-        ("soldier not braced", "flyer", 0x31, mark.STAMPED, NOW - 10, 5, V_NOT_BRACED, 2, 10, mark.STAMPED, []),
-        ("past the window", "flyer", 0x69, mark.STAMPED, NOW - (W + 1), 5, V_EXPIRED, 2, W + 1, mark.EXPIRED,
+        ("soldier not braced", "flyer", B_OFF, mark.STAMPED, NOW - 10, 5, V_NOT_BRACED, 2, 10, mark.STAMPED, []),
+        ("braced only in the old +0x318 sense", "flyer", 0x04, mark.STAMPED, NOW - 10, 5, V_NOT_BRACED, 2, 10,
+         mark.STAMPED, []),
+        ("past the window", "flyer", B_ON, mark.STAMPED, NOW - (W + 1), 5, V_EXPIRED, 2, W + 1, mark.EXPIRED,
          [(4, W + 1)]),
-        ("at the window's end", "flyer", 0x69, mark.STAMPED, NOW - W, 5, V_COST, 2, W, mark.SPENT, [(3, W)]),
-        ("armed only (no touchdown)", "flyer", 0x69, mark.ARMED, NOW - 2, 5, V_ARMED_ONLY, 1, 2, mark.ARMED, []),
-        ("no entry", "flyer", 0x69, None, 0, 5, 0, 0, -1, None, []),
-        ("no dive buffer", "flyer", 0x69, "nobuf", 0, 5, 0, NO_DIVE_BUF, -1, None, []),
-        ("ground attacker", "ground", 0x69, mark.STAMPED, NOW - 2, 5, 0, NOT_LOOKED, -1, mark.STAMPED, []),
-        ("no attacker", "none", 0x69, mark.STAMPED, NOW - 2, 5, 0, NOT_LOOKED, -1, mark.STAMPED, []),
-        ("type 0 is never judged", "flyer", 0x69, mark.STAMPED, NOW - 2, 0, 0, NOT_LOOKED, -1, mark.STAMPED, []),
+        ("at the window's end", "flyer", B_ON, mark.STAMPED, NOW - W, 5, V_COST, 2, W, mark.SPENT, [(3, W)]),
+        ("armed only (no touchdown)", "flyer", B_ON, mark.ARMED, NOW - 2, 5, V_ARMED_ONLY, 1, 2, mark.ARMED, []),
+        ("no entry", "flyer", B_ON, None, 0, 5, 0, 0, -1, None, []),
+        ("no dive buffer", "flyer", B_ON, "nobuf", 0, 5, 0, NO_DIVE_BUF, -1, None, []),
+        ("ground attacker", "ground", B_ON, mark.STAMPED, NOW - 2, 5, 0, NOT_LOOKED, -1, mark.STAMPED, []),
+        ("no attacker", "none", B_ON, mark.STAMPED, NOW - 2, 5, 0, NOT_LOOKED, -1, mark.STAMPED, []),
+        ("type 0 is never judged", "flyer", B_ON, mark.STAMPED, NOW - 2, 0, 0, NOT_LOOKED, -1, mark.STAMPED, []),
     )
     for (label, att_kind, state318, mstate, mtick, dtype, want_v, want_seen, want_age, want_after,
          want_ev) in cases:
@@ -964,7 +990,10 @@ def _check_dmg_mark(code):
             mu, regs, frame, slot = _dmg_call(code, 1, 0, 0, dtype, [], flags)
             e = _entities(mu, tick=NOW)
             victim, att, mount = e[0], e[1], e[2]
-            mu.mem_write(victim + STATE_OFF, struct.pack("<I", state318))
+            mu.mem_write(victim + BRACE_FLAGS, bytes([state318]))
+            mu.mem_write(victim + STATE_OFF, struct.pack("<I", 0x69))     # the old candidate: never judged on
+            mu.mem_write(victim + UNIT, struct.pack("<Q", VUNIT))
+            mu.mem_write(VUNIT + UNIT_BRACED, struct.pack("<f", 0.8))
             mu.mem_write(victim + MAX_HP, struct.pack("<II", 1200, 950))
             fly = 0
             if att_kind == "flyer":
@@ -995,13 +1024,14 @@ def _check_dmg_mark(code):
             if changed:
                 fails.append(f"{tag}: registers changed {changed}")
             ent = bytes(mu.mem_read(B + DMG_RING_AT + slot * DMG_ENTRY, DMG_ENTRY))
-            v318, verdict, r12, a_ent, a_fly, vmax, vcur, amax, acur, seen, age, a_unit = struct.unpack_from(
-                "<IIQQQIIIIIiQ", ent, 56)
+            v68, verdict, ubrace, v318, a_ent, a_fly, vmax, vcur, amax, acur, seen, age, a_unit = struct.unpack_from(
+                "<IIIIQQIIIIIiQ", ent, 56)
             exp_unit = 0 if att_kind == "none" else 0xAA0000 + att
-            want = (state318, want_v, astruct, 0 if att_kind == "none" else att, fly, 1200, 950,
+            want = (state318, want_v, struct.unpack("<I", struct.pack("<f", 0.8))[0], 0x69,
+                    0 if att_kind == "none" else att, fly, 1200, 950,
                     9400 if fly else 0xFFFFFFFF, 9100 if fly else 0xFFFFFFFF, want_seen & 0xFFFFFFFF, want_age,
                     exp_unit, 4 if fly else 0xFFFFFFFF)
-            got = (v318, verdict, r12, a_ent, a_fly, vmax, vcur, amax, acur, seen, age, a_unit,
+            got = (v68, verdict, ubrace, v318, a_ent, a_fly, vmax, vcur, amax, acur, seen, age, a_unit,
                    _u32(mu, B + DMG_RING_AT + slot * DMG_ENTRY + 120))
             if got != want:
                 fails.append(f"{tag}: entry {got} want {want}")
@@ -1191,7 +1221,10 @@ MUTANTS = (
     ("rf_dmg", "mov ecx, dword ptr [rsp + 32]", "mov ecx, dword ptr [rsp + 24]"),
     ("rf_dmg", "    mov qword ptr [r11 + 40], rax\n", "    nop\n"),
     # [d15-1118] the D15 fields and the mark
-    ("rf_dmg", f"    cmp dword ptr [r11 + 56], {BRACED}\n    je d15_cost\n", "    jmp d15_cost\n"),
+    ("rf_dmg", f"    test dword ptr [r11 + 56], {BRACED_BIT}\n    jnz d15_cost\n", "    jmp d15_cost\n"),
+    ("rf_dmg", f"    test dword ptr [r11 + 56], {BRACED_BIT}\n", "    test dword ptr [r11 + 56], 4\n"),
+    ("rf_dmg", f"    movzx eax, byte ptr [rdx + {BRACE_FLAGS:#x}]\n", "    movzx eax, byte ptr [rdx + 0x69]\n"),
+    ("rf_dmg", f"    mov eax, dword ptr [rax + {UNIT_BRACED:#x}]\n", "    mov eax, dword ptr [rax + 0x3c14]\n"),
     ("rf_dmg", f"    cmp ecx, {COST_WINDOW}\n    jbe d15_fresh\n", "    jmp d15_fresh\n"),
     ("rf_dmg", f"    mov r8d, {mark.SPENT}\n", f"    mov r8d, {mark.STAMPED}\n"),
     ("rf_dmg", "    mov rcx, qword ptr [r12]\n", "    mov rcx, rdx\n"),
@@ -1273,9 +1306,33 @@ def _template(code):
     return " ".join(out)
 
 
-def site_lua(codes):
+DB_PACK = Path(r"D:/SteamLibrary/steamapps/common/Total War WARHAMMER III/data/db.pack")
+REFLECT_ATTRIBUTE = "charge_reflection"
+
+
+def game_data(db_pack=DB_PACK):
+    """[d15-1118 round 3] (land unit keys with charge_reflection, unit_braced_status_threshold) from the
+    installed game; refuses a missing rule or an empty set."""
+    import unit_attributes
+    units = unit_attributes.units_with_attribute(db_pack, REFLECT_ATTRIBUTE)
+    kv = unit_attributes.kv_rules(db_pack)
+    if "unit_braced_status_threshold" not in kv or not units:
+        raise SystemExit("[reflect_probe] REFUSING: no unit_braced_status_threshold or no charge_reflection unit")
+    return units, kv["unit_braced_status_threshold"]
+
+
+def site_lua(codes, data=None):
+    """``data`` = game_data(): the recorder's attribute set (keyed by land unit key) and the braced threshold
+    (logged with the unit's braced fraction; the verdict is the soldier's own flag)."""
+    units, threshold = data if data is not None else game_data()
     lines = ["-- TEST-ONLY, generated by tools/pipelines/reflect_probe_asm.py; never in a player's pack",
-             "return {", f"    owner = '{OWNER}', feature = '{FEATURE}',", "    entries = {"]
+             "return {", f"    owner = '{OWNER}', feature = '{FEATURE}',",
+             f"    braced_threshold = {threshold!r},",
+             f"    -- {len(units)} land units with {REFLECT_ATTRIBUTE} (unit_attributes_to_groups_junctions x "
+             "land_units.attribute_group, the installed db.pack)",
+             "    reflect_units = {"]
+    lines += [f"        ['{k}'] = true," for k in units]
+    lines += ["    },", "    entries = {"]
     for n in SOURCES:
         pattern, at, stolen = SITES[n]
         lines += [f"        {{ name = '{n}', feature = '{FEATURE}', kind = 'cave',",
@@ -1287,7 +1344,7 @@ def site_lua(codes):
               f"        refl_count_at = {REFL_COUNT_AT}, refl_ring_at = {REFL_RING_AT}, "
               f"refl_slots = {REFL_SLOTS},",
               f"        dmg_count_at = {DMG_COUNT_AT}, dmg_ring_at = {DMG_RING_AT}, dmg_slots = {DMG_SLOTS}, "
-              f"dmg_entry = {DMG_ENTRY}, dive_at = {DIVE_AT}, cost_window = {COST_WINDOW}, braced = {BRACED},",
+              f"dmg_entry = {DMG_ENTRY}, dive_at = {DIVE_AT}, cost_window = {COST_WINDOW}, braced_bit = {BRACED_BIT},",
               "        cost_share = { " + ", ".join(repr(v) for v in COST_SHARE_BY_CODE) + " }, "
               f"cost_max_call = {air_dive_rules.DIVE_COST_MAX_CALL}, "
               f"cost_keep = {air_dive_rules.DIVE_COST_KEEP_UNARY}, "

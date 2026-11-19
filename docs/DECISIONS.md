@@ -389,6 +389,15 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   cost is taken once per model per dive, at the dive's contact with a bracing `charge_reflection` soldier,
   as a share of the model's own maximum health; the game's own doubling stays as it is. How it is done and
   the share are fixed after an offline build and an in-game measurement.
+- **The offline design stopped before building (2026-11-18, `docs/HISTORY.md` D15-DESIGN-1118):** the
+  damage calculator's test cannot be the trigger, because at the dive contact of the star dragon and of the
+  manticore the game's conditions did not hold. The contact is recognised by what does happen there: the
+  flyer's own impact and collision damage on a bracing soldier. No way of originating the hit on the flyer
+  could be shown safe offline. Three ways exist: calling the engine's damage routine from a hook, writing the
+  model's health directly, or adding the cost to the model's next melee hit. The first two are tried in
+  test-only packs, one run each, after a probe run, while a ready-made engine or battle-script way of
+  damaging a unit is looked for. The third turns "at the contact" into "paid on the next hit" and is not
+  used without the owner's word.
 - Not verified: whether 80 is the whole front arc or half of it. Nothing of D15 is built yet.
 
 ### D16 · Branch `rename-1118` is pushed again

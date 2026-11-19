@@ -53,8 +53,8 @@ python -P tools/pipelines/build_air_dive_minimod.py --out <目录>/flyer_dive_ta
 python -m pytest mod/tools/tests -q        # 在仓库根目录跑
 ```
 
-- `main` 的代码是已发布的那一版，测试还要靠主模组的仓库。断开后的测试、数据快照与 MCT 开关都在下一版的分支上，
-  位置见 `docs/STATUS.md`。
+- `main` 的代码是已发布的那一版（2026-11-19 起：`flyer_dive_takeoff.pack`，测试、数据快照与 MCT 开关都在里面，不靠主模组的仓库）。
+  现状见 `docs/STATUS.md`。
 - 建包每次都读安装好的游戏；游戏更新后重建，代码洞的位点要重新核对（特征码必须恰好命中一次、原字节相符，
   否则拒绝建包，不许猜）。
 - 实机自动测试只有一个入口：`mod/tools/pipelines/flyer_run.py`（单局 `one`、成批 `list`；驱动 `air_dive_autotest.py` 只由它调用，别直接调驱动），标准场景见 `docs/STATUS.md`「实机测试的统一标准」。**它启动游戏前自己查进程表**（`game_process.busy_refusal`，查不出来也算忙）：主人在玩任何游戏

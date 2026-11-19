@@ -520,3 +520,20 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   pegasus-type mounts); the maintainer reads the owner's remark as being about the page text, and reported
   this to him with the final text.
 - Nothing is published by this entry (D6, D19).
+
+### D22 · The text is accepted; upload now; English by the tool, Chinese pasted by the owner; push both (2026-11-19)
+
+> Four questions in one sitting (owner, 2026-11-19 about 17:10); each was answered with its first option:
+>
+> - 「飞行模组的工坊页面定稿和更新说明（全文在对话里刚贴出的那条消息）可以了吗？」 → 「都可以」
+> - 「飞行模组的新包（14,090,541 字节，今天在游戏里跑了 12 局全部通过）现在上传到创意工坊吗？」 → 「现在上传」
+> - 「页面拆成中英两栏后，文字怎么写上去？上传工具只会写默认那一栏，分语言这一步我还没试过。」 → 「英文我写，中文你贴」
+> - 「本地还没推到 GitHub 的提交推不推？飞行模组分支 5 笔，主模组 2 笔。」 → 「两边都推」
+
+- The consent covers this one upload, this page change and these pushes (D6). The whole text had been shown in
+  the same turn (D19).
+- The upload tool writes the default language slot only. The Simplified Chinese slot is filled by the owner in
+  the web page ("Edit title & description", language Simplified Chinese) from two text files put on his Desktop.
+  Until he has done it a Chinese reader sees the English page; the question told him so.
+- After the upload `main` takes the release branch (the option's own words: 「飞行模组上传成功后，主分支指到发布的那笔提交」).
+- What was uploaded and how it was verified: `docs/HISTORY.md` UPLOAD-1119.

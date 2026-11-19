@@ -493,3 +493,30 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - Known and left as it is: the settings page inside the game (MCT) is titled "Flyer Dive & Take-off" /
   「飞兽俯冲与近战起飞」, as built into the pack; the Workshop title keeps the old name.
 - Nothing is published by this entry. The upload and the page change are asked separately (D6, D19).
+
+### D21 · The owner's three edits to the page text; no fix-type sentences on the page (2026-11-19)
+
+> Reading the text built under D20 (owner, 2026-11-19 afternoon):
+>
+> - 「新的一次俯冲从第一次被挡的位置起最多再冲 20 米，之后按原版近战。已经陷入近战的敌人不会被带着走：正在和你其他部队交战的
+>   单位，或飞兽对自己已在打的近战再次冲锋，都在原地近战。 这句去掉，不用写。这种bug修复类型的文字，没必要此地无银三百两」
+> - 「装了 Mod Configuration Tool（可选）可以关掉这一项，默认开 这句改成"可用MCT调整"」
+> - 「每个兵模单独计算：刚挨了近战打击的兵模暂时不能起飞，其余兵模可以；体型越小等得越久。只是挨着敌人不再按住它。 改成
+>   "更加合理的起飞""根据体积、兵模、接战间隔进行起飞判定"」
+
+- Rule for this page from now on: it says what the mod does for the player, in few words. Sentences that
+  describe a fix, an internal limit or how a rule is computed stay out of the page text.
+- The braced-spears bullet keeps its title and first sentence; the two sentences after it are gone, in both
+  languages. The rule itself is unchanged and still in the pack.
+- The take-off bullet is the owner's two phrases: 「更加合理的起飞。」 as its title and 「根据体积、兵模、接战间隔进行
+  起飞判定。」 as its body. His sentence is kept word for word, 接战 included, although the rest of the Chinese
+  page uses the game client's 陷入近战 (D20).
+- The breath bullet ends with 「可用MCT调整。」.
+- The English page follows with the maintainer's translations, shown to the owner with the text: "Fairer
+  take-off." / "Take-off is judged by body size, per model, and by the time since the last melee hit." /
+  "Can be adjusted with MCT."
+- This replaces D20's take-off wording and breath sentence. The update note (`changenote.txt`) is not changed
+  by this entry: it is the note the owner chose under D20. It still lists one fix (riders coming apart from
+  pegasus-type mounts); the maintainer reads the owner's remark as being about the page text, and reported
+  this to him with the final text.
+- Nothing is published by this entry (D6, D19).

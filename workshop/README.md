@@ -6,8 +6,8 @@ one language slot of one item. Descriptions are Steam BBCode, not Markdown.
 
 | item | Workshop id | language slot | title | description |
 |---|---|---|---|---|
-| Flyer Dive & Take-off (`flyer_dive_takeoff.pack`) | 3840651516 | English | `flyer_dive/en/title.txt` | `flyer_dive/en/description.txt` |
-| Flyer Dive & Take-off (`flyer_dive_takeoff.pack`) | 3840651516 | Simplified Chinese | `flyer_dive/zh/title.txt` | `flyer_dive/zh/description.txt` |
+| Flying Charge Overhaul (`flyer_dive_takeoff.pack`) | 3840651516 | English | `flyer_dive/en/title.txt` | `flyer_dive/en/description.txt` |
+| Flying Charge Overhaul (`flyer_dive_takeoff.pack`) | 3840651516 | Simplified Chinese | `flyer_dive/zh/title.txt` | `flyer_dive/zh/description.txt` |
 
 Before publishing:
 
@@ -16,7 +16,9 @@ Before publishing:
   one pack; breath while engaged is a Mod Configuration Tool setting, default on.
 * The texts are the live page of 2026-11-17 split by language, with the changes the
   owner passed one by one on 2026-11-19 (`docs/DECISIONS.md` D20, `docs/HISTORY.md`
-  PAGE-1119b). The titles keep the old name. Change a sentence only with the owner.
+  PAGE-1119b) and three edits of his own (D21, PAGE-1119c). The titles keep the old name.
+  The page says what the mod does, in few words: no sentences about fixes or about how a
+  rule is computed (D21). Change a sentence only with the owner.
 * `flyer_dive/changenote.txt` is the update note of the next upload. Steam has one
   slot for it, so it carries English first and Simplified Chinese below.
 * Chinese game terms are the game client's own words, read from

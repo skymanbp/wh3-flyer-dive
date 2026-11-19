@@ -466,3 +466,30 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   version.
 - Maintainer's reading, not the owner's words: 「文字描述」 covers the page descriptions and the update note
   alike, and a later change to a text that was already shown is shown again.
+
+### D20 · The page keeps the live text; only the changes the owner passed, one by one (2026-11-19)
+
+> Shown the rewritten per-language drafts and how they differ from the live page: 「能不能就和之前的一样？或者需要改/增/删
+> 的内容一条条给我过？askuser给我？」 Then, item by item (eight questions, owner, 2026-11-19 afternoon):
+>
+> - the take-off line (the rule changed, the live sentence is wrong): 「不写秒数」
+> - the new dive cost: 「直接在这条下面新加一条“增加冲锋反制造伤，增加长戟部队对飞行大型部队的威胁”」
+> - the breath setting: one sentence after the breath line
+> - the multiplayer sentence: 「保持原句」
+> - one bilingual page or two: 「拆成中英两页」 (D2 stands)
+> - the title: 「保持原标题」
+> - the Chinese words 喷吐 / 接战 / 联机: the game client's 吹息 / 陷入近战 / 多人
+> - the update note: the one without numbers
+
+- The page text is the live text of 2026-11-17, split by language, with exactly those changes
+  (`workshop/flyer_dive/`, built by a script from the text Steam returns, every change one exact replacement).
+  Titles: "Flying Charge Overhaul (Dive, Plough, Take-off)" and 「飞兽俯冲冲锋重做」.
+- Three changes are the maintainer's, shown to the owner with the final text: the log file names in the Notes
+  section (three files under their new names; a fact); the Chinese page carries the two comparison pictures of
+  the English half (after the split a Chinese reader would no longer see them); two verb uses of 接战 became
+  近战 where 陷入近战 does not fit the sentence.
+- The rewritten drafts of 2026-11-17/18 (titled "Flyer Dive & Take-off") are replaced; they stay in git
+  history (`26955f3`).
+- Known and left as it is: the settings page inside the game (MCT) is titled "Flyer Dive & Take-off" /
+  「飞兽俯冲与近战起飞」, as built into the pack; the Workshop title keeps the old name.
+- Nothing is published by this entry. The upload and the page change are asked separately (D6, D19).

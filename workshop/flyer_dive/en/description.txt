@@ -1,19 +1,17 @@
-[h1]Flyer Dive & Take-off[/h1]
+[h1]Flying Charge Overhaul[/h1]
+Flyers now charge like flyers. Dragons, griffons, pegasi, manticores and every other flying unit dive in at an angle, land carrying their speed, and plough into the enemy line until the bodies they hit slow them down.
 
-Flying units charge like flying units: a dive keeps its speed when it lands, and a flyer caught in melee can take off again.
-
-[h2]What it does[/h2]
+[h2]What changes[/h2]
 [list]
-[*][b]Physics dive.[/b] The charge comes in at an angle instead of dropping straight down, and a flying unit that dives onto the ground keeps its speed when it lands. Only the bodies it actually hits slow it down, so a dive carries into the enemy line instead of stopping dead at touchdown.
+[*][b]Dive and plough.[/b] The charge comes in at a shallow angle instead of dropping straight down. On landing the flyer keeps moving through the enemy rank; only collisions slow it, and those collisions deal the engine's own impact damage.
 [*][b]No dead stop on braced spears.[/b] Spearmen and halberds no longer freeze a landing flyer on first contact. On a fresh dive the flyer may push up to 20 m past where it was first blocked, then normal melee takes over. Enemies already locked in melee are never dragged along: a unit fighting your other troops, or a re-charge into a melee the flyer is already in, is fought where it stands.
-[*][b]Diving into braced spears costs health.[/b] A flying model that dives head-on into braced infantry with Charge Reflection loses 3 % of its own maximum health when it hits them, once per dive. A lone monster loses 3 %; in a unit of several models only the models that actually hit braced soldiers pay. Hitting them from the side or rear, or hitting infantry without Charge Reflection, costs nothing, and this cost never takes a unit below 3 % of its health. The base game's own extra damage against chargers is unchanged.
-[*][b]Whole units land together.[/b] Multi-model flyers no longer bob back up into the air when the leader touches down.
-[*][b]Take-off from melee.[/b] A flyer engaged in melee can take off again. Each flying model is judged on its own: a model hit by a melee attack in the last few seconds cannot take off, the others can. The smaller the body, the longer it stays down: small 4.5 s, medium 4.0 s, large 3.5 s, very large 3.0 s (a ridden unit goes by its mount). Contact alone, ranged hits and charge impacts do not hold it.
-[*][b]Charge speed per flyer.[/b] Every flyer has its own charge speed, set by its role and background (light skirmishers fastest, dragons slower but heavier), plus longer charge distances and a collision attack on its first contact.
-[*][b]Breath attacks while engaged.[/b] Flying units can use their Breath abilities while engaged in melee and while grounded (20 abilities the base game blocks in melee, for example Star Dragon's Breath, Frost Breath and Noxious Breath). This one can be turned off, see Settings.
-[*][b]Lighter large flyers.[/b] Large flyers have 15 % less mass and the largest flyers 25 % less, so a crowd slows them down more. Exceptions: the Celestial Lion and The Wise One count as large (15 %); flying war machines and chariots keep their mass (Thunderbarges, Sky-junk, Sky Lantern, Skycutters, Burning Chariot, Gyrocopter, Gyrobomber).
-[*]Every flying unit, both sides, the AI included.
+[*][b]More Charge Reflection damage.[/b] Halberd units are a greater threat to large flying units.
+[*][b]Whole units land together.[/b] Multi-entity flyers no longer bob back up into the air when the leader touches down.
+[*][b]Fair take-off from melee.[/b] Each flying model is judged on its own: a model just struck in melee cannot take off for a few seconds, the others can; smaller bodies wait longer. Merely touching enemies no longer pins it.
+[*][b]Breath in melee.[/b] Dragon breath and similar breath abilities can be used while engaged or grounded. With the Mod Configuration Tool (optional) this can be turned off; default on.
+[*][b]Tuned flyers.[/b] Per-flyer charge speeds set by role and lore; every flyer gets a moving attack; large flyers are 15% lighter and very large flyers 25% lighter (flying war machines and chariots unchanged).
 [/list]
+Applies to both sides, AI included.
 
 [h2]Vanilla vs this mod[/h2]
 [b]Vanilla:[/b]
@@ -21,30 +19,24 @@ Flying units charge like flying units: a dive keeps its speed when it lands, and
 [b]With this mod:[/b]
 [img]https://images.steamusercontent.com/ugc/17009336563682047570/B4977218DAFED3A5CA42FFE8E3B9F7FD92509698/[/img]
 
-[h2]Settings[/h2]
-With the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2927955021]Mod Configuration Tool[/url] (optional) you can turn off breath attacks while engaged: off, breath abilities are blocked in melee and on the ground as in the base game. Without the Mod Configuration Tool it stays on. In a multiplayer campaign the host's setting applies to every player; multiplayer battles outside a campaign always keep it on, so both players play by the same rules. Everything else is not a setting.
-
 [h2]Requirements[/h2]
 [list]
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3811098873]memreader Plus[/url] (win64 / Proton; required). Without it the dive and take-off rules stay off and those two behave as in the base game; the animation and data changes still apply.
+[*][b]memreader Plus (win64 / Proton)[/b] is required for the dive, anti-brace and take-off rules. Without it those parts switch off and only the animation and stat changes apply.
 [/list]
 
 [h2]Multiplayer[/h2]
-[list]
-[*]Single player: works.
-[*]Multiplayer campaign battles: works when every player runs the same version (memreader Plus checks it).
-[*]Multiplayer custom and quick battles: works (the game's own mod check keeps both sides on one version).
-[/list]
+Multiplayer campaign/battle supported.
 
 [h2]Compatibility[/h2]
-Mods that ship their own breath ability usage table or overwrite the same flying unit rows win or lose by load order.
+[list]
+[*]Any mod that changes the same flyer unit rows, mounts or battle entities wins or loses by load order.
+[*]This mod replaces the vanilla table that stops abilities in melee. A mod that ships the same table conflicts.
+[/list]
 
 [h2]Notes[/h2]
 Each battle writes three small log files to the game folder (flyer_dive.txt, flyer_takeoff.txt, flyer_breath.txt). Include them when you report a problem.
 
 [h2]Credits[/h2]
 [list]
-[*]memreader Plus: Druwski (GitHub: PKozdra), MIT.
-[*]memreader: Cpecific, MIT.
-[*]Flight animations and data are Creative Assembly's, renamed and re-wired. Total War: WARHAMMER III is (c) Creative Assembly / SEGA and Games Workshop.
+[*]memreader Plus by Druwski (PKozdra on GitHub), for the memory access this mod is built on.
 [/list]

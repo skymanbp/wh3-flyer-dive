@@ -120,13 +120,19 @@ class ProcessProbeStalled(RuntimeError):
 
 
 def game_pids():
+    """pids of every Warhammer3.exe (process_table)."""
+    return [pid for pid, name in process_table() if name.lower() == "warhammer3.exe"]
+
+
+def process_table():
+    """[(pid, exe file name)] of every process.
     # [AIR-DIVE-W11 2026-11-11] tasklist.exe stalled past 30 s three times at
     # 100 % CPU (runs d25a_2, rx_2: TimeoutExpired killed the driver
     # mid-battle; lc_3: 3 x 30 s). Read the process table in-process with the
     # Toolhelp snapshot API instead (no child process, answers in
     # milliseconds). A snapshot that cannot be taken raises
     # ProcessProbeStalled so each caller decides what "unknown" means --
-    # never read as "not running".
+    # never read as "not running"."""
     import ctypes
     import ctypes.wintypes as wt
 
@@ -145,18 +151,17 @@ def game_pids():
     if snap in (None, wt.HANDLE(-1).value):
         raise ProcessProbeStalled(
             f"CreateToolhelp32Snapshot failed (error {ctypes.get_last_error()})")
-    pids = []
+    table = []
     try:
         entry = PROCESSENTRY32W()
         entry.dwSize = ctypes.sizeof(PROCESSENTRY32W)
         ok = k32.Process32FirstW(snap, ctypes.byref(entry))
         while ok:
-            if entry.szExeFile.lower() == "warhammer3.exe":
-                pids.append(int(entry.th32ProcessID))
+            table.append((int(entry.th32ProcessID), entry.szExeFile))
             ok = k32.Process32NextW(snap, ctypes.byref(entry))
     finally:
         k32.CloseHandle(snap)
-    return pids
+    return table
 
 
 class OwnGame:
@@ -292,3 +297,86 @@ def running_game_refusal():
         return (f"Warhammer3.exe is already running (pid {', '.join(map(str, pids))}; "
                 "the user may be playing) -- not launching, not closing it")
     return None
+
+
+# [test standard, stage 6 2026-11-18] The one busy check of the in-game runs (pipelines/flyer_run.py), from the
+# scratch busy.ps1 it replaces: a heavy job must not run beside the owner's game or another heavy job.
+OTHER_GAMES = ("overwatch.exe",)
+# any program started from a Steam game folder is someone playing; this folder is the exception busy.ps1 made
+STEAM_GAMES_MARK, STEAM_GAMES_EXCEPT = "\\steamapps\\common\\", ("\\steamapps\\common\\starsavior\\",)
+HEAVY_LOCK = os.environ.get("HEAVY_JOB_LOCK", r"D:\Projects\.worktrees\_heavy_main.lock")
+HEAVY_PYTHON = ("pytest", "auto_test.py", "build_pack")
+
+
+def image_path(pid):
+    """The full path of process ``pid``'s executable, or None when it cannot be read (a protected process)."""
+    import ctypes
+    import ctypes.wintypes as wt
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.OpenProcess.restype = wt.HANDLE
+    h = k32.OpenProcess(0x1000, False, pid)              # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return None
+    try:
+        buf = ctypes.create_unicode_buffer(1024)
+        size = wt.DWORD(len(buf))
+        if not k32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(size)):
+            return None
+        return buf.value
+    finally:
+        k32.CloseHandle(h)
+
+
+def python_command_lines():
+    """{pid: command line} of every python process (WMI through PowerShell, 60 s at most). A query that fails or
+    stalls raises ProcessProbeStalled: unknown is never "free"."""
+    cmd = ("Get-CimInstance Win32_Process -Filter \"Name like 'python%'\" | "
+           "ForEach-Object { \"$($_.ProcessId)`t$($_.CommandLine)\" }")
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command", cmd], capture_output=True, text=True,
+                             timeout=60)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ProcessProbeStalled(f"python process query failed ({exc})") from exc
+    if out.returncode != 0:
+        raise ProcessProbeStalled(f"python process query failed ({out.stderr.strip()[:200]})")
+    lines = {}
+    for ln in out.stdout.splitlines():
+        pid, _, line = ln.partition("\t")
+        if pid.strip().isdigit():
+            lines[int(pid)] = line
+    return lines
+
+
+def busy_refusal(own_pids=()):
+    """None when a heavy in-game run may start now, else every reason it may not: a running Warhammer3 (the
+    owner's), another game (OVERWATCH, any program from a Steam game folder but the excepted one), the heavy-job
+    lock file, a python heavy job (pytest / auto_test.py / build_pack) other than ``own_pids``. Fail-closed: a
+    probe that cannot answer is a reason."""
+    why = []
+    game = running_game_refusal()
+    if game:
+        why.append(game)
+    try:
+        table = process_table()
+    except ProcessProbeStalled as exc:
+        return "; ".join(why + [f"process table unreadable ({exc})"])
+    for pid, name in table:
+        low = name.lower()
+        if low in OTHER_GAMES:
+            why.append(f"{name}#{pid} is running")
+        elif low != "warhammer3.exe":
+            path = (image_path(pid) or "").lower()
+            if STEAM_GAMES_MARK in path and not any(e in path for e in STEAM_GAMES_EXCEPT):
+                why.append(f"steam game {name}#{pid} is running")
+    if os.path.exists(HEAVY_LOCK):
+        why.append(f"heavy-job lock {HEAVY_LOCK} is held")
+    try:
+        heavy = [pid for pid, line in python_command_lines().items()
+                 if pid not in own_pids and any(h in line for h in HEAVY_PYTHON)]
+    except ProcessProbeStalled as exc:
+        why.append(str(exc))
+    else:
+        if heavy:
+            why.append(f"a python heavy job is running (pid {', '.join(map(str, heavy))})")
+    return "; ".join(why) or None
+

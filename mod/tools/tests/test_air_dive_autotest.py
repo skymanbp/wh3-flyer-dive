@@ -75,7 +75,8 @@ class BattleXml(unittest.TestCase):
             self.assertIn(f'script_name="target_{i}"', text)
             self.assertIn(f'type="{key}"', text)
         self.assertIn(adt.MAP_NAME, text)
-        self.assertIn(adt.CATCHMENT, text)
+        # [test standard] no catchment area: the element is left out
+        self.assertNotIn("catchment_area", text)
 
     def test_helper_pack_paths(self):
         paths = [p for p, _ in adt.helper_entries()]
@@ -151,6 +152,65 @@ class PackOrder(unittest.TestCase):
         self.assertEqual(lines[:4], ['mod "before_probe.pack";', 'mod "flyer_dive_takeoff.pack";',
                                      f'mod "{adt.HELPER_PACK}";', 'mod "probe_size.pack";'])
         self.assertTrue(lines[-1].startswith("game_startup_mode battle "))
+
+class StandardSetup(unittest.TestCase):
+    """[test standard, owner 2026-11-14] The one setup is the default, and every departure from it is named."""
+
+    def args(self, **kw):
+        import types
+        base = dict(spacing=adt.STANDARD["lane_spacing_m"], offset=0.0, stagger=0.0, scenario="charge",
+                    dist=250.0, window="normal")
+        base.update(kw)
+        return types.SimpleNamespace(**base)
+
+    def test_the_numbers(self):
+        self.assertEqual(adt.MAP_NAME, "terrain/battles/mp_crossroads_flat/")
+        self.assertEqual(adt.CATCHMENT, "")
+        self.assertEqual(adt.ENVIRONMENT, "weather\\battle\\wh_day_desert_02.environment_group")
+        self.assertEqual(adt.standard_offsets(9), (-700.0, -525.0, -350.0, -175.0, 0.0, 175.0, 350.0, 525.0, 700.0))
+        self.assertEqual(adt.standard_offsets(3), (-175.0, 0.0, 175.0))
+        self.assertEqual(adt.standard_offsets(4), (-262.5, -87.5, 87.5, 262.5))
+        with self.assertRaises(SystemExit):
+            adt.standard_offsets(10)
+        self.assertEqual(adt.resolve_lane_offsets(None, 3), (-175.0, 0.0, 175.0))
+        self.assertEqual(len(set(adt.FLYERS)), len(adt.FLYERS))      # no duplicated (uphill) lane
+
+    def test_deviations_are_named(self):
+        self.assertEqual(adt.nonstandard(self.args(), adt.standard_offsets(4)), [])
+        self.assertEqual(adt.nonstandard(self.args(stagger=20.0), adt.standard_offsets(4)), ["stagger 20 s"])
+        self.assertEqual(adt.nonstandard(self.args(dist=300.0), adt.standard_offsets(4)), ["dist 300 m"])
+        self.assertEqual(adt.nonstandard(self.args(window="behind"), adt.standard_offsets(4)), ["window behind"])
+        self.assertEqual(adt.nonstandard(self.args(), (-250.0, -160.0, 160.0, 80.0)),
+                         ["lane offsets -250,-160,160,80"])
+        self.assertEqual(adt.nonstandard(self.args(), ()), ["lanes by --spacing 175.0 / --offset 0.0"])
+        self.assertEqual(adt.nonstandard(self.args(scenario="engage", dist=40.0), adt.standard_offsets(4)), [])
+        saved = adt.MAP_NAME, adt.CATCHMENT
+        adt.MAP_NAME, adt.CATCHMENT = "terrain/battles/ult_plains_infield_a/", "catchment_01"
+        try:
+            self.assertEqual(adt.nonstandard(self.args(), adt.standard_offsets(4)),
+                             ["map terrain/battles/ult_plains_infield_a/", "catchment catchment_01"])
+        finally:
+            adt.MAP_NAME, adt.CATCHMENT = saved
+
+    def test_targets_per_lane(self):
+        text = adt.battle_xml(("a", "b"), ("t1", "t2")).decode("utf-16").replace("\r\n", "\n")
+        self.assertIn('<unit script_name="target_1">\n\t\t\t\t<unit_type type="t1"/>', text)
+        self.assertIn('<unit script_name="target_2">\n\t\t\t\t<unit_type type="t2"/>', text)
+        with self.assertRaises(SystemExit):
+            adt.battle_xml(("a", "b"), ("t1",))
+
+    def test_driver_lua_sets_up_targets_and_says_which_setup(self):
+        lua = adt.DRIVER_SOURCE.read_text("utf-8")
+        for needle in ('status(fmt("lane %d target_setup skirmish_off=%s fire_at_will_off=%s melee_on=%s %s"',
+                       'local r1, e1 = pcall(function() uc:change_behaviour_active("skirmish", false, false) end)',
+                       'local r2, e2 = pcall(function() uc:change_behaviour_active("fire_at_will", false, false) end)',
+                       'status(fmt("TT %d %d %.2f %.2f %.2f %s"',
+                       'status(cfg.nonstandard and ("NONSTANDARD setup: " .. cfg.nonstandard) or "SETUP standard")'):
+            self.assertIn(needle, lua)
+        # the target setup runs on the targets (lane.target.uc), after the flyers' own
+        at = lua.index("target_setup skirmish_off")
+        self.assertIn("local uc = lane.target.uc", lua[at - 600:at])
+
 
 
 if __name__ == "__main__":

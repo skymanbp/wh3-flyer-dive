@@ -131,6 +131,9 @@ for line in probe:lines() do
     if ti then cfg.target_turn[tonumber(ti)] = tonumber(val) end
     local sk, sval = line:match("^%s*(scenario)%s*=%s*([%w_]+)%s*$")
     if sk then cfg.scenario = sval end
+    -- [test standard] the driver names every deviation from the standard setup (air_dive_autotest.py STANDARD)
+    local ns = line:match("^%s*nonstandard%s*=%s*(.-)%s*$")
+    if ns and ns ~= "" then cfg.nonstandard = ns end
     local blist = line:match("^%s*breath%s*=%s*([%w_,]+)%s*$")
     if blist then
         for key in blist:gmatch("[^,]+") do cfg.breath[key] = true end
@@ -159,6 +162,7 @@ end
 
 status(fmt("harness_loaded dist=%s spacing=%s settle_ms=%s stagger_ms=%s tail_ms=%s lanes=%s",
     cfg.dist, cfg.spacing, cfg.settle_ms, cfg.stagger_ms, cfg.tail_ms, cfg.lanes))
+status(cfg.nonstandard and ("NONSTANDARD setup: " .. cfg.nonstandard) or "SETUP standard")
 
 -- ---------------------------------------------------------------- clicking
 local function bfs_find(root, target)
@@ -552,6 +556,32 @@ local function run()
         status(fmt("lane %d melee_setup skirmish_off=%s fire_at_will_off=%s melee_on=%s",
             i, tostring(r1), tostring(r2), tostring(r3)))
     end
+    -- [AIR-DIVE-BRACE-W1, test standard 2026-11-14; ported 2026-11-18 from the evidence copy of this harness,
+    -- removed since -- git show 6f0f590:mod/tools/evidence/air_dive_brace_w1_20261114/harness_copy/air_dive_autotest.lua]
+    -- the targets too: Free Company
+    -- Militia are a skirmish unit and backed off before contact (user, 2026-11-14). Same CA quest-battle calls,
+    -- each reported.
+    for i, lane in ipairs(lanes) do
+        local uc = lane.target.uc
+        local r1, e1 = pcall(function() uc:change_behaviour_active("skirmish", false, false) end)
+        local r2, e2 = pcall(function() uc:change_behaviour_active("fire_at_will", false, false) end)
+        local r3, e3 = pcall(function() uc:melee(true) end)
+        status(fmt("lane %d target_setup skirmish_off=%s fire_at_will_off=%s melee_on=%s %s",
+            i, tostring(r1), tostring(r2), tostring(r3),
+            (r1 and r2 and r3) and "" or (tostring(e1) .. " " .. tostring(e2) .. " " .. tostring(e3))))
+    end
+    -- every 0.5 s each target's position (TT <ms> <lane> <x> <z> <y> <moving>): a retreat before contact shows,
+    -- and y is the lane's ground
+    bm:repeat_callback(function()
+        local now = bm:time_elapsed_ms()
+        for i, lane in ipairs(lanes) do
+            pcall(function()
+                local q = lane.target.unit:position()
+                status(fmt("TT %d %d %.2f %.2f %.2f %s", now, i, q:get_x(), q:get_z(), q:get_y(),
+                    tostring(lane.target.unit:is_moving())))
+            end)
+        end
+    end, 500, "flyer_dive_autotest_ttrack")
 
     -- [AIR-DIVE-W14] every 100 ms: each target's hit points (header step 5)
     local hp_buf = {}
@@ -697,6 +727,7 @@ local function run()
     local done_at = cfg.settle_ms + (n - 1) * cfg.stagger_ms + cfg.tail_ms + (short and cfg.short_ms or 0)
     bm:callback(function()
         bm:remove_callback("flyer_dive_autotest_track")
+        bm:remove_callback("flyer_dive_autotest_ttrack")
         bm:remove_callback("flyer_dive_autotest_hp")
         hp_flush()
         status("DONE")

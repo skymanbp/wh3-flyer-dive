@@ -159,6 +159,14 @@ function M.arm(buf)
     local zeros = string.rep("\0", l.slide_slots * 16)
     mr_().write(buf, l.slide_at, zeros)
     put_u32(buf, l.skip_speed_at, site.skip_speed_bits)
+    -- [D15, d15-1118 stage 5] the dive marks and the cost ring of the last battle are cleared; the front-arc
+    -- switch and the game's cos(bracing_attack_angle) are written as the site table carries them (raw F32
+    -- bytes: a game Lua number is float32 and could not carry the bits exactly)
+    if l.mark_count_at then mr_().write(buf, l.mark_count_at, string.rep("\0", l.bytes - l.mark_count_at)) end
+    if site.cost and l.cost_arc_on_at then
+        mr_().write(buf, l.cost_arc_cos_at, site.cost.arc_cos_bytes)
+        put_u32(buf, l.cost_arc_on_at, site.cost.front_arc and 1 or 0)
+    end
     put_u32(buf, l.mode_at, 1)
 end
 

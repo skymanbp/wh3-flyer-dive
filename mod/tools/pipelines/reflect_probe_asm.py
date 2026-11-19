@@ -112,8 +112,9 @@ The applier itself reads [r12] (0x14325aa9e) and [[r12]+0x2e8] (0x14325abde) on 
 +0x58 / +0x2e8 / +0xb1c; the parent chain is the engine's own (0x14325d45e). Every pointer is null-checked.
 The mark table and its event ring live in the dive buffer of the marked dive caves (dive_mark_asm.py); the
 recorder writes that buffer's address at DIVE_AT before it switches the probe on (0 = no mark: logged as
-0xFFFFFFFE). A spent / expired mark is changed with lock cmpxchg from "stamped" only, and the change is an
-event in the dive buffer's ring (kinds 3 / 4) with the same layout as the dive caves' own events.
+0xFFFFFFFE). [d15-1118 stage 5] rf_dmg only READS the mark: since D15 ships, the shipped cave dv_cost
+(dive_cost_asm.py, later in the same applier call) spends and expires it; verdict 1 / 2 here say what dv_cost
+will find on the bracing and the window (its attribute and front-arc tests are its own, recorded in its ring).
 The C records (rf_cgate / rf_cmul) are unchanged: they share the clock with the D records (pair on thread +
 clock), and [rdi+8] is not dereferenced (not every interface was shown to hold an entity there).
 
@@ -213,9 +214,6 @@ MAX_HP, CUR_HP, SIZE = 0xB18, 0xB1C, 0x74
 BRACE_FLAGS, BRACED_BIT, UNIT_BRACED = 0x68, 0x8, 0x3C18
 NO_FLAGS = 0xFFFFFF00               # no victim: bit 3 clear, and not a byte value
 COST_WINDOW = air_dive_rules.DIVE_COST_WINDOW_TICKS
-# [d15-1118, cost] the recorder's reduce_hitpoints_unary step: the share by the engine's size code 1..4
-COST_SHARE_BY_CODE = [air_dive_rules.DIVE_COST_SHARE[s] for s in
-                      sorted(air_dive_rules.TAKEOFF_SIZE_CODES, key=air_dive_rules.TAKEOFF_SIZE_CODES.get)]
 V_COST, V_EXPIRED, V_NOT_BRACED, V_ARMED_ONLY, V_ALREADY = 1, 2, 3, 4, 5
 NOT_LOOKED, NO_DIVE_BUF = 0xFFFFFFFF, 0xFFFFFFFE
 CHAIN = 4                           # the attacker and up to three +0x2e0 ancestors
@@ -426,28 +424,15 @@ d15_buf:
 d15_stamped:
     cmp ecx, {COST_WINDOW}
     jbe d15_fresh
-    mov eax, {mark.STAMPED}
-    mov r8d, {mark.EXPIRED}
-    lock cmpxchg dword ptr [rdx + 8], r8d
-    jne d15_raced
     mov dword ptr [r11 + 60], {V_EXPIRED}
-    mov edx, ecx
-{mark.event("rsi", "r13", mark.EV_EXPIRED, "rfx")}    jmp d15_done
+    jmp d15_done
 d15_fresh:
     test dword ptr [r11 + 56], {BRACED_BIT}
     jnz d15_cost
     mov dword ptr [r11 + 60], {V_NOT_BRACED}
     jmp d15_done
 d15_cost:
-    mov eax, {mark.STAMPED}
-    mov r8d, {mark.SPENT}
-    lock cmpxchg dword ptr [rdx + 8], r8d
-    jne d15_raced
     mov dword ptr [r11 + 60], {V_COST}
-    mov edx, ecx
-{mark.event("rsi", "r13", mark.EV_SPENT, "rfc")}    jmp d15_done
-d15_raced:
-    mov dword ptr [r11 + 60], {V_ALREADY}
 d15_done:
     pop r13
     pop r8
@@ -897,8 +882,8 @@ def _dmg_call(code, mode, victim, attacker_struct, dtype, dive, flags, slot=3):
 def _check_dmg(mutate):
     """[d15-1118] rf_dmg on synthetic calls. The fields kept from RFPROBE3 (return address, victim and its unit,
     damage, type, tick, flyer, thread, clock) at the 128-byte layout, a junk slot, the mode switch; then the D15
-    fields and the mark: a would-be cost spends a fresh stamped mark once (a second contact in the same dive
-    gets nothing), a rider is judged on its mount, a soldier that is not braced, a mark past the window, an
+    fields and the mark, which rf_dmg only reads since stage 5 (dv_cost spends it): a would-be cost leaves a
+    fresh stamped mark as it is, a spent one gives "already", a rider is judged on its mount, a soldier that is not braced, a mark past the window, an
     armed-only mark, no entry, no dive buffer, a ground attacker, no attacker, type 0 never judged; every
     register and the flags kept."""
     fails = []
@@ -965,18 +950,18 @@ def _check_dmg_mark(code):
     #  table state after, events added [(kind, extra)]); 0x2C has bit 3 set among others, 0x37 / 0x0C... not
     B_ON, B_OFF = 0x2C, 0x37
     cases = (
-        ("would-be cost", "flyer", B_ON, mark.STAMPED, NOW - 21, 5, V_COST, 2, 21, mark.SPENT, [(3, 21)]),
-        ("type 6 cost", "flyer", B_ON, mark.STAMPED, NOW - 3, 6, V_COST, 2, 3, mark.SPENT, [(3, 3)]),
+        ("would-be cost", "flyer", B_ON, mark.STAMPED, NOW - 21, 5, V_COST, 2, 21, mark.STAMPED, []),
+        ("type 6 cost", "flyer", B_ON, mark.STAMPED, NOW - 3, 6, V_COST, 2, 3, mark.STAMPED, []),
         ("second contact in the same dive", "flyer", B_ON, mark.SPENT, NOW - 22, 5, V_ALREADY, 3, 22,
          mark.SPENT, []),
-        ("rider: judged on its mount", "rider", B_ON, mark.STAMPED, NOW - 10, 6, V_COST, 2, 10, mark.SPENT,
-         [(3, 10)]),
+        ("rider: judged on its mount", "rider", B_ON, mark.STAMPED, NOW - 10, 6, V_COST, 2, 10, mark.STAMPED,
+         []),
         ("soldier not braced", "flyer", B_OFF, mark.STAMPED, NOW - 10, 5, V_NOT_BRACED, 2, 10, mark.STAMPED, []),
         ("braced only in the old +0x318 sense", "flyer", 0x04, mark.STAMPED, NOW - 10, 5, V_NOT_BRACED, 2, 10,
          mark.STAMPED, []),
-        ("past the window", "flyer", B_ON, mark.STAMPED, NOW - (W + 1), 5, V_EXPIRED, 2, W + 1, mark.EXPIRED,
-         [(4, W + 1)]),
-        ("at the window's end", "flyer", B_ON, mark.STAMPED, NOW - W, 5, V_COST, 2, W, mark.SPENT, [(3, W)]),
+        ("past the window", "flyer", B_ON, mark.STAMPED, NOW - (W + 1), 5, V_EXPIRED, 2, W + 1, mark.STAMPED,
+         []),
+        ("at the window's end", "flyer", B_ON, mark.STAMPED, NOW - W, 5, V_COST, 2, W, mark.STAMPED, []),
         ("armed only (no touchdown)", "flyer", B_ON, mark.ARMED, NOW - 2, 5, V_ARMED_ONLY, 1, 2, mark.ARMED, []),
         ("no entry", "flyer", B_ON, None, 0, 5, 0, 0, -1, None, []),
         ("no dive buffer", "flyer", B_ON, "nobuf", 0, 5, 0, NO_DIVE_BUF, -1, None, []),
@@ -1226,12 +1211,13 @@ MUTANTS = (
     ("rf_dmg", f"    movzx eax, byte ptr [rdx + {BRACE_FLAGS:#x}]\n", "    movzx eax, byte ptr [rdx + 0x69]\n"),
     ("rf_dmg", f"    mov eax, dword ptr [rax + {UNIT_BRACED:#x}]\n", "    mov eax, dword ptr [rax + 0x3c14]\n"),
     ("rf_dmg", f"    cmp ecx, {COST_WINDOW}\n    jbe d15_fresh\n", "    jmp d15_fresh\n"),
-    ("rf_dmg", f"    mov r8d, {mark.SPENT}\n", f"    mov r8d, {mark.STAMPED}\n"),
+    ("rf_dmg", f"    mov dword ptr [r11 + 60], {V_COST}\n",
+     f"    mov dword ptr [r11 + 60], {V_COST}\n    mov dword ptr [rdx + 8], {mark.SPENT}\n"),
     ("rf_dmg", "    mov rcx, qword ptr [r12]\n", "    mov rcx, rdx\n"),
     ("rf_dmg", "    cmp eax, 6\n    jne d15_done\n", "    jmp d15_done\n"),
     ("rf_dmg", "    cmp eax, 6\n    jne d15_done\n", "    nop\n"),
     ("rf_dmg", f"    mov rcx, qword ptr [rcx + {PARENT:#x}]\n", "    xor ecx, ecx\n"),
-    ("rf_dmg", "    mov dword ptr [rcx + 20], 3\n", "    mov dword ptr [rcx + 20], 4\n"),
+    ("rf_dmg", f"    mov dword ptr [r11 + 60], {V_EXPIRED}\n", f"    mov dword ptr [r11 + 60], {V_COST}\n"),
     ("rf_dmg", "    mov dword ptr [r11 + 124], r9d\n", "    nop\n"),
     ("rf_dmg", f"    mov eax, dword ptr [rdx + {MAX_HP:#x}]\n", f"    mov eax, dword ptr [rdx + {CUR_HP:#x}]\n"),
     ("rf_dmg", "    jnz d15_buf\n", "    jmp d15_buf\n"),
@@ -1345,10 +1331,6 @@ def site_lua(codes, data=None):
               f"refl_slots = {REFL_SLOTS},",
               f"        dmg_count_at = {DMG_COUNT_AT}, dmg_ring_at = {DMG_RING_AT}, dmg_slots = {DMG_SLOTS}, "
               f"dmg_entry = {DMG_ENTRY}, dive_at = {DIVE_AT}, cost_window = {COST_WINDOW}, braced_bit = {BRACED_BIT},",
-              "        cost_share = { " + ", ".join(repr(v) for v in COST_SHARE_BY_CODE) + " }, "
-              f"cost_max_call = {air_dive_rules.DIVE_COST_MAX_CALL}, "
-              f"cost_keep = {air_dive_rules.DIVE_COST_KEEP_UNARY}, "
-              f"cost_follow = {air_dive_rules.DIVE_COST_FOLLOW_TICKS},",
               f"        brace_count_at = {BRACE_COUNT_AT}, brace_ring_at = {BRACE_RING_AT}, "
               f"brace_slots = {BRACE_SLOTS}, brace_entry = {BRACE_ENTRY},",
               f"        act_count_at = {ACT_COUNT_AT}, act_ring_at = {ACT_RING_AT}, act_slots = {ACT_SLOTS},",

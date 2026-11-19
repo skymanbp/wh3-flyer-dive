@@ -1783,14 +1783,11 @@ def site_lua(codes):
 
 
 def check_site_file(mod_dir=MOD_DIR):
-    """Offline (no keystone): the committed site table matches these sources."""
-    path = Path(mod_dir) / SITE_LUA
-    text = path.read_text(encoding="utf-8") if path.is_file() else ""
-    for needle in (f"source_sha = '{source_sha()}'", f"format = {agreement_format()},"):
-        if needle not in text:
-            raise RuntimeError(f"[dive_cave_asm] REFUSING: {path} is missing or stale (lacks {needle!r}); "
-                               "rerun dive_cave_asm.py --write-site")
-    return True
+    """Offline (no keystone): the committed site table matches these sources. [D15, d15-1118 stage 5] The table
+    is written by dive_cost_asm.py (these caves with the dive mark, plus dv_cost); its source sha folds in this
+    file's source_sha(), so its check is this file's check too."""
+    import dive_cost_asm
+    return dive_cost_asm.check_site_file(mod_dir)
 
 
 def check_exe(exe_path=EXE):
@@ -1833,9 +1830,9 @@ def main(argv):
     print(f"[dive_cave_asm] caves {', '.join(f'{n} {len(codes[n])} B' for n in codes)}; emulator cases "
           f"{counts}; {len(MUTANTS)} mutants each caught")
     if "--write-site" in argv:
-        out = MOD_DIR / SITE_LUA
-        out.write_text(site_lua(codes), encoding="utf-8", newline="\n")
-        print(f"[dive_cave_asm] wrote {out}")
+        # [D15, d15-1118 stage 5] this table alone would drop the dive mark and dv_cost
+        raise SystemExit("[dive_cave_asm] REFUSING: the shipped dive site table is written by dive_cost_asm.py "
+                         "--write-site (these caves with D15)")
 
 
 if __name__ == "__main__":

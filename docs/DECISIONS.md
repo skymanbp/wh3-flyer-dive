@@ -88,7 +88,7 @@ points at the section of that name in `docs/HISTORY.md`; "ARCHITECTURE「飞兽�
 2. **主包 `ld_mod.pack` 不含飞行模组的任何改动**：俯冲与近战起飞的脚本与代码洞位点表、改名飞行动作表、对原版 / 自建 / 捐赠方飞兽实体与坐骑的俯冲改写（冲锋速度、减速度、冲锋距离、转向动作、跳击、质量下调、冲撞攻击与冲锋被动）、喷吐技能接战可放的整表替换，全部退出主包。
 3. **取代**用户令 `minimods-in-main-1113`（「主包必须包含全部小模组」）中飞行模组那一半；引擎抗性等其余小模组仍按该令与主包同源。
 4. **判别规矩**（本批定）：某行改动只为俯冲模组而存在（速度、质量、动作表重指）→ 出主包；属于该单位自己的设计（例如月盘骑士身体 `ld_moncav_tze_disc` 的 large 体型与质量下限、加尔劳赫去马鞍的身体）→ 留主包。逐行处置见 §C11 FLYER-DECOUPLE。
-5. **共用件留主包**：`lib/ld_cave_common.lua`（只剩引擎抗性战斗入口用的记录行）、memreader Plus、动作编解码库、DB 写入器与 schema、`entity_read` 读取器；测试驱动共用件改放 `tools/pipelines/battle_autotest_harness.py`。
+5. **共用件留主包**：`lib/ld_cave_common.lua`（只剩引擎抗性战斗入口用的记录行）、memreader Plus、动作编解码库、DB 写入器与 schema、`entity_read` 读取器；测试驱动共用件改放 `tools/pipelines/battle_autotest_harness.py`（那是主模组仓库的文件；本仓库的驱动是 `air_dive_autotest.py`，只由 `flyer_run.py` 调用）。
 6. 落地：2026-11-17，车道 flyer-decouple（§C11 FLYER-DECOUPLE，墓碑 §C10.7）。
 
 ## 2026-11-17
@@ -406,6 +406,13 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   routine's own branch that hits the attacker back. Both stay in test-only packs until measured in game.
 - Not verified: whether 80 is the whole front arc or half of it. Of D15 only the test-only probe is built
   (offline); the rule itself is not.
+- **Built into the shipped pack, offline (2026-11-18 night, `docs/HISTORY.md` D15-SHIP-1118).** The share is
+  3% of the model's own maximum health for every body size (a test value, not the final number). One
+  condition was added by the maintainer and is not the owner's wording: the flyer must be inside the game's
+  own bracing angle (80) of the soldier's facing (`DIVE_COST_FRONT_ARC`, one switch); the game's own
+  doubling does not test that angle. Nothing of it has run in game yet, and every in-game number of
+  2026-11-18 was taken on the old sloped map (`docs/HISTORY.md` TEST-STD-1118), so the losses are measured
+  again under the standard setup and reported to the owner before any upload.
 
 ### D16 · Branch `rename-1118` is pushed again
 

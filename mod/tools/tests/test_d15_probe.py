@@ -4,8 +4,8 @@
   use, their magic differs from the shipped one, their layout keeps every shipped field, the mark is added
   where the design says (dv_through's air-charge branch arms, every hold that runs the slide window stamps)
   and nowhere else, and importing the module leaves the shipped sources alone;
-* the probe pack builder: --dive-mark needs --reflect, and a base without exactly one dive site table is
-  refused;
+* the probe pack builder: [stage 5] --reflect refuses a base whose dive site table does not carry the mark and
+  dv_cost (D15 ships; the probe only records it), or that has no or two such tables;
 * the report's DIVE COST section on synthetic records, and its FAILs on missing or lost records;
 * the autotest driver's D15 control key short_m.
 The emulator checks of the caves (the shipped cases on the marked caves, the mark's cases, the rf_dmg D15
@@ -68,17 +68,17 @@ class MarkedCaves(unittest.TestCase):
 
 
 class ProbePack(unittest.TestCase):
-    def test_dive_mark_needs_reflect(self):
-        with self.assertRaises(SystemExit) as cm:
-            build_probe_pack.main(["--base", "x.pack", "--out", "p.pack", "--dive-mark"])
-        self.assertIn("needs --reflect", str(cm.exception))
-
-    def test_base_without_one_dive_site_is_refused(self):
+    def test_base_must_carry_d15(self):
+        shipped = (TOOLS_DIR.parent / build_probe_pack.DIVE_SITE).read_bytes()
+        eleven = b"\n".join(ln for ln in shipped.splitlines() if b"dv_cost" not in ln and b"cost_ring_at" not in ln)
         for entries in ([("script/other.lua", b"")],
-                        [(build_probe_pack.DIVE_SITE, b""), (build_probe_pack.DIVE_SITE.replace("/", "\\"), b"")]):
+                        [(build_probe_pack.DIVE_SITE, shipped), (build_probe_pack.DIVE_SITE.replace("/", "\\"), shipped)],
+                        [(build_probe_pack.DIVE_SITE, eleven)]):
             with self.assertRaises(SystemExit) as cm:
-                build_probe_pack.swap_dive_site(entries)
+                build_probe_pack.require_d15_site(entries)
             self.assertIn("REFUSING", str(cm.exception))
+        ok = [(build_probe_pack.DIVE_SITE.replace("/", "\\"), shipped)]
+        self.assertIs(build_probe_pack.require_d15_site(ok), ok)
 
 
 def _d(ms, tick, dtype, verdict, v318=0x69, att="A1000020", fly="A1000020", mark=2, age=21, att_unit="F0000001",

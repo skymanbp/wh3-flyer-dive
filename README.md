@@ -99,7 +99,7 @@ build reads must still re-encode byte-identical, so a patched table is refused,
 not guessed. Rebuilding the cave site tables and their emulator checks also
 needs `keystone-engine` and `unicorn`
 (`python tools/pipelines/dive_cave_asm.py --write-site`). The automated battle
-test (`tools/pipelines/air_dive_autotest.py`) needs `psutil`; its optional
+test (`tools/pipelines/flyer_run.py`, which drives `air_dive_autotest.py`) needs `psutil`; its optional
 `--entity-read` reader is not part of this repository.
 
 Re-deriving the staged flight tables (`python -P tools/pipelines/air_dive.py`,

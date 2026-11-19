@@ -34,13 +34,19 @@ DIVE_COST_WINDOW_TICKS and what that is as a share of the unit's health. ATTACKE
 how often the applier's attacker is itself the flying entity, a rider of one, or no flyer at all. A file with no
 MARK on line, lost D or M records, no M line or no type-5 / 6 call with a flying attacker is a FAIL (exit 1).
 
-[d15-1118, maintainer] COST: the recorder's test-only step that applies the would-be costs through
-unit:reduce_hitpoints_unary (switch cost=1). Per flyer unit: calls, p requested, the measured health drop (the
+[d15-1118, maintainer] COST: the costs taken through unit:reduce_hitpoints_unary (stage 3-4: the recorder's
+test-only step behind cost=1; since stage 5 the SHIPPED lib/dive_cost.lua, observed: its XPAY / XARC / XNOATTR
+lines per entry of the cave dv_cost, cross-checked with the game data's charge_reflection units). Per flyer unit: calls, p requested, the measured health drop (the
 reading before each call minus the lowest of the DIVE_COST_FOLLOW_TICKS readings after it), the ordinary damage
 the D lines put on that unit in the same windows (as a share of the unit: initial men x the model's maximum
 health), the drop attributable to the calls, models lost; with the switch off, the would-have calls. FAIL: no
 COST line; an XERR line; a call after which no reading fell (the queued command was not executed -- the submit
 is skipped when [[g]+0x468]+0x3b0 / +0x3b1 is set, 0x142f0f633); verdicts for a unit with no cost line at all.
+
+[test standard, stage 6 2026-11-18] FLYER DAMAGE / CONTACT (flyer_damage_summary): per flyer unit the damage it
+took, split by the calculator record before each hit, its first 5 s / 10 s, and the calls on the units it hit
+around its first contact -- what the supervisor's scratch readers verify_d15 / read_d15_run / verify_contact
+computed, now in this one report.
 
 usage: python -P tools/pipelines/reflect_probe_report.py [reflect_probe.txt]
 """
@@ -230,6 +236,135 @@ def charge_reflect_summary(other, dmg, units):
     return out
 
 
+CONTACT_BEFORE_MS, CONTACT_AFTER_MS = 2000, 3000      # verify_contact.py's window around the contact
+
+
+def _frac_at(hp, uid, ms):
+    """the unit's health fraction at the last U row at or before ms (None without one)"""
+    best = None
+    for r in hp:
+        if r["ms"] <= ms and uid in r:
+            best = r[uid][0]
+    return best
+
+
+def flyer_damage_summary(units, dmg, hp, other):
+    """[test standard, stage 6 2026-11-18] What the supervisor's one-off readers (d15-1118_scratch/supervisor:
+    verify_d15.py, read_d15_run.py, verify_contact.py) computed from the raw records, per flyer unit:
+      FLYER DAMAGE: hits, total, first damage (ms, ticks after its first type-5 / 6 call as attacker), health
+        left at the last U row, pool estimate total / (1 - left);
+        each hit classed by the calculator record before it on the same victim entity (by clock): MULT (the
+        charge-reflect multiplier, C which=2), GATE (C which=1), with the tail of the calculator's second
+        return address, or none -- 'not logged' without C lines;
+        the first 5 s and 10 s from its first damage: damage, health before -> after, split by that class;
+      CONTACT: its first type-5 / 6 call as attacker, and the damage calls on the units it hit from
+        CONTACT_BEFORE_MS before to CONTACT_AFTER_MS after, by type. (verify_contact.py took the contact
+        from the driver's timeline; the record's own first call needs no second file.)"""
+    c = [ln.split() for ln in other if ln.startswith("C ") and len(ln.split()) >= 14]
+    last_c, cls = {}, {}
+    events = sorted([(int(q[12]), 0, i) for i, q in enumerate(c)] +
+                    [(d["clock"], 1, i) for i, d in enumerate(dmg) if d["clock"] is not None])
+    for _clock, kind, i in events:
+        if kind == 0:
+            last_c[c[i][13].upper()] = c[i]
+        else:
+            q = last_c.get(dmg[i]["victim"])
+            cls[i] = "none" if q is None else ("MULT " if q[2] == "2" else "GATE ") + q[6][-5:].upper()
+    out = []
+    for obj, u in sorted(units.items(), key=lambda kv: int(kv[1]["uid"])):
+        if not u["flyer"]:
+            continue
+        mine = [(i, d) for i, d in enumerate(dmg) if d["unit"] == obj]
+        as_att = [d for d in dmg if d.get("att_unit") == obj and d["type"] in (5, 6)]
+        if not mine:
+            out.append(f"FLYER DAMAGE {u['key']} uid {u['uid']}: no damage records")
+        else:
+            total = sum(d["damage"] for _i, d in mine)
+            t0 = min(d["ms"] for _i, d in mine)
+            tick0 = min(d["tick"] for _i, d in mine)
+            left = hp[-1][u["uid"]][0] if hp and u["uid"] in hp[-1] else None
+            pool = f"{total / (1 - left):.0f}" if left is not None and left < 1 else "-"
+            since = (f", {tick0 - min(d['tick'] for d in as_att)} ticks after its first type-5/6 call as attacker"
+                     if as_att else "")
+            out.append(f"FLYER DAMAGE {u['key']} uid {u['uid']} ({u['men']} models): hits {len(mine)}, damage "
+                       f"{total}, first at {t0} ms{since}; health left {left}, pool estimate {pool}")
+            if c:
+                by = {}
+                for i, d in mine:
+                    by.setdefault(cls.get(i, "none"), []).append(d["damage"])
+                for k in sorted(by):
+                    v = by[k]
+                    out.append(f"  by calculator record before it {k}: n={len(v)} mean {sum(v) / len(v):.1f} "
+                               f"min {min(v)} max {max(v)} sum {sum(v)}")
+            else:
+                out.append("  by calculator record before it: not logged (no C lines)")
+            for win in (5000, 10000):
+                w = [(i, d) for i, d in mine if t0 <= d["ms"] < t0 + win]
+                split = {}
+                for i, d in w:
+                    split[cls.get(i, "none") if c else "not logged"] = \
+                        split.get(cls.get(i, "none") if c else "not logged", 0) + d["damage"]
+                out.append(f"  first {win // 1000} s from first damage: damage {sum(d['damage'] for _i, d in w)}, "
+                           f"health {_frac_at(hp, u['uid'], t0 - 100)} -> {_frac_at(hp, u['uid'], t0 + win)}, "
+                           f"by class {dict(sorted(split.items()))}")
+        if as_att:
+            first = min(as_att, key=lambda d: d["ms"])
+            hit_units = {d["unit"] for d in as_att}
+            near = [d for d in dmg if d["unit"] in hit_units
+                    and first["ms"] - CONTACT_BEFORE_MS <= d["ms"] <= first["ms"] + CONTACT_AFTER_MS]
+            byt = {}
+            for d in near:
+                byt[d["type"]] = byt.get(d["type"], 0) + 1
+            out.append(f"CONTACT {u['key']} uid {u['uid']}: first type-5/6 call as attacker at {first['ms']} ms "
+                       f"(tick {first['tick']}) on {', '.join(sorted(units.get(x, {}).get('key', x) for x in hit_units))}; "
+                       f"damage calls on them in [-{CONTACT_BEFORE_MS // 1000} s, +{CONTACT_AFTER_MS // 1000} s] "
+                       f"by type {dict(sorted(byt.items()))}, sum {sum(d['damage'] for d in near)}")
+    return out
+
+
+def timeline_contact_summary(units, dmg, other, timeline_text):
+    """[test standard, stage 6 2026-11-18] verify_contact.py's table, from the driver's timeline.txt next to the
+    record: per lane, when the driver first tracked the flyer on the ground, the first charge-reflect gate and
+    multiply records on it (C lines, by the entity its D lines name), the first damage on it, and the damage calls
+    on its lane's target from CONTACT_BEFORE_MS before to CONTACT_AFTER_MS after that landing, by type.
+    [] without a timeline; a lane line names what is missing."""
+    import re
+    if not timeline_text:
+        return []
+    lanes, landed = {}, {}
+    for ln in timeline_text.splitlines():
+        m = re.search(r"driver: \d+ lane (\d+) flyer=\S+ uid=(\d+) .* target=\S+ uid=(\d+)", ln)
+        if m:
+            lanes[int(m.group(1))] = (m.group(2), m.group(3))
+        m = re.search(r"driver: (\d+) track (\d+) .* flying=false", ln)
+        if m and int(m.group(2)) not in landed:
+            landed[int(m.group(2))] = int(m.group(1))
+    by_uid = {u["uid"]: obj for obj, u in units.items()}
+    ent_unit = {d["victim"]: d["unit"] for d in dmg}
+    c = [ln.split() for ln in other if ln.startswith("C ") and len(ln.split()) >= 14]
+    out = []
+    for n in sorted(lanes):
+        fu, tu = (by_uid.get(x) for x in lanes[n])
+        if fu is None or tu is None or n not in landed:
+            out.append(f"LANE CONTACT {n}: no UNIT line or no landing in the timeline ({lanes[n]}, landed {landed.get(n)})")
+            continue
+        gates = [q for q in c if ent_unit.get(q[13].upper()) == fu and q[2] == "1"]
+        mults = [q for q in c if ent_unit.get(q[13].upper()) == fu and q[2] == "2"]
+        mine = [d for d in dmg if d["unit"] == fu]
+        t = landed[n]
+        near = [d for d in dmg if d["unit"] == tu and t - CONTACT_BEFORE_MS <= d["ms"] <= t + CONTACT_AFTER_MS]
+        byt = {}
+        for d in near:
+            byt[d["type"]] = byt.get(d["type"], 0) + 1
+        out.append(f"LANE CONTACT {n} {units[fu]['key']}: on the ground by {t} ms; first gate "
+                   f"{min(int(q[1]) for q in gates) if gates else None} ({gates[0][6][-5:].upper() if gates else '-'}), "
+                   f"first multiply {min(int(q[1]) for q in mults) if mults else None}, "
+                   f"first damage on it {min(d['ms'] for d in mine) if mine else None}; damage calls on its target in "
+                   f"[-{CONTACT_BEFORE_MS // 1000} s, +{CONTACT_AFTER_MS // 1000} s] by type {dict(sorted(byt.items()))}, "
+                   f"sum {sum(d['damage'] for d in near)}")
+    return out
+
+
 NONE32 = 0xFFFFFFFF
 MARK_KINDS = {1: "armed", 2: "stamped", 3: "spent", 4: "expired"}
 VERDICTS = {0: "-", 1: "WOULD-BE COST", 2: "mark expired", 3: "not braced", 4: "armed only", 5: "already spent"}
@@ -379,16 +514,50 @@ def dive_cost_summary(on, units, dmg, other, threshold=None):
 
 
 DROP_EPS = 1e-4                       # a reading this much below the one before the call counts as a change
+SAMPLE_MS = 100                       # reflect_probe.lua SAMPLE_MS: one recorder tick, one XA reading
+# [d15-1118 stage 5] what the cost's own application looks like in the D lines (both runs of 2026-11-18): an
+# applier call of type 2 with no attacker on a model of the paying unit, two recorder ticks after the call, from
+# the applier's caller 0x1430be044 (APPLIER_CALLS "unidentified 0x1430be044": unit:reduce_hitpoints_unary's way in)
+OWN_TYPE = 2
 
 
-def cost_summary(units, dmg, other):
-    """[d15-1118] (lines, problems) for the COST section; problems fail the report."""
+def _own_application(d):
+    """a D line that can be a reduce_hitpoints_unary application: type 2, the D15 fields, no attacker"""
+    return d["type"] == OWN_TYPE and d.get("attacker") == "00000000"
+
+
+def _call_groups(made, follow_ms):
+    """calls of one unit whose follow windows overlap, in order: [[call, ...], ...]"""
+    groups = []
+    for c in made:
+        if groups and c["ms"] <= groups[-1][-1]["ms"] + follow_ms:
+            groups[-1].append(c)
+        else:
+            groups.append([c])
+    return groups
+
+
+def cost_summary(units, dmg, other, reflect_keys=None):
+    """[d15-1118] (lines, problems) for the COST section; problems fail the report.
+
+    [stage 5] The cost is the shipped one (lib/dive_cost.lua); its observer lines name every entry of the cave
+    dv_cost: XPAY (paid), XARC (braced, behind the front arc), XNOATTR (braced, no charge reflection). With
+    ``reflect_keys`` (the land units with charge_reflection in the installed data) the cave's own attribute test
+    is cross-checked: a paid soldier's unit must be in it, a skipped one must not. The paying entries of a unit
+    must add up to the models its X / XREF lines name.
+
+    [stage 5] Calls of one unit whose follow windows (DIVE_COST_FOLLOW_TICKS recorder ticks) overlap are judged
+    together, on every distinct reading up to the end of the last call's window: "no health change" only when the
+    lowest of them is not below the health before the group's first call. The cost's own applications (type-2
+    calls with no attacker on the paying unit inside the group's window) are listed per model and are not
+    ordinary damage."""
     out, problems = [], []
     cost_line = next((ln for ln in other if ln.startswith("COST ")), None)
     if cost_line is None:
         return out, ["no COST line (recorder older than the cost step)"]
     out.append(cost_line)
-    calls, xa, noattr = [], {}, {}
+    follow_ms = air_dive_rules.DIVE_COST_FOLLOW_TICKS * SAMPLE_MS
+    calls, xa, noattr, windows, entries = [], {}, {}, [], {}
     for ln in other:
         p = ln.split()
         if not p:
@@ -398,11 +567,15 @@ def cost_summary(units, dmg, other):
                           "want": float(p[6]), "p": float(p[7]), "before": float(p[8]), "men": int(p[9]),
                           "init": int(p[10])})
         elif p[0] == "XA" and len(p) == 6:
-            xa.setdefault(p[2], []).append({"ms": int(p[1]), "k": int(p[3]), "hp": float(p[4]), "men": int(p[5])})
+            # one reading per recorder tick and unit; overlapping calls print the same reading twice
+            xa.setdefault(p[2], {})[int(p[1])] = {"ms": int(p[1]), "hp": float(p[4]), "men": int(p[5])}
         elif p[0] == "XERR":
             problems.append(ln)
         elif p[0] == "XNOATTR" and len(p) == 7:
             noattr.setdefault(p[5].upper(), []).append(ln)
+            entries.setdefault(p[5].upper(), []).append(("XNOATTR", p[4], None))
+        elif p[0] in ("XPAY", "XARC") and len(p) == 9:
+            entries.setdefault(p[5].upper(), []).append((p[0], p[4], float(p[7])))
     for obj, u in sorted(units.items(), key=lambda kv: kv[1]["uid"]):
         if not u["flyer"]:
             continue
@@ -413,6 +586,24 @@ def cost_summary(units, dmg, other):
             keys = sorted({ln.split()[4] for ln in skipped})
             out.append(f"COST {u['key']} uid {u['uid']}: {len(skipped)} braced contacts skipped, the soldier's unit "
                        f"lacks charge_reflection ({', '.join(keys)})")
+        ent = entries.get(obj, [])
+        arcs = [cos for kind, _k, cos in ent if kind == "XARC"]
+        pays = [(key, cos) for kind, key, cos in ent if kind == "XPAY"]
+        if ent:
+            out.append(f"COST {u['key']} uid {u['uid']}: dv_cost entries: paid {len(pays)} (cos "
+                       f"{sorted(round(c, 2) for _k, c in pays)}), behind the arc {len(arcs)} (cos "
+                       f"{sorted(round(c, 2) for c in arcs)}), no charge reflection {len(skipped)}")
+        if reflect_keys is not None:
+            for kind, key, _cos in ent:
+                if key == "?":
+                    continue
+                if (kind == "XNOATTR") == (key in reflect_keys):
+                    problems.append(f"{u['key']} uid {u['uid']}: {kind} on {key}, which the game data says "
+                                    f"{'has' if key in reflect_keys else 'lacks'} charge_reflection (attribute 0x27?)")
+        called = sum(c["n"] for c in mine if c["kind"] in ("X", "XREF"))
+        if pays and called != len(pays) and not any(u["uid"] in pr or obj in pr for pr in problems):
+            problems.append(f"{u['key']} uid {u['uid']}: {len(pays)} paying entries but calls for {called} models")
+        skipped = skipped + [None] * len(arcs)
         if len(verdicts) > len(skipped) and not mine and not any(u["uid"] in pr or obj in pr for pr in problems):
             problems.append(f"{u['key']} uid {u['uid']}: {len(verdicts) - len(skipped)} would-be cost verdicts "
                             "but no cost line")
@@ -422,35 +613,57 @@ def cost_summary(units, dmg, other):
         maxes += [d["a_max"] for d in verdicts if d.get("a_max", 0xFFFFFFFF) != 0xFFFFFFFF]
         model_max = max(maxes) if maxes else None
         made = [c for c in mine if c["kind"] == "X"]
+        readings = sorted(xa.get(u["uid"], {}).values(), key=lambda a: a["ms"])
         drop = ordinary = 0.0
-        lost = 0
-        for i, c in enumerate(made):
-            nxt = made[i + 1]["ms"] if i + 1 < len(made) else None
-            after = [a for a in xa.get(u["uid"], []) if a["ms"] > c["ms"] and (nxt is None or a["ms"] <= nxt)]
+        lost = own_total = hp_total = 0
+        detail = []
+        for group in _call_groups(made, follow_ms):
+            first, end = group[0], group[-1]["ms"] + follow_ms
+            after = [a for a in readings if first["ms"] < a["ms"] <= end]
+            p_sum = sum(c["p"] for c in group)
+            when = ", ".join(f"{c['ms']}" for c in group)
             if not after:
-                problems.append(f"{u['key']} uid {u['uid']}: call at {c['ms']} ms has no reading after it")
+                problems.append(f"{u['key']} uid {u['uid']}: call at {when} ms has no reading after it")
                 continue
             low = min(a["hp"] for a in after)
-            if low > c["before"] - DROP_EPS:
-                problems.append(f"{u['key']} uid {u['uid']}: call at {c['ms']} ms (p {c['p']:.4f}) and no health "
+            if low > first["before"] - DROP_EPS:
+                problems.append(f"{u['key']} uid {u['uid']}: call at {when} ms (p {p_sum:.4f}) and no health "
                                 f"change in {len(after)} readings (the queued command was not executed?)")
-            drop += c["before"] - low
-            lost += c["men"] - after[-1]["men"]
-            hp_dmg = sum(d["damage"] for d in dmg if d["unit"] == obj and c["ms"] < d["ms"] <= after[-1]["ms"])
-            if hp_dmg and model_max and c["init"] > 0:
-                ordinary += hp_dmg / (c["init"] * model_max)
+            drop += first["before"] - low
+            lost += first["men"] - after[-1]["men"]
+            inside = [d for d in dmg if d["unit"] == obj and first["ms"] < d["ms"] <= end]
+            own = [d for d in inside if _own_application(d)]
+            hp_dmg = sum(d["damage"] for d in inside if not _own_application(d))
+            if hp_dmg and model_max and first["init"] > 0:
+                ordinary += hp_dmg / (first["init"] * model_max)
             elif hp_dmg:
                 problems.append(f"{u['key']} uid {u['uid']}: ordinary damage {hp_dmg} with no model maximum health")
-            c["hp_dmg"] = hp_dmg
-        hp_total = sum(c.get("hp_dmg", 0) for c in made)
+            hp_total += hp_dmg
+            own_total += sum(d["damage"] for d in own)
+            want = p_sum * first["init"] * model_max if model_max else None
+            split = ", ".join(f"{d['victim']} (max {d['v_max']}) {d['damage']} at {d['ms']} ms" for d in own)
+            detail.append(f"  OWN calls at {when} ms: p {p_sum:.4f} of {first['init']} x {model_max} = "
+                          f"{want:.1f} wanted; applied {sum(d['damage'] for d in own)} on {len({d['victim'] for d in own})} model(s): "
+                          f"{split or 'none seen'}" if want is not None else
+                          f"  OWN calls at {when} ms: applied {sum(d['damage'] for d in own)} on {len({d['victim'] for d in own})} model(s): "
+                          f"{split or 'none seen'}")
         out.append(f"COST {u['key']} uid {u['uid']}: calls {len(made)}, p requested "
-                   f"{sum(c['p'] for c in made):.4f}, measured drop {drop:.4f}, ordinary damage in the windows "
-                   f"{hp_total} ({ordinary:.4f} of the unit), attributable {drop - ordinary:.4f}, models lost {lost}; "
-                   f"would-have calls {sum(1 for c in mine if c['kind'] == 'XOFF')}, refused "
-                   f"{sum(1 for c in mine if c['kind'] == 'XREF')}")
+                   f"{sum(c['p'] for c in made):.4f}, measured drop {drop:.4f}, the cost's own applications "
+                   f"{own_total}, ordinary damage in the windows {hp_total} ({ordinary:.4f} of the unit), "
+                   f"attributable {drop - ordinary:.4f}, models lost {lost}; would-have calls "
+                   f"{sum(1 for c in mine if c['kind'] == 'XOFF')}, refused {sum(1 for c in mine if c['kind'] == 'XREF')}")
         for c in mine:
             out.append(f"  {c['kind']} {c['ms']} ms tick {c['tick']}: {c['n']} paying models, p {c['want']:.4f} "
                        f"wanted / {c['p']:.4f} applied, health before {c['before']:.4f}, men {c['men']} of {c['init']}")
+        out.extend(detail)
+        windows.extend((g[0]['ms'], g[-1]['ms'] + follow_ms) for g in _call_groups(made, follow_ms))
+    # [stage 5] the same kind of hit on a flyer unit outside every call's window: none expected (control)
+    flyer_objs = {o for o, u in units.items() if u['flyer']}
+    stray = [d for d in dmg if d['unit'] in flyer_objs and _own_application(d)
+             and not any(a < d['ms'] <= b for a, b in windows)]
+    out.append(f"COST type-{OWN_TYPE} hits with no attacker on flyer units outside every call's window: {len(stray)}"
+               + (f" ({', '.join(units[d['unit']]['key'] + ' ' + str(d['damage']) + ' at ' + str(d['ms']) for d in stray[:5])})"
+                  if stray else ""))
     return out, problems
 
 
@@ -499,6 +712,12 @@ def main(argv):
         print(line)
     for line in charge_reflect_summary(other, dmg, units):
         print(line)
+    for line in flyer_damage_summary(units, dmg, hp, other):
+        print(line)
+    timeline = path.parent / "timeline.txt"        # the driver's, next to the record in a flyer_run folder
+    for line in timeline_contact_summary(units, dmg, other,
+                                         timeline.read_text("utf-8", errors="replace") if timeline.is_file() else ""):
+        print(line)
     print("CONTROL", "SEEN" if control else "NOT SEEN", f"({control} ground units took reflection damage)")
     print("FLYER", "SEEN" if flyer else "NOT SEEN", f"({flyer} flying units took reflection damage)")
     if not refl and not dmg:
@@ -507,7 +726,8 @@ def main(argv):
     import unit_attributes
     threshold = unit_attributes.kv_rules(GAME_ROOT / "data" / "db.pack")["unit_braced_status_threshold"]
     lines, problems = dive_cost_summary(on, units, dmg, other, threshold)
-    cost_lines, cost_problems = cost_summary(units, dmg, other)
+    reflect_keys = set(unit_attributes.units_with_attribute(GAME_ROOT / "data" / "db.pack", "charge_reflection"))
+    cost_lines, cost_problems = cost_summary(units, dmg, other, reflect_keys)
     lines += cost_lines
     problems += cost_problems
     for line in lines:

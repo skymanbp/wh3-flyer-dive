@@ -83,6 +83,35 @@ local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, fli
     .. "slides ended by melee %d, bodies already in melee not carried %d"
 local TICK_NAME, TICK_MS = "flyer_dive_counts", 10000
 
+-- [D15, d15-1118 stage 5] The braced-spear cost of a dive (lib/dive_cost.lua): the caves judge the contacts, this
+-- entry reads their ring every COST_MS from Deployed and takes the shares through unit:reduce_hitpoints_unary. A
+-- failure stops the cost for this battle with one log line; the dive itself goes on.
+-- / 俯冲撞枪阵代价：洞内判定，本入口每 100 毫秒读一次并用游戏自己的命令扣血；出错只停代价、记一行。
+local COST_NAME, COST_MS = "flyer_dive_cost", 100
+local cost = nil
+local function cost_counts() return cost and (", " .. cost:counts()) or "" end
+if buffer and okv and type(site) == "table" and type(site.cost) == "table" then
+    local okc, dive_cost = pcall(require, "script/campaign/flyer_dive/lib/dive_cost")
+    if not okc or type(dive_cost) ~= "table" then
+        record("COST off: lib/dive_cost did not load: " .. tostring(dive_cost))
+    else
+        bm:register_phase_change_callback("Deployed", function()
+            local started, why = pcall(function()
+                cost = dive_cost.new(_G.memreader_plus, buffer, site, record)
+                cost:map(bm)
+                bm:repeat_callback(function()
+                    local tok, err = pcall(cost.tick, cost, bm:time_elapsed_ms(), bm)
+                    if not tok then
+                        record("COST stopped: " .. tostring(err))
+                        pcall(function() bm:remove_callback(COST_NAME) end)
+                    end
+                end, COST_MS, COST_NAME)
+            end)
+            if not started then record("COST off: " .. tostring(why)) end
+        end)
+    end
+end
+
 -- Every 10 s, a NOW line when the counters changed: the END line needs the
 -- battle's Complete phase, which a player who quits mid-battle (or a test
 -- harness that kills the game) never reaches. / 每 10 秒计数有变才记一行。
@@ -96,7 +125,7 @@ if buffer then
                 return
             end
             local line = COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-                c.released, c.committed, c.closed, c.engaged_body)
+                c.released, c.committed, c.closed, c.engaged_body) .. cost_counts()
             if line ~= last then
                 last = line
                 record("NOW " .. line)
@@ -108,10 +137,12 @@ end
 bm:register_phase_change_callback("Complete", function()
     if not buffer then return end
     pcall(function() bm:remove_callback(TICK_NAME) end)
+    pcall(function() bm:remove_callback(COST_NAME) end)
     pcall(function()
+        if cost then pcall(cost.tick, cost, bm:time_elapsed_ms(), bm) end
         local c = dive.counters(buffer)
         dive.pass_through(buffer)
         record("END " .. COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-            c.released, c.committed, c.closed, c.engaged_body))
+            c.released, c.committed, c.closed, c.engaged_body) .. cost_counts())
     end)
 end)

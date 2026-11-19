@@ -962,9 +962,10 @@ IMPACT_STAGES = ("A", "B", "C", "D")
 IMPACT_STAGE = "B"
 # [D15, d15-1118] Braced-spear cost of a dive. D4's "twice the game's own reflection damage" (the
 # removed REFLECTION_FLYER_DAMAGE_FACTOR) is replaced by D15: once per model per dive, at the dive's
-# contact with a bracing charge_reflection soldier, a share of the model's own maximum health. NOT BUILT:
-# only the test-only probe reads these (pipelines/dive_mark_asm.py, reflect_probe_asm.py rf_dmg,
-# reflect_probe_report.py); the shipped pack carries none of them.
+# contact with a bracing charge_reflection soldier, a share of the model's own maximum health.
+# [stage 5] SHIPPED: pipelines/dive_cost_asm.py generates the shipped dive site table with these numbers
+# (the dv_cost cave judges the contact, script/campaign/flyer_dive/lib/dive_cost.lua takes the share
+# through unit:reduce_hitpoints_unary); the probe (reflect_probe_*) only records it.
 # DIVE_COST_WINDOW_TICKS: battle ticks (10 a second) after the touchdown in which a contact counts.
 # First guess from series 4 run 3: every flyer's impact and collision damage on the braced line fell
 # within 3 s of the first driver sample on the ground (d15-1118 lane, impact_at_dive.py).
@@ -987,6 +988,14 @@ DIVE_COST_KEEP_UNARY = 0.03
 # next reading. Five readings allow for a queue delay of several ticks; no drop within them is the report's
 # "command not executed" FAIL (e.g. the two flags at 0x142f0f633 / 0x142f0f63c that skip the submit).
 DIVE_COST_FOLLOW_TICKS = 5
+# [stage 5] Only a contact in front of the bracing soldier pays: the flyer's position lies within the game's
+# own bracing_attack_angle (kv rule, 80 in 9.0.5) of the soldier's facing, the test the game makes in its
+# contact engage 0x14307c404 (0x14307c556..0x14307c63c: cos(angle x pi/180) against the facing +0xb0 and the
+# vector to the other entity). The bracing flag itself (+0x68 bit 3, set at 0x143090af0) does not depend on
+# where the charger comes from, and the damage calculator's doubling does not test the angle; so this is the
+# maintainer's reading of the owner's "only while standing braced", switchable here. The angle value is read
+# from the installed game's data when the site table is generated, never written here.
+DIVE_COST_FRONT_ARC = True
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)

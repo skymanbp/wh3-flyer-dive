@@ -48,8 +48,19 @@ griffon knights' centre jumped (a 162 m/s "touchdown") while riders landed,
 and "-0.55 m deep" was the squad's middle while the user watched them charge
 into the enemy.
 
-LANE TERRAIN [AIR-DIVE-GRIFFON 2026-11-11]: lanes are NOT equivalent, so
-they are picked by measured ground. Over 93 single-model touchdowns (star
+TEST STANDARD [owner 2026-11-14, flyer-test-harness-fix; docs/HISTORY.md
+AIR-DIVE-BRACE-W1 part 11]: every run uses ONE setup, STANDARD below -- the flat
+map mp_crossroads_flat, no catchment, lanes 175 m apart (centred, at most 9 within
+-700..700 m of LANE_FRAME), all lanes charging at once, flyers 250 m from their
+targets, the targets' skirmish / fire-at-will off and melee on (the Lua's
+target_setup), each target's ground logged every 0.5 s (TT lines). A run that
+departs from it in any way is a named deviation: the driver prints a NONSTANDARD
+line, writes it into the status file through the driver Lua and into
+verdict.json ("standard": false), so it can never pass for a standard one.
+
+The paragraph below is the history of the OLD map (ult_plains_infield_a), kept
+because it explains why the standard exists. LANE TERRAIN [AIR-DIVE-GRIFFON
+2026-11-11]: lanes are NOT equivalent, so they were picked by measured ground. Over 93 single-model touchdowns (star
 dragon, Karl Franz on his Deathclaw, a griffon prince) the slot-489 plough
 fired 33/33 level with the target and 20/60 uphill. Why (phase 3, 77
 touchdowns on 7 lanes): the plough fires only when the flyer touches down
@@ -57,8 +68,8 @@ far enough from the nearest enemy (>= 6.5 m: 19/19, 6.0-6.5: 11/15,
 < 6.0: 0/43, griffon radius 2.4; the limit moved ~1 m closer with radius
 1.2, not with IMPACT_POS). On rising ground the flyer is still 0.36-0.47 m
 up 7 m out (level lanes <= 0.18) and lands 3.5-5.5 m away. The lanes are
-laid out in a FIXED frame (LANE_FRAME) at LANE_OFFSETS: two level lanes,
-one nearly level, one deliberate uphill lane. Each lane reports
+laid out in a FIXED frame (LANE_FRAME) at offsets that were two level lanes,
+one nearly level, one deliberate uphill lane (no longer the default). Each lane reports
 ``target_ground_rise_m`` and ``peak_mps_after_touchdown`` (~20 = the plough
 ran, ~0 = the flyer stopped; single models only, a multi-model unit's
 position() alternates between models). Compare variants lane by lane: W8/W9
@@ -98,9 +109,11 @@ list of either scenario (the lane count follows it).
 
 usage: python -P tools/pipelines/air_dive_autotest.py
            [--scenario charge|engage]
-           [--test-pack flyer_dive_takeoff.pack] [--dist 250] [--spacing 250]
-           [--lane-offsets a,b,c,d | spacing] [--offset 0]
-           [--stagger 20] [--tail 40] [--timeout 900]
+           [--test-pack flyer_dive_takeoff.pack] [--flyers a,b,c] [--target K | --targets a,b,c]
+           [--tail 40] [--timeout 900]
+           deviations from the standard (each is reported as NONSTANDARD):
+           [--map M] [--catchment C|-] [--environment E] [--dist 250]
+           [--lane-offsets a,b,c | spacing] [--spacing 175] [--offset 0] [--stagger 0]
            [--startup-via argv|user_script] [--out-dir DIR] [--keep-helper]
        python -P tools/pipelines/air_dive_autotest.py --judge-only DIR
            (re-judge a finished run's saved status + probe slice + hp.txt)
@@ -157,8 +170,6 @@ FLYERS = (
     "wh2_main_hef_mon_star_dragon",
     "wh2_dlc15_hef_inf_mistwalkers_griffon_knights_0",
     "wh3_dlc27_hef_veh_skycutter_bows",
-    # [AIR-DIVE-GRIFFON] the deliberate uphill lane (LANE_OFFSETS[3])
-    "wh2_main_hef_mon_star_dragon",
 )
 TARGET = "wh_main_emp_inf_swordsmen"
 # [AIR-DIVE-W15 2026-11-11] ENGAGE scenario (--scenario engage, module
@@ -182,16 +193,24 @@ HEF_FACTION, HEF_GENERAL = "wh2_main_hef_eataine", "wh2_main_hef_cha_prince_0"
 EMP_FACTION, EMP_GENERAL = "wh_main_emp_empire", "wh_main_emp_cha_general_0"
 # names-table ids CA's battle_map_test.xml uses for its two generals
 GENERAL_NAMES = ("2147360906", "2147359620")
-# terrain/battles/ult_plains_infield_a/battle_locations_map.xml: catchment_01
-# is in the land_normal list (flat Ulthuan plains, no trees on the lanes).
-MAP_NAME = "terrain/battles/ult_plains_infield_a/"
-CATCHMENT = "catchment_01"
-# Without a <weather> block the first run crashed while the battle loaded
-# (2026-11-10 18:14:06, READ 0x0 at Warhammer3.exe+0x18B45A7, "<empty_file_name>"
-# next to terrain texture paths in the faulting object). CA's sample names
-# Weather\battle\wh_ult_05.environment, which 9.0 no longer ships; the map's
-# own environments.csv lists day_clear_02, shipped as this group in data.pack.
-ENVIRONMENT = "weather\\battle\\wh_day_clear_02.environment_group"
+# [TEST STANDARD, owner 2026-11-14 (flyer-test-harness-fix); docs/HISTORY.md AIR-DIVE-BRACE-W1 part 11]
+# The one setup of every in-game run, ported from the evidence harness and the job lists that ran it
+# (tools/evidence/air_dive_brace_w1_20261114: jobs_r3.txt, round4/jobs_r4.txt, map_survey.txt,
+# equivalence_flat.txt): mp_crossroads_flat (203 / 203 survey points placed, ground 577.31-577.55 m, steepest
+# 50 m step 0.48%; ult_plains_infield_a, the old map, 28%), no catchment area, the desert day weather the job
+# lists name, lanes 175 m apart inside -700..700 m of LANE_FRAME, every lane ordered at once (stagger 0; the
+# old 20 s stagger was one of the two reasons batch P was not equivalent), flyers 250 m from their targets,
+# the normal game window. Anything else is a deviation the run names (nonstandard()).
+# Without a <weather> block the first run crashed while the battle loaded (2026-11-10 18:14:06, READ 0x0 at
+# Warhammer3.exe+0x18B45A7), so the environment is always given.
+STANDARD = {"map": "mp_crossroads_flat", "catchment": "",
+            "environment": "weather\\battle\\wh_day_desert_02.environment_group",
+            "lane_spacing_m": 175.0, "lane_span_m": 700.0, "stagger_s": 0.0, "dist_m": 250.0,
+            "window": "normal"}
+MAX_LANES = int(2 * STANDARD["lane_span_m"] / STANDARD["lane_spacing_m"]) + 1
+MAP_NAME = f"terrain/battles/{STANDARD['map']}/"
+CATCHMENT = STANDARD["catchment"]
+ENVIRONMENT = STANDARD["environment"]
 MIN_FLYER_SAMPLES = 20
 # [AIR-DIVE-W14] plough = target hit-point loss right after touchdown
 # (module docstring PLOUGH). Unary fractions of the target's starting hp.
@@ -205,31 +224,34 @@ CENTRE_ONLY_FIELDS = ("touchdown_speed_mps", "travel_after_touchdown_m",
                       "time_to_stop_s", "stopped", "depth_into_target_m",
                       "dist_to_target_centroid_m", "target_ground_rise_m",
                       "peak_mps_after_touchdown")
-# [AIR-DIVE-GRIFFON 2026-11-11] The lanes are laid out in this FIXED frame
+# [AIR-DIVE-GRIFFON 2026-11-11] The lanes are laid out in this FIXED frame (kept on the standard map: the
+# map survey and every standard batch used it)
 # (centre, charge axis): the frame the driver derived from the deployment moved
 # with the army composition (centre 7.4,-10.6 / -3.8,-4.6 / 5.4,-10.7 for three
 # lane sets), so a lane offset did not name the same ground twice. Offsets
 # along the lanes, measured in this frame (module docstring LANE TERRAIN):
 # -250 and -160 touch down level with the target (rise -0.11..0.01 m, plough
 # 8/8 griffon-prince touchdowns), +160 nearly level (0.18..0.19, 2/3); +80 is
-# the deliberate uphill test lane (0.47..0.80 m, 0/3).
+# the deliberate uphill test lane (0.47..0.80 m, 0/3). Those were the old map's numbers.
 LANE_FRAME = {"centre_x": -3.8, "centre_z": -4.6, "axis_x": 0.024, "axis_z": -1.0}
-LANE_OFFSETS = (-250.0, -160.0, 160.0, 80.0)
+
+
+def standard_offsets(n):
+    """The standard's lane positions: ``n`` lanes STANDARD spacing apart, centred on the frame (the standard
+    batches' 9 lanes at -700..700, their 3-lane single-type batches at -175, 0, 175); refuses more lanes than
+    fit in the span."""
+    if not 1 <= n <= MAX_LANES:
+        raise SystemExit(f"[air_dive_autotest] REFUSING: {n} lanes; the standard holds 1..{MAX_LANES}")
+    step = STANDARD["lane_spacing_m"]
+    return tuple((i - (n - 1) / 2) * step for i in range(n))
 
 
 # ------------------------------------------------------------------ pack
 def resolve_lane_offsets(spec, n):
-    """Lane positions along the lanes. ``spec`` None: LANE_OFFSETS when it has
-    one entry per lane, else refuse (a lane set without measured ground must
-    say so with 'spacing'); 'spacing': () so the driver uses spacing/offset;
-    else a comma list of exactly ``n`` numbers."""
+    """Lane positions along the lanes. ``spec`` None: the standard's (standard_offsets); 'spacing': () so the
+    driver uses spacing/offset; else a comma list of exactly ``n`` numbers (both are deviations)."""
     if spec is None:
-        if len(LANE_OFFSETS) != n:
-            raise SystemExit(
-                f"[air_dive_autotest] REFUSING: {n} lanes but LANE_OFFSETS has "
-                f"{len(LANE_OFFSETS)}; pass --lane-offsets (measured ground) or "
-                "--lane-offsets spacing")
-        return LANE_OFFSETS
+        return standard_offsets(n)
     if spec == "spacing":
         return ()
     vals = tuple(float(x) for x in spec.split(","))
@@ -263,14 +285,18 @@ def alliance_xml(idx, faction, units):
 
 def battle_xml(flyers=FLYERS, target=TARGET, ally=None):
     """The battle definition, CA's battle_map_test.xml format (UTF-16).
-    [FLYER-FIX-1117] ``ally``: one unit of that key per lane on the flyers' side (``ally_<i>``)."""
+    [FLYER-FIX-1117] ``ally``: one unit of that key per lane on the flyers' side (``ally_<i>``).
+    [test standard] ``target``: one land unit key for every lane, or one key per lane (``--targets``)."""
+    targets = (target,) * len(flyers) if isinstance(target, str) else tuple(target)
+    if len(targets) != len(flyers):
+        raise SystemExit(f"[air_dive_autotest] REFUSING: {len(targets)} targets for {len(flyers)} lanes")
     unit, alliance = unit_xml, alliance_xml
     hef = [unit("general_hef", HEF_GENERAL, GENERAL_NAMES[0])]
     hef += [unit(f"flyer_{i}", k) for i, k in enumerate(flyers, 1)]
     if ally:
         hef += [unit(f"ally_{i}", ally) for i in range(1, len(flyers) + 1)]
     emp = [unit("general_emp", EMP_GENERAL, GENERAL_NAMES[1])]
-    emp += [unit(f"target_{i}", target) for i in range(1, len(flyers) + 1)]
+    emp += [unit(f"target_{i}", t) for i, t in enumerate(targets, 1)]
     text = ("<?xml version=\"1.0\"?>\n"
             "<!-- generated by tools/pipelines/air_dive_autotest.py -->\n"
             "<battle>\n" + alliance(0, HEF_FACTION, hef) +
@@ -286,8 +312,8 @@ def battle_xml(flyers=FLYERS, target=TARGET, ally=None):
             "\t</weather>\n"
             "\t<battle_map_definition>\n"
             f"\t\t<name>{MAP_NAME}</name>\n"
-            f"\t\t<catchment_area>{CATCHMENT}</catchment_area>\n"
-            "\t</battle_map_definition>\n</battle>\n")
+            + (f"\t\t<catchment_area>{CATCHMENT}</catchment_area>\n" if CATCHMENT else "")
+            + "\t</battle_map_definition>\n</battle>\n")
     return text.replace("\n", "\r\n").encode("utf-16")   # BOM + LE, as CA's
 
 
@@ -800,6 +826,40 @@ def lane_flyers(args):
     return ENGAGE_FLYERS if args.scenario == "engage" else FLYERS
 
 
+def lane_targets(args):
+    """[test standard] One target land unit per lane: ``--targets`` (exactly one key per lane) or ``--target`` on
+    every lane."""
+    n = len(lane_flyers(args))
+    if not getattr(args, "targets", None):
+        return (args.target,) * n
+    keys = tuple(k.strip() for k in args.targets.split(",") if k.strip())
+    if len(keys) != n:
+        raise SystemExit(f"[air_dive_autotest] REFUSING: --targets has {len(keys)} keys for {n} lanes")
+    return keys
+
+
+def nonstandard(args, lane_offsets):
+    """[test standard] Every way this run departs from STANDARD, as short named reasons ([] = standard)."""
+    out = []
+    if MAP_NAME != f"terrain/battles/{STANDARD['map']}/":
+        out.append(f"map {MAP_NAME}")
+    if CATCHMENT != STANDARD["catchment"]:
+        out.append(f"catchment {CATCHMENT}")
+    if ENVIRONMENT != STANDARD["environment"]:
+        out.append(f"environment {ENVIRONMENT}")
+    if not lane_offsets:
+        out.append(f"lanes by --spacing {args.spacing} / --offset {args.offset}")
+    elif tuple(lane_offsets) != standard_offsets(len(lane_offsets)):
+        out.append("lane offsets " + ",".join(f"{o:g}" for o in lane_offsets))
+    if args.stagger != STANDARD["stagger_s"]:
+        out.append(f"stagger {args.stagger:g} s")
+    if args.scenario != "engage" and args.dist != STANDARD["dist_m"]:
+        out.append(f"dist {args.dist:g} m")
+    if args.window != STANDARD["window"]:
+        out.append(f"window {args.window}")
+    return out
+
+
 class Restore:
     """Puts used_mods.txt / user.script.txt / control file / helper pack back."""
 
@@ -925,9 +985,11 @@ def run(args):
 
     flyers = lane_flyers(args)
     lane_offsets = resolve_lane_offsets(args.lane_offsets, len(flyers))
+    deviations = nonstandard(args, lane_offsets)
+    note("NONSTANDARD RUN: " + "; ".join(deviations) if deviations else "standard setup")
     own = None
     try:
-        write_pack_file(str(helper), helper_entries(flyers, args.target, args.ally), PACK_TYPE_MOD)
+        write_pack_file(str(helper), helper_entries(flyers, lane_targets(args), args.ally), PACK_TYPE_MOD)
         if STATUS_FILE.exists():
             STATUS_FILE.unlink()
         if HP_FILE.exists():
@@ -945,7 +1007,8 @@ def run(args):
             + "".join(f"{k}={v}\n" for k, v in LANE_FRAME.items())
             + "".join(f"lane_off_{i}={o}\n"
                       for i, o in enumerate(lane_offsets, 1))
-            + "".join(f"{kv.strip()}\n" for kv in (args.cmd or "").split(",") if kv.strip()),
+            + "".join(f"{kv.strip()}\n" for kv in (args.cmd or "").split(",") if kv.strip())
+            + (f"nonstandard={'; '.join(deviations)}\n" if deviations else ""),
             encoding="utf-8")
         extra = ()
         if args.entity_read:
@@ -1116,7 +1179,11 @@ def run(args):
     result["reasons"] = reasons + result["reasons"]
     if reasons:
         result["verdict"] = "FAIL"
-    result.update({"scenario": args.scenario, "test_pack": args.test_pack, "dist_m": args.dist,
+    if not deviations and not has(status_lines, "SETUP standard"):
+        result["reasons"].append("standard setup but the driver never wrote 'SETUP standard' (old driver Lua?)")
+        result["verdict"] = "FAIL"
+    result.update({"standard": not deviations, "nonstandard": deviations,
+                   "scenario": args.scenario, "test_pack": args.test_pack, "dist_m": args.dist,
                    "spacing_m": args.spacing, "offset_m": args.offset,
                    "lane_offsets_m": list(lane_offsets), "lane_frame": LANE_FRAME,
                    "out_dir": str(out_dir),
@@ -1133,17 +1200,21 @@ def main(argv=None):
     ap.add_argument("--dist", type=float, default=None,
                     help=f"flyer start distance from its target, m (charge 250, "
                          f"engage {ENGAGE_DIST})")
-    ap.add_argument("--spacing", type=float, default=250.0,
-                    help="distance between lanes, m")
+    ap.add_argument("--spacing", type=float, default=STANDARD["lane_spacing_m"],
+                    help="distance between lanes with --lane-offsets spacing, m (a deviation)")
     ap.add_argument("--offset", type=float, default=0.0,
                     help="shift of the whole lane block along the lanes, m "
                          "(AIR-DIVE-GRIFFON: see LANE TERRAIN)")
     ap.add_argument("--lane-offsets",
-                    help="comma list, one position per lane along the lanes, m "
-                         "(default LANE_OFFSETS when the lane count matches; "
-                         "'spacing' = the old --spacing / --offset layout)")
-    ap.add_argument("--stagger", type=float, default=20.0,
-                    help="seconds between one lane's charge order and the next")
+                    help="comma list, one position per lane along the lanes, m (a deviation; default: the "
+                         "standard's centred 175 m lanes; 'spacing' = the old --spacing / --offset layout)")
+    ap.add_argument("--stagger", type=float, default=STANDARD["stagger_s"],
+                    help="seconds between one lane's charge order and the next (standard 0; else a deviation)")
+    ap.add_argument("--map", help="terrain/battles/<map>/ instead of the standard's (a deviation)")
+    ap.add_argument("--catchment", help="catchment area ('-' = none, the standard; else a deviation)")
+    ap.add_argument("--environment", help="weather environment group key (a deviation)")
+    ap.add_argument("--targets", help="comma list of target land unit keys, one per lane (default: --target on "
+                                      "every lane)")
     # [AIR-DIVE-W14] 40 not 30: the last lane touched down 29.5 s after its
     # order on 11-11, and the plough judge needs hit points to touchdown + 5 s
     ap.add_argument("--tail", type=float, default=40.0,
@@ -1188,6 +1259,13 @@ def main(argv=None):
     ap.add_argument("--judge-only", metavar="DIR",
                     help="re-judge a saved run (status.txt + probe_slice.txt)")
     args = ap.parse_args(argv)
+    global MAP_NAME, CATCHMENT, ENVIRONMENT
+    if args.map:
+        MAP_NAME = f"terrain/battles/{args.map}/"
+    if args.catchment:
+        CATCHMENT = "" if args.catchment == "-" else args.catchment
+    if args.environment:
+        ENVIRONMENT = args.environment
     if args.entity_read and not args.judge_only:
         import importlib.util
         if importlib.util.find_spec("build_entity_read_minimod") is None:
@@ -1217,7 +1295,7 @@ def main(argv=None):
         result = run(args)
         if args.keep_helper:
             write_pack_file(str(DATA_DIR / HELPER_PACK), helper_entries(
-                lane_flyers(args)), PACK_TYPE_MOD)
+                lane_flyers(args), lane_targets(args), args.ally), PACK_TYPE_MOD)
         Path(args.out_dir).mkdir(parents=True, exist_ok=True)
         (Path(args.out_dir) / "verdict.json").write_text(
             json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n")

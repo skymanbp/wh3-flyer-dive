@@ -98,6 +98,9 @@ cfg.free_targets_ms = -1
 -- away from its flyer (90 = the flyer comes in on its flank); the probe's flank lane.
 cfg.target_turn = {}
 cfg.fight_ms, cfg.cycle_away_ms, cfg.cycle_back_ms = 90000, -1, 6000
+-- [regroup-1119, D23] away_repeat_ms=<ms> (0 = off): the cycle's move-away order is given again to the same
+-- place every that many ms until the next attack order (a player who clicks the same destination again).
+cfg.away_repeat_ms = 0
 -- [FLYER-FIX-1117 2026-11-17] PUSH scenarios (player report "dive or trash": a unit already in melee was
 -- dragged back into its own missile line when the flyer charged it again).
 --   scenario=recharge: flyer i attacks target i at settle_ms; recharge_ms later (and every recharge_gap_ms,
@@ -451,11 +454,14 @@ local function run_cycle(lanes, ux, uz)
             status(fmt("cycle attack %d #%d ok=%s %s", i, n, tostring(ok), ok and "" or tostring(err)))
         end
     end
-    local function away(n)
+    local function away(n, again)
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
-                local p = lane.flyer.unit:position()
-                lane.flyer.uc:goto_location(v(p:get_x() - ux * cfg.away_m, p:get_z() - uz * cfg.away_m), true)
+                if not again or not lane.away_to then
+                    local p = lane.flyer.unit:position()
+                    lane.away_to = { p:get_x() - ux * cfg.away_m, p:get_z() - uz * cfg.away_m }
+                end
+                lane.flyer.uc:goto_location(v(lane.away_to[1], lane.away_to[2]), true)   -- [regroup-1119] a repeat goes to the same place
             end)
             status(fmt("cycle away %d #%d ok=%s %s", i, n, tostring(ok), ok and "" or tostring(err)))
         end
@@ -469,6 +475,13 @@ local function run_cycle(lanes, ux, uz)
             if tb >= t_end then break end
             local k = n
             bm:callback(function() away(k) end, ta)
+            if cfg.away_repeat_ms > 0 then
+                local tr = ta + cfg.away_repeat_ms
+                while tr < tb do
+                    bm:callback(function() away(k, true) end, tr)
+                    tr = tr + cfg.away_repeat_ms
+                end
+            end
             bm:callback(function() attack(k + 1) end, tb)
             t, n = tb, n + 1
         end

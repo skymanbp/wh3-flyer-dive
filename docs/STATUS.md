@@ -136,6 +136,11 @@ D4 的飞兽各道（INGAME-1118 第 4、5 项的样子）要等 D4 有了做法
 现在的包（主管从工作树建）在 `D:/Projects/.worktrees/wh3-flyer-dive/d10-1118_scratch/supervisor/gapfix_sup/`：发货包 `ship/flyer_dive_takeoff.pack`（14,064,999 字节，sha256 `c7e9c6ba…`）。
 D15 做进去之后的包（主管 2026-11-18 夜从工作树重建）：`D:/Projects/.worktrees/wh3-flyer-dive/d15-1118_scratch/supervisor/verify56/flyer_dive_takeoff.pack`（14,090,541 字节，sha256 `7646de33…80b5`）。
 
+### REGROUP-1119（D23 多兵模起飞后被拉回）：停在 D 之前，等主人许可实机
+
+- 分支 `regroup-1119`（未推送）。A、B 已量并有反向对照，C 只有初步答案，D 没做（没有区分「引擎自动协助交战」与「玩家明确攻击令」的判别量），E、F 没做。数字、规则、地址与证据见 `docs/HISTORY.md` REGROUP-1119。
+- 主人 2026-11-19 22:08 令暂停实机测试；欠的局与精确命令行在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/owed_runs.txt`（八局：`rg_s_*` 四局带 `rt_stub` 洞，怪步拦截 `rg_t_*`、`rg_i_m`，补局 `rg_o_m2`）。主人说可以测了再从 `regroup-1119/wt/mod` 用 `flyer_run.py list` 跑，一次一局。
+
 ### 测完之后
 
 - 第 1 项通过 → D3 进下一版。**已通过（series 3，2026-11-18）**：四种体型都量到了；那一两个时刻的空当记在第 1 项，要查清才发（D11）。

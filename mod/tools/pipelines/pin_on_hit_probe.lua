@@ -16,6 +16,10 @@
 --   entities <0|1>   default 0; 1 = also write the E lines
 --   track <0|1>      default 0; 1 = also write the Q / P / C / M lines [regroup-1119, D23]: where every
 --                    model of a flyer unit is, tick by tick (see below). Meant with "sample 100".
+--   calls <0|1>      default 0; 1 = also write the G / GC lines [regroup-1119, D23]: who lands a flying model and
+--                    who flips its unit's stay-down flag. Needs the pack built with build_pin_on_hit_probe.py
+--                    --regroup-trace (the site table script/regroup_trace/regroup_trace_site); without it a FAIL
+--                    line is written and the record goes on without the G lines.
 --   trace <0|1>      default 0; 1 = also write the T lines [d10-1118]. Needs the traced caves
 --                    (a pack built with build_pin_on_hit_probe.py --trace-from); with the shipped
 --                    caves it writes a FAIL line and records without the trace.
@@ -60,6 +64,15 @@
 --   M <ms> <tick> <uid> <id>:<s324>:<c330>:<vt> ...  [regroup-1119] with "track 1": per flight entity the
 --                                 model state +0x324, the pointer at +0x330 and the first 8 bytes behind it
 --                                 (low 8 hex digits each; "-" = null or unreadable), when any changed
+--   G <ms> <tick> <kind> <uid> <entity8> <ret16> <rdx16> <aux16> <air8> <state8> <stay8> <rcx8>  [regroup-1119] with
+--                                 "calls 1": one call of a traced engine function (regroup_trace_asm.py): kind 1 =
+--                                 landing request 0x14303fab4, 2 = landing cancel 0x14304cea0 at stage 4 / 5,
+--                                 3 = a command's target changed 0x143084b10, 4 = the order stay down / fly
+--                                 0x1430439c0, 5 = the charge command given to a model 0x143076060 (aux = the stack qword at [rsp+16], rdx = [rsp+8]), 6 = the virtual method 0x143123514 that calls it (ret = the unit-level caller, aux = the qword after it). ret = the return address (the caller), aux = stage / old target /
+--                                 r8b, air = entity +0x104, state = entity +0x324, stay = the unit controller's +8
+--                                 (ffffffff: none). All hex, from bytes (game Lua numbers are float32).
+--   GC <ms> land=<n> cancel=<n> target=<n> stay=<n> lost=<n>   [regroup-1119] every 2 s with "calls 1": every call
+--                                 of the four functions so far (the ring only holds the filtered ones)
 --   T <tick> <uid> <id>:<token>,<token>,... ...
 --                                 [d10-1118] with "trace 1": what the take-off
 --                                 caves saw of each flight entity in one battle
@@ -124,7 +137,7 @@ local function id_of(p)
 end
 
 local function read_cfg(defaults)
-    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0, track = 0 }
+    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0, track = 0, calls = 0 }
     local f = io.open(CFG_FILE, "r")
     if not f then return cfg end
     for line in f:lines() do
@@ -250,6 +263,73 @@ local function read_table()
     return map, used
 end
 
+-- [regroup-1119] the call tracer: four logger caves on the landing request / landing cancel / set-target / stay-down
+-- order (regroup_trace_asm.py), installed here when cfg "calls 1".
+local calls = nil                 -- {buf, layout, seen, lost}
+local function hex_bytes(s, at, n)    -- n bytes at 1-based `at`, little-endian -> hex text, most significant first
+    local out = {}
+    for i = at + n - 1, at, -1 do out[#out + 1] = fmt("%02x", s:byte(i)) end
+    return table.concat(out)
+end
+local function install_calls()
+    local ok, s = pcall(require, "script/regroup_trace/regroup_trace_site")
+    if not ok or type(s) ~= "table" then return nil, "the call tracer's site table is not in the pack: " .. tostring(s) end
+    local mp = false
+    pcall(function() mp = bm:is_multiplayer() and true or false end)
+    if mp then return nil, "multiplayer" end
+    local h, refused = mr.patcher(s.owner)
+    if not h then return nil, "patcher refused: " .. tostring(refused) end
+    local api = h:sites(s.entries, function(txt) emit("SITE " .. tostring(txt)) end)
+    if not api then return nil, "sites failed" end
+    for _, name in ipairs(s.caves) do
+        if not api.found(name) then return nil, name .. " not usable: " .. tostring(api.why(name)) end
+    end
+    local b = mr.game_alloc(s.layout.bytes)
+    if not b then return nil, "game_alloc failed" end
+    local zeros = string.rep("\0", 4096)
+    for off = 0, s.layout.bytes - 1, 4096 do mr.write(b, off, sub(zeros, 1, math.min(4096, s.layout.bytes - off))) end
+    mr.write(b, s.layout.magic_at, s.layout.magic)
+    local given = {}
+    for _, name in ipairs(s.caves) do given[name] = { buf = b } end
+    local done, problem = api.install_feature(s.feature, given)
+    if not done then return nil, "install failed: " .. tostring(problem) end
+    mr.write(b, s.layout.mode_at, mr.uint32(1))
+    return { buf = b, l = s.layout, seen = 0, lost = 0, last = "" }
+end
+
+local function drain_calls(ms, uid_of)
+    local c, l = calls, calls.l
+    local count = u32le(mr.read(c.buf, l.count_at, 4), 1)
+    if count - c.seen > l.slots then
+        c.lost = c.lost + (count - c.seen - l.slots)
+        c.seen = count - l.slots
+    end
+    while c.seen < count do
+        local slot = c.seen % l.slots
+        local n = math.min(count - c.seen, l.slots - slot, 128)
+        local chunk = mr.read(c.buf, l.ring_at + slot * l.entry, n * l.entry)
+        local stop = false
+        for i = 0, n - 1 do
+            local at = i * l.entry + 1
+            if u32le(chunk, at + 60) ~= c.seen + 1 then stop = true; break end    -- claimed, not written yet
+            local ent8 = string.upper(hex_bytes(chunk, at + 8, 4))
+            emit(fmt("G %d %s %d %s %s %s %s %s %s %s %s %s", ms, all_ff(chunk, at + 24) and "-1" or tostring(u32le(chunk, at + 24)),
+                u32le(chunk, at + 28), tostring(uid_of[ent8] or "?"), ent8, hex_bytes(chunk, at + 16, 8),
+                hex_bytes(chunk, at + 32, 8), hex_bytes(chunk, at + 40, 8), hex_bytes(chunk, at + 48, 4),
+                hex_bytes(chunk, at + 52, 4), hex_bytes(chunk, at + 56, 4), hex_bytes(chunk, at, 4)))
+            c.seen = c.seen + 1
+        end
+        if stop then break end
+    end
+    local raw = mr.read(c.buf, l.calls_at, 16)
+    local line = fmt("land=%d cancel=%d target=%d stay=%d lost=%d", u32le(raw, 1), u32le(raw, 5), u32le(raw, 9),
+        u32le(raw, 13), c.lost)
+    if line ~= c.last then
+        c.last = line
+        emit(fmt("GC %d %s", ms, line))
+    end
+end
+
 local function tick_now()
     for _, f in ipairs(flyers) do
         if f.first then
@@ -368,6 +448,13 @@ local function sample()
         end
     end
     if with_tracks then sample_tracks(ms, now) end
+    if calls then
+        local uid_of = {}
+        for _, f in ipairs(flyers) do
+            for i = 1, #(f.ids or {}) do uid_of[f.ids[i]] = f.uid end
+        end
+        drain_calls(ms, uid_of)
+    end
     if trace then
         local by_fc, by_entity = {}, {}
         for _, f in ipairs(flyers) do
@@ -448,9 +535,18 @@ local function start()
     takeoff.arm(buffer, windows, cfg.mode)
     with_entities = cfg.entities == 1
     with_tracks = cfg.track == 1
+    if cfg.calls == 1 then
+        local c, why = install_calls()
+        if c then
+            calls = c
+            emit("CALLS on: four caves installed")
+        else
+            emit("FAIL calls 1 asked, but " .. tostring(why))
+        end
+    end
     emit(fmt("BATTLE %s window=%d mode=%d table=%d sample=%d entities=%d", stamp, cfg.window, cfg.mode,
         layout.table_slots, cfg.sample, cfg.entities) .. (cfg.trace == 1 and " trace=1" or "")
-        .. (cfg.track == 1 and " track=1" or ""))
+        .. (cfg.track == 1 and " track=1" or "") .. (cfg.calls == 1 and " calls=1" or ""))
     if cfg.trace == 1 then
         if not layout.trace_ring_at then
             emit("FAIL trace 1 asked, but the take-off caves in the game carry no trace "

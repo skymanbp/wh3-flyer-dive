@@ -688,3 +688,18 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   3. Needs the game (paused, D25): a passive probe that logs the flyer's speed and the pair results each tick, to
      confirm 1, then the standard runs.
 - Still no deeper global mass cut (D26's reason stands).
+
+### D28 · All flyer mod work moves to this repository's own session (2026-11-20)
+
+> Owner, 2026-11-20 about 16:05, in the main mod's session:
+>
+> 「这样，飞行mod的所有更新、信息、内容、规则、要求、历史记录，等等等等，所有东西，全部做好交接，发送给飞行mod仓库的会话（我那边开了新会话），所有飞行mod的更新、开发都在那边进行。」
+
+- From this statement on the main mod's session does no flyer work: no research lanes, no documents, no commits in
+  this repository. A flyer question asked over there is passed on to this repository's session, not worked on there.
+- The handover is `docs/research/2026-11-20-handover.md`: every statement the owner made about this mod on
+  2026-11-20, what was read and by whom, what he has and has not been told, what is owed. The three research reports
+  of that day are beside it. The commit that adds them is the main session's last one here.
+- Handed over unfinished: D25 to D27 (nothing built, nothing measured; the newest reading, BRACE-READ-1120b, has not
+  been re-read by anyone and has not been reported to the owner), D23 (not started), the unpushed docs commits
+  (a push needs the owner's consent), and the pause on all in-game tests (D25), which only the owner lifts.

@@ -703,3 +703,29 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 - Handed over unfinished: D25 to D27 (nothing built, nothing measured; the newest reading, BRACE-READ-1120b, has not
   been re-read by anyone and has not been reported to the owner), D23 (not started), the unpushed docs commits
   (a push needs the owner's consent), and the pause on all in-game tests (D25), which only the owner lifts.
+
+### D29 · Stopping a dive at a braced line: extend the engine's "cannot be pushed" rule; mass cut as the fallback; the pause is lifted (2026-11-20)
+
+> Owner, 2026-11-20 about 16:40, in this repository's session, answering one set of questions after being told that the
+> engine's physics can only make a braced line hurt more, not stop a flyer:
+>
+> - Stop the flyer or not (options: extend the engine's "cannot be pushed" rule to a diving flyer / do not stop it,
+>   only more damage / a rule at the brake moment): 「1+加伤害，如果不行就减飞行单位的质量」
+> - Lift the in-game pause for a log-only probe: 「解除，直接跑。」
+> - Push the docs-only commits on `main`: 「现在推」
+
+- **Verified before he was asked** (`docs/HISTORY.md` VERIFY-1120c): the maintainer re-read the addresses
+  BRACE-READ-1120b rests on; every one read as the lane said. Mass enters the impulse function `0x142f8d520` and the
+  priority test `0x142f95da0` only as stated; neither writes the pusher's velocity. "Nothing slows a large body by the
+  small bodies' mass" is still "not found", not "proven absent".
+- **The ruling, in the maintainer's words:** (1) a diving flyer is to be stopped, if at all, by the engine's own
+  "cannot be pushed" rule (`bracing_immovable_by_small_entity_mass`, brace × mass ≥ 600), extended so that it counts
+  against a diving flyer as it counts against a small body (lever A of BRACE-READ-1120b); (2) plus more damage: D25's
+  10% cost and a flyer-only factor on Charge Reflection, both MCT settings with the master switch; (3) if lever A, once
+  measured, does not stop the flyer, the fallback is a deeper cut of the flyers' mass. That fallback is the owner's
+  call and overrides D26's and D27's "no deeper mass cut" for this case; how deep is measured, then reported.
+- No rule at the brake moment (option C), as D25 said.
+- **The in-game pause (D25) is lifted.** The first run is the log-only probe of BRACE-READ-1120b's unknowns (what the
+  `+0x1b0` mark does, whether lever A's flag is reached, what takes the flyer's speed in the block). The machine checks
+  of CLAUDE.md still apply (the owner's games, one heavy job at a time, said before it starts).
+- Push consent: the docs-only commits on `main` as of this decision, this once.

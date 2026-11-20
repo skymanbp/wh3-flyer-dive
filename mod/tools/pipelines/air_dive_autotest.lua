@@ -101,6 +101,15 @@ cfg.fight_ms, cfg.cycle_away_ms, cfg.cycle_back_ms = 90000, -1, 6000
 -- [regroup-1119, D23] away_repeat_ms=<ms> (0 = off): the cycle's move-away order is given again to the same
 -- place every that many ms until the next attack order (a player who clicks the same destination again).
 cfg.away_repeat_ms = 0
+-- [regroup-1119, D23; owner 2026-11-19 22:12: "the side that is being attacked must not have guard mode switched
+-- on"] guard_on=<0|1>: every run sets guard mode OFF explicitly for every flyer and every target (the target is the
+-- interceptor in this harness) through change_behaviour_active("defend", false): "defend" is the name in CA's list of
+-- behaviours (lib_battle_script_unit.lua:875, the quest battles) and the engine's own preference text ties "guard mode"
+-- to battle_defend_default; that "defend" IS the guard-mode button is read from those texts, not yet proven in a run
+-- (guard_on=1, the control, must read back defend=true or the run fails). guard_on=1 turns it ON for the targets only.
+-- Whatever the setting, the state of each unit's behaviours is written at the start ("behaviours start lane <i> ...")
+-- and at every re-attack order ("behaviours attack#<n> ...").
+cfg.guard_on = 0
 -- [FLYER-FIX-1117 2026-11-17] PUSH scenarios (player report "dive or trash": a unit already in melee was
 -- dragged back into its own missile line when the flyer charged it again).
 --   scenario=recharge: flyer i attacks target i at settle_ms; recharge_ms later (and every recharge_gap_ms,
@@ -279,6 +288,30 @@ local function each_unit(fn)
     end
 end
 
+-- [regroup-1119, D23] the state of the unit behaviours that decide whether an attacked unit holds, chases or shoots:
+-- unit:is_behaviour_active(<name>) (a method name in the engine's script unit table, next to can_use_behaviour;
+-- its argument and result type are read from the name only, so every call is protected and an error is written
+-- instead of a value: "ERR(<message>)"). One status line per lane:
+-- "behaviours <tag> lane <i> flyer_defend=<bool|ERR> flyer_skirmish=.. flyer_fire_at_will=.. target_defend=.. ..."
+local BEHAVIOUR_NAMES = { "defend", "skirmish", "fire_at_will" }
+local function behaviour_state(unit, name)
+    local ok, val = pcall(function() return unit:is_behaviour_active(name) end)
+    if ok then return tostring(val) end
+    local msg = tostring(val):gsub("%s+", "_")
+    return "ERR(" .. msg .. ")"
+end
+local function behaviour_lines(tag, lanes)
+    for i, lane in ipairs(lanes) do
+        local parts = {}
+        for _, who in ipairs({ "flyer", "target" }) do
+            for _, name in ipairs(BEHAVIOUR_NAMES) do
+                parts[#parts + 1] = fmt("%s_%s=%s", who, name, behaviour_state(lane[who].unit, name))
+            end
+        end
+        status(fmt("behaviours %s lane %d %s", tag, i, table.concat(parts, " ")))
+    end
+end
+
 -- [AIR-DIVE-W15 2026-11-11] ENGAGE scenario (cfg.scenario == "engage"):
 -- every flyer and its target attack each other from a short distance; once
 -- they are in melee each flyer is ordered to use its breath on its target
@@ -383,6 +416,7 @@ local function run_push(lanes, ux, uz)
         end
     end, 100, "flyer_dive_autotest_push")
     local function attack(n)
+        behaviour_lines("attack#" .. n, lanes)          -- [regroup-1119] the state at the moment of the (re-)attack
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
                 lane.flyer.uc:attack_unit(lane.target.unit, true, true)
@@ -445,7 +479,10 @@ local function run_cycle(lanes, ux, uz)
             hp_line(ok and line or fmt("FFAIL %d %d %s", now, i, tostring(line)))
         end
     end, 100, "flyer_dive_autotest_cycle")
+    -- [regroup-1119] every 5 s the behaviour state again: the held models' own re-engage is the engine's, not an order
+    bm:repeat_callback(function() behaviour_lines("tick", lanes) end, 5000, "flyer_dive_autotest_behaviours")
     local function attack(n)
+        behaviour_lines("attack#" .. n, lanes)          -- [regroup-1119] the state at the moment of the (re-)attack
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
                 lane.flyer.uc:attack_unit(lane.target.unit, true, true)
@@ -488,6 +525,7 @@ local function run_cycle(lanes, ux, uz)
     end
     bm:callback(function()
         bm:remove_callback("flyer_dive_autotest_cycle")
+        bm:remove_callback("flyer_dive_autotest_behaviours")
         bm:remove_callback("flyer_dive_autotest_hp")
         hp_line(nil)
         status("DONE")
@@ -597,6 +635,16 @@ local function run()
             i, tostring(r1), tostring(r2), tostring(r3),
             (r1 and r2 and r3) and "" or (tostring(e1) .. " " .. tostring(e2) .. " " .. tostring(e3))))
     end
+    -- [regroup-1119, D23; owner 2026-11-19 22:12] guard mode off for every flyer and every target (the interceptor),
+    -- on for the targets with guard_on=1 (control); then the state is read back and written (see cfg.guard_on)
+    for i, lane in ipairs(lanes) do
+        local want = cfg.guard_on == 1
+        local r1, e1 = pcall(function() lane.flyer.uc:change_behaviour_active("defend", false, false) end)
+        local r2, e2 = pcall(function() lane.target.uc:change_behaviour_active("defend", want, false) end)
+        status(fmt("lane %d guard_setup flyer_defend=off ok=%s target_defend=%s ok=%s %s", i, tostring(r1),
+            want and "on" or "off", tostring(r2), (r1 and r2) and "" or (tostring(e1) .. " " .. tostring(e2))))
+    end
+    behaviour_lines("start", lanes)
     -- every 0.5 s each target's position (TT <ms> <lane> <x> <z> <y> <moving>): a retreat before contact shows,
     -- and y is the lane's ground
     bm:repeat_callback(function()

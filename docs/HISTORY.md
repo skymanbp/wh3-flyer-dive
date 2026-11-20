@@ -2244,3 +2244,27 @@ D4 的「两倍」落在这种结算方式上是什么意思、范围是只算�
 1. `rg_s_v1 rg_s_m1 rg_s_v2 rg_s_m2`：飞兽 ×3、拦截者 `wh_main_emp_inf_halberdiers`、`away_m=40`，游戏 / 模组规则各两局，带 `rt_stub` 洞（`pin_record_rt3.pack`）。用途：比较拉回时刻（约 48.9 s）与明确再攻击（约 59.8 s）时桩的返回地址（单位级调用者），决定有没有判别量，从而决定能否进 D。
 2. `rg_t_v rg_t_m`：绿皮巨魔 `wh_main_grn_mon_trolls`，飞马 / 飞兽 / 鹰身女妖；`rg_i_m`：铁胃兵，本模组规则；`rg_o_m2`：补回无数据的局。用途：回答主人的怪步拦截提示。
 3. D 之后（若有判别量）：E 的 A/B、回归与反向对照，F 的对比图。
+
+### 防御模式（主人 22:12 的纠正）与 rg_i_m 为什么早结束（离线，2026-11-19 22:20）
+
+**主人原话（逐字）：**「还有你想要缠住飞行单位，你被攻击那一方不能开防御模式啊....」。已记入 `docs/DECISIONS.md` D23，与他 21:15 的怪步提示并排。
+
+**a. 防御模式在战斗脚本里怎么读、怎么设，默认是什么（证据与是否证明）。**
+- 名字：**`"defend"`**。证据（读文件，不是运行时探针）：① CA 的 `script/_lib/lib_battle_script_unit.lua:873-882`（从 `data_script.pack` 提取到 scratch）里 `script_unit:change_behaviour_active(behaviour, value, should_release, should_play_vo)` 的说明列出行为名 `"defend", "dismount", "fire_at_will", "skirmish", "change_formation_spacing", "drop_siege_equipment", "release_animals", "disembark_from_ship", "board_ship"`；② 任务战的脚本用 `change_behaviour_active_on_message("battle_started", "defend", true, true)`（`quest_battles/eltharion_the_grim/warden_of_tor_yvresse/battle_script.lua:174`，该处在一个被注释掉的块里，只证明这个名字被用过）；③ exe 的偏好项文字（`Warhammer3.exe` 偏移 0x3749a2e、0x3750868、0x3a44671）：「`battle_defend_default <bool>`: If true, units in battle with guard mode will have it on by default」「`battle_defend_default_int <0|1|2>`: 0 = false, 1 = true, 2 = value from land unit TBL, units in battle with guard mode will have it by default」，界面项 `checkbox_default_defend`、`dropdown_defend_default`，兵牌能力 `ability_defend`（0x379ba80 附近）。**「`defend` 就是防御模式按钮」这一对应是由这些文字推出的，没有在运行中证实**；证实办法是对照局：`guard_on=1` 的局里目标的 `defend` 必须读回 true，否则那一局判失败。
+- 设：`unit_controller:change_behaviour_active("defend", <bool>, <should_play_vo>)`。这个函数在 exe 的脚本绑定表里存在（`change_behaviour_active`，偏移 0x3ac7588，同一个表里有 `take_control`、`release_control`、`attack_unit_q`），和现有挂具对 `"skirmish"`、`"fire_at_will"` 的调用同一形式（挂具 `air_dive_autotest.lua` 的 576 至 594 行附近原先从未碰 `"defend"`，协调员的核查一致）。
+- 读：**`unit:is_behaviour_active(<名字>)`**，另有 `unit:can_use_behaviour(<名字>)`（原版 `lib_battle_attack_lane_manager.lua:193` 用过 `can_use_behaviour("skirmish")`）。两个名字都在 exe 脚本绑定表里（偏移 0x3ac7d90、0x3ac7d78，与 `current_target`、`is_currently_garrisoned`、`owned_non_passive_special_abilities` 在同一张表，即挂具已在用的 `lane.flyer.unit` 那个类）。**参数与返回类型只由名字推出，原版脚本里没有任何一处调用 `is_behaviour_active`，没有在运行中证实。** 所以挂具里每次读都包 `pcall`，出错就把 `ERR(<错误信息>)` 写进记录而不是跳过。
+- 默认值：① 主人这台机器的偏好文件 `…/Warhammer3/scripts/preferences.script.txt:209` 为 `battle_defend_default_int 0`（0 = 假）；② 原版 `db.pack` 的 `land_units_tables` 里 `default_guard_mode` 列在全部 2679 行都是 False（用 `flyer_db.decode_round_trip` 读，我们用到的六种单位都是 False）。读的结果是「默认关」。**没有证明的**：这两项是否适用于脚本发起的战斗里由 AI 一方控制的单位；已订阅的 240 个创意工坊模组是否改写了 `land_units`；运行时的真实状态（今天所有的局都没有读过）。
+
+**b. 挂具已改（`mod/tools/pipelines/air_dive_autotest.lua`、`air_dive_autotest.py`，测试 `test_air_dive_autotest.py` 增 `GuardModeRecord`）。**
+- 每一局（所有场景）开局都对每个飞行单位和每个目标（本挂具里目标就是拦截者）显式 `change_behaviour_active("defend", false)`，控制行 `guard_on=1` 把目标的改成开（飞行单位的始终关）。写 `lane <i> guard_setup flyer_defend=off ok=.. target_defend=<on|off> ok=..`。
+- 状态记录：开局一行 `behaviours start lane <i> flyer_defend=.. flyer_skirmish=.. flyer_fire_at_will=.. target_defend=.. target_skirmish=.. target_fire_at_will=..`；每次（再）攻击令之前一行 `behaviours attack#<n> ...`（周期场景与推场景）；周期场景另每 5 s 一行 `behaviours tick ...`，因为被按住的兵模自己重新交战（约 48.4 s）是引擎的行为、不是脚本的令。
+- 判决：缺 `guard_setup` 或缺 `behaviours start` 判失败（记录缺失）；设置调用失败判失败；读回与所设相矛盾判失败（`guard_on=0` 却读回目标 `defend=true`，或飞行单位读回 true，或 `guard_on=1` 却读回 false）；读不出来（`ERR(...)`）则只记录、不判失败，并写进 `verdict.json` 的 `guard_mode`。离线用例：完整记录干净、对照局期望目标为开、五种故意写坏的变体（缺设置行、缺开局行、读回与设置相反的目标 / 飞行单位、设置失败、空记录）各被抓到、读不出来只记录；Lua 辅助函数在 LuaJIT 里跑过（有方法时写值，没有方法时写 `ERR(...)`）。
+- 这一改动本身会让「标准局」也多发一次 `defend=false` 的调用：对已经关着的单位应是空操作，但这一点**没有实测**，第一批新局要和今天旧局对比（见 c）。
+
+**c. 把今天的复现按防御模式重读。** 今天所有局都没有记录防御模式（`status.txt` 里没有任何一行），读到的默认值是关（a）。看「飞行单位有没有被缠住」：离开令那一刻（24.3 s 前后，`M` 行 `+0x324` = 1 的兵模数 / 该单位兵模数，取 20 至 24.3 s 内最后一次采样）：
+- 飞兽（4 个兵模）：全部 3 至 4 / 4 在近战，都缠住了（`rg_g3_*`、`rg_o_*`、`rg_i_v`、`rg_m1`、`rg_rt_*` 等）。**它们的复现不会因为防御模式而失败。**
+- 飞马（24）：6 至 19 / 24：`rg_m_near` 6、`rg_rt_m` 6、`rg_v_near` 6、`rg_v_near2` 7、`rg_m_near2` 8、`rg_v1` 9、`rg_v_rep` 9、`rg_rt_v` 10、`rg_m1` 12、`rg_m1f` 16、`rg_v2f` 19。
+- 鹰身女妖（58 至 60）：`rg_m1` 16/58、`rg_rt_v` 21/60、`rg_v2f` 23/60、`rg_v_near2` 22/58、`rg_v_near` 24/59、`rg_m_near2` 26/59、`rg_v_rep` 28/58，其余 30 至 38。
+- 所以**只有飞马和鹰身女妖的局里，缠住的兵模不到一半**，这些局「没复现按住 + 拉回」可能是因为只缠住了一部分；这与防御模式有没有关系**没有证据**（读到的默认是关）。飞兽的局缠住了，仍只在 40 m 时出现拉回。把它们列为「关防御模式重做」的第一批，因为新挂具会把防御模式状态写进记录，才能分开两种解释。
+
+**rg_i_m 为什么早结束（22:10:34 至 22:11:15）。** 不是我停的。`runs/rg_i_m/verdict.json` 的原因第一条是「the game exited after 38s before DONE」（游戏在 38 s 时退出，驱动当时还没写 `harness_loaded`）；Windows 应用日志 22:11:13 有 `Warhammer3.exe` 的事件 1002 AppHangB1：「stopped interacting with Windows and was closed」，即游戏没响应后被关掉。我杀进程的动作在其后（22:12 以后），那时 `flyer_run`、驱动和这局的游戏都已经不在了。**是谁点的关闭（主人，还是系统自己）没有证据**；挂起本身发生在加载阶段，与之前六局的「驱动没进战场」是同一个现象，原因（内存紧张）是推测。22:11:17 起的那个 Warhammer3 是主人自己用模组管理器的列表文件启动的，我没碰。

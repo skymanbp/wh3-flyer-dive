@@ -139,7 +139,7 @@ D15 做进去之后的包（主管 2026-11-18 夜从工作树重建）：`D:/Pro
 ### REGROUP-1119（D23 多兵模起飞后被拉回）：停在 D 之前，等主人许可实机
 
 - 分支 `regroup-1119`（未推送）。A、B 已量并有反向对照，C 只有初步答案，D 没做（没有区分「引擎自动协助交战」与「玩家明确攻击令」的判别量），E、F 没做。数字、规则、地址与证据见 `docs/HISTORY.md` REGROUP-1119。
-- 主人 2026-11-19 22:08 令暂停实机测试；欠的局与精确命令行在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/owed_runs.txt`（八局：`rg_s_*` 四局带 `rt_stub` 洞，怪步拦截 `rg_t_*`、`rg_i_m`，补局 `rg_o_m2`）。主人说可以测了再从 `regroup-1119/wt/mod` 用 `flyer_run.py list` 跑，一次一局。
+- 主人 2026-11-19 22:08 令暂停实机测试；欠的局与精确命令行在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/owed_runs.txt`（十四局，按这个顺序：先是关防御模式的重做 `gd_p_*`（飞马 / 飞兽 / 鹰身女妖，40 m）、`gd_f_*`（同，150 m）、对照 `gd_c_*`（`guard_on=1`），再是 `rg_o_m2`、怪步拦截 `rg_t_*`、`rg_i_m`，最后 `rg_s_*` 四局带 `rt_stub` 洞）。主人 22:12 的纠正（被攻击一方不能开防御模式）已记入 D23；挂具现在每局显式关防御模式并记录状态（`docs/HISTORY.md` REGROUP-1119 末节）。主人说可以测了再从 `regroup-1119/wt/mod` 用 `flyer_run.py list` 跑，一次一局。
 
 ### 测完之后
 

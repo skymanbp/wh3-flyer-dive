@@ -560,3 +560,14 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - 「可以单独加一个说明和对比图」: the page gets a separate explanation of this fix and a before/after comparison
   picture. Both are drafted from measured runs and shown to the owner before anything is published.
 - A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md).
+- Owner, 2026-11-19 about 21:15, relayed by the coordinator (a test set-up hint, recorded 22:20), verbatim:
+  「飞行mod那边如果你要复现某个兵模被卡住无法起飞，可以尝试用敌方怪步之类的进行拦截。」 Meaning: use enemy monstrous
+  infantry as the interceptor. Runs so far used `wh_main_emp_inf_halberdiers` (all but one) and
+  `wh3_main_ogr_inf_ironguts_0` (one run); the troll runs never loaded (docs/HISTORY.md REGROUP-1119).
+- Owner, 2026-11-19 about 22:08, relayed by the coordinator, verbatim: 「我要玩一会，先不测试，继续其他任务，等我指示」.
+  No in-game run starts until the owner says so.
+- Owner, 2026-11-19 about 22:12, relayed by the coordinator (a correction of the test set-up, like the 21:15 hint),
+  verbatim: 「还有你想要缠住飞行单位，你被攻击那一方不能开防御模式啊....」 Meaning: to tie a flyer up in melee, the
+  side that is attacked must not have guard mode switched on. The harness now sets guard mode off explicitly for
+  every flyer and every target and writes each unit's behaviour state at the start and at every re-attack
+  (`mod/tools/pipelines/air_dive_autotest.lua`, `guard_on=<0|1>`); no earlier run of today recorded it.

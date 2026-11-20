@@ -729,3 +729,17 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   `+0x1b0` mark does, whether lever A's flag is reached, what takes the flyer's speed in the block). The machine checks
   of CLAUDE.md still apply (the owner's games, one heavy job at a time, said before it starts).
 - Push consent: the docs-only commits on `main` as of this decision, this once.
+
+### D30 · The next version ships the braced-line work and the pull-back fix together (2026-11-20)
+
+> Owner, 2026-11-20 evening, in this repository's session: 「汇报进度，开始推进，发布新版更新」. Asked whether the next
+> version waits for both open items (D29's braced-line work; D23's pull-back of models that took off) or ships each as
+> it is checked, he chose: 「两件一起发」.
+
+- The next upload carries D29 and D23 together, each built and checked in game first. The upload itself, the page
+  text and the D23 comparison picture are still each shown to him and need his go-ahead (D6, D19 to D21, D23).
+- Correction of the record: `docs/STATUS.md` and the handover said D23 was "not started". Branch `regroup-1119` has
+  three commits from 2026-11-19 evening (`54cf6ce`, `0389a23`, `a71871b`): a per-model recorder, six trace caves and a
+  probe-backed partial root cause (an airborne idle model is given a ground enemy as command target, the engine asks
+  it to land, it flies back); the unit-level caller is not yet found; guard mode is now set off and recorded in every
+  run. None of it is on `main`.

@@ -654,3 +654,37 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   is unverified until the collision code has been read; if it cannot be done for flyers only, the owner is told
   before anything else is tried.
 - In-game tests stay paused (D25).
+
+### D27 · What the brace value does in a collision: D26's route would not stop a flyer (2026-11-20)
+
+Maintainer's finding and change of route, about 15:45; no new instruction from the owner. It answers his question in
+D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and withdraws the route D26 announced, as D26 promised.
+
+- **What was read** (installed game 9.0.5, read-only, offline; `docs/HISTORY.md` BRACE-READ-1120). The engine keeps
+  one brace multiplier per body. In the battle code it meets the body's mass in exactly one place the census found:
+  the collision damage formula, where the charger's mass is divided by the struck body's mass times its brace
+  multiplier, then multiplied by the relative speed and passed through the `collision_damage_*` rules. Its only other
+  road into the collision is a flag, "cannot be pushed", set when brace times mass reaches
+  `bracing_immovable_by_small_entity_mass` (600). The two places that honour the flag do so only for a pusher whose
+  size class is at most 1 and not above the braced body's own.
+- **So D26's route is withdrawn.** Scaling the brace value against a diving flyer would lower the collision damage
+  the flyer deals to the braced soldiers. Nothing read says it would slow or stop the flyer.
+- **Answer to the owner's question.** Charge defence was never what stops a large body in this engine. The brace
+  value protects a braced soldier from impact damage and from being pushed by bodies of its own size class or
+  smaller. In vanilla a diving flyer is stopped by a different rule, the engine's brake at the first upright enemy,
+  braced or not (`docs/HISTORY.md` AIR-DIVE-BRACE-W1), and this mod removes that brake on purpose. What is left
+  against a flyer is the Charge Reflection hit and D15's scripted cost.
+- **Not known.** Which code slows a large body that ploughs through small ones; two functions are named as
+  candidates and are only partly read. Whether `scalar_bracing` is the unit-level factor inside the brace
+  multiplier is likely but unproven. The census has limits (see the HISTORY section).
+- **Route from here (maintainer's, technical):**
+  1. Offline: read the step that slows the large body. If it compares masses, the lever that fits D25 and D26 is to
+     let a braced body's brace multiplier count as mass in that comparison when the pusher is a diving flyer. That
+     uses the engine's own number (ranks, facing, the charge-defence attributes, charge resistance); ground chargers
+     see vanilla; the strength is an MCT setting. If masses are not compared there, the owner is told.
+  2. Offline, independent of 1: D15's cost from 3% to the owner's 10% as an MCT setting with the master switch
+     (D25), and a flyer-only factor on the Charge Reflection multiplier. The reflection code names the struck
+     charger, so flyers can be told apart there; the patch is designed but not assembled.
+  3. Needs the game (paused, D25): a passive probe that logs the flyer's speed and the pair results each tick, to
+     confirm 1, then the standard runs.
+- Still no deeper global mass cut (D26's reason stands).

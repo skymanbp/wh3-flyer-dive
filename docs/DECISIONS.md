@@ -620,3 +620,37 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   covers D23's reproduction runs. The game is not started.
 - A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md); MCT settings follow
   the host (D14).
+
+### D26 · The brace changes are for flyers only; charge resistance is a stat of its own (2026-11-20)
+
+> Owner, 2026-11-20 about 14:55, in the main mod's session:
+>
+> 「飞行mod怎么样了？还有，冲锋反制和抵御冲锋的修改都是针对飞行部队，地面部队冲锋效果不要变。我比较好奇为什么到飞行部队身上抵御冲锋的效果就变差了，要不要换个方向，继续调整飞行单位的质量？还是继续调抵御冲锋给的冲锋抗性（冲锋抗性是个单独的属性，你去看一下，不只是质量）、冲锋反制给的伤害？」
+
+- **Constraint (the owner's):** whatever D25 changes applies to flying units only. A ground unit's charge into braced
+  infantry stays exactly vanilla. That rules out changing a global `_kv_rules` value (`bracing_*`,
+  `charge_reflect_damage_multiplier`) and rules out raising a spear unit's own charge resistance for every charger.
+- **He is right about the stat (read from the installed game on 2026-11-20, read-only).** The game has a unit stat
+  `scalar_bracing`; the client's Chinese name for it is 「冲锋抗性」
+  (`unit_stat_localisations_onscreen_name_scalar_bracing`). Three vanilla ability phases multiply it:
+  `wh2_main_lord_passive_glamour_of_hoeth` ×3, `wh3_main_unit_passive_defensive_stance` ×1.25,
+  `wh3_main_unit_passive_defensive_stance_buffer` ×1.1 (table `special_ability_phase_stat_effects`, read from its raw
+  bytes; control: 21 rows of `stat_bonus_vs_large` parse with the same layout). This repository's records never
+  looked at it: `docs/SPEC.md` pillar two describes the brace multiplier only by ranks, direction and the two
+  charge-defence attributes. How the engine combines the stat with that multiplier has not been read.
+- **Why charge defence does little against a flyer, as far as the records go.** In vanilla a flyer never tests it: the
+  engine stops a landed flyer at the first upright enemy whatever the masses (`docs/HISTORY.md` AIR-DIVE-BRACE-W1).
+  With this mod's holds the collision decides for the first time, and there a braced soldier's mass times its
+  multiplier stays under every flyer's mass. Numbers from the offline survey of 2026-11-20, not re-read by the
+  maintainer: Empire spearmen 100, High Elf spearmen 150, the largest multiplier seen in a run 5.43, the cap 10;
+  flyers after the mass cut from 1300 (pegasus) to 4425 (star dragon). The exact rule by which the pairwise
+  collision uses mass and the brace value is not recorded; that gap is the next thing to close.
+- **Direction chosen by the maintainer (technical route; the owner was told):** not a deeper mass cut. Mass makes a
+  flyer weaker against everything, not only against a braced line, and no cut within reason brings a dragon under a
+  spearman. Instead: scale the engine's own brace value where the two bodies meet, only when the charger is a diving
+  flyer, so that the collision still decides and ground chargers see vanilla; the strength is an MCT setting. The
+  cost of the dive stays D15's scripted share, raised to the owner's 10%, also an MCT setting. A flyer-only factor on
+  the Charge Reflection multiplier is the second step, if that code site lets the target be identified. All of this
+  is unverified until the collision code has been read; if it cannot be done for flyers only, the owner is told
+  before anything else is tried.
+- In-game tests stay paused (D25).

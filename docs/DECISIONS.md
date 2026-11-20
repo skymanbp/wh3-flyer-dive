@@ -743,3 +743,12 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   probe-backed partial root cause (an airborne idle model is given a ground enemy as command target, the engine asks
   it to land, it flies back); the unit-level caller is not yet found; guard mode is now set off and recorded in every
   run. None of it is on `main`.
+
+- **2026-11-20 约 17:40, correction to D27 (maintainer's reading, `docs/HISTORY.md` PAIR-SOLVER-1120):** D27's
+  "the brace value only enters the collision damage formula" is wrong. The real pair solver `0x14317768c` multiplies a
+  braced, front-facing enemy's mass by its brace multiplier when it computes the velocity correction (re-read at
+  `0x1431781ee` / `0x1431781fe`). What keeps a big flyer from slowing is the solver's size-tier share (0.8 / 0.2 /
+  0.1 / 0 for tier gaps 1-4, re-read). So D25's "charge resistance counts for more" can be done inside the engine's own
+  formula: for a diving flyer only, raise the braced soldier's effective mass and the flyer's tier share there, as MCT
+  settings. D29's lever A is dropped (BRACE-PROBE-1120); a mass cut stays the fallback (capped by the same share).
+  Not yet measured: whether the solver's result reaches a landed flyer in game.

@@ -560,3 +560,14 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - 「可以单独加一个说明和对比图」: the page gets a separate explanation of this fix and a before/after comparison
   picture. Both are drafted from measured runs and shown to the owner before anything is published.
 - A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md).
+
+### D24 · The two local docs commits are pushed (2026-11-19)
+
+> One question in a sitting of three (owner, 2026-11-19 about 20:12, recorded here at 20:20):
+>
+> - 「本地还没推到 GitHub 的提交推不推？主模组 2 笔（都是今晚的文档与计划表），飞行模组 2 笔（都是文档，含你刚提的多兵模问题那条记录）。」 → 「两边都推」
+
+- Pushed at 20:12: `main` from `5a98bb4` to `57ac401` (commits `2b17a85` and `57ac401`, docs only). Checked by
+  fetching afterwards: the remote `main` is `57ac401`.
+- The consent covers this one push (D6). This record's own commit stays local until the next push is asked for.
+- Lane branch `regroup-1119` (D23) is local only.

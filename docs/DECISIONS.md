@@ -571,3 +571,52 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   fetching afterwards: the remote `main` is `57ac401`.
 - The consent covers this one push (D6). This record's own commit stays local until the next push is asked for.
 - Lane branch `regroup-1119` (D23) is local only.
+
+## 2026-11-20
+
+### D25 · Braced charge-defence infantry against a dive: settled by the engine's own physics, tunable in MCT (2026-11-20)
+
+> Owner, 2026-11-20 about 13:29, in the main mod's session, with a screenshot of two comments on the Workshop page
+> (one asks for an MCT toggle for "no dead stop on braced spears"; the other says that 3% damage is nothing when the
+> dive breaks the formation so badly):
+>
+> 「看截图，这俩评论我觉得说得都有道理。我们现在的冲穿冲锋反制部队的改动是怎么做的？我记得原版的话冲锋反制是会增加质量/冲锋抗性来着？因为增加的冲锋抗性所以原版才会更难冲穿冲锋反制部队。我们mod是怎么做的？并没有强制冲穿吧？研究一下。」
+>
+> Asked the same day (about 14:00, in one sitting) how a frontal dive into braced charge-defence infantry should be
+> settled from now on, he wrote his own answer instead of taking an option:
+>
+> 「1.增加冲锋抗性的效果。2.增加冲锋反制的造伤。3.加mct选项，让玩家可以自行调整平衡。总之，不设置条件判断来硬改，而是从游戏本身的物理引擎来解决问题。」
+>
+> - Size of the cost of a frontal dive into braced Charge Reflection infantry (3% of a model's maximum health today,
+>   D15): 「提到 10%」
+> - An MCT switch for it: 「加开关（推荐）」
+> - In-game tests: 「我接下来有些会议，所有实机测试暂停，等我指示。其他方向的任务应该有一大堆没做完，不要停。」
+
+- What he was told before he answered (from this repository's records; nothing new was measured): the mod does not
+  force a charge-through and does not change the brace mass multiplier or any `_kv_rules` value. It gives the dive a
+  through-goal, keeps the landing speed, and holds off the engine's "touched an upright enemy, so the order becomes a
+  melee order and the unit brakes" while the landed flyer is still fast (D4, `docs/HISTORY.md` AIR-DIVE-BRACE-W1).
+  Measured with the mass cut: 16 early stops in 120 dives into braced spears and halberds. So bracing barely counters
+  a big flyer's dive and the price is D15's 3%. His memory of vanilla is right in substance: a standing soldier's mass
+  multiplier is doubled by the two charge-defence attributes (`docs/SPEC.md`, pillar two); Charge Reflection is the
+  damage attribute.
+- The ruling, in the maintainer's words: (1) the engine's charge resistance has to count for more; (2) Charge
+  Reflection has to hurt more; (3) the balance is the player's to tune in MCT; and there is to be no rule of the form
+  "if the target is braced charge-defence infantry, stop the flyer": the outcome has to come out of the collision.
+- Maintainer's readings, not the owner's words. "10%" is the size the cost should have: it is to be delivered by the
+  engine's own Charge Reflection damage where that can be brought there (the game already applies
+  `charge_reflect_damage_multiplier` to a diving flyer, D4's in-game measurement); D15's scripted deduction stays only
+  if the engine's damage cannot be brought there, and the owner is told which it is before anything ships. "An MCT
+  switch" and "MCT options" are read as one set of settings whose defaults are these choices.
+- Open, and the maintainer's to settle by reading and measurement: which values carry this and whether they are pack
+  rows or constants in the executable; that a `_kv_rules` value is global, so ground cavalry and monsters feel it too;
+  how an MCT setting reaches a value the pack fixes at load; whether the hold on the melee-order switch is itself a
+  forced outcome under this ruling. Nothing is built or verified.
+- Order of work: an offline, read-only survey of the engine values and the design options (started 2026-11-20); the
+  design is chosen by the maintainer and recorded here; it is built offline; it is measured in game with negative
+  controls **once the owner lifts the pause**; page text and upload go the way D6 and D19 to D21 set (the page lines
+  "No dead stop on braced spears" and "More Charge Reflection damage" then need the owner's item-by-item pass).
+- **All in-game tests of this mod are paused from 2026-11-20 about 14:05 until the owner says otherwise.** That
+  covers D23's reproduction runs. The game is not started.
+- A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md); MCT settings follow
+  the host (D14).

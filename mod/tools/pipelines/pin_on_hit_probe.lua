@@ -71,8 +71,26 @@
 --                                 0x1430439c0, 5 = the charge command given to a model 0x143076060 (aux = the stack qword at [rsp+16], rdx = [rsp+8]), 6 = the virtual method 0x143123514 that calls it (ret = the unit-level caller, aux = the qword after it). ret = the return address (the caller), aux = stage / old target /
 --                                 r8b, air = entity +0x104, state = entity +0x324, stay = the unit controller's +8
 --                                 (ffffffff: none). All hex, from bytes (game Lua numbers are float32).
---   GC <ms> land=<n> cancel=<n> target=<n> stay=<n> lost=<n>   [regroup-1119] every 2 s with "calls 1": every call
---                                 of the four functions so far (the ring only holds the filtered ones)
+--                                 [D23-RUNS-1120] kind 7 / 8 = the per-model task handler 0x142f7f600 / 0x142f8ff54
+--                                 just before it gives the charge command (rcx8 = the task, ret = the handler's
+--                                 caller, rdx = [task+0x10], aux = [task] the vtable), with the extra tokens
+--                                   t18= t58= t68= (qwords [task+0x18/0x58/0x68]) f74= f80= t84= sn= (u32
+--                                   [task+0x74/0x80/0x84/0x8]; t84 is the f32 due time's bits);
+--                                 kind 9 = the task's creator 0x143077c68 (ret = who creates it, rdx = the
+--                                 parameters, aux = their +0x18 target), with p00= .. p30= (their seven qwords).
+--   GC <ms> land=<n> cancel=<n> target=<n> stay=<n> order=<n> stub=<n> task1=<n> task2=<n> mktask=<n> lost=<n>
+--                                 [regroup-1119] every 2 s with "calls 1": every call of the traced functions so far
+--                                 (the ring only holds the filtered ones)
+--   O <ms> <tick> <uid> n=<count> head=<i> vt=<hex16|-> sn=<hex8|-> a3c=<hex8|-> busy=<hex2> idle=<0|1|?>
+--                                 [D23-RUNS-1120] with "track 1", right after each Q line: the unit's order queue
+--                                 (this project's static read of Warhammer3.exe 9.0.5, D23-RUNS-1120): a ring of 40
+--                                 orders, count at unit +0x2f88, head at +0x2f8c, the order being carried out at
+--                                 unit +0x2a0 + head * 0x120 (0x14303b470 / 0x14303c75c); vt = its vtable (the
+--                                 order's class), sn = its u32 serial (+8, the battle's counter +0x440 -> +0x9c),
+--                                 a3c = its u32 +0x3c (set from the order push's second argument, meaning not read);
+--                                 "-" when count is 0 or count / head are out of range. busy = unit +0x3ca8 (the
+--                                 script's is_idle 0x14303b4b0 = count 0 and this byte 0); idle = unit:is_idle()
+--                                 from the script, so the report can check the offsets against the game
 --   T <tick> <uid> <id>:<token>,<token>,... ...
 --                                 [d10-1118] with "trace 1": what the take-off
 --                                 caves saw of each flight entity in one battle
@@ -110,6 +128,7 @@ local SAMPLE_MS, SUMMARY_MS = 200, 2000
 local U_ENT_N, U_ENT, U_CTL = 0x184, 0x188, 0x3e30
 local E_FLY, E_FC, FC_COUNT, FC_PHASE, E_SIZE = 0x104, 0x128, 0x44, 0x90, 0x74
 local E_POS, E_STATE, E_CMD, CTL_FROM, CTL_INTS = 0x88, 0x324, 0x330, 8, 16     -- [regroup-1119]
+local U_ORD_N, U_ORD_HEAD, U_ORD_AT, ORD_SIZE, ORD_SLOTS, U_BUSY = 0x2f88, 0x2f8c, 0x2a0, 0x120, 40, 0x3ca8  -- [D23-RUNS-1120]
 local BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 local BLOCK = 256                                   -- bytes compared at once when scanning the table
 
@@ -313,17 +332,29 @@ local function drain_calls(ms, uid_of)
             local at = i * l.entry + 1
             if u32le(chunk, at + 60) ~= c.seen + 1 then stop = true; break end    -- claimed, not written yet
             local ent8 = string.upper(hex_bytes(chunk, at + 8, 4))
+            local kind = u32le(chunk, at + 28)
+            local extra = ""
+            if kind == 7 or kind == 8 then          -- the task's fields (regroup_trace_asm.py, extension +64)
+                extra = fmt(" t18=%s t58=%s t68=%s f74=%s f80=%s t84=%s sn=%s", hex_bytes(chunk, at + 64, 8),
+                    hex_bytes(chunk, at + 72, 8), hex_bytes(chunk, at + 80, 8), hex_bytes(chunk, at + 88, 4),
+                    hex_bytes(chunk, at + 92, 4), hex_bytes(chunk, at + 96, 4), hex_bytes(chunk, at + 100, 4))
+            elseif kind == 9 then                   -- the new task's parameters
+                local p = {}
+                for i = 0, 6 do p[#p + 1] = fmt("p%02x=%s", 8 * i, hex_bytes(chunk, at + 64 + 8 * i, 8)) end
+                extra = " " .. table.concat(p, " ")
+            end
             emit(fmt("G %d %s %d %s %s %s %s %s %s %s %s %s", ms, all_ff(chunk, at + 24) and "-1" or tostring(u32le(chunk, at + 24)),
-                u32le(chunk, at + 28), tostring(uid_of[ent8] or "?"), ent8, hex_bytes(chunk, at + 16, 8),
+                kind, tostring(uid_of[ent8] or "?"), ent8, hex_bytes(chunk, at + 16, 8),
                 hex_bytes(chunk, at + 32, 8), hex_bytes(chunk, at + 40, 8), hex_bytes(chunk, at + 48, 4),
-                hex_bytes(chunk, at + 52, 4), hex_bytes(chunk, at + 56, 4), hex_bytes(chunk, at, 4)))
+                hex_bytes(chunk, at + 52, 4), hex_bytes(chunk, at + 56, 4), hex_bytes(chunk, at, 4)) .. extra)
             c.seen = c.seen + 1
         end
         if stop then break end
     end
-    local raw = mr.read(c.buf, l.calls_at, 16)
-    local line = fmt("land=%d cancel=%d target=%d stay=%d lost=%d", u32le(raw, 1), u32le(raw, 5), u32le(raw, 9),
-        u32le(raw, 13), c.lost)
+    local raw = mr.read(c.buf, l.calls_at, 36)
+    local line = fmt("land=%d cancel=%d target=%d stay=%d order=%d stub=%d task1=%d task2=%d mktask=%d lost=%d",
+        u32le(raw, 1), u32le(raw, 5), u32le(raw, 9), u32le(raw, 13), u32le(raw, 17), u32le(raw, 21), u32le(raw, 25),
+        u32le(raw, 29), u32le(raw, 33), c.lost)
     if line ~= c.last then
         c.last = line
         emit(fmt("GC %d %s", ms, line))
@@ -354,6 +385,17 @@ local function sample_tracks(ms, now)
                 u.unit:is_currently_flying() and 1 or 0, u.unit:number_of_men_alive())
         end)
         emit(ok and line or fmt("Q %d %d %s FAIL %s", ms, now, tostring(u.uid), tostring(line)))
+        -- [D23-RUNS-1120] the unit's order queue (see O in the header); counts and indexes are small integers
+        local n, head = mr.read_int32(u.obj, U_ORD_N), mr.read_int32(u.obj, U_ORD_HEAD)
+        local vt, sn, a3c = "-", "-", "-"
+        if n >= 1 and n <= ORD_SLOTS and head >= 0 and head < ORD_SLOTS then
+            local raw = mr.read(u.obj, U_ORD_AT + head * ORD_SIZE, 0x40)
+            vt, sn, a3c = hex_bytes(raw, 1, 8), hex_bytes(raw, 9, 4), hex_bytes(raw, 0x3d, 4)
+        end
+        local idle = "?"
+        pcall(function() idle = u.unit:is_idle() and "1" or "0" end)
+        emit(fmt("O %d %d %s n=%d head=%d vt=%s sn=%s a3c=%s busy=%s idle=%s", ms, now, tostring(u.uid), n, head, vt,
+            sn, a3c, hex_bytes(mr.read(u.obj, U_BUSY, 1), 1, 1), idle))
     end
     for _, f in ipairs(flyers) do
         local cells, mcells, mkey = {}, {}, {}
@@ -539,7 +581,7 @@ local function start()
         local c, why = install_calls()
         if c then
             calls = c
-            emit("CALLS on: four caves installed")
+            emit("CALLS on: caves installed")
         else
             emit("FAIL calls 1 asked, but " .. tostring(why))
         end
@@ -567,7 +609,7 @@ local function start()
     each_unit(function(alliance, unit)
         local obj = mr.read_pointer(mr.ud_topointer(unit), 8)
         local flyer = not mr.is_null(mr.read_pointer(obj, U_CTL))
-        all_units[#all_units + 1] = { uid = unit:unique_ui_id(), unit = unit }
+        all_units[#all_units + 1] = { uid = unit:unique_ui_id(), unit = unit, obj = obj }
         if flyer then flyers[#flyers + 1] = { uid = unit:unique_ui_id(), unit = unit, obj = obj } end
         emit(fmt("UNIT %s %d %s obj=%s flyer=%d", tostring(unit:unique_ui_id()), alliance, unit:type(),
             id_of(obj), flyer and 1 or 0))

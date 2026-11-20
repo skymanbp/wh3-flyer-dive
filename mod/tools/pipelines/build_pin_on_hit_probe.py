@@ -93,8 +93,9 @@ def main(argv=None):
     ap.add_argument("--rule", action="store_true")
     ap.add_argument("--record", action="store_true")
     ap.add_argument("--regroup-trace", action="store_true",
-                    help="[regroup-1119] with --record: also the four call-tracer caves' site table "
-                         "(regroup_trace_asm.py; needs keystone + unicorn); cfg 'calls 1' turns it on")
+                    help="[regroup-1119] with --record: also the call-tracer caves' site table "
+                         "(regroup_trace_asm.py; needs keystone + unicorn + pefile + capstone and reads the installed exe); "
+                         "cfg 'calls 1' turns it on")
     ap.add_argument("--impact-stage", choices=air_dive_rules.IMPACT_STAGES,
                     default=air_dive_rules.IMPACT_STAGE)
     args = ap.parse_args(argv)

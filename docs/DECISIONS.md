@@ -537,3 +537,26 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   Until he has done it a Chinese reader sees the English page; the question told him so.
 - After the upload `main` takes the release branch (the option's own words: 「飞行模组上传成功后，主分支指到发布的那笔提交」).
 - What was uploaded and how it was verified: `docs/HISTORY.md` UPLOAD-1119.
+
+### D23 · Multi-model flyers: models that have taken off must not be pulled back to models held on the ground (2026-11-19)
+
+> Owner, 2026-11-19 about 20:02, typed in the main mod's session (recorded here at 20:06):
+>
+> 「飞行mod那边有个问题，原版就有这个问题，现在我们起飞机制修改之后可能会更严重，就是多模组部队起飞后，如果有部分模组被拦截在地面上，那其他模组哪怕起飞，也会被拉回去（没法把已经起飞的兵模拉走，总是会回到那个没起飞的兵模处）。这个能不能彻底解决？然后更新飞行mod。这个问题困扰我好久了，可以单独加一个说明和对比图。」
+
+- Maintainer's reading of one word (not the owner's): 「模组」 in 「多模组部队」 means the models (兵模) of one unit:
+  harpies, pegasus knights, griffon knights and the like.
+- The problem as the owner describes it, not yet measured here: a unit is ordered away; some of its models are held
+  on the ground; the models that did take off cannot be led away and come back to the model that did not. He says
+  vanilla does it too, and that this mod's take-off rule (per model since D3) may make it worse. Neither half is
+  measured yet.
+- Order of work: (1) reproduce it in the game with a per-model record, on vanilla's own rule and on this mod's;
+  (2) find the engine rule that brings the airborne models back (read the code, confirm it at run time; no guess
+  goes into a fix); (3) only then answer whether it can be solved completely, and build the fix; (4) in-game A/B,
+  every check with its negative control; (5) the release.
+- 「然后更新飞行mod」 is the owner's request for a new version once the fix is verified. The upload itself, any page
+  text and any picture still go the way D6 and D19 to D21 set: asked for when the pack is ready, the whole text shown
+  first, changes to the live page passed one by one.
+- 「可以单独加一个说明和对比图」: the page gets a separate explanation of this fix and a before/after comparison
+  picture. Both are drafted from measured runs and shown to the owner before anything is published.
+- A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md).

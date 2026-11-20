@@ -43,6 +43,7 @@ end
 _G.memreader_plus = {
     read_pointer = function(p, off) return p.fields[off] or NULL end,
     read_int32 = function(p, off) return p.fields[off] or 0 end,
+    read_float = function(p, off) return p.fields[off] or 0 end,
     is_null = function(p) return p.null == true end,
     tostring = function(p) return p.text end,
     ud_topointer = function(u) return u.ud end,
@@ -61,14 +62,23 @@ end
 local ticks = ptr({ [0x98] = 1000 })
 local battle = ptr({ [0x440] = ticks })
 local fc_a = ptr({ [0x90] = 1, [0x44] = 0 })
-local ent_a = ptr({ [0x104] = 0, [0x128] = fc_a, [0x58] = battle, [0x74] = 3 })
+local vt = ptr({})
+local cmd = ptr({ [0] = vt })
+local ent_a = ptr({ [0x104] = 0, [0x128] = fc_a, [0x58] = battle, [0x74] = 3, [0x88] = 10.5, [0x90] = -3.5,
+    [0x8c] = 1.5, [0x324] = 1, [0x330] = cmd })
 local ent_b = ptr({ [0x104] = 0, [0x58] = battle, [0x74] = 3 })
 local list = ptr({ [0] = ent_a, [8] = ent_b })
-local obj = ptr({ [0x3e30] = ptr(), [0x184] = 2, [0x188] = list })
+local ctl = ptr({})
+local obj = ptr({ [0x3e30] = ctl, [0x184] = 2, [0x188] = list })
 local unit = { ud = ptr({ [8] = obj }) }
 function unit:unique_ui_id() return 7 end
 function unit:type() return "test_flyer" end
 function unit:number_of_men_alive() return 2 end
+function unit:position() return { get_x = function() return 10.5 end, get_z = function() return -3.5 end,
+    get_y = function() return 1.5 end } end
+function unit:is_moving() return true end
+function unit:is_in_melee() return false end
+function unit:is_currently_flying() return true end
 local one = function(x) return { count = function() return 1 end, item = function() return x end } end
 local phases, sampler, period, ms = {}, nil, nil, 0
 bm = {
@@ -141,6 +151,26 @@ class EntityLines(unittest.TestCase):
     def test_period_is_the_configured_one(self):
         self.assertIn("PERIOD 100", run("entities 1\nsample 100"))
         self.assertIn("PERIOD 200", run("entities 1"))
+
+    def test_track_lines(self):
+        lines = run("entities 1\nsample 100\ntrack 1")
+        self.assertFalse([ln for ln in lines if ln.startswith("FAIL")], lines)
+        q = [ln for ln in lines if ln.startswith("Q ")]
+        p = [ln for ln in lines if ln.startswith("P ")]
+        self.assertEqual(len(q), 5, lines)
+        self.assertEqual(q[0].split(" ")[3:], ["7", "10.5", "-3.5", "1.5", "mv=1", "melee=0", "fly=1", "men=2"])
+        self.assertEqual(len(p), 5)
+        self.assertEqual(p[0].split(" ")[4].split(":")[1:], ["10.5", "-3.5", "1.5"])
+        # M is written once (nothing in it changes), C once (the stand-in controller never changes)
+        self.assertEqual(len([ln for ln in lines if ln.startswith("M ")]), 1, lines)
+        self.assertEqual(len([ln for ln in lines if ln.startswith("C ")]), 1, lines)
+        c = next(ln for ln in lines if ln.startswith("C "))
+        self.assertEqual(c.split(" ")[4:], ["00000000"] * 16)
+        self.assertTrue(next(ln for ln in lines if ln.startswith("BATTLE ")).endswith("track=1"))
+
+    def test_track_off_by_default(self):
+        lines = run("entities 1\nsample 100")
+        self.assertFalse([ln for ln in lines if ln.startswith(("Q ", "P ", "C ", "M "))], lines)
 
     def test_off_by_default(self):
         lines = run("window 0")

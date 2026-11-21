@@ -2204,6 +2204,70 @@ D4 的「两倍」落在这种结算方式上是什么意思、范围是只算�
 - **评论**：主人已回复那条评论（抓取报告里作者的回复排在最新）。回复里写的「长戟兵约 3%」「原版接近零」的依据在 INGAME-1119b。
 - **主管的一处失误**：主人中途问「这么回复可以吗」，答案写在了干活中途的消息里，他看不到，连问三次才在收尾消息里拿到。以后他中途提问就先收尾，答案放在最后一条消息的第一句。
 
+## REGROUP-1119 2026-11-19：多兵模飞兽起飞后被拉回没起飞的兵模（D23）；先量，再找规则，再回答能不能彻底解决
+
+**起因。** D23：主人说多兵模飞兽被令离开后，有的兵模被按在地上，已起飞的兵模「总是回到没起飞的兵模处」，原版就有，D3 逐兵模起飞之后可能更重，问能不能彻底解决。车道分支 `regroup-1119`，工作树 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/wt`，草稿与图在同目录 `scratch/`。
+
+**本节的计划（动手前写下，后面按实测改）。**
+1. A 量：扩现有起飞记录器 `pin_on_hit_probe.lua`（不另写一个），每个采样时刻逐兵模记位置（模型 +0x88/+0x8c/+0x90，来自韧性模组的读数器头注释，那边用 Derpy 的偏移实测过）、离地标志、阶段、倒计时、命令对象，另记单位飞行控制器（单位 +0x3e30）的前 0x20 字节；驱动已有的命令时间线（`cycle away` 等）对时。场景：`scenario=cycle`，近战中下一次撤退令，目标不撤（留住被按住的兵模）。飞马骑士（24）、狮鹫骑士（4）、鹰身女妖各跑游戏自己的判定（`pin_probe.cfg` 的 `mode 2`）与本模组的判定（`mode 1`）。
+2. B 找规则：从记录里认「掉头」那一拍的状态变化，读 exe（特征码必须恰好命中一次），再用调用方 / 条件探针在运行时证实，并做反向对照。
+3. C 回答主人的问题；D 只在 B 有结论时才做洞与 Unicorn 用例；E 实机 A/B；F 对比图。
+4. 实机局只经 `flyer_run.py`；机器忙就拒绝、改做离线，不绕。
+
+（下面随进度追加。）
+
+### 实测与结论（2026-11-19 22:00 前；主人 22:08 令暂停实机，其后只做离线）
+
+**状态：A、B 已有；C 只有初步答案；D 没有做；E 没有做；F 没有出图。** 余下的实机局见本节末「欠的实机局」。
+
+**A 量（记录器 track 行，`runs/rg_*`，各局的 `pin_probe.txt`）。**
+- 约定：`v` = 游戏自己的起飞规则（记录器 `mode 2`），`m` = 本模组规则（`mode 1`）。有数据的局共 17 局：`rg_v1 rg_m1 rg_v2f rg_m1f rg_v_rep`（离开 150 m，三单位各一）、`rg_v_near rg_v_near2 rg_m_near rg_m_near2 rg_rt_v rg_rt_m`（离开 40 m，飞马 24 / 飞兽 4 / 鹰身女妖 60 各一）、`rg_g3_v1 rg_g3_v2 rg_g3_m1 rg_o_v2 rg_o_m1 rg_i_v`（离开 40 m，飞兽 4 个兵模 ×3 单位）。
+- 离开 150 m：五局里没有任何已起飞兵模进入降落进场（阶段 4/5），已起飞兵模到达目的地（沿令方向 130 至 150 m，最大后退 0.4 m），没起飞的兵模稍后才升空。**主人描述的「被拉回」在这个场景里不复现，两种规则都一样。**
+- 离开 40 m：只有飞兽出现「已起飞兵模进入阶段 4/5、飞回 10 至 15 m 到按住的兵模处、单位飞行器 +8 位 0/1 每约 0.5 s 翻一次」。时刻 48.5 至 49.4 s，恰是被按住的兵模重新进入战斗（+0x324 由 0 变 1，约 48.4 s）之后。飞马（24）和鹰身女妖（60）在所有局里都没有。
+- 计数（40 m、拦截者为 `wh_main_emp_inf_halberdiers`、飞兽单位）：游戏规则 12 个单位里 3 个出现拉回（共 3 个兵模）；本模组规则 9 个单位里 4 个出现拉回（共 10 个兵模）。样本太小，不能据此说本模组规则更差或更好，只能说没有看出变好。
+- 拦截者（主人 21:15 的提示：用敌方怪步拦）：只有 `wh3_main_ogr_inf_ironguts_0`（食人魔铁胃兵）的游戏规则一局有数据（`rg_i_v`，飞兽 ×3 单位）：0 个拉回。`wh_main_grn_mon_trolls`（绿皮巨魔）两局（`rg_t_v`、`rg_t_m`）和铁胃兵本模组规则一局（`rg_i_m`）驱动没有进战场，**没有数据**。所以「怪步拦截是否改变按住 / 起飞的分布」**未量出**。键均在 `land_units_tables` 核过（`wh_main_grn_mon_trolls`、`wh3_main_ogr_inf_ironguts_0`、`wh3_main_ogr_inf_ogres_0`/`_1`、`wh_main_chs_mon_trolls`）。
+- 无数据的局：`rg_g3_m2 rg_o_v1 rg_o_m2 rg_t_v rg_t_m rg_i_m`，原因是驱动 300 s 内没进战场（`timeline.txt`：`driver never loaded`）；当时机器空闲内存约 1.2 至 2.8 GB，主模组的离线 rustc 占 2.9 GB。**这是原因的推测，没有探针证实。**
+
+**B 规则（运行时探针 + exe，反向对照已做）。** 用 `regroup_trace_asm.py` 的六个洞（写在记录器 G 行，经现有 memreader 补丁器的站点表装入）：
+- `0x143084b10`（设目标）、`0x14303fab4`（降落请求）、`0x14304cea0`（降落取消）、`0x1430439c0`（留地 / 飞行令）、`0x143076060`（给兵模冲锋命令）、`0x143123514`（调用上者的虚桩）。特征码在 exe 里各恰好命中一次，并核对被偷的字节。
+- 链（读 exe 与探针一致）：冲锋命令启动（返回地址 `0x14305b144`）→ 设目标 `0x143084b10` → `0x143050d74`（F1：目标不在空中则对该兵模请求降落，阶段 4）→ 降落请求 `0x14303fab4`（返回地址 `0x143050dc1`）→ 单位飞行器 +8 置 1。即：**一个已起飞的闲置兵模被冲锋命令设了地面敌人为目标，引擎就让它降落去打。** 这与原版俯冲 / 攻击是同一条机制。
+- 证据：5 个有拉回的兵模全部是「设目标后 0.4 s 内降落请求」（`rg_g3_v2` 1/1、`rg_o_m1` 3/3，另有早先局）；`rg_o_m1` 里 48.9、49.0、49.3 s 的 `rt_order` 行恰是这三个兵模，返回地址都在桩 `0x143123533`。反向对照：9 个没有拉回的单位 / 局里，窗口内「已起飞兵模的降落请求」= 0、「已起飞兵模的非空设目标」= 0，而洞是活的（计数非零、有地面兵模的行）。
+- **没有查清的**：谁在单位一级发出这个冲锋命令（桩的调用者）。读 exe 只到桩为止；单位级调用者需要 `rt_stub` 洞的运行时返回地址，这批局在欠的清单里。「引擎对战斗中单位的闲置兵模自动协助交战」是推断，不是探针证实。
+
+**C 初步回答（不是终答）。** 主人说的现象在 150 m 的离开里不复现；它在短距离离开 + 大型多兵模单位（飞兽）+ 被按住的兵模重新交战时复现，原因是引擎自己让闲置的已起飞兵模降落去打地面敌人，原版同样会（游戏规则 3/12 个单位）。本模组的逐兵模起飞规则没有看出让它明显变重（4/9），也没有看出变轻。能否彻底解决：**未定。** 要点是要把「引擎自动协助交战」和「玩家明确下的攻击令」区分开，而模型一级没有这样的判别量。
+
+**D 没有做。** 候选钩点是桩 `0x143123514` 或其单位级调用者；候选判别量「同单位另有兵模在阶段 2」可能误拦玩家明确的再攻击。**不在没有判别量的情况下出洞**；按任务书，没有彻底解法就停在 D 之前，不上线遮症状的补丁。
+
+**本车道的改动（均在分支 `regroup-1119`，未推送）：** 记录器 `track` / `calls` 键与 G 行（`pin_on_hit_probe.lua`）、`regroup_trace_asm.py`（六个洞，Unicorn 常态 / 关 / 空 rcx / 过滤 / 标志位用例，23 个故意写坏的变体全部被抓到）、构建器 `--regroup-trace`、自动测试 `away_repeat_ms`。构建的记录包在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/packs/`（`flyer_dive_takeoff.pack` 与已发布包逐字节一致，sha256 `7646de33402323d8e030dfc6f1a2ba3cce38d2664cb202668b119b4d484480b5`；记录包不上线）。
+
+**欠的实机局（主人许可测试后才开；一次一局、只经 `flyer_run.py`）。** 精确命令行在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/owed_runs.txt`，用 `python -P tools/pipelines/flyer_run.py list <该文件>` 从 `regroup-1119/wt/mod` 运行：
+1. `rg_s_v1 rg_s_m1 rg_s_v2 rg_s_m2`：飞兽 ×3、拦截者 `wh_main_emp_inf_halberdiers`、`away_m=40`，游戏 / 模组规则各两局，带 `rt_stub` 洞（`pin_record_rt3.pack`）。用途：比较拉回时刻（约 48.9 s）与明确再攻击（约 59.8 s）时桩的返回地址（单位级调用者），决定有没有判别量，从而决定能否进 D。
+2. `rg_t_v rg_t_m`：绿皮巨魔 `wh_main_grn_mon_trolls`，飞马 / 飞兽 / 鹰身女妖；`rg_i_m`：铁胃兵，本模组规则；`rg_o_m2`：补回无数据的局。用途：回答主人的怪步拦截提示。
+3. D 之后（若有判别量）：E 的 A/B、回归与反向对照，F 的对比图。
+
+### 防御模式（主人 22:12 的纠正）与 rg_i_m 为什么早结束（离线，2026-11-19 22:20）
+
+**主人原话（逐字）：**「还有你想要缠住飞行单位，你被攻击那一方不能开防御模式啊....」。已记入 `docs/DECISIONS.md` D23，与他 21:15 的怪步提示并排。
+
+**a. 防御模式在战斗脚本里怎么读、怎么设，默认是什么（证据与是否证明）。**
+- 名字：**`"defend"`**。证据（读文件，不是运行时探针）：① CA 的 `script/_lib/lib_battle_script_unit.lua:873-882`（从 `data_script.pack` 提取到 scratch）里 `script_unit:change_behaviour_active(behaviour, value, should_release, should_play_vo)` 的说明列出行为名 `"defend", "dismount", "fire_at_will", "skirmish", "change_formation_spacing", "drop_siege_equipment", "release_animals", "disembark_from_ship", "board_ship"`；② 任务战的脚本用 `change_behaviour_active_on_message("battle_started", "defend", true, true)`（`quest_battles/eltharion_the_grim/warden_of_tor_yvresse/battle_script.lua:174`，该处在一个被注释掉的块里，只证明这个名字被用过）；③ exe 的偏好项文字（`Warhammer3.exe` 偏移 0x3749a2e、0x3750868、0x3a44671）：「`battle_defend_default <bool>`: If true, units in battle with guard mode will have it on by default」「`battle_defend_default_int <0|1|2>`: 0 = false, 1 = true, 2 = value from land unit TBL, units in battle with guard mode will have it by default」，界面项 `checkbox_default_defend`、`dropdown_defend_default`，兵牌能力 `ability_defend`（0x379ba80 附近）。**「`defend` 就是防御模式按钮」这一对应是由这些文字推出的，没有在运行中证实**；证实办法是对照局：`guard_on=1` 的局里目标的 `defend` 必须读回 true，否则那一局判失败。
+- 设：`unit_controller:change_behaviour_active("defend", <bool>, <should_play_vo>)`。这个函数在 exe 的脚本绑定表里存在（`change_behaviour_active`，偏移 0x3ac7588，同一个表里有 `take_control`、`release_control`、`attack_unit_q`），和现有挂具对 `"skirmish"`、`"fire_at_will"` 的调用同一形式（挂具 `air_dive_autotest.lua` 的 576 至 594 行附近原先从未碰 `"defend"`，协调员的核查一致）。
+- 读：**`unit:is_behaviour_active(<名字>)`**，另有 `unit:can_use_behaviour(<名字>)`（原版 `lib_battle_attack_lane_manager.lua:193` 用过 `can_use_behaviour("skirmish")`）。两个名字都在 exe 脚本绑定表里（偏移 0x3ac7d90、0x3ac7d78，与 `current_target`、`is_currently_garrisoned`、`owned_non_passive_special_abilities` 在同一张表，即挂具已在用的 `lane.flyer.unit` 那个类）。**参数与返回类型只由名字推出，原版脚本里没有任何一处调用 `is_behaviour_active`，没有在运行中证实。** 所以挂具里每次读都包 `pcall`，出错就把 `ERR(<错误信息>)` 写进记录而不是跳过。
+- 默认值：① 主人这台机器的偏好文件 `…/Warhammer3/scripts/preferences.script.txt:209` 为 `battle_defend_default_int 0`（0 = 假）；② 原版 `db.pack` 的 `land_units_tables` 里 `default_guard_mode` 列在全部 2679 行都是 False（用 `flyer_db.decode_round_trip` 读，我们用到的六种单位都是 False）。读的结果是「默认关」。**没有证明的**：这两项是否适用于脚本发起的战斗里由 AI 一方控制的单位；已订阅的 240 个创意工坊模组是否改写了 `land_units`；运行时的真实状态（今天所有的局都没有读过）。
+
+**b. 挂具已改（`mod/tools/pipelines/air_dive_autotest.lua`、`air_dive_autotest.py`，测试 `test_air_dive_autotest.py` 增 `GuardModeRecord`）。**
+- 每一局（所有场景）开局都对每个飞行单位和每个目标（本挂具里目标就是拦截者）显式 `change_behaviour_active("defend", false)`，控制行 `guard_on=1` 把目标的改成开（飞行单位的始终关）。写 `lane <i> guard_setup flyer_defend=off ok=.. target_defend=<on|off> ok=..`。
+- 状态记录：开局一行 `behaviours start lane <i> flyer_defend=.. flyer_skirmish=.. flyer_fire_at_will=.. target_defend=.. target_skirmish=.. target_fire_at_will=..`；每次（再）攻击令之前一行 `behaviours attack#<n> ...`（周期场景与推场景）；周期场景另每 5 s 一行 `behaviours tick ...`，因为被按住的兵模自己重新交战（约 48.4 s）是引擎的行为、不是脚本的令。
+- 判决：缺 `guard_setup` 或缺 `behaviours start` 判失败（记录缺失）；设置调用失败判失败；读回与所设相矛盾判失败（`guard_on=0` 却读回目标 `defend=true`，或飞行单位读回 true，或 `guard_on=1` 却读回 false）；读不出来（`ERR(...)`）则只记录、不判失败，并写进 `verdict.json` 的 `guard_mode`。离线用例：完整记录干净、对照局期望目标为开、五种故意写坏的变体（缺设置行、缺开局行、读回与设置相反的目标 / 飞行单位、设置失败、空记录）各被抓到、读不出来只记录；Lua 辅助函数在 LuaJIT 里跑过（有方法时写值，没有方法时写 `ERR(...)`）。
+- 这一改动本身会让「标准局」也多发一次 `defend=false` 的调用：对已经关着的单位应是空操作，但这一点**没有实测**，第一批新局要和今天旧局对比（见 c）。
+
+**c. 把今天的复现按防御模式重读。** 今天所有局都没有记录防御模式（`status.txt` 里没有任何一行），读到的默认值是关（a）。看「飞行单位有没有被缠住」：离开令那一刻（24.3 s 前后，`M` 行 `+0x324` = 1 的兵模数 / 该单位兵模数，取 20 至 24.3 s 内最后一次采样）：
+- 飞兽（4 个兵模）：全部 3 至 4 / 4 在近战，都缠住了（`rg_g3_*`、`rg_o_*`、`rg_i_v`、`rg_m1`、`rg_rt_*` 等）。**它们的复现不会因为防御模式而失败。**
+- 飞马（24）：6 至 19 / 24：`rg_m_near` 6、`rg_rt_m` 6、`rg_v_near` 6、`rg_v_near2` 7、`rg_m_near2` 8、`rg_v1` 9、`rg_v_rep` 9、`rg_rt_v` 10、`rg_m1` 12、`rg_m1f` 16、`rg_v2f` 19。
+- 鹰身女妖（58 至 60）：`rg_m1` 16/58、`rg_rt_v` 21/60、`rg_v2f` 23/60、`rg_v_near2` 22/58、`rg_v_near` 24/59、`rg_m_near2` 26/59、`rg_v_rep` 28/58，其余 30 至 38。
+- 所以**只有飞马和鹰身女妖的局里，缠住的兵模不到一半**，这些局「没复现按住 + 拉回」可能是因为只缠住了一部分；这与防御模式有没有关系**没有证据**（读到的默认是关）。飞兽的局缠住了，仍只在 40 m 时出现拉回。把它们列为「关防御模式重做」的第一批，因为新挂具会把防御模式状态写进记录，才能分开两种解释。
+
+**rg_i_m 为什么早结束（22:10:34 至 22:11:15）。** 不是我停的。`runs/rg_i_m/verdict.json` 的原因第一条是「the game exited after 38s before DONE」（游戏在 38 s 时退出，驱动当时还没写 `harness_loaded`）；Windows 应用日志 22:11:13 有 `Warhammer3.exe` 的事件 1002 AppHangB1：「stopped interacting with Windows and was closed」，即游戏没响应后被关掉。我杀进程的动作在其后（22:12 以后），那时 `flyer_run`、驱动和这局的游戏都已经不在了。**是谁点的关闭（主人，还是系统自己）没有证据**；挂起本身发生在加载阶段，与之前六局的「驱动没进战场」是同一个现象，原因（内存紧张）是推测。22:11:17 起的那个 Warhammer3 是主人自己用模组管理器的列表文件启动的，我没碰。
 ## BRACE-READ-1120 2026-11-20 下午：离线读碰撞代码，冲锋抗性在碰撞里只进了撞击伤害的公式（D27）
 
 主人问「为什么到飞行部队身上抵御冲锋的效果就变差了」（D26）。两条只读的离线车道加主管自己的复核，全程没开游戏、没动代码。
@@ -2365,3 +2429,49 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 - **包**：`D:/Projects/.worktrees/wh3-flyer-dive/brace-solver-1120/build/flyer_dive_takeoff.pack`（14,106,944 字节，sha256 `64730585e6bf85bcc6475387403d4f8a28f9d2fef73e7556228bc6e6d2615b23`；包里的位点表、`brace_rule.lua`、战斗入口、`dive.lua`、MCT 页与树上逐字节相同）。测试替身 `brace_mct_off.pack` / `brace_mct_on.pack` / `brace_mct_neutral.pack` 在同一目录（`build_breath_mct_stub.py --brace`），实机清单 `jobs_brace_solver.txt` 也在那里。
 - **没做**：只对飞兽的冲锋反制系数（`0x142e600af`）：要单独的洞、单独的模拟器用例和实测，这批没做；D25 的「冲锋反制伤得更重」暂由 10% 代价承担。
 - **还欠（要实机，主管跑）**：标准场景下四种体型撞架好的帝国长矛兵，总开关关 / 开 / 中性（k 1、s\* 0）各一局；地面骑兵（王国骑士 ×4）关 / 开各一局作对照，开的那局 `braced masses scaled` 必须为 0、停下的样子与关的相同。量落地速度、走多远、几秒停下（`flyer_dive_probe_report.txt`）、`BRACE` 行、计数与扣血（星龙 10% 约 942 / 9,424）。数报给主人再定默认值。
+
+## REGROUP-FIX-1120 2026-11-20 晚：怪步拦截 4 局的拉回计数；D23 的修法做进正式包（离线做完，A/B 欠实机）
+
+分支 `regroup-1119`（先并入 `main` 的文档提交 `2f66471`），工作树 `regroup-1119/wt`。没开游戏。
+
+**一、怪步拦截 4 局的拉回计数（实测，读 `runs/<局>/pin_probe.txt`）。** 口径同 `analysis_1120/chaincheck.py`：24–59 秒内、非英雄单位的兵模第一次以「在空中（`+0x104`=2）且飞行阶段 4 或 5」出现，算一个拉回的兵模；另以「撤退令（`status.txt` 第 175 行）之后由别的阶段变成 4/5」复算一遍（严格口径）。
+
+| 局 | 拦截者 | 起飞规则 | 飞兽 | 拉回（chaincheck 口径） | 严格口径 | 链路（stub + 降落） |
+|---|---|---|---|---|---|---|
+| `rg_o_m2b` | 长戟兵（不是怪步） | 本模组（mode 1） | 狮鹫骑士 ×3 | 3 | 3 | 3/3 |
+| `rg_t_vb` | 巨魔 | 原版（mode 2） | 飞马 / 狮鹫 / 鹰身女妖 | 0 | 0 | — |
+| `rg_t_mb` | 巨魔 | 本模组 | 飞马 / 狮鹫 / 鹰身女妖 | 6 | 0 | 1/6 |
+| `rg_i_mb` | 铁腹 | 本模组 | 狮鹫骑士 ×3 | 0 | 0 | — |
+
+- `rg_o_m2b`：单位 1003 的 3 个兵模，`pin_probe.txt` 第 13732、13756、13795 行（48.3–48.6 秒）；对应的 stub 第 13748、13770、13809 行，降落请求第 13751、13773、13812 行。47 秒时单位 1003 是 `melee=1 fly=0`（第 13556 行）。
+- `rg_t_mb` 的 6 个都是飞马（单位 1002），全在第 14389 行（24.0 秒，窗口的第一笔），撤退令在 24.2 秒（`status.txt` 第 175 行）：是撤退令之前就在降落 / 冲锋的兵模，不是拉回；chaincheck 的口径把它们算了进去，严格口径为 0。
+- 巨魔与铁腹拦截的 3 局，严格口径都是 0。47 秒时 `rg_t_mb`、`rg_i_mb` 没有一个飞兽单位 `melee=1`（第 18449–18451、8767–8769 行），即没有「一半被按住」的单位；`rg_t_vb` 的鹰身女妖（1004）是 `melee=1 fly=1`（第 19348 行），没出现拉回。巨魔这一对的原版 / 本模组都是 0，比不出差别。
+- **更正 D23-TASK-1120**：那节说这 4 局用的是 `pin_record_rt4.pack`。`run.json` 的 `deployed` 是 `pin_record_rt3.pack`（sha256 `afdff601…0b40`），命令行也是；只有 `rg_task_m1` 用了 rt4。所以这 4 局没有任务记录与命令队列之外的新字段（O 行有）。
+
+**二、修法（技术路线，主管定，记在 `docs/DECISIONS.md` D23 末条）。** 两个代码洞 `pin_regroup1` / `pin_regroup2` 进了正式包的起飞那一套（`tools/pipelines/pin_cave_asm.py`），位点 `0x142f7f706` / `0x142f8ffc4`（两个逐兵模冲锋任务处理函数里、调用冲锋命令 `call [vtable+0x4f8]` 的前一刻）。四条都成立才跳过这次调用、接到 `+22`（`mov byte [rbx+0x80],1`，把任务标成完成，与调用之后一样）：模式 1（起飞规则开着）；兵模 `+0x104`=2；所在单位命令队列 `+0x2f88`=0；同单位另有一个活着的飞行兵模在地上（`+0x104`=0）且被 D3 按住（挨打记录比它自己体型的窗口新）。其余一律照原样调用。
+- 为什么在这里而不在降落请求：只拦降落，冲锋命令照样下了，兵模还会飞向目标。
+- 跳过为什么安全（READ，capstone 解码，`pin_cave_asm.decode_check`）：调用的参数是 `0x142da511c` 在栈上抄的一份（逐字段复制，没有调用、没有引用计数）；调用之后两个处理函数都不读它的返回值（任务一直接返回；任务二从 `[rbx+0x18]` 重新取）；跳过点之后到下一个调用 / 返回之间，不先写就读的易失寄存器和标志位都没有；没有分支落进被跳过的 22 字节；`mov rbx, rcx` 之后到位点没有写 rbx。
+- 新锚点：`pin_layout_queue`（`0x14303b4b0`，脚本的 is_idle：`+0x2f88` 为 0 且 `+0x3ca8` 为 0；`rg_task_m1` 的 O 行里 `idle` 与这两项每一笔都一致）、`pin_layout_air`（`0x143050da1`，向目标降落的那一段：目标 `+0x104` 为 1 或 2 就取消降落）。
+- 缓冲区头从 64 字节扩到 128：`+64` 只给测试用的开关（记录器 `regroup 0`：只数不跳），`+68..+84` 五个计数（调用、跳过、本该跳过、队列非空放行、没有被按住的同伴放行）。战斗结束时写进 `flyer_takeoff.txt` 的 END 行；记录器的 S 行带 `rg_*`。没有 MCT 开关（起飞本来就没有），随起飞规则开。
+- 联机协商标记 `FLYPINS5` → `FLYPINS6`；带记录的起飞洞（测试用）`FLYPINT5` → `FLYPINT6`，它只带记挨打与按住两个洞，不带这两个新洞。
+- `lib/takeoff.lua`：每个洞用自己的接续地址（`resume_at` 成了按洞名的表；旧的单值写法照旧能用，带记录的测试表还是那种）。
+- 测试包里的调用追踪（`regroup_trace_asm.py`）与新洞同在任务位点时会冲突：`build_pin_on_hit_probe.py --rule --regroup-trace` 现在自动去掉正式洞占着的追踪位点（`rt_task1`、`rt_task2`），其余七个照装。
+
+**三、离线核对（主管本机跑）。**
+- 特征码：14 个位点与锚点在装好的 exe 里各恰好一次、原字节相符（`check_exe`；两个新洞在 `0x142f7f706` / `0x142f8ffc4`）。解码 `decode_check` 通过；它的四种反向（接续点早一条指令、复制函数地址错、`mov rbx` 地址错、函数入口错）都变红（`test_takeoff_regroup.py`）。
+- 模拟器（Unicorn，`venv` 的 python）：1,856 项全过，其中新洞的用例逐条在两个位点、两种标志位下跑：空中 + 队列空 + 被按住的地上同伴 → 跳过；队列 1 / 40 / -1、兵模在地上或状态 1 / 3、同伴在空中或状态 1、同伴没挨打、单独一个兵模、四种体型窗口的边界（窗口减 1 跳过、等于窗口放行，用同伴自己的体型）、未知体型、缓冲区里的窗口、时刻回绕、记录在未来、1,024 个兵模、表里离家 3 / 63 / 64 格、空的家、别的单位挨打、模式 0 / 2、测试开关、各种空指针与离谱的计数；记挨打洞写下的记录确实让新洞跳过，过了窗口或换成冲撞伤害就放行。两条路上所有寄存器、rsp、标志位都原样回来。55 个故意写坏的版本（新洞 25 个）每个都被抓到。
+- `lib/takeoff.lua`（luajit 跑真文件）：记挨打洞不给接续地址，按住洞 `+8`，两个新洞 `+22`（正好是追踪记过的 `0x142f7f71c` / `0x142f8ffda`）；旧写法给每个洞同一个；`arm` 清计数、只在要求时写测试开关。两条各自弄坏一次都变红，复原后通过。
+- 全套 pytest（`mod/tools/tests`，主管本机一次）：269 项通过，1 项失败，是已知的 `test_no_old_names`（`workshop/flyer_dive/changenote.txt` 第 1、8 行的 `ld_air_dive`，与本批无关）。
+
+**四、包（主管本机建，`regroup-1119/scratch/packs/fix/`）。**
+- 正式包 `flyer_dive_takeoff.pack`：14,096,957 字节，sha256 `3bd3c288486ca87a91f3b21b8caae13095e8f5e2ae29e7313743e101df65e95d`。
+- 测试包 `pin_record_fix1.pack`（`--base probe --rule --record --regroup-trace`：同一份起飞脚本 + 记录器 + 去掉任务位点的调用追踪）：91,539 字节，sha256 `b907e259a51fe279d00be59e1104441527df7f4b5c338ec7d675d4ad96921c28`。
+- 读包核对：两个包里的 `takeoff_site.lua` 都是 `FLYPINS6`、带 `pin_regroup1`；测试包的追踪表不含 `rt_task1`。
+
+**五、欠的实机 A/B（主管跑；`regroup-1119/scratch/owed_runs.txt` 末尾，从 `regroup-1119/wt/mod` 用 `flyer_run.py list` 一次一局）。** 条件同 `rg_s_m2`（狮鹫骑士 ×3 对长戟兵、本模组规则、24 秒左右撤 40 米、59 秒左右再攻）。同一对包，开 / 关只差记录器的 `regroup 0`：`rg_fix_on1`、`rg_fix_off1`、`rg_fix_on2`、`rg_fix_off2`。
+- 判据：开着时 chaincheck 口径的拉回为 0、S 行 `rg_skipped` 大于 0；关着时拉回照旧出现、`rg_would` 大于 0、`rg_skipped` 为 0（反向对照）；开着的两局里 59 秒再攻之后空中兵模的冲锋照常发出（G 行 kind 6，返回地址 `0x142f7f71c` / `0x142f8ffda`），且 `rg_queued` 大于 0——这就是「玩家的命令照常通过」那一局，不另跑。
+
+**READ 与 INFERRED。**
+- READ（读字节或读记录）：位点与锚点的字节；两个处理函数、参数复制、接续点的解码；拉回时队列为空、玩家下令时队列非空（D23-TASK-1120 的 18 对 26）；`rg_task_m1` 的 18 次空中冲锋命令每一次同单位都有一个地上、窗口内挨过打的兵模（按 E / H / Z 行逐时刻重算；O 行是每 100 毫秒采样，不是调用那一刻）；`+0x2f88` 与脚本 is_idle 一致。
+- INFERRED（没验证）：跳过之后兵模就待在原处不再回去，单位整体行为正常；电脑控制的单位把命令放在同一个队列里，所以电脑下的命令也照常通过；两个处理函数之外没有别的路把空闲单位的空中兵模拉回去。这些要等 A/B。
+- 没动 `CLAUDE.md`：它写着「现为起飞 `FLYPINS5`」，并进 `main` 时要改成 `FLYPINS6`（只有主人或主会话改）。

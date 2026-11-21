@@ -85,7 +85,7 @@ class TraceSiteTable(unittest.TestCase):
                       self.text)
         self.assertIn(f"bytes = {tt.BYTES},", self.text)
         self.assertEqual(tt.TRACE_AT, pin_cave_asm.BUFFER_BYTES)        # after the shipped table, not over it
-        self.assertIn("magic = 'FLYPINT5'", self.text)
+        self.assertIn("magic = 'FLYPINT6'", self.text)
         self.assertNotEqual(tt.MAGIC, pin_cave_asm.MAGIC)
         for win in air_dive_rules.takeoff_window_table():
             self.assertIn(str(win), self.text)

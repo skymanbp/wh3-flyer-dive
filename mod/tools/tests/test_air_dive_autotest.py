@@ -217,6 +217,77 @@ class StandardSetup(unittest.TestCase):
 
 
 
+class GuardModeRecord(unittest.TestCase):
+    """[regroup-1119, D23; owner 2026-11-19 22:12] Guard mode ("defend") is set off explicitly and its state is
+    written at the start and at every re-attack; a run without that record, or whose read-back contradicts what
+    was set, fails. Each rule below has a deliberately broken variant that must be caught."""
+
+    LANES = ("1", "2")
+
+    @staticmethod
+    def _lines(on=False, read_flyer="false", read_target=None, drop=()):
+        read_target = read_target if read_target is not None else ("true" if on else "false")
+        out = []
+        for i in GuardModeRecord.LANES:
+            out.append(f"3000 lane {i} guard_setup flyer_defend=off ok=true target_defend={'on' if on else 'off'} ok=true ")
+            for tag in ("start", "attack#1", "attack#2", "tick"):
+                out.append(f"3100 behaviours {tag} lane {i} flyer_defend={read_flyer} flyer_skirmish=false "
+                           f"flyer_fire_at_will=false target_defend={read_target} target_skirmish=false "
+                           f"target_fire_at_will=false")
+        return [ln for ln in out if not any(d in ln for d in drop)]
+
+    def test_complete_record_is_clean_and_summarised(self):
+        summary, reasons = adt.guard_report(self._lines(), "scenario=cycle,away_m=40")
+        self.assertEqual(reasons, [])
+        self.assertEqual(summary["start lane 1"]["target_defend"], "false")
+        self.assertIn("attack#2 lane 2", summary)
+        self.assertIn("tick lane 1", summary)
+
+    def test_control_run_expects_the_target_on(self):
+        _, ok = adt.guard_report(self._lines(on=True), "scenario=cycle,guard_on=1")
+        self.assertEqual(ok, [])
+        _, bad = adt.guard_report(self._lines(on=True, read_target="false"), "scenario=cycle,guard_on=1")
+        self.assertTrue(any("target reads defend=false but it was set on" in r for r in bad), bad)
+
+    def test_broken_variants_are_caught(self):
+        # no setup line / no start line / a state that contradicts the set call / a failed set call
+        _, r = adt.guard_report(self._lines(drop=("guard_setup",)), "")
+        self.assertTrue(any("never wrote 'guard_setup'" in x for x in r), r)
+        _, r = adt.guard_report(self._lines(drop=("behaviours start",)), "")
+        self.assertTrue(any("never wrote 'behaviours start'" in x for x in r), r)
+        _, r = adt.guard_report(self._lines(read_target="true"), "")
+        self.assertTrue(any("target reads defend=true but it was set off" in x for x in r), r)
+        _, r = adt.guard_report(self._lines(read_flyer="true"), "")
+        self.assertTrue(any("flyer reads defend=true but it was set off" in x for x in r), r)
+        bad = self._lines()
+        bad[0] = bad[0].replace("target_defend=off ok=true", "target_defend=off ok=false")
+        _, r = adt.guard_report(bad, "")
+        self.assertTrue(any("the set call failed" in x for x in r), r)
+        _, r = adt.guard_report([], "")
+        self.assertEqual(len(r), 2, r)
+
+    def test_an_unreadable_state_is_recorded_not_failed(self):
+        lines = self._lines(read_flyer="ERR(attempt_to_call_method)", read_target="ERR(attempt_to_call_method)")
+        summary, reasons = adt.guard_report(lines, "")
+        self.assertEqual(reasons, [])
+        self.assertTrue(summary["start lane 1"]["flyer_defend"].startswith("ERR("))
+
+    def test_driver_lua_sets_off_by_default_and_records(self):
+        text = (TOOLS / "pipelines" / "air_dive_autotest.lua").read_text("utf-8")
+        self.assertIn("cfg.guard_on = 0", text)
+        self.assertEqual(text.count('lane.flyer.uc:change_behaviour_active("defend", false, false)'), 1)
+        self.assertEqual(text.count('lane.target.uc:change_behaviour_active("defend", want, false)'), 1)
+        self.assertIn("local want = cfg.guard_on == 1", text)
+        self.assertEqual(text.count('behaviour_lines("start", lanes)'), 1)
+        # the re-attack moment in both scenarios that re-attack, and the 5 s tick of the cycle, removed at DONE
+        self.assertEqual(text.count('behaviour_lines("attack#" .. n, lanes)'), 2)
+        self.assertEqual(text.count('behaviour_lines("tick", lanes)'), 1)
+        self.assertIn('bm:remove_callback("flyer_dive_autotest_behaviours")', text)
+        # every behaviour call is protected: an error becomes a written ERR(..), never a silent skip
+        at = text.index("local function behaviour_state")
+        self.assertIn("pcall(function() return unit:is_behaviour_active(name) end)", text[at:at + 400])
+
+
 class MctPageKeys(unittest.TestCase):
     """[ingame-1119] the driver's keys that open the real MCT's settings page: off by default, inert when off,
     and every MCT call sits inside a protected call (a missing MCT gives a status line, not an error)."""

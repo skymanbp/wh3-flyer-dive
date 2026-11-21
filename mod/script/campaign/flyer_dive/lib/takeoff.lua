@@ -18,6 +18,12 @@
 -- / 每个飞行兵模按自己的体型（小 4.5、中 4.0、大 3.5、超大 3.0 秒；骑乘看坐骑），最近 N 秒内近战挨打就不能起飞，
 --   否则 3 秒后离地（D3）。一个洞在扣血函数入口记全部近战命中（含横扫与对决动作），一个洞代替原版的交战判定
 --   逐个兵模回答起飞计时。
+-- [D23, 2026-11-20] Two more caves, in the engine's per-model charge-task
+-- handlers: when a model is in the air, its unit has no order in its queue
+-- and another model of the unit is held on the ground by the rule above, the
+-- engine's charge that would pull it back to the held model is skipped. A
+-- player's order (an order in the queue) passes. / 部队没有命令时，已起飞的
+--   兵模不再被引擎拉回被按住的兵模身边；玩家下的命令照常执行。
 --
 -- The caves stay in the game for the session (memreader Plus never removes a
 -- cave), so "off" is mode 0: nothing is recorded and the game's own engaged
@@ -124,12 +130,26 @@ function M.install(log_fn)
             end
             mr.write(have, layout.magic_at, layout.magic)
         end
-        -- the hold cave answers, then continues after the engaged check it replaces
-        local hold = api.address(site.hold)
-        if not hold then return nil, "the hold site has no address" end
-        local resume = mr.add(hold, site.resume_at)
+        -- each cave that does not fall through to its own bytes resumes at its site + resume_at[name]
+        -- (the hold cave after the engaged check it replaces; the regroup caves after the skipped call).
+        -- A table with one hold resume (resume_at a number: the traced test table) gives it to every cave.
         local given = {}
-        for _, name in ipairs(site.caves) do given[name] = { buf = have, resume = resume } end
+        if type(site.resume_at) == "table" then
+            for _, name in ipairs(site.caves) do
+                given[name] = { buf = have }
+                local off = site.resume_at[name]
+                if off then
+                    local at = api.address(name)
+                    if not at then return nil, name .. " has no address" end
+                    given[name].resume = mr.add(at, off)
+                end
+            end
+        else
+            local hold = api.address(site.hold)
+            if not hold then return nil, "the hold site has no address" end
+            local resume = mr.add(hold, site.resume_at)
+            for _, name in ipairs(site.caves) do given[name] = { buf = have, resume = resume } end
+        end
         local done, problem = api.install_feature(site.feature, given)
         if not done then return nil, tostring(problem) end
         local now, placed = installed()
@@ -159,8 +179,10 @@ end
 -- windows (size code 1..4, then an unknown code; `windows` = a list of five to
 -- use instead of the ruled ones, tests only), then the mode last. mode 1 = the
 -- rule; 2 = record hits only, the game's own check still answers (tests).
+-- `regroup_off` (tests only, the recorder's "regroup 0"): the regroup caves count what they would skip and let
+-- the engine's call run; the shipped scripts never pass it, so a battle always starts with them on.
 -- / 清表后写五个窗口（体型 1..4 与未知体型），模式最后写。
-function M.arm(buf, windows, mode)
+function M.arm(buf, windows, mode, regroup_off)
     local mr, layout = mr_(), site.layout
     put_u32(buf, layout.mode_at, 0)
     local zeros = string.rep("\0", 1024)
@@ -169,9 +191,11 @@ function M.arm(buf, windows, mode)
         mr.write(buf, layout.table_at + off, sub(zeros, 1, math.min(1024, span - off)))
     end
     for _, at in ipairs({ layout.stamps_at, layout.dropped_at, layout.unmatched_at, layout.held_at,
-            layout.free_at, layout.unsized_at }) do
-        put_u32(buf, at, 0)
+            layout.free_at, layout.unsized_at, layout.regroup_calls_at, layout.regroup_skipped_at,
+            layout.regroup_would_at, layout.regroup_queued_at, layout.regroup_unheld_at }) do
+        if at then put_u32(buf, at, 0) end
     end
+    if layout.regroup_off_at then put_u32(buf, layout.regroup_off_at, regroup_off and 1 or 0) end
     local use = windows or layout.windows
     for i = 1, #layout.windows do
         put_u32(buf, layout.windows_at + 4 * (i - 1), use[i] or layout.windows[i])
@@ -187,15 +211,22 @@ end
 function M.set_allowed(buf, on) put_u32(buf, site.layout.allowed_at, on and 1 or 0) end
 function M.allowed(buf) return mr_().read(buf, site.layout.allowed_at, 4) == "\1\0\0\0" end
 
--- {windows, mode, stamps, dropped, unmatched, held, free, unsized}: the header as it stands.
+-- {windows, mode, stamps, dropped, unmatched, held, free, unsized, regroup = {off, calls, skipped, would,
+-- queued, unheld} or nil}: the header as it stands.
 function M.counters(buf)
     local l = site.layout
     local windows = {}
     for i = 1, #l.windows do windows[i] = u32(buf, l.windows_at + 4 * (i - 1)) end
+    local regroup = nil
+    if l.regroup_calls_at then
+        regroup = { off = u32(buf, l.regroup_off_at), calls = u32(buf, l.regroup_calls_at),
+            skipped = u32(buf, l.regroup_skipped_at), would = u32(buf, l.regroup_would_at),
+            queued = u32(buf, l.regroup_queued_at), unheld = u32(buf, l.regroup_unheld_at) }
+    end
     return { windows = windows, mode = u32(buf, l.mode_at),
         stamps = u32(buf, l.stamps_at), dropped = u32(buf, l.dropped_at),
         unmatched = u32(buf, l.unmatched_at), held = u32(buf, l.held_at),
-        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at) }
+        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup }
 end
 
 function M.layout() return site and site.layout end

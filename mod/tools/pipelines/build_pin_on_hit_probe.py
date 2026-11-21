@@ -92,6 +92,10 @@ def main(argv=None):
     ap.add_argument("--trace-from", help="a built pack: its copy with the traced take-off caves and the recorder")
     ap.add_argument("--rule", action="store_true")
     ap.add_argument("--record", action="store_true")
+    ap.add_argument("--regroup-trace", action="store_true",
+                    help="[regroup-1119] with --record: also the call-tracer caves' site table "
+                         "(regroup_trace_asm.py; needs keystone + unicorn + pefile + capstone and reads the installed exe); "
+                         "cfg 'calls 1' turns it on")
     ap.add_argument("--impact-stage", choices=air_dive_rules.IMPACT_STAGES,
                     default=air_dive_rules.IMPACT_STAGE)
     args = ap.parse_args(argv)
@@ -115,11 +119,24 @@ def main(argv=None):
         entries += mini.takeoff_entries()
     if args.record:
         entries.append(record_entry())
+    if args.regroup_trace:
+        if not args.record:
+            raise SystemExit("[pin_probe] REFUSING: --regroup-trace is read by the recorder, it needs --record")
+        import regroup_trace_asm
+        exclude = ()
+        if args.rule:       # [REGROUP-FIX-1120] a tracer site the shipped take-off caves hold is left out
+            import pin_cave_asm
+            taken = set(pin_cave_asm.check_exe(Path(mini.GAME_DIR).parent / "Warhammer3.exe").values())
+            exclude = tuple(n for n, v in regroup_trace_asm.SITES.items() if v[3] in taken)
+        site_text, report = regroup_trace_asm.build_site(exclude=exclude)
+        print("[pin_probe] regroup trace:", report)
+        entries.append((regroup_trace_asm.SITE_REQUIRE + ".lua", site_text.encode("utf-8")))
     size = write_pack_file(args.out, entries, PACK_TYPE_MOD)
     print(f"wrote {args.out} ({size} bytes): base {args.base}"
           + (f" impact {args.impact_stage}" if args.base == "full" else "")
           + (" + take-off rule scripts" if args.rule else "")
-          + (" + take-off recorder" if args.record else ""))
+          + (" + take-off recorder" if args.record else "")
+          + (" + regroup call tracer" if args.regroup_trace else ""))
 
 
 if __name__ == "__main__":

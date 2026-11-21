@@ -83,8 +83,13 @@ class RuledNumbers(unittest.TestCase):
         lay = pin_cave_asm.layout()
         self.assertEqual(lay["windows"], [45, 40, 35, 30, 45])
         self.assertEqual(lay["size_at"], 0x74)
-        # the five windows end where the table begins; no header field overlaps another
-        self.assertEqual(lay["windows_at"] + 4 * len(lay["windows"]), lay["table_at"])
+        # the five windows end where the regroup block begins [D23], which ends before the table; no header
+        # field overlaps another
+        self.assertEqual(lay["windows_at"] + 4 * len(lay["windows"]), lay["regroup_off_at"])
+        rg = [lay[k] for k in ("regroup_off_at", "regroup_calls_at", "regroup_skipped_at", "regroup_would_at",
+                               "regroup_queued_at", "regroup_unheld_at")]
+        self.assertEqual(rg, list(range(rg[0], rg[0] + 4 * len(rg), 4)))
+        self.assertLessEqual(rg[-1] + 4, lay["table_at"])
         fields = sorted([lay[k] for k in ("mode_at", "stamps_at", "allowed_at", "dropped_at",
                                           "unmatched_at", "held_at", "free_at", "unsized_at")]
                         + [lay["magic_at"], lay["magic_at"] + 4])

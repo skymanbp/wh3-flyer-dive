@@ -136,6 +136,20 @@ D4 的飞兽各道（INGAME-1118 第 4、5 项的样子）要等 D4 有了做法
 现在的包（主管从工作树建）在 `D:/Projects/.worktrees/wh3-flyer-dive/d10-1118_scratch/supervisor/gapfix_sup/`：发货包 `ship/flyer_dive_takeoff.pack`（14,064,999 字节，sha256 `c7e9c6ba…`）。
 D15 做进去之后的包（主管 2026-11-18 夜从工作树重建）：`D:/Projects/.worktrees/wh3-flyer-dive/d15-1118_scratch/supervisor/verify56/flyer_dive_takeoff.pack`（14,090,541 字节，sha256 `7646de33…80b5`）。
 
+### REGROUP-1119（D23 多兵模起飞后被拉回）：修法已离线做进正式包，欠实机 A/B（REGROUP-FIX-1120）
+
+- 2026-11-20 晚：修法记在 `docs/DECISIONS.md` D23 末条（主管的技术路线）：在两个冲锋任务处理函数里，兵模在空中、单位命令队列为空、同单位有被 D3 按住的地上兵模时，跳过引擎给它的冲锋命令；玩家的命令（队列非空）、地上的兵模、没有被按住同伴的单位都照旧。起飞协商标记 `FLYPINS6`。模拟器 1,856 项、55 个坏版本全抓到、解码与特征码都过；全套测试只剩已知的 `test_no_old_names`。
+- 包在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/packs/fix/`：正式包 sha256 `3bd3c288…e95d`，测试包 `pin_record_fix1.pack` `b907e259…1c28`。
+- 欠的实机 A/B：`owed_runs.txt` 末尾四局 `rg_fix_on1 rg_fix_off1 rg_fix_on2 rg_fix_off2`（同一对包，关＝记录器 `regroup 0`；判据在 HISTORY 同名一节）。
+- 怪步拦截 4 局：只有长戟兵那局（`rg_o_m2b`）拉回 3 个；巨魔、铁腹的 3 局严格口径都是 0。
+- 并进 `main` 时 `CLAUDE.md` 里的「现为起飞 `FLYPINS5`」要改成 `FLYPINS6`。
+
+以下是 2026-11-19 的记录：
+
+
+- 分支 `regroup-1119`（未推送）。A、B 已量并有反向对照，C 只有初步答案，D 没做（没有区分「引擎自动协助交战」与「玩家明确攻击令」的判别量），E、F 没做。数字、规则、地址与证据见 `docs/HISTORY.md` REGROUP-1119。
+- 主人 2026-11-19 22:08 令暂停实机测试；欠的局与精确命令行在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/owed_runs.txt`（十四局，按这个顺序：先是关防御模式的重做 `gd_p_*`（飞马 / 飞兽 / 鹰身女妖，40 m）、`gd_f_*`（同，150 m）、对照 `gd_c_*`（`guard_on=1`），再是 `rg_o_m2`、怪步拦截 `rg_t_*`、`rg_i_m`，最后 `rg_s_*` 四局带 `rt_stub` 洞）。主人 22:12 的纠正（被攻击一方不能开防御模式）已记入 D23；挂具现在每局显式关防御模式并记录状态（`docs/HISTORY.md` REGROUP-1119 末节）。主人说可以测了再从 `regroup-1119/wt/mod` 用 `flyer_run.py list` 跑，一次一局。
+
 ### 测完之后
 
 - 第 1 项通过 → D3 进下一版。**已通过（series 3，2026-11-18）**：四种体型都量到了；那一两个时刻的空当记在第 1 项，要查清才发（D11）。

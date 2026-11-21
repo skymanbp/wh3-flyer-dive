@@ -8,8 +8,12 @@
 -- that pin the engine fields and damage types they rely on, as memreader
 -- Plus site-loader entries (handle:sites), plus the buffer layout
 -- lib/takeoff.lua writes.
+-- [D23, 2026-11-20] Two more caves in the engine's charge-task handlers: an
+-- airborne model of a unit with no order in its queue is not sent back to
+-- charge beside a model of its unit held on the ground by the rule above.
 -- / 每个飞行兵模按自己的体型，最近 N 秒内近战挨打才被按在地上：两个代码洞与
---   锚点的位点表、缓冲区布局（生成物）。
+--   锚点的位点表、缓冲区布局（生成物）。另两个洞：部队没有命令时，已起飞的兵模
+--   不再被引擎拉回被按住的兵模身边冲锋（D23）。
 return {
     owner = 'flyer_takeoff',
     feature = 'takeoff',
@@ -18,13 +22,25 @@ return {
             name = 'pin_stamp', feature = 'takeoff', kind = 'cave',
             pattern = '48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 F9 48 81 EC A0 00 00 00 0F 57 C0 48 8B DA 48 8B 51 08 4D 8B E1 48 8B F9 48 8B 42 58 4C 8B 90 40 04 00 00 41 8B C0 4D 8B 9A A8 00 00 00 F3 48 0F 2A C0 F3 41 0F 59 83 C0 02 00 00 E8 ?? ?? ?? ?? 44 8B 7D 6F 44 8B F0 44 8A 6D 67 89 45 57 41 83 FF 02',
             at = 0, expect = '48 89 5C 24 10 55 56 57 41 54',
-            bytes = '9C 50 51 52 41 50 41 51 41 52 41 53 49 BA {buf:8} 41 83 7A 04 00 0F 84 62 01 00 00 83 7C 24 70 00 0F 85 57 01 00 00 41 83 F8 00 0F 8E 4D 01 00 00 48 8B 49 08 48 85 C9 0F 84 40 01 00 00 BA 04 00 00 00 48 83 B9 28 01 00 00 00 75 19 48 8B 89 E0 02 00 00 48 85 C9 0F 84 21 01 00 00 FF CA 75 E2 E9 18 01 00 00 48 8B 41 58 48 85 C0 0F 84 0B 01 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 FB 00 00 00 44 8B 80 98 00 00 00 F0 41 FF 42 08 48 89 C8 48 C1 E8 04 48 89 CA 48 C1 EA 11 48 31 D0 48 89 CA 48 C1 EA 1E 48 31 D0 25 FF 1F 00 00 41 89 C1 41 BB 40 00 00 00 44 89 CA 48 C1 E2 04 49 8D 54 12 40 48 8B 02 48 39 C8 74 2A 48 85 C0 75 0C F0 48 0F B1 0A 74 1E 48 39 C8 74 19 41 FF C1 41 81 E1 FF 1F 00 00 41 FF CB 75 CC F0 41 FF 42 18 E9 88 00 00 00 44 89 42 08 F0 FF 42 0C 41 83 7A 04 01 75 79 4C 8B 81 28 01 00 00 4D 85 C0 74 6D 41 83 78 44 00 75 66 41 8B 80 90 00 00 00 83 F8 01 74 07 83 F8 02 74 02 EB 53 48 8B 91 E8 02 00 00 48 85 D2 74 47 8B 82 84 01 00 00 44 8D 48 FF 41 81 F9 FF 03 00 00 77 34 48 8B 92 88 01 00 00 48 85 D2 74 28 4C 8B 0A 4D 85 C9 74 09 4D 39 81 28 01 00 00 74 0A 48 83 C2 08 FF C8 75 E7 EB 0D 31 C0 BA 01 00 00 00 F0 41 0F B1 50 44 41 5B 41 5A 41 59 41 58 5A 59 58 9D',
+            bytes = '9C 50 51 52 41 50 41 51 41 52 41 53 49 BA {buf:8} 41 83 7A 04 00 0F 84 65 01 00 00 83 7C 24 70 00 0F 85 5A 01 00 00 41 83 F8 00 0F 8E 50 01 00 00 48 8B 49 08 48 85 C9 0F 84 43 01 00 00 BA 04 00 00 00 48 83 B9 28 01 00 00 00 75 19 48 8B 89 E0 02 00 00 48 85 C9 0F 84 24 01 00 00 FF CA 75 E2 E9 1B 01 00 00 48 8B 41 58 48 85 C0 0F 84 0E 01 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 FE 00 00 00 44 8B 80 98 00 00 00 F0 41 FF 42 08 48 89 C8 48 C1 E8 04 48 89 CA 48 C1 EA 11 48 31 D0 48 89 CA 48 C1 EA 1E 48 31 D0 25 FF 1F 00 00 41 89 C1 41 BB 40 00 00 00 44 89 CA 48 C1 E2 04 49 8D 94 12 80 00 00 00 48 8B 02 48 39 C8 74 2A 48 85 C0 75 0C F0 48 0F B1 0A 74 1E 48 39 C8 74 19 41 FF C1 41 81 E1 FF 1F 00 00 41 FF CB 75 C9 F0 41 FF 42 18 E9 88 00 00 00 44 89 42 08 F0 FF 42 0C 41 83 7A 04 01 75 79 4C 8B 81 28 01 00 00 4D 85 C0 74 6D 41 83 78 44 00 75 66 41 8B 80 90 00 00 00 83 F8 01 74 07 83 F8 02 74 02 EB 53 48 8B 91 E8 02 00 00 48 85 D2 74 47 8B 82 84 01 00 00 44 8D 48 FF 41 81 F9 FF 03 00 00 77 34 48 8B 92 88 01 00 00 48 85 D2 74 28 4C 8B 0A 4D 85 C9 74 09 4D 39 81 28 01 00 00 74 0A 48 83 C2 08 FF C8 75 E7 EB 0D 31 C0 BA 01 00 00 00 F0 41 0F B1 50 44 41 5B 41 5A 41 59 41 58 5A 59 58 9D',
         },
         {
             name = 'pin_hold', feature = 'takeoff', kind = 'cave',
             pattern = '48 8B CB E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 44 38 63 64 74',
             at = 0, expect = '48 8B CB E8',
-            bytes = '49 B9 {buf:8} 41 83 79 04 01 0F 85 15 01 00 00 48 8B 0B 48 85 C9 0F 84 F5 00 00 00 48 8B 91 E8 02 00 00 48 85 D2 0F 84 E5 00 00 00 48 8B 41 58 48 85 C0 0F 84 D8 00 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 C8 00 00 00 44 8B 80 98 00 00 00 8B 8A 84 01 00 00 8D 41 FF 3D FF 03 00 00 0F 87 AD 00 00 00 48 8B 92 88 01 00 00 48 85 D2 0F 84 9D 00 00 00 48 8B 02 48 85 C0 74 09 48 39 98 28 01 00 00 74 0F 48 83 C2 08 FF C9 75 E7 F0 41 FF 41 1C EB 7D 48 89 C1 8B 41 74 FF C8 83 F8 03 76 0A F0 41 FF 41 28 B8 04 00 00 00 45 8B 54 81 2C 48 89 C8 48 C1 E8 04 48 89 CA 48 C1 EA 11 48 31 D0 48 89 CA 48 C1 EA 1E 48 31 D0 25 FF 1F 00 00 41 BB 40 00 00 00 89 C2 48 C1 E2 04 49 8D 54 11 40 48 39 0A 74 14 48 83 3A 00 74 25 FF C0 25 FF 1F 00 00 41 FF CB 75 DE EB 17 44 89 C0 2B 42 08 44 39 D0 73 0C F0 41 FF 41 20 B8 01 00 00 00 EB 07 F0 41 FF 41 24 31 C0 49 BB {resume:8} 41 FF E3',
+            bytes = '49 B9 {buf:8} 41 83 79 04 01 0F 85 1B 01 00 00 48 8B 0B 48 85 C9 0F 84 FB 00 00 00 48 8B 91 E8 02 00 00 48 85 D2 0F 84 EB 00 00 00 48 8B 41 58 48 85 C0 0F 84 DE 00 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 CE 00 00 00 44 8B 80 98 00 00 00 8B 8A 84 01 00 00 8D 41 FF 3D FF 03 00 00 0F 87 B3 00 00 00 48 8B 92 88 01 00 00 48 85 D2 0F 84 A3 00 00 00 48 8B 02 48 85 C0 74 09 48 39 98 28 01 00 00 74 12 48 83 C2 08 FF C9 75 E7 F0 41 FF 41 1C E9 80 00 00 00 48 89 C1 8B 41 74 FF C8 83 F8 03 76 0A F0 41 FF 41 28 B8 04 00 00 00 45 8B 54 81 2C 48 89 C8 48 C1 E8 04 48 89 CA 48 C1 EA 11 48 31 D0 48 89 CA 48 C1 EA 1E 48 31 D0 25 FF 1F 00 00 41 BB 40 00 00 00 89 C2 48 C1 E2 04 49 8D 94 11 80 00 00 00 48 39 0A 74 14 48 83 3A 00 74 25 FF C0 25 FF 1F 00 00 41 FF CB 75 DB EB 17 44 89 C0 2B 42 08 44 39 D0 73 0C F0 41 FF 41 20 B8 01 00 00 00 EB 07 F0 41 FF 41 24 31 C0 49 BB {resume:8} 41 FF E3',
+        },
+        {
+            name = 'pin_regroup1', feature = 'takeoff', kind = 'cave',
+            pattern = '48 8D 53 40 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 53 10 48 8B 4A 08 48 8D 54 24 20 48 8B 01 FF 90 F8 04 00 00 C6 83 80 00 00 00 01 48 83 C4 60 5B C3',
+            at = 14, expect = '48 8B 53 10 48 8B 4A 08 48 8D 54 24 20',
+            bytes = '9C 50 51 52 56 57 41 50 41 51 41 52 41 53 49 B9 {buf:8} 41 83 79 04 01 0F 85 5F 01 00 00 F0 41 FF 41 44 48 85 DB 0F 84 51 01 00 00 48 8B 43 10 48 85 C0 0F 84 44 01 00 00 48 8B 48 08 48 85 C9 0F 84 37 01 00 00 83 B9 04 01 00 00 02 0F 85 2A 01 00 00 48 8B 91 E8 02 00 00 48 85 D2 0F 84 1A 01 00 00 83 BA 88 2F 00 00 00 74 0A F0 41 FF 41 50 E9 07 01 00 00 48 8B 41 58 48 85 C0 0F 84 C4 00 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 B4 00 00 00 44 8B 80 98 00 00 00 8B B2 84 01 00 00 8D 46 FF 3D FF 03 00 00 0F 87 99 00 00 00 48 8B 92 88 01 00 00 48 85 D2 0F 84 89 00 00 00 4C 8B 12 4D 85 D2 74 75 41 83 BA 04 01 00 00 00 75 6B 41 8B 42 74 FF C8 83 F8 03 76 05 B8 04 00 00 00 45 8B 5C 81 2C 4C 89 D0 48 C1 E8 04 4C 89 D1 48 C1 E9 11 48 31 C8 4C 89 D1 48 C1 E9 1E 48 31 C8 25 FF 1F 00 00 BF 40 00 00 00 89 C1 48 C1 E1 04 49 8D 8C 09 80 00 00 00 4C 39 11 74 13 48 83 39 00 74 18 FF C0 25 FF 1F 00 00 FF CF 75 DC EB 0B 44 89 C0 2B 41 08 44 39 D8 72 13 48 83 C2 08 FF CE 0F 85 77 FF FF FF F0 41 FF 41 54 EB 2F 41 83 79 40 00 75 23 F0 41 FF 41 48 41 5B 41 5A 41 59 41 58 5F 5E 5A 59 58 9D 50 48 B8 {resume:8} 48 87 04 24 C3 F0 41 FF 41 4C 41 5B 41 5A 41 59 41 58 5F 5E 5A 59 58 9D',
+        },
+        {
+            name = 'pin_regroup2', feature = 'takeoff', kind = 'cave',
+            pattern = '48 8D 51 40 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 53 10 48 8B 4A 08 48 8D 54 24 20 48 8B 01 FF 90 F8 04 00 00 C6 83 80 00 00 00 01 48 8B 4B 18',
+            at = 14, expect = '48 8B 53 10 48 8B 4A 08 48 8D 54 24 20',
+            bytes = '9C 50 51 52 56 57 41 50 41 51 41 52 41 53 49 B9 {buf:8} 41 83 79 04 01 0F 85 5F 01 00 00 F0 41 FF 41 44 48 85 DB 0F 84 51 01 00 00 48 8B 43 10 48 85 C0 0F 84 44 01 00 00 48 8B 48 08 48 85 C9 0F 84 37 01 00 00 83 B9 04 01 00 00 02 0F 85 2A 01 00 00 48 8B 91 E8 02 00 00 48 85 D2 0F 84 1A 01 00 00 83 BA 88 2F 00 00 00 74 0A F0 41 FF 41 50 E9 07 01 00 00 48 8B 41 58 48 85 C0 0F 84 C4 00 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 B4 00 00 00 44 8B 80 98 00 00 00 8B B2 84 01 00 00 8D 46 FF 3D FF 03 00 00 0F 87 99 00 00 00 48 8B 92 88 01 00 00 48 85 D2 0F 84 89 00 00 00 4C 8B 12 4D 85 D2 74 75 41 83 BA 04 01 00 00 00 75 6B 41 8B 42 74 FF C8 83 F8 03 76 05 B8 04 00 00 00 45 8B 5C 81 2C 4C 89 D0 48 C1 E8 04 4C 89 D1 48 C1 E9 11 48 31 C8 4C 89 D1 48 C1 E9 1E 48 31 C8 25 FF 1F 00 00 BF 40 00 00 00 89 C1 48 C1 E1 04 49 8D 8C 09 80 00 00 00 4C 39 11 74 13 48 83 39 00 74 18 FF C0 25 FF 1F 00 00 FF CF 75 DC EB 0B 44 89 C0 2B 41 08 44 39 D8 72 13 48 83 C2 08 FF CE 0F 85 77 FF FF FF F0 41 FF 41 54 EB 2F 41 83 79 40 00 75 23 F0 41 FF 41 48 41 5B 41 5A 41 59 41 58 5F 5E 5A 59 58 9D 50 48 B8 {resume:8} 48 87 04 24 C3 F0 41 FF 41 4C 41 5B 41 5A 41 59 41 58 5F 5E 5A 59 58 9D',
         },
         -- unit +0x184/+0x188 flight entities, entity +0x128 FC
         { name = 'pin_layout_list', feature = 'takeoff', kind = 'anchor',
@@ -41,6 +57,12 @@ return {
         -- entity +0x74 body size code
         { name = 'pin_layout_size', feature = 'takeoff', kind = 'anchor',
           pattern = '8B 46 74 3B 47 74 7E ?? 2B 47 74 83 F8 01' },
+        -- unit +0x2f88 orders in the queue
+        { name = 'pin_layout_queue', feature = 'takeoff', kind = 'anchor',
+          pattern = '33 C0 39 81 88 2F 00 00 75 0A 38 81 A8 3C 00 00 75 02 B0 01 C3' },
+        -- entity +0x104 airborne state (0 on the ground, 1 / 2 in the air)
+        { name = 'pin_layout_air', feature = 'takeoff', kind = 'anchor',
+          pattern = '41 8B 80 04 01 00 00 48 8B CB FF C8 83 F8 01 77 07 E8' },
         -- damage type 6: a charge's collision attack
         { name = 'pin_kind_charge', feature = 'takeoff', kind = 'anchor',
           pattern = 'C7 44 24 28 06 00 00 00 C6 44 24 20 01 F3 0F 11 45 0F 48 89 7D E7 E8' },
@@ -51,21 +73,24 @@ return {
         { name = 'pin_kind_ranged', feature = 'takeoff', kind = 'anchor',
           pattern = '41 83 E0 03 41 FF C0 88 5C 24 30 44 89 44 24 28 44 8B C0 88 54 24 20 48 8B D7 E8' },
     },
-    caves = { 'pin_stamp', 'pin_hold' },
-    hold = 'pin_hold', resume_at = 8,
+    caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2' },
+    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22 },
     layout = {
-        bytes = 131136, mode_at = 4,
+        bytes = 131200, mode_at = 4,
         stamps_at = 8, allowed_at = 12,
-        magic_at = 16, magic = 'FLYPINS5',
+        magic_at = 16, magic = 'FLYPINS6',
         dropped_at = 24, unmatched_at = 28,
         held_at = 32, free_at = 36, unsized_at = 40,
-        table_at = 64, table_slots = 8192,
+        table_at = 128, table_slots = 8192,
         entry_bytes = 16, size_at = 116,
         windows_at = 44,
         windows = { 45, 40, 35, 30, 45 },
         size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },
+        regroup_off_at = 64, regroup_calls_at = 68,
+        regroup_skipped_at = 72, regroup_would_at = 76,
+        regroup_queued_at = 80, regroup_unheld_at = 84,
     },
-    format = 826266,
+    format = 921381,
     build = '6ae2a00b',
-    source_sha = 'c9b9861d59ecd81b076b28acb401bde5e9e8b0e31e1e151727ca9c05d331eb83',
+    source_sha = 'e0f23c8189afb3c221532d400e2edd6f7a9ace3d01152230874206e28640946f',
 }

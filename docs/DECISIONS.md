@@ -861,3 +861,20 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 - Only D37's +1 s per size ships; unhit models keep leaving at once. Built on `release-1120` `725e1ff` (windows 55 /
   50 / 45 / 40 ticks, take-off marker `FLYPINS7`; suite 296 passed).
 - The comparison is recorded again with the longma on the new pack.
+
+### D39 · Every model waits at least the game's 3 s; the +1 s per size stays (2026-11-21)
+
+> Owner, 2026-11-21, replacing D38's choice, to the same question (options: 1 a model in contact also waits, as in the
+> base game; 2 every model waits at least the base game's 3 s after the away order, in contact or not; 3 only the +1 s):
+> 「2+3，必须等3秒，然后各体型加1秒」
+
+- A flying unit that is in a fight: after the away order every one of its models on the ground waits at least 3.0 s
+  (30 ticks, the game's own take-off timer), touching an enemy or not. A model hit within its size window still waits
+  out that window (D37: 5.5 / 5.0 / 4.5 / 4.0 s), then the 3.0 s timer.
+- "In a fight" is judged like D3, by melee hits, not by contact: a melee hit on any model of the unit within the last
+  3.0 s. A unit nobody hits (out of combat, or fighting something that does not strike back) takes off as before.
+- Maintainer's route (technical, not asked): the hit recorder also stamps the unit; while a model is on the ground
+  (flight phase 1) the hold answer is "held" when the unit's stamp is younger than 30 ticks, so the engine keeps the
+  countdown at 30 and the away order starts from a full 3 s. After the order (phase 2) only the model's own window holds.
+- Battle-sim change: take-off marker `FLYPINS7` -> `FLYPINS8`. Checked in game with the great longma against the Tzeentch
+  Chosen halberds before release (models still on the ground at the order wait 3 s or more).

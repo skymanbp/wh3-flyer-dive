@@ -1124,3 +1124,15 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   multiplayer follows the host's settings, players must update). The marker bump itself stays (code).
 - `docs/WORKSHOP.md` rule changed accordingly; the repo's update note drops its multiplayer line. The note already
   uploaded with this release stays as Steam holds it.
+
+### D56 · SFO submod: SFO's numbers stay, only what the dive needs is added (2026-11-21)
+
+> Owner, 2026-11-21: 「接下来我们来做SFO的submod。你去看下我们现在的评论区，然后研究SFO那边怎么做适配。」
+> Asked whether our per-flyer speed and mass tuning should sit on top of SFO's numbers: chose "Keep SFO's numbers".
+
+- Finding (`docs/research/2026-11-21-sfo-compat.md`): our pack's whole vanilla rows overwrite SFO's on every flyer
+  land unit (health on 332 of 335), on 134 entities, 142 weapons and 3 mounts; that is the 9K -> 6K players saw.
+- The SFO submod starts each row from SFO's and changes only the columns the dive itself needs (animation tables,
+  the charge weapons' collision targets and clones, the entity's turn / deceleration / jump / charge-distance /
+  locomotion cells). Our `mass` cut and `flying_charge_speed` are not applied on SFO's rows. It loads above SFO and
+  the main pack. Which entity cells count as "what the dive needs" is to be pinned against the code before building.

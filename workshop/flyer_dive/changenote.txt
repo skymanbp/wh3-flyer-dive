@@ -1,10 +1,10 @@
-- Braced units now hold against a dive: a flying unit that dives into the front of a braced unit is slowed down by the collision itself, using the game's own braced mass, until it stops. Only diving flyers are affected; charges along the ground are unchanged.
+- Braced units now hold against a dive: a flying unit that dives into the front of a braced unit is slowed down hard by the collision itself, using the game's own braced mass; most are stopped within a few metres to a dozen metres, multi-model flyers can still push deeper. Only diving flyers are affected; charges along the ground are unchanged.
 - Charge Reflection hurts more: each diving model that hits the front of a braced unit with Charge Reflection loses 10% of its maximum health (was 3%).
 - New settings (Mod Configuration Tool): braced units against dives on/off (default on), braced mass against a dive (default 2), dive slowing against braced units (default 0.5), cost of a dive into Charge Reflection (default 10%). In a multiplayer campaign the host's settings apply; multiplayer battles outside a campaign use the defaults.
 - Multi-model flying units: models that have taken off are no longer pulled back to a model of their unit held in melee on the ground.
 - This version does not pair with the previous one in multiplayer.
 
-- 阵列齐整的部队现在能挡住俯冲：飞行部队俯冲撞上阵列齐整的部队正面时，由碰撞本身按游戏自己的阵列齐整质量把它减速，直到停下。只影响俯冲的飞行部队，地面上的冲锋不变。
+- 阵列齐整的部队现在能挡住俯冲：飞行部队俯冲撞上阵列齐整的部队正面时，由碰撞本身按游戏自己的阵列齐整质量把它大幅减速，多数在冲进几米到十几米时被挡下，多兵模的飞行部队仍可能冲得更深。只影响俯冲的飞行部队，地面上的冲锋不变。
 - 冲锋反制更疼：每个俯冲撞上阵列齐整且有冲锋反制的部队正面的兵模，失去自身最大生命值的 10%（原为 3%）。
 - 新增设置（Mod Configuration Tool）：阵列齐整的部队抵御俯冲，开/关（默认开）；阵列齐整时抵御俯冲的质量倍数（默认 2）；俯冲撞上阵列齐整部队时的减速比例（默认 0.5）；俯冲撞上冲锋反制部队的代价（默认 10%）。多人战役里以主机的设置为准；战役之外的多人战斗用默认值。
 - 多兵模飞行部队：已经起飞的兵模不会再被留在地面、陷入近战的同队兵模拉回去。

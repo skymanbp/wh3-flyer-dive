@@ -138,6 +138,12 @@ FLYQ_VTS = (0x143926520, 0x143AEF2A0)
 # +48 xmm6 bits, +52 the target's main-controller model count [[beh+0x68]+0x32f8]+0x24, +56 [beh+0xa0];
 # ext +64 the state [beh+0x38], +72 the target unit [beh+0x68], +80 the own main-controller model count, +84 al.
 PURSUE_KIND = 14
+# [D46] rt_tstart / rt_tupd at the charge task's start 0x142f7f600 and update 0x142f8ff54 entries (task vtable
+# 0x143ad9690 slots 1 / 2): rcx = the task, [task+0x10]+8 = its model. Same entry as rt_task1 / rt_task2 (the
+# task's fields in the extension), the caller at +16; rt_tupd only while the task has not charged (+0x80 == 0).
+TSTART_KIND, TUPD_KIND = 15, 16
+TASKE_KINDS = (TSTART_KIND, TUPD_KIND)
+T_CHARGED = 0x80
 B_TARGET, B_STATE, B_A0, C_MEN, R_N8, R_NC = 0x68, 0x38, 0xA0, 0x24, 8, 0xC
 PUSH_RAX = 40                          # pushfq, rax, rcx, rdx, r9, r10, r11 -> the saved rax at [rsp + 40]
 PURSUE_UP = 0x38                      # push rdi; sub rsp, 0x30 -> the test's return address at [rsp + 0x38]
@@ -176,10 +182,15 @@ SITES = {
                 "48 8B 8F F8 32 00 00", 0x143050165),
     "rt_pursue": ("F3 48 0F 2A C9 0F 2F D1 76 6A 32 C0 48 8B 5C 24 40 48 8B 74 24 48 0F 28 74 24 20", 12,
                   "48 8B 5C 24 40 48 8B 74 24 48", 0x14328CB3B),
+    "rt_tstart": ("40 53 48 83 EC 60 F6 41 74 08 48 8B D9 0F 85 8F 00 00 00 48 8B 41 10", 0,
+                  "40 53 48 83 EC 60", 0x142F7F600),
+    "rt_tupd": ("40 53 48 83 EC 60 80 B9 80 00 00 00 00 48 8B D9 75 7B 48 8B 41 30", 0,
+                "40 53 48 83 EC 60", 0x142F8FF54),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
         "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
-        "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND, "rt_pursue": PURSUE_KIND}
+        "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND, "rt_pursue": PURSUE_KIND,
+        "rt_tstart": TSTART_KIND, "rt_tupd": TUPD_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -374,10 +385,10 @@ def source(name, mutate=None):
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
            6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
            PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax", PURSUE_KIND: "xor eax, eax"}.get(kind) or (
-        f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
+        f"mov rax, qword ptr [{'rcx' if kind in TASKE_KINDS else 'rbx'} + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
         f"    mov rax, qword ptr [rax + {SLOT_ENT}]")
     guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else
-             "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else (
+             "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND) + TASKE_KINDS else (
         "test rbx, rbx\n    jz noent" if task else "nop"))
     aux = {1: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
            2: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
@@ -388,19 +399,23 @@ def source(name, mutate=None):
            6: f"mov rax, qword ptr [rsp + {PUSHES * 8 + 8}]\n    mov qword ptr [r11 + 40], rax",
            7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux(),
            DONE_KIND: _done_aux(), PICK_KIND: _pick_aux(), FLYQ_KIND: _flyq_aux(),
-           PURSUE_KIND: _pursue_aux()}[kind]
+           PURSUE_KIND: _pursue_aux(), TSTART_KIND: _task_aux().replace("[rbx", "[rcx"),
+           TUPD_KIND: _task_aux().replace("[rbx", "[rcx")}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
     sub eax, 4
     cmp eax, 1
     ja done"""
+    elif kind == TUPD_KIND:     # only while the task has not charged yet
+        filt = f"""cmp byte ptr [rcx + {T_CHARGED:#x}], 0
+    jne done"""
     elif kind == 3:     # only a change of target
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
     pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind == PURSUE_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
-        "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else ("test rbx, rbx\n    jz done" if task else "nop"))
+        "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) + TASKE_KINDS else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
     me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
     ret = PUSHES * 8 + (HANDLER_RET if task else PURSUE_UP if kind == PURSUE_KIND else 0)                   # mid-function: the handler's return address
@@ -798,6 +813,50 @@ def _check_pursue(code):
     return fails
 
 
+def _check_task_entry(name, code):
+    """[D46] rt_tstart / rt_tupd on a synthetic task: the whole entry (the task's fields in the extension, the
+    model's state, the caller); rt_tupd not once the task has charged; a null task, a task without a holder,
+    mode 0; registers and flags back."""
+    fails = []
+    kind = KIND[name]
+    for label, mode, charged, has_task, slot in (("normal", 1, 0, True, True), ("charged", 1, 1, True, True),
+                                                 ("no holder", 1, 0, True, False), ("null task", 1, 0, False, True),
+                                                 ("off", 0, 0, True, True)):
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            o = _world(mu, slot=slot)
+            mu.mem_write(o["task"] + T_CHARGED, struct.pack("<I", charged))
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", RET))
+            try:
+                changed = _run(mu, code, {"rcx": o["task"] if has_task else 0, "rdx": 0x8888, "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"{name} {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            if changed:
+                fails.append(f"{name} {label}: registers changed {changed}")
+            want = mode == 1 and has_task and not (kind == TUPD_KIND and charged)
+            if not want:
+                if written or any(entry):
+                    fails.append(f"{name} {label}: written {written}")
+                continue
+            ent = o["ent"] if slot else 0
+            tail = (TICK, kind, o["slot"] if slot else 0, TASK_VT, 2, 5, 1, 8) if ent else (
+                0, kind, 0, TASK_VT, NONE32, NONE32, NONE32, 8)
+            head = struct.pack("<QQQIIQQIIII", o["task"], ent, RET, *tail)
+            q = [o["tgt"] if v is None else v for v in T_VALS]
+            d = (D_VALS[0], charged, D_VALS[2], D_VALS[3])
+            exp = head + struct.pack("<QQQIIII", *q, *d)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or entry != exp:
+                fails.append(f"{name} {label}: written {written} entry {entry.hex()} want {exp.hex()}")
+    return fails
+
+
 def _check_ctrl(name, code):
     """[D42] rt_done / rt_pick on a synthetic unit with a main controller (and without one, and with a null
     behaviour unit for rt_done); mode 0; every register and the flags back; the whole entry checked."""
@@ -941,7 +1000,8 @@ def check(mutate=None, which=None):
             fails += (_check_pop(code) if name == "rt_pop" else
                       _check_ctrl(name, code) if name in ("rt_done", "rt_pick") else
                       _check_flyq(code) if name == "rt_flyq" else
-                      _check_pursue(code) if name == "rt_pursue" else _check_one(name, code))
+                      _check_pursue(code) if name == "rt_pursue" else
+                      _check_task_entry(name, code) if name in ("rt_tstart", "rt_tupd") else _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -978,6 +1038,10 @@ MUTANTS = (
     ("rt_pursue", "mov eax, dword ptr [rbx + 0xa0]", "mov eax, dword ptr [rbx + 0xa4]"),
     ("rt_pursue", "jz pu_ntgt\n    mov rdx", "jz pu_nrec\n    mov rdx"),
     ("rt_pursue", "test rdi, rdi\n    jz pu_nrec", "nop\n    nop"),
+    ("rt_tupd", "cmp byte ptr [rcx + 0x80], 0\n    jne done", "cmp byte ptr [rcx + 0x80], 0\n    nop"),
+    ("rt_tstart", "mov rax, qword ptr [rcx + 0x58]", "mov rax, qword ptr [rcx + 0x50]"),
+    ("rt_tstart", "mov eax, dword ptr [rcx + 0x84]", "mov eax, dword ptr [rcx + 0x88]"),
+    ("rt_tupd", "test rcx, rcx\n    jz done", "nop\n    nop"),
     ("rt_pursue", "cmp dword ptr [r11 + 84], 0\n    je pu_nrec", "nop\n    nop"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),

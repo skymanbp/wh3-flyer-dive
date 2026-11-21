@@ -900,3 +900,15 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 > Owner, 2026-11-21, asked whether to try the one scene that pulled back before (griffons vs Empire halberdiers,
 > 9 / 3 / 3 with the fix off) or release without a clip: 「Try Empire halberdiers」 (if it still does not happen,
 > release without a clip).
+
+### D42 · The dropped attack order is fixed before release (2026-11-21)
+
+- Measured (`ORDER-DROP-1121` on `release-1120`): an attack order on another unit, given while some models of a flying
+  unit are still in melee, is dropped some seconds later and the unit hovers; the same happens with the flyer mod not
+  loaded (`runs/sw_pure1`: order at 26.5 s, queue empty at 41.8 s, hovering to the end). Not caused by this mod.
+
+> Owner, 2026-11-21 (had noticed it playing himself: 「我下达了攻击另一只部队的指令，好像不是特别流畅？」), asked
+> whether to release now or first make such an order stick: 「Fix the dropped order first」
+
+- Release waits. The maintainer finds where the engine drops the order (probe first), then proposes the fix; the change
+  is flyers only and is checked in game against the same scene before release.

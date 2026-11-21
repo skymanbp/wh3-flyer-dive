@@ -63,8 +63,14 @@ import cave_site_text  # noqa: E402 -- because rolepath above puts lib/ on sys.p
 import pin_cave_asm as base  # noqa: E402 -- same reason (pipelines/)
 
 TRACE_SITE = HERE / "takeoff_trace_site.lua"
-MAGIC = b"FLYPINT5"                 # a shipped table never adopts a traced buffer (cave_common.installed); 5: D11 raise
-TRACE_AT = base.BUFFER_BYTES        # 131136, a multiple of 64
+MAGIC = b"FLYPIT11"                 # a shipped table never adopts a traced buffer (cave_common.installed); 5: D11 raise
+# 6: followed the shipped marker 6 (D23); the traced table carries the stamp and hold caves only, not the regroup ones
+# 7: follows the shipped FLYPINS7 (D37, windows one second longer)
+# 8: follows the shipped FLYPINS8 (D39, the unit table and the unit rule)
+# 9: follows the shipped FLYPINS9 (D44, pin_repick)
+# 10: follows the shipped FLYPIN10 (REPICK-EXIT-1121, pin_repick at the picker's exit)
+# 11: follows the shipped FLYPIN11 (D46, pin_chargewait)
+TRACE_AT = base.BUFFER_BYTES        # 147584 since D39, a multiple of 64
 TRACE_ON_AT, TRACE_COUNT_AT = TRACE_AT, TRACE_AT + 4
 TRACE_RING_AT, TRACE_ENTRY, TRACE_SLOTS = TRACE_AT + 64, 32, 32768
 BYTES = TRACE_RING_AT + TRACE_ENTRY * TRACE_SLOTS
@@ -123,8 +129,10 @@ def hold_source(mutate=None):
     s = _edit(s, f"        lock inc dword ptr [r9 + {base.UNMATCHED_AT}]\n        jmp free\n",
               f"        lock inc dword ptr [r9 + {base.UNMATCHED_AT}]\n        mov r10d, {UNMATCHED - 2**32}\n"
               "        jmp free\n", "hold: unmatched marker")
-    s = _edit(s, "        mov eax, 1\n        jmp resume\n", "        mov eax, 1\n        jmp traced\n",
-              "hold: held path")
+    # [D39] two held paths (the model's own window, the unit rule): both traced
+    if s.count("        mov eax, 1\n        jmp resume\n") != 2:
+        raise SystemExit("[takeoff_trace] REFUSING: hold: want the two held paths of the shipped source")
+    s = s.replace("        mov eax, 1\n        jmp resume\n", "        mov eax, 1\n        jmp traced\n")
     s = _edit(s, "    resume:\n",
               "    traced:\n" + _log("r9", f"lea ecx, [rax + {KIND_FREE}]", "r10d", "answer") + "    resume:\n",
               "hold: answer entry")
@@ -142,7 +150,10 @@ def stamp_source(mutate=None):
     (seq written) after it; a raise rewrites its kind to KIND_HIT_RAISED first. The raise uses rax rdx
     r8 r9 and keeps r11 (this entry, 0 with the trace off); r9 (the seq) is pushed around it."""
     s = base.stamp_source()
-    s = _edit(s, "        lock inc dword ptr [rdx + 12]\n", f"""        lock inc dword ptr [rdx + 12]
+    s = _edit(s, "    write:\n        mov dword ptr [rdx + 8], r8d\n        lock inc dword ptr [rdx + 12]\n",
+              f"""    write:
+        mov dword ptr [rdx + 8], r8d
+        lock inc dword ptr [rdx + 12]
         xor r11d, r11d
         cmp dword ptr [r10 + {TRACE_ON_AT}], 0
         je skip_hit
@@ -276,8 +287,8 @@ class TraceMachine(_ORIGINAL_MACHINE):
         self._ready = True
         self.reset()
 
-    def reset(self, windows=base.WINDOWS, mode=1):
-        super().reset(windows, mode)
+    def reset(self, windows=base.WINDOWS, mode=1, unit_window=base.UNIT_WINDOW):
+        super().reset(windows, mode, unit_window)
         if self._ready:
             self.uc.mem_write(base.BUF + TRACE_AT, struct.pack("<II", self.trace_on, 0))
 
@@ -544,6 +555,11 @@ def site_lua(codes):
         "        windows = { " + ", ".join(str(w) for w in lay['windows']) + " },",
         "        size_codes = { " + ", ".join(f"{s} = {c}" for s, c in
                                             sorted(lay['size_codes'].items(), key=lambda i: i[1])) + " },",
+        # [D39] the unit rule's ticks, counters and table: lib/takeoff.lua writes the ticks and clears the table
+        f"        unit_ticks_at = {lay['unit_ticks_at']}, unit_ticks = {lay['unit_ticks']},",
+        f"        unit_held_at = {lay['unit_held_at']}, unit_stamps_at = {lay['unit_stamps_at']},",
+        f"        unit_dropped_at = {lay['unit_dropped_at']},",
+        f"        unit_table_at = {lay['unit_table_at']}, unit_slots = {lay['unit_slots']},",
         f"        trace_on_at = {TRACE_ON_AT}, trace_count_at = {TRACE_COUNT_AT},",
         f"        trace_ring_at = {TRACE_RING_AT}, trace_entry = {TRACE_ENTRY}, trace_slots = {TRACE_SLOTS},",
         "    },",

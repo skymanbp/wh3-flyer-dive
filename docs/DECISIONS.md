@@ -560,6 +560,35 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
 - 「可以单独加一个说明和对比图」: the page gets a separate explanation of this fix and a before/after comparison
   picture. Both are drafted from measured runs and shown to the owner before anything is published.
 - A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md).
+- Owner, 2026-11-19 about 21:15, relayed by the coordinator (a test set-up hint, recorded 22:20), verbatim:
+  「飞行mod那边如果你要复现某个兵模被卡住无法起飞，可以尝试用敌方怪步之类的进行拦截。」 Meaning: use enemy monstrous
+  infantry as the interceptor. Runs so far used `wh_main_emp_inf_halberdiers` (all but one) and
+  `wh3_main_ogr_inf_ironguts_0` (one run); the troll runs never loaded (docs/HISTORY.md REGROUP-1119).
+- Owner, 2026-11-19 about 22:08, relayed by the coordinator, verbatim: 「我要玩一会，先不测试，继续其他任务，等我指示」.
+  No in-game run starts until the owner says so.
+- Owner, 2026-11-19 about 22:12, relayed by the coordinator (a correction of the test set-up, like the 21:15 hint),
+  verbatim: 「还有你想要缠住飞行单位，你被攻击那一方不能开防御模式啊....」 Meaning: to tie a flyer up in melee, the
+  side that is attacked must not have guard mode switched on. The harness now sets guard mode off explicitly for
+  every flyer and every target and writes each unit's behaviour state at the start and at every re-attack
+  (`mod/tools/pipelines/air_dive_autotest.lua`, `guard_on=<0|1>`); no earlier run of today recorded it.
+- **2026-11-20 evening, the fix (maintainer's technical route under D23 and D30; not an owner ruling).** Measured
+  (`docs/HISTORY.md` D23-TASK-1120 and REGROUP-FIX-1120): the pull-back is the engine's per-model charge task
+  (handlers `0x142f7f600` / `0x142f8ff54`) handing an airborne model the charge command while its unit's order queue
+  is empty (`unit +0x2f88` = 0); every player order seen had one order in the queue. Route:
+  - Where: in the two task handlers, just before their call into the charge command (`0x142f7f706` / `0x142f8ffc4`;
+    the call `[vtable + 0x4f8]` returns to `0x142f7f71c` / `0x142f8ffda`). Not the landing request: skipping only the
+    landing would leave the charge command in place and the model would still fly to its target. Skipping the call
+    is safe by the bytes: what it is given is a plain copy on the handler's stack (`0x142da511c` copies fields, no
+    reference count), nothing after the call reads its result, and the handler then marks the task done
+    (`mov byte [rbx+0x80],1`) as it does after the call, so the engine makes its next task as before.
+  - When (all must hold, else the original call runs unchanged): the take-off rule is on (mode 1); the model is
+    airborne (`+0x104` = 2); its unit's order queue is empty; another living flight model of the same unit is on the
+    ground (`+0x104` = 0) and held by D3 (struck in melee within its own size window). So a player's order (queue not
+    empty), a model on the ground, and a unit with no held model are untouched.
+  - On whenever the take-off rule is on (there is no take-off switch in MCT); counted in the take-off caves' buffer
+    and written to `flyer_takeoff.txt` at battle end. A test-only word in the same buffer turns only this part off,
+    for an A/B with one pack (the recorder's `regroup 0`); the shipped scripts never write it.
+  - Multiplayer: the take-off agreement marker becomes `FLYPINS6`.
 
 ### D24 · The two local docs commits are pushed (2026-11-19)
 
@@ -752,6 +781,43 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   formula: for a diving flyer only, raise the braced soldier's effective mass and the flyer's tier share there, as MCT
   settings. D29's lever A is dropped (BRACE-PROBE-1120); a mass cut stays the fallback (capped by the same share).
   Not yet measured: whether the solver's result reaches a landed flyer in game.
+
+### D31 · The braced-line build: braced mass and the flyer's share in the pair solver, the 10% cost, all in MCT (2026-11-20)
+
+Maintainer's technical route under D25, D26 and D29 (with the correction to D27 recorded under D30); no new
+instruction from the owner. Built offline on branch `brace-solver-1120`; nothing of it has run in game.
+
+- **Where:** the engine's own pair solver `0x14317768c`, at the 26 bytes `0x1431781e9`..`0x143178202` where it
+  multiplies a braced body's mass by its brace multiplier (`docs/HISTORY.md` PAIR-SOLVER-1120, PAIR-PROBE-1120). A
+  new dive cave `dv_brace` there does exactly what those bytes do, then, only when the engine itself counted a body's
+  brace (`r12b` for body A, `r13b` for body B: enemies, braced, the other in its front) **and** the other body's
+  entity is a flyer in a landed dive (own or ridden flight controller, `+0x104` 0, `+0x710` not 0, the dive caves'
+  test): the braced body's mass is multiplied again by **k**, and the flyer's size-tier share (`xmm12` when the flyer
+  is A, `xmm6` when it is B) is raised to at least **s\***. Nothing else changes: ground chargers, an unbraced or
+  side-on soldier (the engine's own flags are 0), a flyer still in the air or one that has stopped flying, the
+  position push before the block (it has already used the shares). The same buffer as the other dive caves; mode 0
+  or a zero setting word is the vanilla bytes' result exactly.
+- **Defaults, from the solver's formula** (`mod/tools/lib/air_dive_rules.py`): per contact the flyer keeps
+  `1 - s·(1+e)·M'/(m + M')` of its momentum (s its share, e = 0.3 read in game, m its mass, M' the braced soldier's
+  mass × brace × k). The pegasus knights today: 0.8 × 1.3 × 543 / (1,300 + 543) = 0.306. The star dragon today:
+  0.1 × 1.3 × 543 / (4,425 + 543) = 0.014. With **s\* = 0.8** (the engine's own share one size tier apart) the
+  dragon matches the pegasus when k × 543 / 4,425 = 543 / 1,300, so **k = 4,425 / 1,300 = 3.40**: the dragon then
+  0.306 (lane's "per contact" figure 24.5%, against 1.1% today). The same defaults also raise every other flyer
+  against that soldier: pegasus 0.306 → 0.610, manticore 0.063 → 0.541, griffon knights 0.031 → 0.538. That is
+  what "charge resistance counts for more" does when it is one rule for all flyers; the in-game runs measure it
+  and the owner is told before anything ships.
+- **D15's cost:** 3% → **10%** by default (D25), the same share for every body size, an MCT slider 0–25 (%); 0 means
+  no cost.
+- **MCT:** one master switch (default on) and three sliders (k 1.0–10.0, s\* 0.00–1.00, cost 0–25%), in the mod's
+  existing MCT section beside the breath switch. Master off = `dv_brace` gives the vanilla result and the D15 cost
+  is not taken. Without MCT the defaults apply. A multiplayer campaign battle uses the settings MCT hands every
+  machine (the host's, D14). **Maintainer's call:** a multiplayer battle outside a campaign uses the defaults,
+  because each machine there reads its own MCT values and these settings change the battle simulation (the breath
+  switch stays on there for the same reason, D14).
+- **Multiplayer agreement marker:** the dive caves' marker `FLYDIVE4` → `FLYDIVE5`.
+- **Not in this batch:** the flyer-only factor on the Charge Reflection multiplier (site `0x142e600af`). It needs
+  its own cave, its own emulator cases and its own measurement; D25's "Charge Reflection hurts more" is carried by
+  the 10% cost until then.
 
 ### D32 · Braced line against a dive: lighter defaults, measured again (2026-11-20)
 

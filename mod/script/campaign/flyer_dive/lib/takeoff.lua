@@ -6,7 +6,7 @@
 -- long as its engaged check says the model is busy -- any contact, struck or not.
 -- THE RULE [D3, user ruling 2026-11-17, docs/DECISIONS.md]: a flying model that
 -- was hit by a melee attack within the last N seconds cannot take off; N by its
--- own body size (small 4.5, medium 4.0, large 3.5, very large 3.0 s; a ridden
+-- own body size (small 5.5, medium 5.0, large 4.5, very large 4.0 s [D37]; a ridden
 -- unit: its mount's), decided for each model on its own. Every flying unit,
 -- both sides, AI included. One cave, at the engine's damage applier, records every damaging
 -- melee hit (the engine's own damage type 0: weapon hits, splash attacks,
@@ -15,9 +15,15 @@
 -- in place of the engaged check (source, emulator check and sites:
 -- tools/pipelines/pin_cave_asm.py; the site table and buffer layout
 -- data/takeoff_site.lua are generated from it).
--- / 每个飞行兵模按自己的体型（小 4.5、中 4.0、大 3.5、超大 3.0 秒；骑乘看坐骑），最近 N 秒内近战挨打就不能起飞，
+-- / 每个飞行兵模按自己的体型（小 5.5、中 5.0、大 4.5、超大 4.0 秒，D37；骑乘看坐骑），最近 N 秒内近战挨打就不能起飞，
 --   否则 3 秒后离地（D3）。一个洞在扣血函数入口记全部近战命中（含横扫与对决动作），一个洞代替原版的交战判定
 --   逐个兵模回答起飞计时。
+-- [D23, 2026-11-20] Two more caves, in the engine's per-model charge-task
+-- handlers: when a model is in the air, its unit has no order in its queue
+-- and another model of the unit is held on the ground by the rule above, the
+-- engine's charge that would pull it back to the held model is skipped. A
+-- player's order (an order in the queue) passes. / 部队没有命令时，已起飞的
+--   兵模不再被引擎拉回被按住的兵模身边；玩家下的命令照常执行。
 --
 -- The caves stay in the game for the session (memreader Plus never removes a
 -- cave), so "off" is mode 0: nothing is recorded and the game's own engaged
@@ -124,12 +130,34 @@ function M.install(log_fn)
             end
             mr.write(have, layout.magic_at, layout.magic)
         end
-        -- the hold cave answers, then continues after the engaged check it replaces
-        local hold = api.address(site.hold)
-        if not hold then return nil, "the hold site has no address" end
-        local resume = mr.add(hold, site.resume_at)
+        -- each cave that does not fall through to its own bytes resumes at its site + resume_at[name]
+        -- (the hold cave after the engaged check it replaces; the regroup caves after the skipped call).
+        -- A table with one hold resume (resume_at a number: the traced test table) gives it to every cave.
         local given = {}
-        for _, name in ipairs(site.caves) do given[name] = { buf = have, resume = resume } end
+        if type(site.resume_at) == "table" then
+            for _, name in ipairs(site.caves) do
+                given[name] = { buf = have }
+                local off = site.resume_at[name]
+                if off then
+                    local at = api.address(name)
+                    if not at then return nil, name .. " has no address" end
+                    given[name].resume = mr.add(at, off)
+                end
+            end
+        else
+            local hold = api.address(site.hold)
+            if not hold then return nil, "the hold site has no address" end
+            local resume = mr.add(hold, site.resume_at)
+            for _, name in ipairs(site.caves) do given[name] = { buf = have, resume = resume } end
+        end
+        -- [D44] a cave that calls an engine function: the two found addresses must be the table's distance apart
+        for _, d in ipairs(site.distances or {}) do
+            local a, b = api.address(d.from), api.address(d.to)
+            if not a or not b then return nil, "no address for " .. tostring(d.from) .. " / " .. tostring(d.to) end
+            if mr.tostring(mr.add(a, d.bytes)) ~= mr.tostring(b) then
+                return nil, d.to .. " is not " .. tostring(d.bytes) .. " bytes after " .. d.from .. " (game patched?)"
+            end
+        end
         local done, problem = api.install_feature(site.feature, given)
         if not done then return nil, tostring(problem) end
         local now, placed = installed()
@@ -159,23 +187,35 @@ end
 -- windows (size code 1..4, then an unknown code; `windows` = a list of five to
 -- use instead of the ruled ones, tests only), then the mode last. mode 1 = the
 -- rule; 2 = record hits only, the game's own check still answers (tests).
+-- `regroup_off` (tests only, the recorder's "regroup 0"): the regroup caves count what they would skip and let
+-- the engine's call run; the shipped scripts never pass it, so a battle always starts with them on.
 -- / 清表后写五个窗口（体型 1..4 与未知体型），模式最后写。
-function M.arm(buf, windows, mode)
+function M.arm(buf, windows, mode, regroup_off)
     local mr, layout = mr_(), site.layout
     put_u32(buf, layout.mode_at, 0)
     local zeros = string.rep("\0", 1024)
-    local span = layout.table_slots * layout.entry_bytes
-    for off = 0, span - 1, 1024 do
-        mr.write(buf, layout.table_at + off, sub(zeros, 1, math.min(1024, span - off)))
+    -- the model table, then [D39] the unit table (both hold this battle's pointers)
+    for _, t in ipairs({ { layout.table_at, layout.table_slots }, { layout.unit_table_at, layout.unit_slots } }) do
+        if t[1] then
+            local span = t[2] * layout.entry_bytes
+            for off = 0, span - 1, 1024 do
+                mr.write(buf, t[1] + off, sub(zeros, 1, math.min(1024, span - off)))
+            end
+        end
     end
     for _, at in ipairs({ layout.stamps_at, layout.dropped_at, layout.unmatched_at, layout.held_at,
-            layout.free_at, layout.unsized_at }) do
-        put_u32(buf, at, 0)
+            layout.free_at, layout.unsized_at, layout.regroup_calls_at, layout.regroup_skipped_at,
+            layout.regroup_would_at, layout.regroup_queued_at, layout.regroup_unheld_at,
+            layout.unit_held_at, layout.unit_stamps_at, layout.unit_dropped_at, layout.repick_at,
+            layout.chargewait_at }) do
+        if at then put_u32(buf, at, 0) end
     end
+    if layout.regroup_off_at then put_u32(buf, layout.regroup_off_at, regroup_off and 1 or 0) end
     local use = windows or layout.windows
     for i = 1, #layout.windows do
         put_u32(buf, layout.windows_at + 4 * (i - 1), use[i] or layout.windows[i])
     end
+    if layout.unit_ticks_at then put_u32(buf, layout.unit_ticks_at, layout.unit_ticks) end
     put_u32(buf, layout.mode_at, mode or 1)
 end
 
@@ -187,15 +227,29 @@ end
 function M.set_allowed(buf, on) put_u32(buf, site.layout.allowed_at, on and 1 or 0) end
 function M.allowed(buf) return mr_().read(buf, site.layout.allowed_at, 4) == "\1\0\0\0" end
 
--- {windows, mode, stamps, dropped, unmatched, held, free, unsized}: the header as it stands.
+-- {windows, mode, stamps, dropped, unmatched, held, free, unsized, regroup = {off, calls, skipped, would,
+-- queued, unheld} or nil, unit = {ticks, held, stamps, dropped} or nil (D39)}: the header as it stands.
 function M.counters(buf)
     local l = site.layout
     local windows = {}
     for i = 1, #l.windows do windows[i] = u32(buf, l.windows_at + 4 * (i - 1)) end
+    local regroup = nil
+    if l.regroup_calls_at then
+        regroup = { off = u32(buf, l.regroup_off_at), calls = u32(buf, l.regroup_calls_at),
+            skipped = u32(buf, l.regroup_skipped_at), would = u32(buf, l.regroup_would_at),
+            queued = u32(buf, l.regroup_queued_at), unheld = u32(buf, l.regroup_unheld_at) }
+    end
+    local unit = nil
+    if l.unit_ticks_at then
+        unit = { ticks = u32(buf, l.unit_ticks_at), held = u32(buf, l.unit_held_at),
+            stamps = u32(buf, l.unit_stamps_at), dropped = u32(buf, l.unit_dropped_at) }
+    end
     return { windows = windows, mode = u32(buf, l.mode_at),
         stamps = u32(buf, l.stamps_at), dropped = u32(buf, l.dropped_at),
         unmatched = u32(buf, l.unmatched_at), held = u32(buf, l.held_at),
-        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at) }
+        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup, unit = unit,
+        repick = l.repick_at and u32(buf, l.repick_at) or nil,
+        chargewait = l.chargewait_at and u32(buf, l.chargewait_at) or nil }
 end
 
 function M.layout() return site and site.layout end

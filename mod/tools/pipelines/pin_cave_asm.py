@@ -4,8 +4,8 @@ generated site table.
 [D3, user ruling 2026-11-17, docs/DECISIONS.md; implemented D3-1118] RULE:
 a flying MODEL is held on the ground (its take-off countdown re-armed) only
 while it was struck in melee within the last N battle ticks, N by its own
-body size (``air_dive_rules.takeoff_window_table``: small 45, medium 40,
-large 35, very large 30 = 4.5 / 4.0 / 3.5 / 3.0 s). Each model is judged on
+body size (``air_dive_rules.takeoff_window_table``: small 55, medium 50,
+large 45, very large 40 = 5.5 / 5.0 / 4.5 / 4.0 s since D37). Each model is judged on
 its own: in a unit of many, the struck ones stay down and the others may
 lift off. A ridden unit is judged on its mount (the flying entity, the one
 that carries the flight controller). Contact without hits, ranged and
@@ -81,7 +81,37 @@ Any other mode: the cave does nothing and the original check runs.
 Registers a call may clobber change (rax rcx rdx r8-r11, flags); rbx rsi rdi
 rbp r12-r15 rsp come back unchanged (the cave touches none of them).
 
-Buffer (game_alloc, little endian), 64-byte header then the table:
+REGROUP ``pin_regroup1`` / ``pin_regroup2`` [D23, maintainer's route 2026-11-20, docs/DECISIONS.md D23 and
+docs/HISTORY.md REGROUP-FIX-1120] at 0x142f7f706 / 0x142f8ffc4, inside the engine's two per-model charge-task
+handlers 0x142f7f600 / 0x142f8ff54 (slots 1 and 2 of the task vtable 0x143ad9690), just before each hands the
+model the charge command (``mov rax,[rcx]; call [rax+0x4f8]``, returning to 0x142f7f71c / 0x142f8ffda).
+Measured (D23-TASK-1120): the models that took off and fly back to the held ones get that charge command while
+their unit's order queue is empty; a player's order always had one order in the queue. Entry: rbx = the task
+(``mov rbx, rcx`` at 0x142f7f60a / 0x142f8ff61; nothing between writes rbx: regroup_trace_asm.decode_check),
+[task+0x10] = the model's task slot, [slot+8] = the model (the stolen bytes ``mov rdx,[rbx+0x10];
+mov rcx,[rdx+8]; lea rdx,[rsp+0x20]`` read the same). In mode 1 the cave SKIPS the call -- it resumes at
+RESUME_AT (site + 22, ``mov byte [rbx+0x80],1``: the task is marked done, as after the call) -- when ALL hold:
+the model is airborne (+0x104 == 2), its unit's order queue is empty (unit +0x2f88 == 0, the count the
+script's is_idle 0x14303b4b0 reads; anchor ``pin_layout_queue``), and another living flight entity of the
+same unit (+0x184 / +0x188) is on the ground (+0x104 == 0) and held by this rule (its table entry younger
+than its own size window, the hold cave's test). Anything else, any null link, any other mode: the original
+call runs. Skipping is safe by the bytes: the call's argument [rsp+0x20] is a plain copy made by 0x142da511c
+(fields only, no reference count), and nothing after the call reads its result (task1 returns, task2 reads
+[rbx+0x18]). Counted in the header; header +64 (``regroup_off``, written only by the test recorder) non-zero
+counts the would-be skips and lets the call run (the one-pack A/B). Every register and the flags come back
+unchanged on both paths (the skip jumps with push / xchg / ret).
+
+UNIT RULE [D39, owner 2026-11-21, docs/DECISIONS.md D39]: every model of a fighting flying unit waits at least
+the game's 3.0 s after the away order. After its raise the stamp cave re-reads the tick and stamps the unit
+([[entity+0x128]] = the FC's model, its +0x2e8 = the unit: the same path the hold cave takes) into the unit
+table. When the hold cave would answer "free" after looking up the model's own entry (no entry, or older than
+the size window) and the FC's phase (+0x90) is GROUND_PHASE (1: on the ground, no take-off asked), it looks up
+the unit: an entry younger than the header's unit ticks (UNIT_WINDOW = 30) answers "held" (counted twice: the
+hold answers and the unit-rule answers), so the engine keeps re-arming the countdown to 30 while the unit is
+being hit and the away order starts from a full 3.0 s. In phase 2 only the model's own window holds. An FC that
+no living entity carries, or a null link, is not judged by the unit rule (free, as before).
+
+Buffer (game_alloc, little endian), 128-byte header then the table:
   +0  u32 unused (0)             +4  u32 mode: 0 off, 1 the rule, 2 record
   +8  u32 stamps (hits recorded)     only (stamps kept, stock hold; tests)
   +12 u32 allowed (Lua only: the campaign's agreement said yes)
@@ -90,10 +120,19 @@ Buffer (game_alloc, little endian), 64-byte header then the table:
   +32 u32 "hold" answers         +36 u32 "free" answers (mode 1)
   +40 u32 unsized (answers that used the unknown-size window)
   +44 5 x u32 windows in ticks: size code 1, 2, 3, 4, then unknown size
-  +64 TABLE_SLOTS x 16 bytes: u64 flying entity, u32 tick, u32 hits
+  +64 u32 regroup_off (test only; 0 = the regroup caves skip)
+  +68 u32 regroup calls (mode 1)     +72 u32 skipped
+  +76 u32 would have skipped (regroup_off set)
+  +80 u32 airborne, order queue not empty (passed)
+  +84 u32 airborne, queue empty, no held model on the ground found (passed)
+  +88 u32 unit ticks (D39, written by Lua)   +92 u32 answers held by the unit rule
+  +96 u32 unit stamps               +100 u32 unit stamps dropped (no free entry in reach)
+  +128 TABLE_SLOTS x 16 bytes: u64 flying entity, u32 tick, u32 hits
+  then UNIT_SLOTS x 16 bytes (D39): u64 unit, u32 tick of its last melee hit, u32 hits
 Entry of pointer p: slot ((p>>4) ^ (p>>17) ^ (p>>30)) & (TABLE_SLOTS-1), then
-linear probing, at most PROBES entries. Entries are never freed inside a
-battle; the Lua side clears the table when a battle loads. A hit that finds
+linear probing, at most PROBES entries (a unit: the same slot & (UNIT_SLOTS-1),
+at most UNIT_PROBES). Entries are never freed inside a
+battle; the Lua side clears both tables when a battle loads. A hit that finds
 no entry in reach is dropped (counted), so a full table errs towards "free".
 
 The site table also carries ANCHORS: pieces of the engine's own code that use
@@ -138,13 +177,50 @@ SIZE_CODES = dict(air_dive_rules.TAKEOFF_SIZE_CODES)
 MODE_AT, STAMPS_AT, ALLOWED_AT, MAGIC_AT = 4, 8, 12, 16
 DROPPED_AT, UNMATCHED_AT, HELD_AT, FREE_AT, UNSIZED_AT = 24, 28, 32, 36, 40
 WINDOWS_AT = 44                     # 5 x u32, ends at 64
-TABLE_AT, ENTRY_BYTES = 64, 16
+# [D23] the regroup caves: the test-only switch, then five counters (ends at 88)
+RG_OFF_AT, RG_CALLS_AT, RG_SKIPPED_AT, RG_WOULD_AT, RG_QUEUED_AT, RG_UNHELD_AT = 64, 68, 72, 76, 80, 84
+TABLE_AT, ENTRY_BYTES = 128, 16
 TABLE_SLOTS = 8192                  # power of two
 PROBES = 64
-BUFFER_BYTES = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
+# [D39] the unit rule: its window (written by Lua), then three counters (ends at 104); the unit table follows
+# the model table (same entry shape: u64 unit, u32 tick of its last melee hit, u32 hits; same hash)
+UNIT_WINDOW_AT, UNIT_HELD_AT, UNIT_STAMPS_AT, UNIT_DROPPED_AT = 88, 92, 96, 100
+# [D44] pin_repick: restarts counted at +104 (the order re-given to the new main controller)
+REPICK_AT = 104
+# [D46] pin_chargewait: uncharged flyer charge tasks kept from ending on the previous move's finish, counted at +108
+CHARGEWAIT_AT = 108
+T_CHARGED, T_SLOT, SLOT_ENT, T_HOLDER, H_MOVE, M_DONE = 0x80, 0x10, 8, 0x18, 8, 0x10
+E_FLIGHT = 0x128                    # the model's flight controller: non-null only for a flyer
+CW_FRAME = 0x60                     # the update's sub rsp,0x60 (then pop rbx; the caller's return address)
+U_MAIN_CTRL, U_CTRL_N, U_CTRL_LIST, U_QUEUE_MGR = 0x32F8, 0x3294, 0x3298, 0x278
+CTRL_LIST_MAX = 64
+# [D44, REPICK-EXIT-1121] the site is the picker 0x14302a11c's single exit 0x14302a74a (every one of its twelve
+# stores of unit+0x32f8 reaches it; rsi = the unit, r13 = the old main controller on every path in; rsp is
+# 16-byte aligned; the caller's return address at [rsp+0x78]). The one caller that restarts on its own,
+# 0x1430462a4 (returning to 0x1430462fe), is skipped so the order is never restarted twice.
+REPICK_SITE, REPICK_RESUME_AT, RESTART_FN = 0x14302A74A, 8, 0x14304E030
+RESTART_FROM_RESUME = RESTART_FN - (REPICK_SITE + REPICK_RESUME_AT)      # checked in Lua at install
+RESTART_FROM_SITE = RESTART_FN - REPICK_SITE                              # the distance the site table carries
+SELF_RESTARTER = 0x1430462FE              # return address of 0x1430462a4's pick: it restarts the order itself
+SELF_FROM_RESUME = SELF_RESTARTER - (REPICK_SITE + REPICK_RESUME_AT)
+SELF_FROM_SITE = SELF_RESTARTER - REPICK_SITE
+PICK_CALLER_UP = 0x78                     # 7 pushes + sub rsp,0x40 -> the caller's return address
+PICK_RBX_UP = 0x98                        # the stolen mov rbx, [rsp+0x98] (rbx saved in the home space)
+UNIT_TABLE_AT = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
+UNIT_SLOTS = 1024                   # power of two; flying units in one battle
+UNIT_PROBES = 64
+BUFFER_BYTES = UNIT_TABLE_AT + UNIT_SLOTS * ENTRY_BYTES
+UNIT_WINDOW = air_dive_rules.TAKEOFF_UNIT_WINDOW
+GROUND_PHASE = air_dive_rules.TAKEOFF_UNIT_HOLD_PHASE
 # 2: +40 single-model window (§C8-78); 3: renamed (RENAME-1118); 4: per model by body size (D3)
 # 5: the stamp cave raises a 0 countdown before lift-off (D11, gapfix-1118)
-MAGIC = b"FLYPINS5"
+# 6: the regroup caves skip the engine's charge for an airborne model of an idle unit with held models (D23)
+# 7: every size window one second longer (D37); cave bytes unchanged, the windows the buffer carries changed
+# 8: a unit hit within 3 s keeps every model on the ground at a full countdown (D39); new unit table
+# 9: the order is restarted when the main controller changes because the old one emptied (D44, pin_repick)
+# 10: the restart moved to the picker's exit, so every re-pick restarts (REPICK-EXIT-1121)
+# 11: an uncharged flyer charge task no longer ends on the previous move's finish (D46, pin_chargewait)
+MAGIC = b"FLYPIN11"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -161,6 +237,10 @@ COUNT_OFF, PHASE_OFF = 0x44, 0x90   # FC: take-off countdown, flight phase (D11)
 # [D11] the stamp cave's raise: a 0 countdown of a model in one of these phases becomes RAISE_TO
 RAISE_TO = air_dive_rules.TAKEOFF_GAP_RAISE_TO
 RAISE_PHASES = tuple(air_dive_rules.TAKEOFF_GAP_RAISE_PHASES)
+# [D23] the regroup caves
+AIR_OFF, AIRBORNE, ON_GROUND = 0x104, 2, 0     # entity: 0 on the ground, 1 / 2 in the air (anchor pin_layout_air)
+QUEUE_COUNT_OFF = 0x2F88                       # unit: orders in its queue (anchor pin_layout_queue)
+TASK_SLOT_OFF, SLOT_MODEL_OFF = 0x10, 8        # charge task -> the model's task slot -> the model
 
 # --- sites ------------------------------------------------------------------
 # name -> (pattern, at, expected original bytes, "stamp" / "hold")
@@ -176,8 +256,33 @@ CAVES = {
                   "48 89 5C 24 10 55 56 57 41 54", "stamp"),
     "pin_hold": ("48 8B CB E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 44 38 63 64 74", 0,
                  "48 8B CB E8", "hold"),
+    # [D23] 0x142f7f706 / 0x142f8ffc4 in the two charge-task handlers: the pattern starts at the parameter copy
+    # (lea rdx,[rbx+0x40] / [rcx+0x40]; lea rcx,[rsp+0x20]; call 0x142da511c), then the stolen bytes, then
+    # mov rax,[rcx]; call [rax+0x4f8]; mov byte [rbx+0x80],1 and each handler's own next instructions
+    "pin_regroup1": ("48 8D 53 40 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 53 10 48 8B 4A 08 48 8D 54 24 20 48 8B 01 "
+                     "FF 90 F8 04 00 00 C6 83 80 00 00 00 01 48 83 C4 60 5B C3", 14,
+                     "48 8B 53 10 48 8B 4A 08 48 8D 54 24 20", "regroup"),
+    "pin_regroup2": ("48 8D 51 40 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 53 10 48 8B 4A 08 48 8D 54 24 20 48 8B 01 "
+                     "FF 90 F8 04 00 00 C6 83 80 00 00 00 01 48 8B 4B 18", 14,
+                     "48 8B 53 10 48 8B 4A 08 48 8D 54 24 20", "regroup"),
+    # [D44, REPICK-EXIT-1121] 0x14302a74a, the picker 0x14302a11c's single exit (six branches land on it, none
+    # inside the stolen bytes): cmp [rsi+0x2f88],r15d; jne; mov rcx,r13; call 0x1430dc0ec; (site) mov rbx,
+    # [rsp+0x98]; add rsp,0x40; pop r15
+    "pin_repick": ("44 39 BE 88 2F 00 00 75 08 49 8B CD E8 ?? ?? ?? ?? 48 8B 9C 24 98 00 00 00 48 83 C4 40 41 5F",
+                   17, "48 8B 9C 24 98 00 00 00", "repick"),
+    # [D46] 0x142f8fff6 in the charge task's update 0x142f8ff54 (task vtable 0x143ad9690 slot 2; rbx = the task):
+    # mov [rbx+0x58],rax; (site) mov rdx,[rbx+0x18]; mov rcx,rbx; add rdx,8; add rsp,0x60; pop rbx;
+    # jmp 0x14325eefc (the base update: ends the task when the model's move object +0x10 == 1). Only the wait
+    # branch 0x142f8ffa0 lands here besides the fall-through, at the site's first byte.
+    "pin_chargewait": ("48 89 43 58 48 8B 53 18 48 8B CB 48 83 C2 08 48 83 C4 60 5B E9", 4,
+                       "48 8B 53 18 48 8B CB 48 83 C2 08", "chargewait"),
 }
 HOLD_NAME, HOLD_RESUME_AT = "pin_hold", 8      # resume at `test al,al`
+# where a cave resumes when it does not fall through to its stolen bytes: site + offset. The regroup caves skip
+# the stolen bytes (13), mov rax,[rcx] (3) and call [rax+0x4f8] (6): 0x142f7f71c / 0x142f8ffda
+REGROUP_SKIP = 13 + 3 + 6
+RESUME_AT = {HOLD_NAME: HOLD_RESUME_AT, "pin_regroup1": REGROUP_SKIP, "pin_regroup2": REGROUP_SKIP,
+             "pin_repick": REPICK_RESUME_AT, "pin_chargewait": 11}
 MELEE = 0                                      # the applier's damage type of a melee hit
 TYPE_ARG = 0x30                                # entry rsp offset of the damage type
 # name -> (pattern, what it pins)
@@ -202,6 +307,14 @@ ANCHORS = {
     # flying entity: 1 small, 2 medium, 3 large, 4 very large (ingame_1118 item2_1, item6_1, item6_2).
     "pin_layout_size": ("8B 46 74 3B 47 74 7E ?? 2B 47 74 83 F8 01",
                         "entity +0x74 body size code"),
+    # [D23] 0x14303b4b0, the script's is_idle: xor eax,eax; cmp [rcx+0x2f88],eax; jne; cmp byte [rcx+0x3ca8],al;
+    # jne; mov al,1; ret -- the unit's order count (recorder O lines: idle = count 0 and that byte 0, every sample)
+    "pin_layout_queue": ("33 C0 39 81 88 2F 00 00 75 0A 38 81 A8 3C 00 00 75 02 B0 01 C3",
+                         "unit +0x2f88 orders in the queue"),
+    # [D23] 0x143050da1, the landing toward a target entity (0x143050d74): mov eax,[r8+0x104]; mov rcx,rbx;
+    # dec eax; cmp eax,1; ja -> a target in the air (1 or 2) cancels the landing, else lands
+    "pin_layout_air": ("41 8B 80 04 01 00 00 48 8B CB FF C8 83 F8 01 77 07 E8",
+                       "entity +0x104 airborne state (0 on the ground, 1 / 2 in the air)"),
     # the callers whose damage must not hold a flyer pass a non-melee type:
     # 0x143061087 charge's collision attack: mov dword [rsp+0x28],6 before its applier call
     "pin_kind_charge": ("C7 44 24 28 06 00 00 00 C6 44 24 20 01 F3 0F 11 45 0F 48 89 7D E7 E8",
@@ -212,12 +325,25 @@ ANCHORS = {
     # 0x1430aab65 ranged / explosion: and r8d,3; inc r8d; mov [rsp+0x28],r8d (1..4)
     "pin_kind_ranged": ("41 83 E0 03 41 FF C0 88 5C 24 30 44 89 44 24 28 44 8B C0 88 54 24 20 "
                         "48 8B D7 E8", "damage type 1..4: ranged and explosions"),
+    # [D44] 0x14304e030, the engine's order restart: sub rsp,0x28; cmp [rcx+0x2d10],0; je; mov eax,[rcx+0x2d14]
+    # (queue manager unit+0x278: count, head) -- pin_repick calls it; Lua checks its distance from pin_repick
+    "pin_call_restart": ("48 83 EC 28 83 B9 10 2D 00 00 00 74 1A 8B 81 14 2D 00 00",
+                         "the order restart 0x14304e030 pin_repick calls"),
+    # [REPICK-EXIT-1121] 0x1430462fe, right after 0x1430462a4's pick: mov rdx,[rbx+0x32f8]; test; je; cmp byte
+    # [rdx+0xa18],0; jne -- that caller restarts the order itself, so pin_repick skips it (Lua checks the distance)
+    "pin_self_restarter": ("48 8B 93 F8 32 00 00 48 85 D2 74 09 80 BA 18 0A 00 00 00 75 05",
+                           "the one picker caller that restarts the order itself (pin_repick skips it)"),
 }
 
 
 def slot_of(pointer):
     """The caves' home slot of an entity pointer."""
     return ((pointer >> 4) ^ (pointer >> 17) ^ (pointer >> 30)) & (TABLE_SLOTS - 1)
+
+
+def unit_slot_of(pointer):
+    """[D39] The caves' home slot of a unit pointer in the unit table."""
+    return slot_of(pointer) & (UNIT_SLOTS - 1)
 
 
 def _mutated(text, kind, mutate):
@@ -367,6 +493,44 @@ def stamp_source(mutate=()):
         mov edx, {RAISE_TO}
         lock cmpxchg dword ptr [r8 + {COUNT_OFF:#x}], edx
     raise_done:
+    unit_stamp:
+        {_tick("rcx", "r8d", "done")}
+        mov rax, qword ptr [rcx + {FC_OFF:#x}]
+        mov rax, qword ptr [rax]
+        test rax, rax
+        jz unit_done
+        mov r9, qword ptr [rax + {UNIT_OFF:#x}]
+        test r9, r9
+        jz unit_done
+        lock inc dword ptr [r10 + {UNIT_STAMPS_AT}]
+        {_hash("r9", "rax", "rdx")}
+        and eax, {UNIT_SLOTS - 1}
+        mov r11d, eax
+        mov ecx, {UNIT_PROBES}
+    uprobe:
+        mov edx, r11d
+        shl rdx, 4
+        lea rdx, [r10 + rdx + {UNIT_TABLE_AT}]
+        mov rax, [rdx]
+        cmp rax, r9
+        je uwrite
+        test rax, rax
+        jnz unext
+        lock cmpxchg [rdx], r9
+        je uwrite
+        cmp rax, r9
+        je uwrite
+    unext:
+        inc r11d
+        and r11d, {UNIT_SLOTS - 1}
+        dec ecx
+        jnz uprobe
+        lock inc dword ptr [r10 + {UNIT_DROPPED_AT}]
+        jmp unit_done
+    uwrite:
+        mov dword ptr [rdx + 8], r8d
+        lock inc dword ptr [rdx + 12]
+    unit_done:
     done:
         pop r11
         pop r10
@@ -429,17 +593,51 @@ def hold_source(mutate=()):
         cmp [rdx], rcx
         je hit
         cmp qword ptr [rdx], 0
-        je free
+        je own_free
         inc eax
         and eax, {TABLE_SLOTS - 1}
         dec r11d
         jnz look
-        jmp free
+        jmp own_free
     hit:
         mov eax, r8d
         sub eax, dword ptr [rdx + 8]
         cmp eax, r10d
+        jae own_free
+        lock inc dword ptr [r9 + {HELD_AT}]
+        mov eax, 1
+        jmp resume
+    own_free:
+        cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}
+        jne free
+        mov rcx, [rbx]
+        test rcx, rcx
+        jz free
+        mov rcx, [rcx + {UNIT_OFF:#x}]
+        test rcx, rcx
+        jz free
+        {_hash("rcx", "rax", "r11")}
+        and eax, {UNIT_SLOTS - 1}
+        mov r11d, {UNIT_PROBES}
+    ulook:
+        mov edx, eax
+        shl rdx, 4
+        lea rdx, [r9 + rdx + {UNIT_TABLE_AT}]
+        cmp [rdx], rcx
+        je uhit
+        cmp qword ptr [rdx], 0
+        je free
+        inc eax
+        and eax, {UNIT_SLOTS - 1}
+        dec r11d
+        jnz ulook
+        jmp free
+    uhit:
+        mov eax, r8d
+        sub eax, dword ptr [rdx + 8]
+        cmp eax, dword ptr [r9 + {UNIT_WINDOW_AT}]
         jae free
+        lock inc dword ptr [r9 + {UNIT_HELD_AT}]
         lock inc dword ptr [r9 + {HELD_AT}]
         mov eax, 1
         jmp resume
@@ -453,8 +651,205 @@ def hold_source(mutate=()):
     """, "hold", mutate)
 
 
+REGROUP_PUSHES = ("rax", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11")
+
+
+def regroup_source(mutate=()):
+    """[D23] rbx = the charge task. Skip (resume) or fall through to the stolen bytes; see the module text."""
+    pushes = "\n".join(f"        push {r}" for r in REGROUP_PUSHES)
+    pops = "\n".join(f"        pop {r}" for r in reversed(REGROUP_PUSHES))
+    return _mutated(f"""
+        pushfq
+{pushes}
+        mov r9, {BUFFER_PLACEHOLDER:#x}
+        cmp dword ptr [r9 + {MODE_AT}], 1
+        jne pass
+        lock inc dword ptr [r9 + {RG_CALLS_AT}]
+        test rbx, rbx
+        jz pass
+        mov rax, qword ptr [rbx + {TASK_SLOT_OFF:#x}]
+        test rax, rax
+        jz pass
+        mov rcx, qword ptr [rax + {SLOT_MODEL_OFF:#x}]
+        test rcx, rcx
+        jz pass
+        cmp dword ptr [rcx + {AIR_OFF:#x}], {AIRBORNE}
+        jne pass
+        mov rdx, qword ptr [rcx + {UNIT_OFF:#x}]
+        test rdx, rdx
+        jz pass
+        cmp dword ptr [rdx + {QUEUE_COUNT_OFF:#x}], 0
+        je idle
+        lock inc dword ptr [r9 + {RG_QUEUED_AT}]
+        jmp pass
+    idle:
+        {_tick("rcx", "r8d", "unheld")}
+        mov esi, dword ptr [rdx + {LIST_COUNT_OFF:#x}]
+        lea eax, [rsi - 1]
+        cmp eax, {MAX_MODELS - 1}
+        ja unheld
+        mov rdx, qword ptr [rdx + {LIST_OFF:#x}]
+        test rdx, rdx
+        jz unheld
+    mate:
+        mov r10, qword ptr [rdx]
+        test r10, r10
+        jz mate_next
+        cmp dword ptr [r10 + {AIR_OFF:#x}], {ON_GROUND}
+        jne mate_next
+        mov eax, dword ptr [r10 + {SIZE_OFF:#x}]
+        dec eax
+        cmp eax, 3
+        jbe mate_sized
+        mov eax, 4
+    mate_sized:
+        mov r11d, dword ptr [r9 + rax*4 + {WINDOWS_AT}]
+        {_hash("r10", "rax", "rcx")}
+        mov edi, {PROBES}
+    look:
+        mov ecx, eax
+        shl rcx, 4
+        lea rcx, [r9 + rcx + {TABLE_AT}]
+        cmp qword ptr [rcx], r10
+        je hit
+        cmp qword ptr [rcx], 0
+        je mate_next
+        inc eax
+        and eax, {TABLE_SLOTS - 1}
+        dec edi
+        jnz look
+        jmp mate_next
+    hit:
+        mov eax, r8d
+        sub eax, dword ptr [rcx + 8]
+        cmp eax, r11d
+        jb held
+    mate_next:
+        add rdx, 8
+        dec esi
+        jnz mate
+    unheld:
+        lock inc dword ptr [r9 + {RG_UNHELD_AT}]
+        jmp pass
+    held:
+        cmp dword ptr [r9 + {RG_OFF_AT}], 0
+        jne would
+        lock inc dword ptr [r9 + {RG_SKIPPED_AT}]
+{pops}
+        popfq
+        push rax
+        mov rax, {RESUME_PLACEHOLDER:#x}
+        xchg qword ptr [rsp], rax
+        ret
+    would:
+        lock inc dword ptr [r9 + {RG_WOULD_AT}]
+    pass:
+{pops}
+        popfq
+    """, "regroup", mutate)
+
+
+def repick_source(mutate=()):
+    """[D44, REPICK-EXIT-1121] At the picker's exit: rsi = the unit, r13 = the main controller before the pick.
+    Restart the current order when the pick changed the main controller (see the module text and docs/HISTORY.md
+    DROP-FIX-1121, REPICK-EXIT-1121), unless the caller is the one that restarts by itself; then the stolen
+    ``mov rbx, [rsp+0x98]`` and back. rax is kept (the picker's value); the other volatile registers are dead at
+    a return; callee-saved ones are untouched (rsi / r13 survive the call)."""
+    return _mutated(f"""
+        mov r9, {BUFFER_PLACEHOLDER:#x}
+        mov r10, {RESUME_PLACEHOLDER:#x}
+        push rax
+        cmp dword ptr [r9 + {MODE_AT}], 1
+        jne out
+        mov rax, qword ptr [rsi + {U_MAIN_CTRL:#x}]
+        test rax, rax
+        jz out
+        cmp rax, r13
+        je out
+        lea rdx, [r10 + {SELF_FROM_RESUME:#x}]
+        cmp qword ptr [rsp + {PICK_CALLER_UP + 8:#x}], rdx
+        je out
+        cmp dword ptr [rsi + {LIST_COUNT_OFF:#x}], 0
+        je out
+        cmp dword ptr [rsi + {QUEUE_COUNT_OFF:#x}], 0
+        je out
+        mov ecx, dword ptr [rsi + {U_CTRL_N:#x}]
+        cmp ecx, {CTRL_LIST_MAX}
+        ja out
+        mov rdx, qword ptr [rsi + {U_CTRL_LIST:#x}]
+        test rdx, rdx
+        jz out
+    look:
+        test ecx, ecx
+        jz out
+        cmp qword ptr [rdx], rax
+        je restart
+        add rdx, 8
+        dec ecx
+        jmp look
+    restart:
+        lock inc dword ptr [r9 + {REPICK_AT}]
+        push r10
+        sub rsp, 0x20
+        lea rcx, [rsi + {U_QUEUE_MGR:#x}]
+        lea r11, [r10 + {RESTART_FROM_RESUME:#x}]
+        call r11
+        add rsp, 0x20
+        pop r10
+    out:
+        pop rax
+        mov rbx, qword ptr [rsp + {PICK_RBX_UP:#x}]
+        jmp r10
+    """, "repick", mutate)
+
+
+def chargewait_source(mutate=()):
+    """[D46] rbx = the charge task, about to tail-jump into the base update. An uncharged task (+0x80 == 0) of a
+    flyer (the model [[task+0x10]+8] has a flight controller +0x128) whose model's move object
+    [task+0x18]+8 reports finished (+0x10 == 1) returns instead: that finish is the previous move's, the task
+    charges at its due time like its siblings. Everything else runs the stolen bytes and goes on to the base
+    update. Volatile registers only (rax is dead here, rdx / rcx are set by the stolen bytes)."""
+    return _mutated(f"""
+        mov r9, {BUFFER_PLACEHOLDER:#x}
+        mov r10, {RESUME_PLACEHOLDER:#x}
+        cmp dword ptr [r9 + {MODE_AT}], 1
+        jne pass
+        cmp byte ptr [rbx + {T_CHARGED:#x}], 0
+        jne pass
+        mov rax, qword ptr [rbx + {T_SLOT:#x}]
+        test rax, rax
+        jz pass
+        mov rax, qword ptr [rax + {SLOT_ENT}]
+        test rax, rax
+        jz pass
+        cmp qword ptr [rax + {E_FLIGHT:#x}], 0
+        je pass
+        mov rax, qword ptr [rbx + {T_HOLDER:#x}]
+        test rax, rax
+        jz pass
+        cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1
+        jne pass
+        lock inc dword ptr [r9 + {CHARGEWAIT_AT}]
+        add rsp, {CW_FRAME:#x}
+        pop rbx
+        ret
+    pass:
+        mov rdx, qword ptr [rbx + {T_HOLDER:#x}]
+        mov rcx, rbx
+        add rdx, {H_MOVE}
+        jmp r10
+    """, "chargewait", mutate)
+
+
 def cave_source(name, mutate=()):
-    return hold_source(mutate) if CAVES[name][3] == "hold" else stamp_source(mutate)
+    role = CAVES[name][3]
+    if role == "chargewait":
+        return chargewait_source(mutate)
+    if role == "repick":
+        return repick_source(mutate)
+    if role == "regroup":
+        return regroup_source(mutate)
+    return hold_source(mutate) if role == "hold" else stamp_source(mutate)
 
 
 def layout():
@@ -464,7 +859,14 @@ def layout():
             "held_at": HELD_AT, "free_at": FREE_AT, "unsized_at": UNSIZED_AT,
             "table_at": TABLE_AT, "table_slots": TABLE_SLOTS, "entry_bytes": ENTRY_BYTES,
             "windows_at": WINDOWS_AT, "windows": list(WINDOWS),
-            "size_codes": dict(sorted(SIZE_CODES.items())), "size_at": SIZE_OFF}
+            "size_codes": dict(sorted(SIZE_CODES.items())), "size_at": SIZE_OFF,
+            "regroup_off_at": RG_OFF_AT, "regroup_calls_at": RG_CALLS_AT, "regroup_skipped_at": RG_SKIPPED_AT,
+            "regroup_would_at": RG_WOULD_AT, "regroup_queued_at": RG_QUEUED_AT,
+            "regroup_unheld_at": RG_UNHELD_AT,
+            "unit_ticks_at": UNIT_WINDOW_AT, "unit_ticks": UNIT_WINDOW, "unit_held_at": UNIT_HELD_AT,
+            "unit_stamps_at": UNIT_STAMPS_AT, "unit_dropped_at": UNIT_DROPPED_AT,
+            "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS, "repick_at": REPICK_AT,
+            "chargewait_at": CHARGEWAIT_AT}
 
 
 def source_sha():
@@ -474,7 +876,7 @@ def source_sha():
     norm = lambda s: "\n".join(line.strip() for line in s.splitlines() if line.strip())
     blob = json.dumps({"caves": {n: [list(CAVES[n][:3]), norm(cave_source(n))] for n in CAVES},
                        "anchors": {n: ANCHORS[n][0] for n in ANCHORS},
-                       "hold": [HOLD_NAME, HOLD_RESUME_AT], "layout": layout(),
+                       "hold": [HOLD_NAME, HOLD_RESUME_AT], "resume_at": RESUME_AT, "layout": layout(),
                        "owner": OWNER, "feature": FEATURE, "build": BUILD}, sort_keys=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
@@ -559,10 +961,11 @@ class Machine:
         self.reset()
 
     # -- the battle's memory
-    def reset(self, windows=WINDOWS, mode=1):
+    def reset(self, windows=WINDOWS, mode=1, unit_window=UNIT_WINDOW):
         self.uc.mem_write(BUF, bytes(BUFFER_BYTES))
         self.uc.mem_write(BUF + MODE_AT, struct.pack("<I", mode))
         self.uc.mem_write(BUF + WINDOWS_AT, struct.pack("<5I", *windows))
+        self.uc.mem_write(BUF + UNIT_WINDOW_AT, struct.pack("<I", unit_window))
         self.uc.mem_write(BUF + MAGIC_AT, MAGIC)
         self.uc.mem_write(OBJ, bytes(0x40000))
         self.uc.mem_write(FCS, bytes(FCS_BYTES))
@@ -662,6 +1065,24 @@ class Machine:
         table = bytes(self.uc.mem_read(BUF + TABLE_AT, TABLE_SLOTS * ENTRY_BYTES))
         return sum(1 for key, _tick, _hits in struct.iter_unpack("<QII", table) if key)
 
+    # -- [D39] the unit table
+    def put_unit(self, unit, tick, hits=0, slot=None):
+        if slot is None:
+            slot = unit_slot_of(unit)
+            while self.unit_raw(slot)[0] not in (0, unit):
+                slot = (slot + 1) % UNIT_SLOTS
+        self.uc.mem_write(BUF + UNIT_TABLE_AT + ENTRY_BYTES * slot,
+                          struct.pack("<QII", unit, tick & 0xFFFFFFFF, hits))
+        return slot
+
+    def unit_raw(self, slot):
+        return struct.unpack("<QII", self.uc.mem_read(BUF + UNIT_TABLE_AT + ENTRY_BYTES * slot, ENTRY_BYTES))
+
+    def units(self):
+        """{slot: (unit, tick, hits)} of every used unit entry (a scan, independent of the hash)."""
+        table = bytes(self.uc.mem_read(BUF + UNIT_TABLE_AT, UNIT_SLOTS * ENTRY_BYTES))
+        return {i: e for i, e in enumerate(struct.iter_unpack("<QII", table)) if e[0]}
+
     def head(self, at):
         return struct.unpack("<I", self.uc.mem_read(BUF + at, 4))[0]
 
@@ -703,6 +1124,10 @@ class Machine:
                     state["done"] = True
             hooks = [uc.hook_add(UC_HOOK_MEM_READ, on_read), uc.hook_add(UC_HOOK_CODE, on_code,
                                                                           begin=begin, end=begin + size)]
+            # code translated by earlier runs carries no instrumentation for a code hook added now, so the
+            # rewrite could be skipped and a cave that overwrites the engine's value would pass (measured
+            # 2026-11-21 after the D39 unit stamp changed the cave's blocks): flush the translation cache
+            uc.ctl_flush_tb()
         try:
             uc.emu_start(begin, begin + size, count=100_000)
         except UcError:                       # a fault is a failed case, not a crashed check
@@ -715,12 +1140,13 @@ class Machine:
                 "flags": (uc.reg_read(x.UC_X86_REG_EFLAGS) & 0xFFF) == FLAGS,
                 "rearmed": state["done"]}
 
-    def hold(self, living, asker, count=None, fc_model=True, unit=True, array=True, fc=None):
+    def hold(self, living, asker, count=None, fc_model=True, unit=True, array=True, fc=None, phase=None):
         """The hold cave for the flight controller of ``asker`` (an entity
         made by ``model``; ``fc`` = another FC address instead), in a unit
         whose living flight entities are ``living`` (addresses; ``count``
         overrides the list length). ``fc_model=False``: the FC's model field
-        is null; ``unit=False``: the model's unit is null."""
+        is null; ``unit=False``: the model's unit is null. ``phase``: the FC's
+        flight phase (+0x90) to write first (None: leave it; a fresh FC reads 0)."""
         from unicorn import UC_HOOK_CODE, UcError
         x, uc = self.x, self.uc
         begin, size = self.code[HOLD_NAME]
@@ -728,10 +1154,13 @@ class Machine:
         fc_at = self.fc_of[asker] if fc is None else fc
         uc.mem_write(fc_at, struct.pack("<Q", asker if fc_model else 0))
         uc.mem_write(asker + UNIT_OFF, struct.pack("<Q", UNIT if unit else 0))
+        if phase is not None:
+            uc.mem_write(fc_at + PHASE_OFF - 4, b"\x5a" * 12)    # neighbours non-zero: a wrong offset shows
+            uc.mem_write(fc_at + PHASE_OFF, struct.pack("<I", phase & 0xFFFFFFFF))
         self.living(living, count, array)
         uc.reg_write(x.UC_X86_REG_RBX, fc_at)
         before = {r: uc.reg_read(r) for r in self.callee_saved}
-        heads = (STAMPS_AT, DROPPED_AT, HELD_AT, FREE_AT, UNMATCHED_AT, UNSIZED_AT)
+        heads = (STAMPS_AT, DROPPED_AT, HELD_AT, FREE_AT, UNMATCHED_AT, UNSIZED_AT, UNIT_HELD_AT)
         counters = tuple(self.head(h) for h in heads)
         landed = []
 
@@ -753,6 +1182,57 @@ class Machine:
                 "al": uc.reg_read(x.UC_X86_REG_RAX) & 0xFF,
                 "callee-saved": all(uc.reg_read(r) == v for r, v in before.items()),
                 "rsp": uc.reg_read(x.UC_X86_REG_RSP) == STACK + 0x8000,
+                "counters": tuple(b - a for a, b in zip(counters, after))}
+
+    # -- [D23] the regroup caves
+    def air(self, entity, value):
+        """Write ``entity``'s airborne state (+0x104): 0 on the ground, 1 / 2 in the air."""
+        self.uc.mem_write(entity + AIR_OFF, struct.pack("<I", value & 0xFFFFFFFF))
+
+    def regroup(self, model, living, queue=0, site="pin_regroup1", task=True, slot=True, unit=True,
+                count=None, array=True, regroup_off=0, flags=FLAGS):
+        """One charge-task handler reaching the regroup cave for ``model`` (an entity address, or 0 for a
+        null model in the slot) of a unit whose living flight entities are ``living`` and whose order queue
+        holds ``queue`` orders. ``task`` / ``slot`` False: rbx / [task+0x10] null; ``unit`` False: the model's
+        unit null. Returns where it went ("resume" = skipped, "through" = the original call), whether every
+        register, rsp and the flags came back, and the change of the five regroup counters."""
+        from unicorn import UC_HOOK_CODE, UcError
+        x, uc = self.x, self.uc
+        begin, size = self.code[site]
+        self._registers()
+        uc.reg_write(x.UC_X86_REG_EFLAGS, flags)
+        task_at, slot_at = BLOCK + 0x800, BLOCK + 0x900
+        uc.mem_write(task_at, bytes(0x200))
+        uc.mem_write(task_at + TASK_SLOT_OFF, struct.pack("<Q", slot_at if slot else 0))
+        uc.mem_write(slot_at + SLOT_MODEL_OFF, struct.pack("<Q", model))
+        if model:
+            uc.mem_write(model + UNIT_OFF, struct.pack("<Q", UNIT if unit else 0))
+        uc.mem_write(UNIT + QUEUE_COUNT_OFF, struct.pack("<I", queue & 0xFFFFFFFF))
+        uc.mem_write(BUF + RG_OFF_AT, struct.pack("<I", regroup_off))
+        self.living(living, count, array)
+        uc.reg_write(x.UC_X86_REG_RBX, task_at if task else 0)
+        before = {r: uc.reg_read(r) for r in self.all}
+        heads = (RG_CALLS_AT, RG_SKIPPED_AT, RG_WOULD_AT, RG_QUEUED_AT, RG_UNHELD_AT)
+        counters = tuple(self.head(h) for h in heads)
+        landed = []
+
+        def at_resume(mu, address, _size, _data):
+            landed.append(address)
+            mu.emu_stop()
+        hook = uc.hook_add(UC_HOOK_CODE, at_resume, begin=RESUME, end=RESUME)
+        crashed = False
+        try:
+            uc.emu_start(begin, begin + size, count=2_000_000)
+        except UcError:
+            crashed = True
+        uc.hook_del(hook)
+        rip = uc.reg_read(x.UC_X86_REG_RIP)
+        after = tuple(self.head(h) for h in heads)
+        return {"where": ("crash" if crashed else "resume" if landed
+                          else ("through" if rip == begin + size else hex(rip))),
+                "registers": all(uc.reg_read(r) == v for r, v in before.items()),
+                "rsp": uc.reg_read(x.UC_X86_REG_RSP) == STACK + 0x8000,
+                "flags": (uc.reg_read(x.UC_X86_REG_EFLAGS) & 0xFFF) == (flags & 0xFFF),
                 "counters": tuple(b - a for a, b in zip(counters, after))}
 
 
@@ -960,15 +1440,67 @@ def check(mutate=()):
         m.stamp(MELEE, 40, flyer, site)
         expect(tag + "raise twice: countdown", m.countdown(flyer), RAISE_TO)
 
+        # [D39] the unit stamp: every recorded melee hit also stamps the flyer's unit
+        for kind, dmg, want in ((MELEE, 40, True), (1, 40, False), (6, 40, False), (MELEE, 0, False)):
+            m.reset(); m.now(1200)
+            flyer = m.model(1)
+            clean(f"{tag}unit stamp kind={kind} dmg={dmg}", m.stamp(kind, dmg, flyer, site))
+            expect(f"{tag}unit stamp kind={kind} dmg={dmg}: entry", m.units(),
+                   {unit_slot_of(UNIT): (UNIT, 1200, 1)} if want else {})
+            expect(f"{tag}unit stamp kind={kind} dmg={dmg}: counted", m.head(UNIT_STAMPS_AT), int(want))
+        m.reset(); m.now(1200)
+        mount = m.model(2)
+        rider = m.model(1, fc=False, parent=2, unit=0)
+        clean(tag + "unit stamp through a rider", m.stamp(MELEE, 40, rider, site))
+        expect(tag + "unit stamp through a rider: the mount's unit", m.units(), {unit_slot_of(UNIT): (UNIT, 1200, 1)})
+        m.reset(); m.now(1200)
+        flyer = m.model(1)
+        m.stamp(MELEE, 40, flyer, site)
+        m.stamp(MELEE, 40, m.model(2), site)
+        m.now(1210)
+        clean(tag + "unit stamp repeat", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp repeat: one entry, newest tick, three hits", m.units(),
+               {unit_slot_of(UNIT): (UNIT, 1210, 3)})
+        m.reset(); m.now(1200)
+        flyer = m.model(1, unit=0)
+        clean(tag + "unit stamp: null unit", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp: null unit: model stamped, no unit", (m.find(flyer), m.units()),
+               ([(slot_of(flyer), 1200, 1)], {}))
+        m.reset(); m.now(1200)
+        flyer = m.model(1)
+        m.uc.mem_write(m.fc_of[flyer], struct.pack("<Q", 0))            # the FC's model field null
+        clean(tag + "unit stamp: null FC model", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp: null FC model: no unit", m.units(), {})
+        m.reset(); m.now(1200)
+        flyer = m.model(1)
+        other_unit = 0x4C5D6E7F00
+        m.put_unit(other_unit, 7)
+        clean(tag + "unit stamp beside another unit", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp beside another unit: both kept", sorted(m.units().values()),
+               sorted([(UNIT, 1200, 1), (other_unit, 7, 0)]))
+        for far, landed in ((3, True), (UNIT_PROBES - 1, True), (UNIT_PROBES, False)):
+            m.reset(); m.now(1200)
+            flyer = m.model(1)
+            home = unit_slot_of(UNIT)
+            for k in range(far):
+                m.put_unit(0x7100000000 + k, 5, slot=(home + k) % UNIT_SLOTS)
+            clean(f"{tag}unit stamp {far} past home", m.stamp(MELEE, 40, flyer, site))
+            expect(f"{tag}unit stamp {far} past home: entry",
+                   m.unit_raw((home + far) % UNIT_SLOTS) if landed else (m.head(UNIT_DROPPED_AT), len(m.units())),
+                   (UNIT, 1200, 1) if landed else (1, UNIT_PROBES))
+
     # ---- hold cave ----------------------------------------------------------
     def hold_case(name, sizes, ask, struck, now, want, windows=WINDOWS, mode=1, extra=(),
-                  unmatched=0, unsized=0, **kw):
+                  unmatched=0, unsized=0, unit_struck=None, unit_extra=(), unit_window=UNIT_WINDOW,
+                  unit_held=0, **kw):
         """A unit of len(``sizes``) flying entities (body sizes or raw codes), the
         one at index ``ask`` asking; ``struck`` = {index: tick}; ``extra`` =
         [(pointer, tick)] entries of other entities; ``want`` = 1 hold / 0 free /
-        None pass-through. kw: list = the living list as indices (None = a null
-        entry), asker_in_list, big, and the hold() / now() knobs."""
-        m.reset(windows=windows, mode=mode)
+        None pass-through. [D39] ``unit_struck`` = the tick of this unit's entry (None: none),
+        ``unit_extra`` = [(unit pointer, tick)] of other units, ``unit_held`` = the expected
+        unit-rule count. kw: list = the living list as indices (None = a null
+        entry), asker_in_list, big, and the hold() / now() knobs (phase among them)."""
+        m.reset(windows=windows, mode=mode, unit_window=unit_window)
         m.now(now, battle=kw.pop("battle", True), ticks=kw.pop("ticks", True))
         big = kw.pop("big", False)
         ents = [m.model(None, at=(BIG + BIG_STRIDE * i) if big else model_at(1 + i), size=s)
@@ -979,16 +1511,74 @@ def check(mutate=()):
             m.put(ents[i], tick)
         for entity, tick in extra:
             m.put(entity, tick)
+        if unit_struck is not None:
+            m.put_unit(UNIT, unit_struck)
+        for unit, tick in unit_extra:
+            m.put_unit(unit, tick)
         r = m.hold(living, ents[ask], **kw)
         expect(f"hold {name}: where", r["where"], "through" if want is None else "resume")
         expect(f"hold {name}: callee-saved registers", r["callee-saved"], True)
         expect(f"hold {name}: rsp", r["rsp"], True)
         if want is None:
-            expect(f"hold {name}: counters", r["counters"], (0, 0, 0, 0, 0, 0))
+            expect(f"hold {name}: counters", r["counters"], (0, 0, 0, 0, 0, 0, 0))
         else:
             expect(f"hold {name}: al", r["al"], want)
             expect(f"hold {name}: counters", r["counters"],
-                   (0, 0, want, 1 - want, unmatched, unsized))
+                   (0, 0, want, 1 - want, unmatched, unsized, unit_held))
+
+    # [D39] the unit rule: a unit hit within UNIT_WINDOW ticks holds its models on the ground (phase 1)
+    uw = UNIT_WINDOW
+    for phase in range(0, 5):
+        on_ground = phase == GROUND_PHASE
+        hold_case(f"unit struck this tick, phase {phase}", ["medium"] * 4, 1, {}, 1000, int(on_ground),
+                  unit_struck=1000, phase=phase, unit_held=int(on_ground))
+        hold_case(f"unit struck {uw - 1} ago, phase {phase}", ["medium"] * 4, 1, {}, 1000, int(on_ground),
+                  unit_struck=1000 - (uw - 1), phase=phase, unit_held=int(on_ground))
+        hold_case(f"unit struck {uw} ago, phase {phase}", ["medium"] * 4, 1, {}, 1000, 0,
+                  unit_struck=1000 - uw, phase=phase)
+        hold_case(f"unit never struck, phase {phase}", ["medium"] * 4, 1, {}, 1000, 0, phase=phase)
+    for size in BODY_SIZES_IN_ORDER:
+        hold_case(f"unit rule for a {size} model", [size], 0, {}, 1000, 1, unit_struck=999, phase=GROUND_PHASE,
+                  unit_held=1)
+    hold_case("own window holds first (not counted as the unit rule)", ["medium"] * 4, 1, {1: 999}, 1000, 1,
+              unit_struck=999, phase=GROUND_PHASE)
+    hold_case("own window holds in phase 2 without the unit rule", ["medium"] * 4, 1, {1: 999}, 1000, 1,
+              unit_struck=999, phase=2)
+    hold_case("own window expired, unit struck: held by the unit", ["medium"] * 4, 1,
+              {1: 1000 - WINDOW_OF["medium"]}, 1000, 1, unit_struck=995, phase=GROUND_PHASE, unit_held=1)
+    others_u = _keys(6, base=0x3B2C1D0E0)
+    hold_case("other units struck, this one not", ["medium"] * 4, 1, {}, 1000, 0, phase=GROUND_PHASE,
+              unit_extra=[(u, 999) for u in others_u])
+    hold_case("this unit struck among other units", ["medium"] * 4, 1, {}, 1000, 1, phase=GROUND_PHASE,
+              unit_struck=999, unit_extra=[(u, 999) for u in others_u], unit_held=1)
+    hold_case("unit window 0 from the buffer: never", ["medium"], 0, {}, 1000, 0, phase=GROUND_PHASE,
+              unit_struck=1000, unit_window=0)
+    hold_case("unit window 50 from the buffer: 49 ago", ["medium"], 0, {}, 1000, 1, phase=GROUND_PHASE,
+              unit_struck=951, unit_window=50, unit_held=1)
+    hold_case("unit stamp ahead of now", ["medium"], 0, {}, 1000, 0, phase=GROUND_PHASE, unit_struck=1001)
+    hold_case("unit rule: tick wrap", ["medium"], 0, {}, 3, 1, phase=GROUND_PHASE, unit_struck=0xFFFFFFFE,
+              unit_held=1)
+    hold_case("unit rule: null unit", ["medium"], 0, {}, 1000, 0, phase=GROUND_PHASE, unit_struck=999,
+              unit=False)
+    hold_case("unit rule: unmatched FC is not judged", ["medium"] * 4, 0, {}, 1000, 0, phase=GROUND_PHASE,
+              unit_struck=999, list=[1, 2, 3], unmatched=1)
+    hold_case("unit rule: mode 2 passes through", ["medium"], 0, {}, 1000, None, phase=GROUND_PHASE,
+              unit_struck=999, mode=2)
+    # unit entries away from home, wrap-around, the probe budget, an empty home
+    for far, want in ((3, 1), (UNIT_PROBES - 1, 1), (UNIT_PROBES, 0)):
+        m.reset(); m.now(1000)
+        ent = m.model(1)
+        home = unit_slot_of(UNIT)
+        for k in range(far):
+            m.put_unit(0x7100000000 + k, 5, slot=(home + k) % UNIT_SLOTS)
+        m.put_unit(UNIT, 995, slot=(home + far) % UNIT_SLOTS)
+        r = m.hold([ent], ent, phase=GROUND_PHASE)
+        expect(f"hold unit entry {far} past home: al", (r["where"], r["al"]), ("resume", want))
+    m.reset(); m.now(1000)
+    ent = m.model(1)
+    m.put_unit(UNIT, 995, slot=(unit_slot_of(UNIT) + 1) % UNIT_SLOTS)
+    r = m.hold([ent], ent, phase=GROUND_PHASE)
+    expect("hold unit entry behind an empty home is not found: al", (r["where"], r["al"]), ("resume", 0))
 
     # the four windows, at the edge, one model of each size alone
     for size in BODY_SIZES_IN_ORDER:
@@ -998,13 +1588,13 @@ def check(mutate=()):
         hold_case(f"{size} struck {w} ticks ago", [size], 0, {0: 1000 - w}, 1000, 0)
         hold_case(f"{size} struck {w + 1} ticks ago", [size], 0, {0: 1000 - (w + 1)}, 1000, 0)
         hold_case(f"{size} never struck", [size], 0, {}, 1000, 0)
-    # the order of the four (smaller waits longer): struck 32 ticks ago
-    for size, want in (("very_large", 0), ("large", 1), ("medium", 1), ("small", 1)):
-        hold_case(f"{size} struck 32 ticks ago", [size], 0, {0: 968}, 1000, want)
-    for size, want in (("very_large", 0), ("large", 0), ("medium", 1), ("small", 1)):
-        hold_case(f"{size} struck 37 ticks ago", [size], 0, {0: 963}, 1000, want)
-    for size, want in (("very_large", 0), ("large", 0), ("medium", 0), ("small", 1)):
-        hold_case(f"{size} struck 42 ticks ago", [size], 0, {0: 958}, 1000, want)
+    # the order of the four (smaller waits longer): struck 2 ticks past the very large, large and
+    # medium windows, every size held exactly while its own window is longer than that age
+    for past in ("very_large", "large", "medium"):
+        age = WINDOW_OF[past] + 2
+        for size, want in (("very_large", 0), ("large", int(age < WINDOW_OF["large"])),
+                           ("medium", int(age < WINDOW_OF["medium"])), ("small", 1)):
+            hold_case(f"{size} struck {age} ticks ago", [size], 0, {0: 1000 - age}, 1000, want)
     # an unknown size code: the unknown-size window (the longest), counted
     for code in (0, 5, 6, -1, 0x7FFFFFFF, -0x80000000):
         hold_case(f"size code {code} struck {UNKNOWN_WINDOW - 1} ticks ago", [code], 0,
@@ -1018,13 +1608,14 @@ def check(mutate=()):
     hold_case("8 models, all but the asker struck", eight, 5,
               {i: 995 for i in range(8) if i != 5}, 1000, 0)
     hold_case("8 models, all struck", eight, 0, {i: 995 for i in range(8)}, 1000, 1)
-    hold_case("8 models, the asker struck 40 ticks ago, the rest now", eight, 3,
-              {**{i: 1000 for i in range(8)}, 3: 960}, 1000, 0)
+    hold_case(f"8 models, the asker struck {WINDOW_OF['medium']} ticks ago, the rest now", eight, 3,
+              {**{i: 1000 for i in range(8)}, 3: 1000 - WINDOW_OF["medium"]}, 1000, 0)
     hold_case("8 models, the asker is last in the list", eight, 7, {7: 999}, 1000, 1)
-    hold_case("mixed sizes: the asker's own size decides (very large, 31 ago)",
-              ["small", "very_large", "small"], 1, {0: 969, 1: 969, 2: 969}, 1000, 0)
-    hold_case("mixed sizes: the asker's own size decides (small, 31 ago)",
-              ["small", "very_large", "small"], 2, {0: 969, 1: 969, 2: 969}, 1000, 1)
+    vl1 = WINDOW_OF["very_large"] + 1
+    hold_case(f"mixed sizes: the asker's own size decides (very large, {vl1} ago)",
+              ["small", "very_large", "small"], 1, {i: 1000 - vl1 for i in range(3)}, 1000, 0)
+    hold_case(f"mixed sizes: the asker's own size decides (small, {vl1} ago)",
+              ["small", "very_large", "small"], 2, {i: 1000 - vl1 for i in range(3)}, 1000, 1)
     # another unit's entries do not hold
     others = _keys(8, base=0x2A1B3C4D0)
     hold_case("eight of another unit struck", eight, 0, {}, 1000, 0,
@@ -1140,8 +1731,24 @@ def check(mutate=()):
     expect("gap: countdown raised", m.countdown(ents[1]), RAISE_TO)
     m.now(5001)
     expect("gap: the next question is held", m.hold(ents, ents[1])["al"], 1)
-    # a ridden unit uses its mount's size, not the rider's (D3): a medium mount (40) under a
-    # small rider (45), struck 42 ticks before the question
+    # [D39] stamp -> hold through the unit table: one rider hit, every model of the unit on the ground held
+    m.reset(); m.now(6000)
+    ents, victims = unit_of(range(1, 9), riders=True)
+    m.stamp(MELEE, 30, victims[0])
+    for i in (3, 7):
+        expect(f"unit round trip: unstruck model {i} on the ground held",
+               m.hold(ents, ents[i], phase=GROUND_PHASE)["al"], 1)
+        expect(f"unit round trip: unstruck model {i} after the order free", m.hold(ents, ents[i], phase=2)["al"], 0)
+    m.now(6000 + UNIT_WINDOW - 1)
+    expect("unit round trip: last tick of the unit window", m.hold(ents, ents[5], phase=GROUND_PHASE)["al"], 1)
+    m.now(6000 + UNIT_WINDOW)
+    expect("unit round trip: the unit window over", m.hold(ents, ents[5], phase=GROUND_PHASE)["al"], 0)
+    m.stamp(6, 30, victims[2])                              # a charge's collision attack does not stamp the unit
+    m.stamp(1, 30, victims[2])                              # nor a ranged hit
+    expect("unit round trip: non-melee hits do not hold the unit", m.hold(ents, ents[5], phase=GROUND_PHASE)["al"], 0)
+    expect("unit round trip: unit stamps", m.head(UNIT_STAMPS_AT), 1)
+    # a ridden unit uses its mount's size, not the rider's (D3): a medium mount under a small
+    # rider, struck 2 ticks past the medium window (still inside the small one)
     m.reset(); m.now(4000)
     ents, victims = unit_of([1], riders=True, size="medium", rider_size="small")
     m.stamp(MELEE, 30, victims[0])
@@ -1152,13 +1759,305 @@ def check(mutate=()):
     m.stamp(MELEE, 30, victims[0])
     m.now(4000 + WINDOW_OF["very_large"] + 2)
     expect("ridden: a small mount under a very large rider is held", m.hold(ents, ents[0])["al"], 1)
+
+    # ---- [D23] regroup caves ------------------------------------------------
+    # counters: (calls, skipped, would, queued, unheld); want: "skip" / "pass" / "off" (mode not 1)
+    COUNT_OF = {"skip": (1, 1, 0, 0, 0), "would": (1, 0, 1, 0, 0), "queued": (1, 0, 0, 1, 0),
+                "unheld": (1, 0, 0, 0, 1), "early": (1, 0, 0, 0, 0), "off": (0, 0, 0, 0, 0)}
+
+    def regroup_case(name, want, model_air=AIRBORNE, mates=(("medium", ON_GROUND, 995),), now=1000,
+                     model_size="medium", mode=1, windows=WINDOWS, extra=(), big=False, order=None,
+                     model_struck=None, **kw):
+        """The asking model (index 0) and its ``mates`` = [(size, airborne state, struck tick or None)];
+        ``order`` = the living list as indices (None = a null entry; default every model, the asker first);
+        ``extra`` = [(pointer, tick)] entries of entities of another unit; ``want`` = a COUNT_OF key."""
+        for site in ("pin_regroup1", "pin_regroup2"):
+            for flags in (FLAGS, 0x8D7):
+                m.reset(windows=windows, mode=mode)
+                m.now(now, battle=kw.get("battle", True), ticks=kw.get("ticks", True))
+                specs = [(model_size, model_air, model_struck)] + list(mates)
+                ents = []
+                for i, (size, air_state, struck) in enumerate(specs):
+                    at = (BIG + BIG_STRIDE * i) if big else model_at(1 + i)
+                    e = m.model(None, at=at, size=size)
+                    m.air(e, air_state)
+                    if struck is not None:
+                        m.put(e, struck)
+                    ents.append(e)
+                for entity, tick in extra:
+                    m.put(entity, tick)
+                idx = list(range(len(ents))) if order is None else order
+                living = [ents[i] if i is not None else 0 for i in idx]
+                rk = {k: v for k, v in kw.items() if k not in ("battle", "ticks")}
+                model = rk.pop("model", ents[0])
+                r = m.regroup(model, living, site=site, flags=flags, **rk)
+                tag = f"regroup {site} flags {flags:#x} {name}"
+                expect(f"{tag}: where", r["where"], "resume" if want == "skip" else "through")
+                for k in ("registers", "rsp", "flags"):
+                    expect(f"{tag}: {k}", r[k], True)
+                expect(f"{tag}: counters", r["counters"], COUNT_OF[want])
+
+    # the rule: airborne + empty queue + a held model on the ground -> skip; each condition alone -> pass
+    regroup_case("airborne, queue empty, a held mate on the ground", "skip")
+    regroup_case("queue holds one order (a player's order)", "queued", queue=1)
+    regroup_case("queue holds 40 orders", "queued", queue=40)
+    regroup_case("queue count -1", "queued", queue=-1)
+    regroup_case("the model on the ground", "early", model_air=ON_GROUND)
+    regroup_case("the model in the air state 1", "early", model_air=1)
+    regroup_case("the model in state 3", "early", model_air=3)
+    regroup_case("the mate airborne (struck)", "unheld", mates=(("medium", AIRBORNE, 995),))
+    regroup_case("the mate in the air state 1 (struck)", "unheld", mates=(("medium", 1, 995),))
+    regroup_case("the mate on the ground, never struck", "unheld", mates=(("medium", ON_GROUND, None),))
+    regroup_case("no mate (the model alone)", "unheld", mates=())
+    regroup_case("the model itself struck, its mate airborne unstruck", "unheld", model_struck=999,
+                 mates=(("medium", AIRBORNE, None),))
+    # the mate's own size window decides (not the asker's), at the edge
+    for size in BODY_SIZES_IN_ORDER:
+        w = WINDOW_OF[size]
+        regroup_case(f"{size} mate struck {w - 1} ago", "skip", mates=((size, ON_GROUND, 1000 - (w - 1)),))
+        regroup_case(f"{size} mate struck {w} ago", "unheld", mates=((size, ON_GROUND, 1000 - w),))
+    ws1, vl1 = WINDOW_OF["small"] - 1, WINDOW_OF["very_large"] + 1
+    regroup_case(f"very large asker, small mate struck {ws1} ago", "skip", model_size="very_large",
+                 mates=(("small", ON_GROUND, 1000 - ws1),))
+    regroup_case(f"small asker, very large mate struck {vl1} ago", "unheld", model_size="small",
+                 mates=(("very_large", ON_GROUND, 1000 - vl1),))
+    regroup_case(f"unknown size mate struck {UNKNOWN_WINDOW - 1} ago", "skip",
+                 mates=((9, ON_GROUND, 1000 - (UNKNOWN_WINDOW - 1)),))
+    regroup_case(f"unknown size mate struck {UNKNOWN_WINDOW} ago", "unheld",
+                 mates=((9, ON_GROUND, 1000 - UNKNOWN_WINDOW),))
+    regroup_case("windows from the buffer: medium slot 5, struck 5 ago", "unheld",
+                 mates=(("medium", ON_GROUND, 995),), windows=(45, 5, 35, 30, 45))
+    regroup_case("tick wrap", "skip", now=3, mates=(("small", ON_GROUND, 0xFFFFFFFE),))
+    regroup_case("stamp ahead of now", "unheld", mates=(("small", ON_GROUND, 1001),))
+    # several mates: one held is enough; the held one anywhere in the list; null entries skipped
+    regroup_case("three airborne, one held on the ground last", "skip",
+                 mates=(("medium", AIRBORNE, None), ("medium", AIRBORNE, 995), ("medium", ON_GROUND, 990)))
+    regroup_case("ground mates unstruck, an airborne mate struck", "unheld",
+                 mates=(("medium", ON_GROUND, None), ("medium", AIRBORNE, 999), ("medium", ON_GROUND, 900)))
+    regroup_case("null entries before the held mate", "skip", order=[None, 0, None, 1])
+    regroup_case("the held mate not in the living list (dead)", "unheld", order=[0])
+    regroup_case("another unit's ground entities struck", "unheld", mates=(("medium", ON_GROUND, None),),
+                 extra=[(k, 995) for k in _keys(8, base=0x2A1B3C4D0)])
+    regroup_case(f"{MAX_MODELS} models, the last one held on the ground", "skip", big=True,
+                 mates=tuple(("small", AIRBORNE, None) for _ in range(MAX_MODELS - 2))
+                 + (("small", ON_GROUND, 990),))
+    # modes and the test-only switch
+    regroup_case("mode 0", "off", mode=0)
+    regroup_case("mode 2 (record only)", "off", mode=2)
+    regroup_case("regroup_off set: counted, the call runs", "would", regroup_off=1)
+    regroup_case("regroup_off set, queue not empty", "queued", regroup_off=1, queue=1)
+    # null links and odd lists: the call runs
+    regroup_case("null task", "early", task=False)
+    regroup_case("null task slot", "early", slot=False)
+    regroup_case("null model", "early", model=0)
+    regroup_case("null unit", "early", unit=False)
+    regroup_case("null battle", "unheld", battle=False)
+    regroup_case("null tick block", "unheld", ticks=False)
+    regroup_case("null entity array", "unheld", array=False)
+    regroup_case("count 0", "unheld", count=0)
+    regroup_case("count -1", "unheld", count=-1)
+    regroup_case(f"count {MAX_MODELS + 1}", "unheld", count=MAX_MODELS + 1)
+    # the lookup: entries away from home, the probe budget, an empty home
+    for far, want in ((3, "skip"), (PROBES - 1, "skip"), (PROBES, "unheld")):
+        m.reset(); m.now(1000)
+        asker, mate = m.model(1), m.model(2, size="small")
+        m.air(asker, AIRBORNE)
+        home = slot_of(mate)
+        for k in range(far):
+            m.put(0x7000000000 + k, 5, slot=(home + k) % TABLE_SLOTS)
+        m.put(mate, 995, slot=(home + far) % TABLE_SLOTS)
+        r = m.regroup(asker, [asker, mate])
+        expect(f"regroup entry {far} past home", (r["where"], r["counters"]),
+               ("resume" if want == "skip" else "through", COUNT_OF[want]))
+    m.reset(); m.now(1000)
+    asker, mate = m.model(1), m.model(2, size="small")
+    m.air(asker, AIRBORNE)
+    m.put(mate, 995, slot=(slot_of(mate) + 1) % TABLE_SLOTS)
+    r = m.regroup(asker, [asker, mate])
+    expect("regroup entry behind an empty home is not found", r["where"], "through")
+    # stamp -> regroup on one table: the stamp cave's record of a hit on the ground mate's rider holds the unit
+    m.reset(); m.now(7000)
+    ents, victims = unit_of(range(1, 5), riders=True, size="large")
+    for e in ents[:3]:
+        m.air(e, AIRBORNE)
+    m.stamp(MELEE, 30, victims[3])
+    expect("regroup after a stamp on the ground mate's rider", m.regroup(ents[0], ents)["where"], "resume")
+    m.now(7000 + WINDOW_OF["large"])
+    expect("regroup a large window later", m.regroup(ents[0], ents)["where"], "through")
+    m.stamp(6, 30, victims[3])                              # a charge's collision attack does not hold
+    expect("regroup after a non-melee hit", m.regroup(ents[0], ents)["where"], "through")
+    # [D44] pin_repick: restart only on a real change of the main controller, inside the list, with orders queued,
+    # not for the caller that restarts by itself [REPICK-EXIT-1121]; the stolen rbx load always
+    m.uc.mem_map(RESUME + 0x1000, (RESTART_FROM_RESUME + 0x1FFF) & ~0xFFF)
+    restart_at = RESUME + RESTART_FROM_RESUME
+    m.uc.mem_write(restart_at, b"\xc3")
+    begin, size = m.code["pin_repick"]
+    ctl_old, ctl_new, ctl_other = UNIT + 0x4000, UNIT + 0x5000, UNIT + 0x6000
+    lst = UNIT + 0x7000
+
+    def repick(label, mode=1, new=ctl_new, old=ctl_old, flyers=2, queue=1, members=(ctl_new,), count=None,
+               caller=0x14302870B + 5, want_restart=True):
+        from unicorn import UC_HOOK_CODE, UcError
+        x, uc = m.x, m.uc
+        m.reset(mode=mode)
+        uc.mem_write(UNIT + U_MAIN_CTRL, struct.pack("<Q", new))
+        uc.mem_write(UNIT + LIST_COUNT_OFF, struct.pack("<I", flyers))
+        uc.mem_write(UNIT + QUEUE_COUNT_OFF, struct.pack("<I", queue))
+        uc.mem_write(UNIT + U_CTRL_N, struct.pack("<I", len(members) if count is None else count))
+        uc.mem_write(UNIT + U_CTRL_LIST, struct.pack("<Q", lst))
+        uc.mem_write(lst, bytes(0x400))
+        uc.mem_write(lst, b"".join(struct.pack("<Q", c) for c in members))
+        m._registers()
+        uc.reg_write(x.UC_X86_REG_RSI, UNIT)
+        uc.reg_write(x.UC_X86_REG_R13, old)
+        sp = STACK + 0x8000
+        uc.mem_write(sp + PICK_CALLER_UP, struct.pack("<Q", caller))
+        uc.mem_write(sp + PICK_RBX_UP, struct.pack("<Q", 0xB0B0B0B0B0))
+        rax0 = uc.reg_read(x.UC_X86_REG_RAX)
+        before = {r: uc.reg_read(r) for r in m.callee_saved if r != x.UC_X86_REG_RBX}
+        seen, landed = [], []
+
+        def at_restart(mu, _a, _s, _d):
+            seen.append((mu.reg_read(x.UC_X86_REG_RCX), mu.reg_read(x.UC_X86_REG_RSP) % 16))
+
+        def at_resume(mu, _a, _s, _d):
+            landed.append((mu.reg_read(x.UC_X86_REG_RAX), mu.reg_read(x.UC_X86_REG_RBX)))
+            mu.emu_stop()
+        h1 = uc.hook_add(UC_HOOK_CODE, at_restart, begin=restart_at, end=restart_at)
+        h2 = uc.hook_add(UC_HOOK_CODE, at_resume, begin=RESUME, end=RESUME)
+        uc.ctl_flush_tb()          # because hooks added after earlier runs need fresh translation (see stamp())
+        try:
+            uc.emu_start(begin, begin + size, count=100_000)
+        except UcError:
+            landed.append("crash")
+        uc.hook_del(h1)
+        uc.hook_del(h2)
+        expect(f"repick {label}: resumed with rax kept and the stolen rbx load done", landed,
+               [(rax0, 0xB0B0B0B0B0)])
+        expect(f"repick {label}: callee-saved registers", all(uc.reg_read(r) == v for r, v in before.items()), True)
+        expect(f"repick {label}: rsp", uc.reg_read(x.UC_X86_REG_RSP), STACK + 0x8000)
+        # the call is made with rsp 16-byte aligned after the return address push: rsp % 16 == 8 at the callee
+        expect(f"repick {label}: restart calls", seen,
+               [(UNIT + U_QUEUE_MGR, 8)] if want_restart else [])
+        expect(f"repick {label}: counted", m.head(REPICK_AT), 1 if want_restart else 0)
+
+    repick("changed, in the list, orders queued")
+    repick("new one last in a list of three", members=(ctl_other, ctl_old, ctl_new))
+    repick("unchanged", new=ctl_old, members=(ctl_old,), want_restart=False)
+    repick("no new main controller", new=0, want_restart=False)
+    repick("new one not in the list", members=(ctl_other,), want_restart=False)
+    repick("empty list", members=(), want_restart=False)
+    repick(f"list count {CTRL_LIST_MAX + 1}", count=CTRL_LIST_MAX + 1, want_restart=False)
+    repick("no orders queued", queue=0, want_restart=False)
+    repick("not a flying unit", flyers=0, want_restart=False)
+    repick("mode 0", mode=0, want_restart=False)
+    repick("mode 2", mode=2, want_restart=False)
+    repick("the caller that restarts by itself", caller=RESUME + SELF_FROM_RESUME, want_restart=False)
+    repick("a caller one byte off the self-restarter", caller=RESUME + SELF_FROM_RESUME + 1)
+    # [D46] pin_chargewait: an uncharged flyer task whose model's move reports finished returns; all else goes on
+    cbegin, csize = m.code["pin_chargewait"]
+    task, holder, model, fc = UNIT + 0x8000, UNIT + 0x9000, UNIT + 0xA000, UNIT + 0xB000
+    slot = UNIT + 0xC000
+    caller_ret = RESUME + 0x800
+
+    def chargewait(label, mode=1, charged=0, flyer=True, done=1, has_slot=True, has_holder=True, want_return=True):
+        from unicorn import UC_HOOK_CODE, UcError
+        x, uc = m.x, m.uc
+        m.reset(mode=mode)
+        uc.mem_write(task + T_CHARGED, struct.pack("<I", charged))
+        uc.mem_write(task + T_SLOT, struct.pack("<Q", slot if has_slot else 0))
+        uc.mem_write(slot + SLOT_ENT, struct.pack("<Q", model))
+        uc.mem_write(model + E_FLIGHT, struct.pack("<Q", fc if flyer else 0))
+        uc.mem_write(task + T_HOLDER, struct.pack("<Q", holder if has_holder else 0))
+        uc.mem_write(holder + H_MOVE + M_DONE, struct.pack("<I", done))
+        m._registers()
+        uc.reg_write(x.UC_X86_REG_RBX, task)
+        sp = STACK + 0x8000
+        uc.mem_write(sp + CW_FRAME, struct.pack("<QQ", 0xB0B0B0B0B0, caller_ret))
+        before = {r: uc.reg_read(r) for r in m.callee_saved if r != x.UC_X86_REG_RBX}
+        seen = []
+
+        def at_resume(mu, _a, _s, _d):
+            seen.append(("resume", mu.reg_read(x.UC_X86_REG_RCX), mu.reg_read(x.UC_X86_REG_RDX),
+                         mu.reg_read(x.UC_X86_REG_RBX), mu.reg_read(x.UC_X86_REG_RSP)))
+            mu.emu_stop()
+
+        def at_caller(mu, _a, _s, _d):
+            seen.append(("returned", mu.reg_read(x.UC_X86_REG_RBX), mu.reg_read(x.UC_X86_REG_RSP)))
+            mu.emu_stop()
+        h1 = uc.hook_add(UC_HOOK_CODE, at_resume, begin=RESUME, end=RESUME)
+        h2 = uc.hook_add(UC_HOOK_CODE, at_caller, begin=caller_ret, end=caller_ret)
+        uc.ctl_flush_tb()          # because hooks added after earlier runs need fresh translation (see stamp())
+        try:
+            uc.emu_start(cbegin, cbegin + csize, count=100_000)
+        except UcError:
+            seen.append("crash")
+        uc.hook_del(h1)
+        uc.hook_del(h2)
+        want = ([("returned", 0xB0B0B0B0B0, sp + CW_FRAME + 16)] if want_return else
+                [("resume", task, (holder if has_holder else 0) + H_MOVE, task, sp)])
+        expect(f"chargewait {label}: where it went", seen, want)
+        expect(f"chargewait {label}: callee-saved registers",
+               all(uc.reg_read(r) == v for r, v in before.items()), True)
+        expect(f"chargewait {label}: counted", m.head(CHARGEWAIT_AT), 1 if want_return else 0)
+
+    chargewait("uncharged flyer, previous move finished")
+    chargewait("already charged", charged=1, want_return=False)
+    chargewait("not a flyer", flyer=False, want_return=False)
+    chargewait("move still running", done=0, want_return=False)
+    chargewait("no task slot", has_slot=False, want_return=False)
+    chargewait("no holder", has_holder=False, want_return=False)
+    chargewait("mode 0", mode=0, want_return=False)
+    chargewait("mode 2", mode=2, want_return=False)
     return failures, count[0]
 
 
 # Source edits that break the rule: the cases above must catch each one.
 MUTANTS = (
-    ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae free",
-     "cmp eax, r10d\n        ja free"),
+    ("repick: restarts when unchanged", "repick", "cmp rax, r13\n        je out", "cmp rax, r13\n        nop"),
+    ("chargewait: charged tasks kept too", "chargewait", f"cmp byte ptr [rbx + {T_CHARGED:#x}], 0\n        jne pass",
+     f"cmp byte ptr [rbx + {T_CHARGED:#x}], 0\n        nop"),
+    ("chargewait: ground units too", "chargewait", f"cmp qword ptr [rax + {E_FLIGHT:#x}], 0\n        je pass",
+     f"cmp qword ptr [rax + {E_FLIGHT:#x}], 0\n        nop"),
+    ("chargewait: a running move kept too", "chargewait",
+     f"cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1\n        jne pass",
+     f"cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1\n        nop"),
+    ("chargewait: mode not checked", "chargewait", f"cmp dword ptr [r9 + {MODE_AT}], 1\n        jne pass",
+     f"cmp dword ptr [r9 + {MODE_AT}], 1\n        nop"),
+    ("chargewait: rbx not restored", "chargewait", "pop rbx\n        ret", "pop rax\n        ret"),
+    ("chargewait: frame not dropped", "chargewait", f"add rsp, {CW_FRAME:#x}\n        pop rbx", "nop\n        pop rbx"),
+    ("chargewait: stolen add lost", "chargewait", f"add rdx, {H_MOVE}\n        jmp r10", "nop\n        jmp r10"),
+    ("chargewait: not counted", "chargewait", f"lock inc dword ptr [r9 + {CHARGEWAIT_AT}]", "nop"),
+    ("chargewait: null slot followed", "chargewait",
+     f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n        test rax, rax\n        jz pass",
+     f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n        nop\n        nop"),
+    ("repick: the self-restarter restarted twice", "repick",
+     f"cmp qword ptr [rsp + {PICK_CALLER_UP + 8:#x}], rdx\n        je out",
+     f"cmp qword ptr [rsp + {PICK_CALLER_UP + 8:#x}], rdx\n        nop"),
+    ("repick: caller read off the stack slot", "repick", f"cmp qword ptr [rsp + {PICK_CALLER_UP + 8:#x}], rdx",
+     f"cmp qword ptr [rsp + {PICK_CALLER_UP:#x}], rdx"),
+    ("repick: stolen rbx load lost", "repick", f"mov rbx, qword ptr [rsp + {PICK_RBX_UP:#x}]", "nop"),
+    ("repick: stolen rbx load before rax is popped", "repick",
+     f"pop rax\n        mov rbx, qword ptr [rsp + {PICK_RBX_UP:#x}]",
+     f"mov rbx, qword ptr [rsp + {PICK_RBX_UP:#x}]\n        pop rax"),
+    ("repick: list membership not checked", "repick", "cmp qword ptr [rdx], rax\n        je restart",
+     "cmp qword ptr [rdx], rax\n        jmp restart"),
+    ("repick: empty queue restarts", "repick", f"cmp dword ptr [rsi + {QUEUE_COUNT_OFF:#x}], 0\n        je out",
+     f"cmp dword ptr [rsi + {QUEUE_COUNT_OFF:#x}], 0\n        nop"),
+    ("repick: ground units too", "repick", f"cmp dword ptr [rsi + {LIST_COUNT_OFF:#x}], 0\n        je out",
+     f"cmp dword ptr [rsi + {LIST_COUNT_OFF:#x}], 0\n        nop"),
+    ("repick: wrong queue manager", "repick", f"lea rcx, [rsi + {U_QUEUE_MGR:#x}]", "lea rcx, [rsi + 0x288]"),
+    ("repick: rax lost", "repick", "pop rax\n        mov rbx", "nop\n        mov rbx"),
+    ("repick: misaligned call", "repick", "sub rsp, 0x20\n        lea rcx", "sub rsp, 0x18\n        lea rcx"),
+    ("repick: wrong restart address", "repick", f"lea r11, [r10 + {RESTART_FROM_RESUME:#x}]",
+     f"lea r11, [r10 + {RESTART_FROM_RESUME + 1:#x}]"),
+    ("repick: mode 2 restarts", "repick", f"cmp dword ptr [r9 + {MODE_AT}], 1\n        jne out",
+     f"cmp dword ptr [r9 + {MODE_AT}], 0\n        je out"),
+    ("repick: no bound on the list", "repick", f"cmp ecx, {CTRL_LIST_MAX}\n        ja out",
+     f"cmp ecx, {CTRL_LIST_MAX}\n        nop"),
+    ("repick: not counted", "repick", f"lock inc dword ptr [r9 + {REPICK_AT}]", "nop"),
+    ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae own_free",
+     "cmp eax, r10d\n        ja own_free"),
     ("the size code used as the index without -1", "hold", "dec eax\n", "nop\n"),
     ("no bound on the size code", "hold", "jbe sized", "jmp sized"),
     ("an unknown size frees", "hold", "mov eax, 4\n", "jmp free\n"),
@@ -1173,10 +2072,42 @@ MUTANTS = (
     ("null list entries followed", "hold", "jz own_next", "nop"),
     ("unmatched FCs not counted", "hold", f"lock inc dword ptr [r9 + {UNMATCHED_AT}]", "nop"),
     ("mode 2 answers", "hold", "jne passthrough", "je passthrough"),
-    ("no probe limit on the lookup", "hold", "jnz look\n        jmp free",
-     "jmp look\n        jmp free"),
-    ("the lookup does not stop at an empty entry", "hold", "je free\n        inc eax",
+    ("no probe limit on the lookup", "hold", "jnz look\n        jmp own_free",
+     "jmp look\n        jmp own_free"),
+    ("the lookup does not stop at an empty entry", "hold", "je own_free\n        inc eax",
      "nop\n        inc eax"),
+    # [D39] the unit rule
+    ("unit rule in every phase", "hold", f"cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}\n        jne free",
+     f"cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}\n        nop"),
+    ("unit rule in phase 2 instead", "hold", f"cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}\n",
+     f"cmp dword ptr [rbx + {PHASE_OFF:#x}], 2\n"),
+    ("phase read from the countdown", "hold", f"cmp dword ptr [rbx + {PHASE_OFF:#x}]",
+     f"cmp dword ptr [rbx + {COUNT_OFF:#x}]"),
+    ("unit rule dropped", "hold", "    own_free:\n", "    own_free:\n        jmp free\n"),
+    ("unit window's last tick counts", "hold", f"cmp eax, dword ptr [r9 + {UNIT_WINDOW_AT}]\n        jae free",
+     f"cmp eax, dword ptr [r9 + {UNIT_WINDOW_AT}]\n        ja free"),
+    ("unit window read from the wrong field", "hold", f"[r9 + {UNIT_WINDOW_AT}]", f"[r9 + {WINDOWS_AT}]"),
+    ("unit looked up in the model table", "hold", f"lea rdx, [r9 + rdx + {UNIT_TABLE_AT}]",
+     f"lea rdx, [r9 + rdx + {TABLE_AT}]"),
+    ("unit lookup does not stop at an empty entry", "hold", "je free\n        inc eax", "nop\n        inc eax"),
+    ("unit lookup without a probe limit", "hold", "jnz ulook\n        jmp free", "jmp ulook\n        jmp free"),
+    ("unit rule not counted", "hold", f"lock inc dword ptr [r9 + {UNIT_HELD_AT}]", "nop"),
+    ("unit rule answers free", "hold", f"lock inc dword ptr [r9 + {UNIT_HELD_AT}]\n        lock inc dword ptr "
+     f"[r9 + {HELD_AT}]\n        mov eax, 1", f"lock inc dword ptr [r9 + {UNIT_HELD_AT}]\n        lock inc dword ptr "
+     f"[r9 + {HELD_AT}]\n        mov eax, 0"),
+    ("unit key read from the model, not its unit", "hold", f"mov rcx, [rcx + {UNIT_OFF:#x}]\n        test rcx, rcx\n"
+     f"        jz free\n", "nop\n"),
+    ("unit stamp skipped", "stamp", "    unit_stamp:\n", "    unit_stamp:\n        jmp unit_done\n"),
+    ("unit stamp written to the model table", "stamp", f"lea rdx, [r10 + rdx + {UNIT_TABLE_AT}]",
+     f"lea rdx, [r10 + rdx + {TABLE_AT}]"),
+    ("unit stamp keyed by the model", "stamp", f"mov r9, qword ptr [rax + {UNIT_OFF:#x}]", "mov r9, rax"),
+    ("unit stamp keeps the first tick", "stamp", "    uwrite:\n        mov dword ptr [rdx + 8], r8d\n",
+     "    uwrite:\n        nop\n"),
+    ("unit stamp without a probe limit", "stamp", "jnz uprobe", "jmp uprobe"),
+    ("unit stamp drops not counted", "stamp", f"lock inc dword ptr [r10 + {UNIT_DROPPED_AT}]", "nop"),
+    ("unit stamps not counted", "stamp", f"lock inc dword ptr [r10 + {UNIT_STAMPS_AT}]", "nop"),
+    ("unit hashed differently by the two caves", "stamp", "and eax, " + str(UNIT_SLOTS - 1) + "\n        mov r11d, eax",
+     "xor eax, 1\n        and eax, " + str(UNIT_SLOTS - 1) + "\n        mov r11d, eax"),
     ("the two caves hash differently", "hold", "shr rdx, 17", "shr rdx, 16"),
     ("zero-damage hits recorded", "stamp", "jle done", "jl done"),
     ("non-melee damage recorded", "stamp", "jne done\n        cmp r8d, 0",
@@ -1209,6 +2140,49 @@ MUTANTS = (
      f"lock cmpxchg dword ptr [r8 + {COUNT_OFF + 4:#x}], edx"),
     ("raise phase 3 too", "stamp", "jmp raise_done\n    raise_live:",
      "cmp eax, 3\n        je raise_live\n        jmp raise_done\n    raise_live:"),
+    # [D23] the regroup caves
+    ("regroup: the queue not tested", "regroup", "je idle", "jmp idle"),
+    ("regroup: the queue test inverted", "regroup", "je idle", "jne idle"),
+    ("regroup: the queue read from the wrong field", "regroup", f"[rdx + {QUEUE_COUNT_OFF:#x}]",
+     f"[rdx + {QUEUE_COUNT_OFF + 4:#x}]"),
+    ("regroup: the asker's airborne test dropped", "regroup",
+     f"cmp dword ptr [rcx + {AIR_OFF:#x}], {AIRBORNE}\n        jne pass",
+     f"cmp dword ptr [rcx + {AIR_OFF:#x}], {AIRBORNE}\n        nop"),
+    ("regroup: state 1 counts as airborne", "regroup",
+     f"cmp dword ptr [rcx + {AIR_OFF:#x}], {AIRBORNE}\n        jne pass",
+     f"cmp dword ptr [rcx + {AIR_OFF:#x}], 1\n        jb pass"),
+    ("regroup: airborne mates count as held", "regroup",
+     f"cmp dword ptr [r10 + {AIR_OFF:#x}], {ON_GROUND}\n        jne mate_next",
+     f"cmp dword ptr [r10 + {AIR_OFF:#x}], {ON_GROUND}\n        nop"),
+    ("regroup: the window's last tick counts", "regroup", "cmp eax, r11d\n        jb held",
+     "cmp eax, r11d\n        jbe held"),
+    ("regroup: the mate's size read from the wrong field", "regroup", f"[r10 + {SIZE_OFF:#x}]", "[r10 + 0x70]"),
+    ("regroup: the window table one slot off", "regroup", f"[r9 + rax*4 + {WINDOWS_AT}]",
+     f"[r9 + rax*4 + {WINDOWS_AT + 4}]"),
+    ("regroup: an unknown size gets the very-large window", "regroup", "mov eax, 4\n", "mov eax, 3\n"),
+    ("regroup: the test-only switch ignored", "regroup", "jne would", "nop"),
+    ("regroup: skips in mode 2", "regroup", f"cmp dword ptr [r9 + {MODE_AT}], 1\n        jne pass",
+     f"cmp dword ptr [r9 + {MODE_AT}], 0\n        je pass"),
+    ("regroup: the skip clobbers rax", "regroup", "xchg qword ptr [rsp], rax\n        ret",
+     "add rsp, 8\n        jmp rax"),
+    ("regroup: the skip leaves the flags of the cave", "regroup", f"        popfq\n        push rax\n",
+     "        add rsp, 8\n        push rax\n"),
+    ("regroup: pops out of order on the pass path", "regroup",
+     f"lock inc dword ptr [r9 + {RG_WOULD_AT}]\n    pass:\n        pop r11\n        pop r10",
+     f"lock inc dword ptr [r9 + {RG_WOULD_AT}]\n    pass:\n        pop r10\n        pop r11"),
+    ("regroup: the task slot read from the wrong field", "regroup", f"[rbx + {TASK_SLOT_OFF:#x}]",
+     f"[rbx + {TASK_SLOT_OFF + 8:#x}]"),
+    ("regroup: the model read from the wrong slot field", "regroup", f"[rax + {SLOT_MODEL_OFF:#x}]", "[rax]"),
+    ("regroup: only the first living entity looked at", "regroup", "jnz mate\n", "nop\n"),
+    ("regroup: null list entries followed", "regroup", "test r10, r10\n        jz mate_next",
+     "test r10, r10\n        nop"),
+    ("regroup: no probe limit", "regroup", "jnz look\n        jmp mate_next", "jmp look\n        jmp mate_next"),
+    ("regroup: the lookup does not stop at an empty entry", "regroup", "je mate_next\n        inc eax",
+     "nop\n        inc eax"),
+    ("regroup: hashes differently from the stamp cave", "regroup", "shr rcx, 17", "shr rcx, 16"),
+    ("regroup: skips not counted", "regroup", f"lock inc dword ptr [r9 + {RG_SKIPPED_AT}]", "nop"),
+    ("regroup: queued not counted", "regroup", f"lock inc dword ptr [r9 + {RG_QUEUED_AT}]", "nop"),
+    ("regroup: unheld not counted", "regroup", f"lock inc dword ptr [r9 + {RG_UNHELD_AT}]", "nop"),
 )
 
 
@@ -1238,8 +2212,15 @@ def site_lua(codes):
         "-- that pin the engine fields and damage types they rely on, as memreader",
         "-- Plus site-loader entries (handle:sites), plus the buffer layout",
         "-- lib/takeoff.lua writes.",
+        "-- [D23, 2026-11-20] Two more caves in the engine's charge-task handlers: an",
+        "-- airborne model of a unit with no order in its queue is not sent back to",
+        "-- charge beside a model of its unit held on the ground by the rule above.",
+        "-- [D39, 2026-11-21] The stamp cave also stamps the unit; a model on the ground",
+        "-- of a unit hit in melee within `layout.unit_ticks` ticks is held, so every",
+        "-- model waits at least the game's 3 s after the away order.",
         "-- / 每个飞行兵模按自己的体型，最近 N 秒内近战挨打才被按在地上：两个代码洞与",
-        "--   锚点的位点表、缓冲区布局（生成物）。",
+        "--   锚点的位点表、缓冲区布局（生成物）。另两个洞：部队没有命令时，已起飞的兵模",
+        "--   不再被引擎拉回被按住的兵模身边冲锋（D23）。",
         "return {",
         f"    owner = '{OWNER}',",
         f"    feature = '{FEATURE}',",
@@ -1258,7 +2239,7 @@ def site_lua(codes):
     lines += [
         "    },",
         "    caves = { " + ", ".join(f"'{n}'" for n in CAVES) + " },",
-        f"    hold = '{HOLD_NAME}', resume_at = {HOLD_RESUME_AT},",
+        "    resume_at = { " + ", ".join(f"{n} = {v}" for n, v in RESUME_AT.items()) + " },",
         "    layout = {",
         f"        bytes = {lay['bytes']}, mode_at = {lay['mode_at']},",
         f"        stamps_at = {lay['stamps_at']}, allowed_at = {lay['allowed_at']},",
@@ -1271,7 +2252,19 @@ def site_lua(codes):
         "        windows = { " + ", ".join(str(w) for w in lay['windows']) + " },",
         "        size_codes = { " + ", ".join(f"{s} = {c}" for s, c in
                                             sorted(lay['size_codes'].items(), key=lambda i: i[1])) + " },",
+        f"        regroup_off_at = {lay['regroup_off_at']}, regroup_calls_at = {lay['regroup_calls_at']},",
+        f"        regroup_skipped_at = {lay['regroup_skipped_at']}, regroup_would_at = {lay['regroup_would_at']},",
+        f"        regroup_queued_at = {lay['regroup_queued_at']}, regroup_unheld_at = {lay['regroup_unheld_at']},",
+        f"        unit_ticks_at = {lay['unit_ticks_at']}, unit_ticks = {lay['unit_ticks']},",
+        f"        unit_held_at = {lay['unit_held_at']}, unit_stamps_at = {lay['unit_stamps_at']},",
+        f"        unit_dropped_at = {lay['unit_dropped_at']},",
+        f"        unit_table_at = {lay['unit_table_at']}, unit_slots = {lay['unit_slots']},",
+        f"        repick_at = {lay['repick_at']}, chargewait_at = {lay['chargewait_at']},",
         "    },",
+        "    -- [D44] pin_repick calls the engine's restart and skips the caller that restarts by itself: the found",
+        "    -- addresses must be these distances apart",
+        f"    distances = {{ {{ from = 'pin_repick', to = 'pin_call_restart', bytes = {RESTART_FROM_SITE} }},",
+        f"        {{ from = 'pin_repick', to = 'pin_self_restarter', bytes = {SELF_FROM_SITE} }} }},",
         f"    format = {agreement_format()},",
         f"    build = '{BUILD}',",
         f"    source_sha = '{source_sha()}',",
@@ -1316,10 +2309,125 @@ def check_exe(exe_path):
             raise RuntimeError(f"[pin_cave_asm] REFUSING: {name} found {len(hits)} times in "
                                f"{exe_path} (a game patch moved it)")
         found[name] = hits[0]
+    # [D44] pin_repick calls the restart through its distance from the site: both must sit where the static read put them
+    got = (found.get("pin_repick"), found.get("pin_call_restart"), found.get("pin_self_restarter"))
+    if got != (REPICK_SITE, RESTART_FN, SELF_RESTARTER):
+        raise RuntimeError(f"[pin_cave_asm] REFUSING: pin_repick / pin_call_restart / pin_self_restarter at "
+                           f"{got}, want {REPICK_SITE:#x} / {RESTART_FN:#x} / {SELF_RESTARTER:#x}")
     return found
 
 
+# [D23] per regroup cave: (handler start, its "mov rbx, rcx", the parameter copy the handler calls just before)
+REGROUP_HANDLERS = {"pin_regroup1": (0x142F7F600, 0x142F7F60A), "pin_regroup2": (0x142F8FF54, 0x142F8FF61)}
+PARAM_COPY = 0x142DA511C
+# the registers a call may change (Win64), by every name capstone gives a part of them
+VOLATILE = {n: r for r, parts in (("rax", "eax ax al ah"), ("rcx", "ecx cx cl ch"), ("rdx", "edx dx dl dh"),
+                                   ("r8", "r8d r8w r8b"), ("r9", "r9d r9w r9b"), ("r10", "r10d r10w r10b"),
+                                   ("r11", "r11d r11w r11b")) for n in [r] + parts.split()}
+EXE = Path(r"D:/SteamLibrary/steamapps/common/Total War WARHAMMER III/Warhammer3.exe")
+
+
+def decode_check(exe_path):
+    """[problem] from decoding the installed exe with capstone (empty = the reading the regroup caves rest on
+    holds). For each regroup cave, in its handler:
+    * the handler starts ``push rbx; sub rsp, 0x60``; ``mov rbx, rcx`` is where stated and nothing after it writes
+      rbx or moves rsp before the site (rbx = the task when the cave runs);
+    * the site's stolen bytes are whole instructions, no RIP-relative operand, no branch; they are followed by
+      ``mov rax, [rcx]; call [rax + 0x4f8]`` and then, at site + REGROUP_SKIP, ``mov byte [rbx + 0x80], 1``
+      (where the skip resumes);
+    * no branch of the handler lands strictly inside site .. site + REGROUP_SKIP;
+    * from the resume point to the next call / ret / jmp nothing reads a volatile register or the flags before
+      writing it (so nothing depends on the skipped call's result);
+    * the call just before the site goes to the parameter copy 0x142da511c, which has no call, no lock prefix
+      and no inc / dec / add / sub on memory (a plain copy: no reference count to balance)."""
+    import capstone
+    import pefile
+    from capstone import x86 as X
+    pe = pefile.PE(str(exe_path), fast_load=True)
+    base, img = pe.OPTIONAL_HEADER.ImageBase, pe.get_memory_mapped_image()
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
+    md.detail = True
+    probs = []
+    found = check_exe(exe_path)
+
+    def body(va, limit=0x400):            # linear decode to the first ret (a handler's tail jmp ends it too)
+        out = []
+        for i in md.disasm(img[va - base:va - base + limit], va):
+            out.append(i)
+            if i.mnemonic == "ret":
+                break
+        return out
+
+    def target(i):
+        if (i.group(X.X86_GRP_JUMP) or i.group(X.X86_GRP_CALL)) and i.operands \
+                and i.operands[0].type == X.X86_OP_IMM:
+            return i.operands[0].imm
+        return None
+
+    def names(i, regs):
+        return {i.reg_name(r) for r in regs}
+
+    for name, (start, movrbx) in REGROUP_HANDLERS.items():
+        site = found[name]
+        n = len(CAVES[name][2].split())
+        insns = body(start)
+        at = {i.address: i for i in insns}
+        if [(i.mnemonic, i.op_str) for i in insns[:2]] != [("push", "rbx"), ("sub", "rsp, 0x60")]:
+            probs.append(f"{name}: the handler {start:#x} does not start push rbx; sub rsp, 0x60")
+        if movrbx not in at or (at[movrbx].mnemonic, at[movrbx].op_str) != ("mov", "rbx, rcx"):
+            probs.append(f"{name}: no mov rbx, rcx at {movrbx:#x}")
+        for i in insns:
+            _r, w = i.regs_access()
+            if movrbx < i.address < site and names(i, w) & {"rbx", "ebx", "bx", "bl"}:
+                probs.append(f"{name}: rbx written at {i.address:#x} before the site")
+            if insns[1].address < i.address < site and (i.mnemonic in ("push", "pop")
+                                                       or ("rsp" in names(i, w) and not i.group(X.X86_GRP_CALL))):
+                probs.append(f"{name}: rsp moved at {i.address:#x} before the site")
+            t = target(i)
+            if t is not None and site < t < site + REGROUP_SKIP:
+                probs.append(f"{name}: a branch at {i.address:#x} lands inside the skipped bytes")
+        stolen = [i for i in insns if site <= i.address < site + n]
+        if sum(i.size for i in stolen) != n or not stolen or stolen[0].address != site:
+            probs.append(f"{name}: the stolen bytes are not whole instructions")
+        for i in stolen:
+            if any(op.type == X.X86_OP_MEM and op.mem.base == X.X86_REG_RIP for op in i.operands) \
+                    or target(i) is not None or i.group(X.X86_GRP_JUMP) or i.group(X.X86_GRP_CALL):
+                probs.append(f"{name}: a RIP-relative operand or a branch in the stolen bytes at {i.address:#x}")
+        call = [(i.mnemonic, i.op_str) for i in insns if site + n <= i.address < site + REGROUP_SKIP]
+        if call != [("mov", "rax, qword ptr [rcx]"), ("call", "qword ptr [rax + 0x4f8]")]:
+            probs.append(f"{name}: the stolen bytes are not followed by the charge-command call ({call})")
+        resume = at.get(site + REGROUP_SKIP)
+        if resume is None or (resume.mnemonic, resume.op_str) != ("mov", "byte ptr [rbx + 0x80], 1"):
+            probs.append(f"{name}: site + {REGROUP_SKIP} is not mov byte ptr [rbx + 0x80], 1")
+        written = set()
+        flags_set = False
+        for i in md.disasm(img[site + REGROUP_SKIP - base:site + REGROUP_SKIP - base + 0x80], site + REGROUP_SKIP):
+            if i.mnemonic in ("ret", "jmp") or i.group(X.X86_GRP_CALL):
+                break
+            r, w = i.regs_access()
+            read = {VOLATILE[x] for x in names(i, r) if x in VOLATILE}
+            if read - written:
+                probs.append(f"{name}: {i.address:#x} reads {sorted(read - written)} the skipped call would have set")
+            if "rflags" in names(i, r) and not flags_set:
+                probs.append(f"{name}: {i.address:#x} reads the flags the skipped call would have set")
+            written |= {VOLATILE[x] for x in names(i, w) if x in VOLATILE}
+            if "rflags" in names(i, w):
+                flags_set = True
+        before = [i for i in insns if i.address < site][-1]
+        if not before.group(X.X86_GRP_CALL) or target(before) != PARAM_COPY:
+            probs.append(f"{name}: the call before the site is not the parameter copy {PARAM_COPY:#x}")
+    for i in body(PARAM_COPY):
+        if i.group(X.X86_GRP_CALL) or i.prefix[0] == X.X86_PREFIX_LOCK or (
+                i.mnemonic in ("inc", "dec", "add", "sub") and i.operands and i.operands[0].type == X.X86_OP_MEM):
+            probs.append(f"the parameter copy {PARAM_COPY:#x} is not a plain copy ({i.address:#x} {i.mnemonic} {i.op_str})")
+    return probs
+
+
 def main(argv):
+    probs = decode_check(EXE)
+    for p in probs:
+        print("FAIL decode:", p)
+    print("decode (capstone):", "PASS" if not probs else f"{len(probs)} FAIL")
     codes = {name: assemble(name) for name in CAVES}
     failures, n = check()
     print("caves: " + ", ".join(f"{name} {len(code)} bytes" for name, code in codes.items())
@@ -1334,7 +2442,7 @@ def main(argv):
     if not failures:
         print(f"negative controls: {len(MUTANTS)} broken caves,",
               "each caught" if not survivors else f"{len(survivors)} NOT caught")
-    bad = bool(failures or survivors)
+    bad = bool(failures or survivors or probs)
     mod_dir = HERE.parents[1]
     if "--write-site" in argv:
         if bad:

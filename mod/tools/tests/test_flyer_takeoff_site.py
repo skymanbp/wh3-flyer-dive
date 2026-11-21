@@ -2,7 +2,7 @@
 
 The rule [D3, user ruling 2026-11-17; D3-1118] -- a flying model struck in
 melee within the last N battle ticks cannot take off, N by its own body size
-(small 45, medium 40, large 35, very large 30) -- is two code caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
+(air_dive_rules.TAKEOFF_PIN_WINDOWS; D37: small 55, medium 50, large 45, very large 40) -- is two code caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
 replaced the two inside the hit processor). Their source, emulator check, sites and field anchors live in
 ``pipelines/pin_cave_asm.py``; what ships is the generated data module
 ``data/takeoff_site.lua``. These checks pin the join between the two:
@@ -55,27 +55,28 @@ class SiteTable(unittest.TestCase):
         self.assertTrue(pin_cave_asm.check_site_file(MOD_DIR))
 
     def test_names_every_cave_and_anchor_and_nothing_else(self):
-        named = re.findall(r"name = '([a-z_]+)', feature = '([a-z_]+)', kind = '([a-z]+)'", self.text)
+        named = re.findall(r"name = '([a-z_0-9]+)', feature = '([a-z_]+)', kind = '([a-z]+)'", self.text)
         want = ([(n, pin_cave_asm.FEATURE, "cave") for n in pin_cave_asm.CAVES]
                 + [(n, pin_cave_asm.FEATURE, "anchor") for n in pin_cave_asm.ANCHORS])
         self.assertEqual(named, want)
-        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (2, 8))
+        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (6, 12))   # [D44] + pin_repick, + pin_call_restart
 
     def test_owner_feature_hold_and_window(self):
         # whole lines of the table's top level (an entry repeats the feature inline)
         lines = self.text.splitlines()
         for line in (f"    owner = '{air_dive_rules.TAKEOFF_OWNER}',",
                      f"    feature = '{air_dive_rules.TAKEOFF_FEATURE}',",
-                     f"    hold = '{pin_cave_asm.HOLD_NAME}', resume_at = {pin_cave_asm.HOLD_RESUME_AT},",
+                     "    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8, pin_chargewait = 11 },",
                      f"    build = '{air_dive_rules.TAKEOFF_BUILD}',"):
             with self.subTest(line=line):
                 self.assertEqual(lines.count(line), 1)
         # [D3] the windows by the engine's size code 1..4 (small .. very large), then the
         # unknown-size window = the longest; 10 battle ticks a second
-        self.assertEqual(lines.count("        windows = { 45, 40, 35, 30, 45 },"), 1)
+        windows = ", ".join(str(w) for w in air_dive_rules.takeoff_window_table())
+        self.assertEqual(lines.count(f"        windows = {{ {windows} }},"), 1)
         self.assertEqual(lines.count(
             "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
-        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS5',"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPIN11',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
         self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
 
@@ -89,14 +90,14 @@ class SiteTable(unittest.TestCase):
             with self.subTest(word=word):
                 self.assertNotIn(word, self.text)
 
-    def test_every_cave_takes_the_buffer_and_only_the_hold_cave_resumes(self):
+    def test_every_cave_takes_the_buffer_and_only_the_hold_and_regroup_caves_resume(self):
         for name in pin_cave_asm.CAVES:
             m = re.search(rf"name = '{name}',.*?bytes = '([^']*)'", self.text, re.S)
             self.assertIsNotNone(m, name)
             holders = re.findall(r"\{([a-z]+):8\}", m.group(1))
             with self.subTest(cave=name):
-                self.assertEqual(holders, ["buf", "resume"] if name == pin_cave_asm.HOLD_NAME
-                                 else ["buf"])
+                self.assertEqual(holders, ["buf", "resume"] if name in pin_cave_asm.RESUME_AT else ["buf"])
+        self.assertEqual(sorted(pin_cave_asm.RESUME_AT), ["pin_chargewait", "pin_hold", "pin_regroup1", "pin_regroup2", "pin_repick"])
 
     def test_patterns_are_ones_the_loader_accepts(self):
         limit = loader_pattern_limit()

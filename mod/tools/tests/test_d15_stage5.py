@@ -189,7 +189,7 @@ class BattleEntry(unittest.TestCase):
         text = (TOOLS_DIR.parent / "script" / "battle" / "mod" / "flyer_dive.lua").read_text("utf-8")
         for needle in ('require, "script/campaign/flyer_dive/lib/dive_cost")', 'bm:register_phase_change_callback("Deployed"',
                        "local tok, err = pcall(cost.tick, cost, bm:time_elapsed_ms(), bm)",
-                       'record("COST stopped: " .. tostring(err))', "c.released, c.committed, c.closed, c.engaged_body) .. cost_counts()"):
+                       'record("COST stopped: " .. tostring(err))', "c.released, c.committed, c.closed, c.engaged_body, c.braced) .. cost_counts()"):
             self.assertIn(needle, text)
         self.assertEqual(text.count(".. cost_counts()"), 2)                  # NOW and END
 

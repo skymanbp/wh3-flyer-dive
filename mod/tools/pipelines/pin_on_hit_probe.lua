@@ -14,6 +14,15 @@
 --                    check still answers (the vanilla arm, with the record)
 --   sample <ms>      default 200; the sampling period (100 = one battle tick)
 --   entities <0|1>   default 0; 1 = also write the E lines
+--   track <0|1>      default 0; 1 = also write the Q / P / C / M lines [regroup-1119, D23]: where every
+--                    model of a flyer unit is, tick by tick (see below). Meant with "sample 100".
+--   calls <0|1>      default 0; 1 = also write the G / GC lines [regroup-1119, D23]: who lands a flying model and
+--                    who flips its unit's stay-down flag. Needs the pack built with build_pin_on_hit_probe.py
+--                    --regroup-trace (the site table script/regroup_trace/regroup_trace_site); without it a FAIL
+--                    line is written and the record goes on without the G lines.
+--   regroup <0|1>    default 1 [D23, REGROUP-FIX-1120]; 0 = the take-off caves' regroup part only counts what it
+--                    would skip and lets the engine's charge run (the one-pack A/B; the shipped scripts never
+--                    turn it off). Its counters go into the S lines (rg_*).
 --   trace <0|1>      default 0; 1 = also write the T lines [d10-1118]. Needs the traced caves
 --                    (a pack built with build_pin_on_hit_probe.py --trace-from); with the shipped
 --                    caves it writes a FAIL line and records without the trace.
@@ -47,6 +56,44 @@
 --                                 flight entity's body size code (entity +0x74:
 --                                 1 small .. 4 very large, the field the hold
 --                                 cave reads; pin_cave_asm.py SIZE_OFF)
+--   Q <ms> <tick> <uid> <x> <z> <y> mv=<0|1> melee=<0|1> fly=<0|1> men=<n>   [regroup-1119] with "track 1":
+--                                 every unit (flyer or not): the script's own position and flags, each sample
+--   P <ms> <tick> <uid> <id>:<x>:<z>:<y> ...   [regroup-1119] with "track 1": the position of every living
+--                                 flight entity of one flyer unit, each sample (entity +0x88 / +0x90 / +0x8c,
+--                                 the model position of the toughness-blast entity reader; same objects as
+--                                 the flight list if the mean of P agrees with Q: checked by the report)
+--   C <ms> <tick> <uid> <hex32> ...  [regroup-1119] with "track 1": the unit's flight controller
+--                                 ([unit +0x3e30]) as 16 int32, bytes +8 .. +0x47, when any changed
+--   M <ms> <tick> <uid> <id>:<s324>:<c330>:<vt> ...  [regroup-1119] with "track 1": per flight entity the
+--                                 model state +0x324, the pointer at +0x330 and the first 8 bytes behind it
+--                                 (low 8 hex digits each; "-" = null or unreadable), when any changed
+--   G <ms> <tick> <kind> <uid> <entity8> <ret16> <rdx16> <aux16> <air8> <state8> <stay8> <rcx8>  [regroup-1119] with
+--                                 "calls 1": one call of a traced engine function (regroup_trace_asm.py): kind 1 =
+--                                 landing request 0x14303fab4, 2 = landing cancel 0x14304cea0 at stage 4 / 5,
+--                                 3 = a command's target changed 0x143084b10, 4 = the order stay down / fly
+--                                 0x1430439c0, 5 = the charge command given to a model 0x143076060 (aux = the stack qword at [rsp+16], rdx = [rsp+8]), 6 = the virtual method 0x143123514 that calls it (ret = the unit-level caller, aux = the qword after it). ret = the return address (the caller), aux = stage / old target /
+--                                 r8b, air = entity +0x104, state = entity +0x324, stay = the unit controller's +8
+--                                 (ffffffff: none). All hex, from bytes (game Lua numbers are float32).
+--                                 [D23-RUNS-1120] kind 7 / 8 = the per-model task handler 0x142f7f600 / 0x142f8ff54
+--                                 just before it gives the charge command (rcx8 = the task, ret = the handler's
+--                                 caller, rdx = [task+0x10], aux = [task] the vtable), with the extra tokens
+--                                   t18= t58= t68= (qwords [task+0x18/0x58/0x68]) f74= f80= t84= sn= (u32
+--                                   [task+0x74/0x80/0x84/0x8]; t84 is the f32 due time's bits);
+--                                 kind 9 = the task's creator 0x143077c68 (ret = who creates it, rdx = the
+--                                 parameters, aux = their +0x18 target), with p00= .. p30= (their seven qwords).
+--   GC <ms> land=<n> cancel=<n> target=<n> stay=<n> order=<n> stub=<n> task1=<n> task2=<n> mktask=<n> lost=<n>
+--                                 [regroup-1119] every 2 s with "calls 1": every call of the traced functions so far
+--                                 (the ring only holds the filtered ones)
+--   O <ms> <tick> <uid> n=<count> head=<i> vt=<hex16|-> sn=<hex8|-> a3c=<hex8|-> busy=<hex2> idle=<0|1|?>
+--                                 [D23-RUNS-1120] with "track 1", right after each Q line: the unit's order queue
+--                                 (this project's static read of Warhammer3.exe 9.0.5, D23-RUNS-1120): a ring of 40
+--                                 orders, count at unit +0x2f88, head at +0x2f8c, the order being carried out at
+--                                 unit +0x2a0 + head * 0x120 (0x14303b470 / 0x14303c75c); vt = its vtable (the
+--                                 order's class), sn = its u32 serial (+8, the battle's counter +0x440 -> +0x9c),
+--                                 a3c = its u32 +0x3c (set from the order push's second argument, meaning not read);
+--                                 "-" when count is 0 or count / head are out of range. busy = unit +0x3ca8 (the
+--                                 script's is_idle 0x14303b4b0 = count 0 and this byte 0); idle = unit:is_idle()
+--                                 from the script, so the report can check the offsets against the game
 --   T <tick> <uid> <id>:<token>,<token>,... ...
 --                                 [d10-1118] with "trace 1": what the take-off
 --                                 caves saw of each flight entity in one battle
@@ -72,7 +119,10 @@
 --                                 id when no living flight entity carries it; uid "?"
 --                                 then); a tick that cannot be read is -1
 --   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> unsized=<n> unmatched=<n>
---     used=<entries> stray=<n>[ trace=<entries> trace_lost=<n>]
+--     used=<entries> stray=<n>[ rg_off=<0|1> rg_calls=<n> rg_skipped=<n> rg_would=<n> rg_queued=<n>
+--     rg_unheld=<n>][ u_held=<n> u_stamps=<n> u_dropped=<n> u_ticks=<n> (D39)][ repick=<n> (D44)][ chargewait=<n> (D46)][ trace=<entries> trace_lost=<n>]
+--                                 rg_*: [D23] the regroup caves' counters (pin_cave_asm.py), when the
+--                                 take-off caves carry them
 --                                 every 2 s; stray = entries that never were
 --                                 in a flyer's list
 --   END | FAIL <why>
@@ -83,6 +133,8 @@ local CALLBACK_NAME = "pin_on_hit_probe_tick"
 local SAMPLE_MS, SUMMARY_MS = 200, 2000
 local U_ENT_N, U_ENT, U_CTL = 0x184, 0x188, 0x3e30
 local E_FLY, E_FC, FC_COUNT, FC_PHASE, E_SIZE = 0x104, 0x128, 0x44, 0x90, 0x74
+local E_POS, E_STATE, E_CMD, CTL_FROM, CTL_INTS = 0x88, 0x324, 0x330, 8, 16     -- [regroup-1119]
+local U_ORD_N, U_ORD_HEAD, U_ORD_AT, ORD_SIZE, ORD_SLOTS, U_BUSY = 0x2f88, 0x2f8c, 0x2a0, 0x120, 40, 0x3ca8  -- [D23-RUNS-1120]
 local BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 local BLOCK = 256                                   -- bytes compared at once when scanning the table
 
@@ -110,7 +162,8 @@ local function id_of(p)
 end
 
 local function read_cfg(defaults)
-    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0 }
+    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0, track = 0, calls = 0,
+        regroup = 1 }
     local f = io.open(CFG_FILE, "r")
     if not f then return cfg end
     for line in f:lines() do
@@ -133,9 +186,11 @@ local function each_unit(fn)
 end
 
 local takeoff, buffer, layout, window = nil, nil, nil, nil
+local all_units = {}              -- {uid, unit} of every unit [regroup-1119]
 local flyers = {}                 -- {uid, unit, obj, list = "id id ..", n, alive, struck}
 local ever, seen = {}, {}         -- ids that were in a flyer's list; id -> "tick:hits" last written
 local last_summary = -SUMMARY_MS
+local with_tracks = false          -- cfg "track 1": the Q / P / C / M lines [regroup-1119]
 local with_entities = false       -- cfg "entities 1": the E lines
 local trace = nil                 -- cfg "trace 1" with traced caves: {seen, lost}
 
@@ -234,6 +289,94 @@ local function read_table()
     return map, used
 end
 
+-- [regroup-1119] the call tracer: four logger caves on the landing request / landing cancel / set-target / stay-down
+-- order (regroup_trace_asm.py), installed here when cfg "calls 1".
+local calls = nil                 -- {buf, layout, seen, lost}
+local function hex_bytes(s, at, n)    -- n bytes at 1-based `at`, little-endian -> hex text, most significant first
+    local out = {}
+    for i = at + n - 1, at, -1 do out[#out + 1] = fmt("%02x", s:byte(i)) end
+    return table.concat(out)
+end
+local function install_calls()
+    local ok, s = pcall(require, "script/regroup_trace/regroup_trace_site")
+    if not ok or type(s) ~= "table" then return nil, "the call tracer's site table is not in the pack: " .. tostring(s) end
+    local mp = false
+    pcall(function() mp = bm:is_multiplayer() and true or false end)
+    if mp then return nil, "multiplayer" end
+    local h, refused = mr.patcher(s.owner)
+    if not h then return nil, "patcher refused: " .. tostring(refused) end
+    local api = h:sites(s.entries, function(txt) emit("SITE " .. tostring(txt)) end)
+    if not api then return nil, "sites failed" end
+    for _, name in ipairs(s.caves) do
+        if not api.found(name) then return nil, name .. " not usable: " .. tostring(api.why(name)) end
+    end
+    local b = mr.game_alloc(s.layout.bytes)
+    if not b then return nil, "game_alloc failed" end
+    local zeros = string.rep("\0", 4096)
+    for off = 0, s.layout.bytes - 1, 4096 do mr.write(b, off, sub(zeros, 1, math.min(4096, s.layout.bytes - off))) end
+    mr.write(b, s.layout.magic_at, s.layout.magic)
+    local given = {}
+    for _, name in ipairs(s.caves) do given[name] = { buf = b } end
+    local done, problem = api.install_feature(s.feature, given)
+    if not done then return nil, "install failed: " .. tostring(problem) end
+    mr.write(b, s.layout.mode_at, mr.uint32(1))
+    return { buf = b, l = s.layout, seen = 0, lost = 0, last = "" }
+end
+
+local function drain_calls(ms, uid_of)
+    local c, l = calls, calls.l
+    local count = u32le(mr.read(c.buf, l.count_at, 4), 1)
+    if count - c.seen > l.slots then
+        c.lost = c.lost + (count - c.seen - l.slots)
+        c.seen = count - l.slots
+    end
+    while c.seen < count do
+        local slot = c.seen % l.slots
+        local n = math.min(count - c.seen, l.slots - slot, 128)
+        local chunk = mr.read(c.buf, l.ring_at + slot * l.entry, n * l.entry)
+        local stop = false
+        for i = 0, n - 1 do
+            local at = i * l.entry + 1
+            if u32le(chunk, at + 60) ~= c.seen + 1 then stop = true; break end    -- claimed, not written yet
+            local ent8 = string.upper(hex_bytes(chunk, at + 8, 4))
+            local kind = u32le(chunk, at + 28)
+            local extra = ""
+            if kind == 7 or kind == 8 or kind == 15 or kind == 16 or kind == 17 then   -- the task's fields (+64;
+                                                    -- 15 / 16 [D46]: the task's start / update entries)
+                extra = fmt(" t18=%s t58=%s t68=%s f74=%s f80=%s t84=%s sn=%s", hex_bytes(chunk, at + 64, 8),
+                    hex_bytes(chunk, at + 72, 8), hex_bytes(chunk, at + 80, 8), hex_bytes(chunk, at + 88, 4),
+                    hex_bytes(chunk, at + 92, 4), hex_bytes(chunk, at + 96, 4), hex_bytes(chunk, at + 100, 4))
+                if kind == 17 then                  -- [D46] rt_tdone: the move's +0x30, the model's +0x710
+                    extra = extra .. fmt(" m30=%s m710=%s", hex_bytes(chunk, at + 104, 4), hex_bytes(chunk, at + 108, 4))
+                end
+            elseif kind == 10 then                  -- [D42] rt_pop: the clear-queue loop's caller (0 = not from it)
+                extra = " c2=" .. hex_bytes(chunk, at + 64, 8)
+            elseif kind == 14 then                  -- [D45] rt_pursue: state, target unit, own model count, answer
+                extra = fmt(" st=%s tgt=%s own=%d yes=%d", hex_bytes(chunk, at + 64, 8), hex_bytes(chunk, at + 72, 8),
+                    u32le(chunk, at + 80), u32le(chunk, at + 84))
+            elseif kind == 9 then                   -- the new task's parameters
+                local p = {}
+                for i = 0, 6 do p[#p + 1] = fmt("p%02x=%s", 8 * i, hex_bytes(chunk, at + 64 + 8 * i, 8)) end
+                extra = " " .. table.concat(p, " ")
+            end
+            emit(fmt("G %d %s %d %s %s %s %s %s %s %s %s %s", ms, all_ff(chunk, at + 24) and "-1" or tostring(u32le(chunk, at + 24)),
+                kind, tostring(uid_of[ent8] or "?"), ent8, hex_bytes(chunk, at + 16, 8),
+                hex_bytes(chunk, at + 32, 8), hex_bytes(chunk, at + 40, 8), hex_bytes(chunk, at + 48, 4),
+                hex_bytes(chunk, at + 52, 4), hex_bytes(chunk, at + 56, 4), hex_bytes(chunk, at, 4)) .. extra)
+            c.seen = c.seen + 1
+        end
+        if stop then break end
+    end
+    local raw = mr.read(c.buf, l.calls_at, 68)
+    local line = fmt("land=%d cancel=%d target=%d stay=%d order=%d stub=%d task1=%d task2=%d mktask=%d pop=%d done=%d pick=%d flyq=%d pursue=%d tstart=%d tupd=%d tdone=%d lost=%d",
+        u32le(raw, 1), u32le(raw, 5), u32le(raw, 9), u32le(raw, 13), u32le(raw, 17), u32le(raw, 21), u32le(raw, 25),
+        u32le(raw, 29), u32le(raw, 33), u32le(raw, 37), u32le(raw, 41), u32le(raw, 45), u32le(raw, 49), u32le(raw, 53), u32le(raw, 57), u32le(raw, 61), u32le(raw, 65), c.lost)
+    if line ~= c.last then
+        c.last = line
+        emit(fmt("GC %d %s", ms, line))
+    end
+end
+
 local function tick_now()
     for _, f in ipairs(flyers) do
         if f.first then
@@ -245,6 +388,67 @@ local function tick_now()
         end
     end
     return -1
+end
+
+-- [regroup-1119] the Q / P / C / M lines (cfg "track 1"). Only reads.
+local function sample_tracks(ms, now)
+    local qs = {}
+    for _, u in ipairs(all_units) do
+        local ok, line = pcall(function()
+            local p = u.unit:position()
+            return fmt("Q %d %d %s %.1f %.1f %.1f mv=%d melee=%d fly=%d men=%d", ms, now, tostring(u.uid),
+                p:get_x(), p:get_z(), p:get_y(), u.unit:is_moving() and 1 or 0, u.unit:is_in_melee() and 1 or 0,
+                u.unit:is_currently_flying() and 1 or 0, u.unit:number_of_men_alive())
+        end)
+        emit(ok and line or fmt("Q %d %d %s FAIL %s", ms, now, tostring(u.uid), tostring(line)))
+        -- [D23-RUNS-1120] the unit's order queue (see O in the header); counts and indexes are small integers
+        local n, head = mr.read_int32(u.obj, U_ORD_N), mr.read_int32(u.obj, U_ORD_HEAD)
+        local vt, sn, a3c = "-", "-", "-"
+        if n >= 1 and n <= ORD_SLOTS and head >= 0 and head < ORD_SLOTS then
+            local raw = mr.read(u.obj, U_ORD_AT + head * ORD_SIZE, 0x40)
+            vt, sn, a3c = hex_bytes(raw, 1, 8), hex_bytes(raw, 9, 4), hex_bytes(raw, 0x3d, 4)
+        end
+        local idle = "?"
+        pcall(function() idle = u.unit:is_idle() and "1" or "0" end)
+        emit(fmt("O %d %d %s n=%d head=%d vt=%s sn=%s a3c=%s busy=%s idle=%s", ms, now, tostring(u.uid), n, head, vt,
+            sn, a3c, hex_bytes(mr.read(u.obj, U_BUSY, 1), 1, 1), idle))
+    end
+    for _, f in ipairs(flyers) do
+        local cells, mcells, mkey = {}, {}, {}
+        for i, e in ipairs(f.ents) do
+            cells[i] = fmt("%s:%.1f:%.1f:%.1f", f.ids[i], mr.read_float(e, E_POS), mr.read_float(e, E_POS + 8),
+                mr.read_float(e, E_POS + 4))
+            local cmd, vt = "-", "-"
+            local okp, ptr = pcall(mr.read_pointer, e, E_CMD)
+            if okp and not mr.is_null(ptr) then
+                cmd = id_of(ptr)
+                local okv, v = pcall(mr.read_pointer, ptr, 0)
+                if okv and not mr.is_null(v) then vt = id_of(v) end
+            end
+            local cell = fmt("%s:%d:%s:%s", f.ids[i], mr.read_int32(e, E_STATE), cmd, vt)
+            mcells[i] = cell
+            mkey[i] = fmt("%s:%d:%s", f.ids[i], mr.read_int32(e, E_STATE), vt)
+        end
+        emit(fmt("P %d %d %s %s", ms, now, tostring(f.uid), table.concat(cells, " ")))
+        local msig = table.concat(mkey, " ")
+        if msig ~= f.msig then
+            f.msig = msig
+            emit(fmt("M %d %d %s %s", ms, now, tostring(f.uid), table.concat(mcells, " ")))
+        end
+        local ctl = mr.read_pointer(f.obj, U_CTL)
+        if not mr.is_null(ctl) then
+            local ints, raw = {}, mr.read(ctl, CTL_FROM, 4 * CTL_INTS)     -- bytes, not numbers: float32 Lua
+            for k = 0, CTL_INTS - 1 do
+                local a, b, c, d = raw:byte(4 * k + 1, 4 * k + 4)
+                ints[#ints + 1] = fmt("%02x%02x%02x%02x", d, c, b, a)
+            end
+            local csig = table.concat(ints, " ")
+            if csig ~= f.csig then
+                f.csig = csig
+                emit(fmt("C %d %d %s %s", ms, now, tostring(f.uid), csig))
+            end
+        end
+    end
 end
 
 local function sample()
@@ -301,6 +505,14 @@ local function sample()
             end
         end
     end
+    if with_tracks then sample_tracks(ms, now) end
+    if calls then
+        local uid_of = {}
+        for _, f in ipairs(flyers) do
+            for i = 1, #(f.ids or {}) do uid_of[f.ids[i]] = f.uid end
+        end
+        drain_calls(ms, uid_of)
+    end
     if trace then
         local by_fc, by_entity = {}, {}
         for _, f in ipairs(flyers) do
@@ -347,6 +559,13 @@ local function sample()
         local c = takeoff.counters(buffer)
         emit(fmt("S %d %d stamps=%d dropped=%d held=%d free=%d unsized=%d unmatched=%d used=%d stray=%d",
             ms, now, c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched, used, stray)
+            .. (c.regroup and fmt(" rg_off=%d rg_calls=%d rg_skipped=%d rg_would=%d rg_queued=%d rg_unheld=%d",
+                c.regroup.off, c.regroup.calls, c.regroup.skipped, c.regroup.would, c.regroup.queued,
+                c.regroup.unheld) or "")
+            .. (c.unit and fmt(" u_held=%d u_stamps=%d u_dropped=%d u_ticks=%d", c.unit.held, c.unit.stamps,
+                c.unit.dropped, c.unit.ticks) or "")
+            .. (c.repick and fmt(" repick=%d", c.repick) or "")
+            .. (c.chargewait and fmt(" chargewait=%d", c.chargewait) or "")
             .. (trace and fmt(" trace=%d trace_lost=%d", trace.seen, trace.lost) or ""))
     end
     flush()
@@ -378,10 +597,22 @@ local function start()
     else
         for _, w in ipairs(layout.windows) do window = math.max(window, w) end
     end
-    takeoff.arm(buffer, windows, cfg.mode)
+    takeoff.arm(buffer, windows, cfg.mode, cfg.regroup == 0)
     with_entities = cfg.entities == 1
+    with_tracks = cfg.track == 1
+    if cfg.calls == 1 then
+        local c, why = install_calls()
+        if c then
+            calls = c
+            emit("CALLS on: caves installed")
+        else
+            emit("FAIL calls 1 asked, but " .. tostring(why))
+        end
+    end
     emit(fmt("BATTLE %s window=%d mode=%d table=%d sample=%d entities=%d", stamp, cfg.window, cfg.mode,
-        layout.table_slots, cfg.sample, cfg.entities) .. (cfg.trace == 1 and " trace=1" or ""))
+        layout.table_slots, cfg.sample, cfg.entities) .. (cfg.trace == 1 and " trace=1" or "")
+        .. (cfg.track == 1 and " track=1" or "") .. (cfg.calls == 1 and " calls=1" or "")
+        .. (cfg.regroup == 0 and " regroup=0" or ""))
     if cfg.trace == 1 then
         if not layout.trace_ring_at then
             emit("FAIL trace 1 asked, but the take-off caves in the game carry no trace "
@@ -402,6 +633,7 @@ local function start()
     each_unit(function(alliance, unit)
         local obj = mr.read_pointer(mr.ud_topointer(unit), 8)
         local flyer = not mr.is_null(mr.read_pointer(obj, U_CTL))
+        all_units[#all_units + 1] = { uid = unit:unique_ui_id(), unit = unit, obj = obj }
         if flyer then flyers[#flyers + 1] = { uid = unit:unique_ui_id(), unit = unit, obj = obj } end
         emit(fmt("UNIT %s %d %s obj=%s flyer=%d", tostring(unit:unique_ui_id()), alliance, unit:type(),
             id_of(obj), flyer and 1 or 0))

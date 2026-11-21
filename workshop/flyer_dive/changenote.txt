@@ -1,13 +1,6 @@
-- Pack renamed to flyer_dive_takeoff.pack: you may have to tick the mod again in the launcher; delete a hand-copied ld_air_dive.pack.
-- Fixed: riders coming apart from pegasus-type mounts in a dive.
-- Take-off from melee is now judged per model, by body size.
-- More Charge Reflection damage: halberd units are a greater threat to large flying units.
-- New optional setting (Mod Configuration Tool): breath in melee can be turned off. Default on.
+- Braced units with high charge resistance are much less likely to be ploughed through by a diving flyer. Ground charges are unchanged.
+- Charge Reflection deals significantly more damage to diving flyers.
+- Multi-model flying units: models that have taken off fly on with their unit's orders.
+- Take-off: a model hit in melee stays on the ground one second longer for every body size, and a unit under melee attack needs at least 3 seconds to take off.
+- New Mod Configuration Tool settings: braced lines against dives (on/off), their strength, and the Charge Reflection damage. In a multiplayer campaign the host's settings apply.
 - This version does not pair with the previous one in multiplayer.
-
-- 包名改为 flyer_dive_takeoff.pack：可能需要在启动器里重新勾选一次；手动拷进 data 的 ld_air_dive.pack 请删掉。
-- 修复：天马类坐骑俯冲时骑手与坐骑分离。
-- 脱离近战改为每个兵模单独计算，按体型。
-- 增加冲锋反制造伤，增加长戟部队对飞行大型部队的威胁。
-- 新增可选设置（Mod Configuration Tool）：可以关掉陷入近战时的吹息，默认开。
-- 本版与上一版在多人游戏中互不配对。

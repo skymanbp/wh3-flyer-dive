@@ -973,7 +973,12 @@ DIVE_COST_WINDOW_TICKS = 30
 # DIVE_COST_SHARE: share of the model's own maximum health per paying model, by body size. 3% for every
 # size: measured under the standard setup and accepted by the owner on 2026-11-19 (docs/DECISIONS.md
 # D15, docs/HISTORY.md D15-STD-1119); kept per size so that a later measurement can set them apart.
-DIVE_COST_SHARE = {"small": 0.03, "medium": 0.03, "large": 0.03, "very_large": 0.03}
+# [D25 / D31, brace-solver-1120] The owner's 10% (D25: 「提到 10%」) is the default, the same for every size; an
+# MCT slider over DIVE_COST_PERCENT_RANGE (whole percent) replaces it for every size, 0 takes no cost
+# (script/campaign/flyer_dive/lib/brace_rule.lua). This table is what a battle without MCT uses.
+DIVE_COST_PERCENT_DEFAULT = 10
+DIVE_COST_PERCENT_RANGE = (0, 25)
+DIVE_COST_SHARE = {s: DIVE_COST_PERCENT_DEFAULT / 100 for s in ("small", "medium", "large", "very_large")}
 # [d15-1118, maintainer] The probe applies the cost through the game's own battle-script call
 # unit:reduce_hitpoints_unary(p, false) (CA: lib_battle_script_unit.lua kill_proportion), once per flyer
 # unit per recorder tick, p = the paying models' shares summed / unit:initial_number_of_men() (CA's doc of
@@ -981,7 +986,8 @@ DIVE_COST_SHARE = {"small": 0.03, "medium": 0.03, "large": 0.03, "very_large": 0
 # autotest command file. A call is refused (logged, not made) for p <= 0 or p > DIVE_COST_MAX_CALL, and p is
 # capped so the unit keeps DIVE_COST_KEEP_UNARY of its health: whether the call can kill the last model is
 # not readable statically (its command executor was not found), so a dive cost never takes the last
-# DIVE_COST_KEEP_UNARY -- one model-share of the largest share, the size of a single dive cost.
+# DIVE_COST_KEEP_UNARY -- a floor (set as the size of one 3% cost; with the 10% default a cost that would go
+# below it is cut to leave it).
 DIVE_COST_MAX_CALL = 0.5
 DIVE_COST_KEEP_UNARY = 0.03
 # Recorder ticks (100 ms each) the unit's health is read after a call. The call only queues a command
@@ -997,6 +1003,54 @@ DIVE_COST_FOLLOW_TICKS = 5
 # maintainer's reading of the owner's "only while standing braced", switchable here. The angle value is read
 # from the installed game's data when the site table is generated, never written here.
 DIVE_COST_FRONT_ARC = True
+# [D25 / D29 / D31, brace-solver-1120] A braced line against a dive, inside the engine's own pair solver
+# 0x14317768c (docs/HISTORY.md PAIR-SOLVER-1120, PAIR-PROBE-1120; cave dv_brace, pipelines/dive_brace_asm.py).
+# Where the engine counts a body's brace (it multiplies that body's mass by its brace multiplier) and the other
+# body is a flyer in a landed dive, the braced mass is multiplied again by BRACE_MASS_K and the flyer's size-tier
+# share of the velocity correction is raised to at least BRACE_SHARE_MIN.
+# The solver (lane read; the numbers re-read in game by PAIR-PROBE-1120): per contact with a resting soldier the
+# flyer keeps 1 - F of its momentum, F = s * (1 + e) * M' / (m + M'); s the flyer's share (0.8 / 0.2 / 0.1 / 0 for
+# size-tier gaps 1-4), e the restitution 0.3 (read in game), m the flyer's mass, M' = soldier mass x brace (x k).
+# Target (owner's brief through the supervisor): a star dragon (m 4425, gap 3) against Empire spearmen braced at
+# 5.43 (M' = 100 x 5.43 = 543) gets the braking the pegasus knights (m 1300, gap 1, s 0.8) get today:
+#   pegasus today: 0.8 x 1.3 x 543 / (1300 + 543)  = 0.306   (the lane's "24.5% per contact" is this x 0.8)
+#   dragon today:  0.1 x 1.3 x 543 / (4425 + 543)  = 0.0142  (x 0.8: 1.1%)
+#   s* = 0.8, the engine's own share one tier apart; then F_dragon = F_pegasus when k x 543 / 4425 = 543 / 1300,
+#   k = 4425 / 1300 = 3.40 -> dragon 0.8 x 1.3 x 1846 / (4425 + 1846) = 0.306 (x 0.8: 24.5%).
+#   The same defaults, other flyers against that soldier: pegasus 0.306 -> 0.610, manticore (1700, gap 2)
+#   0.063 -> 0.541, griffon knights (1725, gap 3) 0.031 -> 0.538. (That was D31's first default, k 3.4 / s* 0.8.)
+# [D32 / D33, release-1120] Measured in game, k 3.4 / s* 0.8 stopped a manticore in 0.2 s (docs/HISTORY.md
+# BRACE-AB-1120); the owner asked for one step lighter (D32) and the shipped defaults are k 2.0, s* 0.5, cost 10%
+# (D33; measured twice, BRACE-LIGHT-1120: manticore 2-3 m, star dragon 6-13 m into the line before it stops).
+# With M' = 543 x 2.0 = 1086 and the share max(s, 0.5):
+#   dragon          0.5 x 1.3 x 1086 / (4425 + 1086) = 0.128   (today 0.0142)
+#   pegasus         0.8 x 1.3 x 1086 / (1300 + 1086) = 0.473   (today 0.306; its own share 0.8 is above s*)
+#   manticore       0.5 x 1.3 x 1086 / (1700 + 1086) = 0.253   (today 0.063)
+#   griffon knights 0.5 x 1.3 x 1086 / (1725 + 1086) = 0.251   (today 0.031)
+# The dragon no longer matches the pegasus; a big flyer goes a few metres into the line instead of stopping dead.
+# The cave reads both from one u32 the battle script writes (brace_word: k in hundredths in the low 16 bits, s* in
+# hundredths in bits 16-23; 0 = off), so a game Lua number (float32) never carries float bits; every value of
+# the word stays below 2^24, exact in a float32.
+BRACE_LINE_DEFAULT_ON = True
+BRACE_MASS_K = 2.0
+BRACE_MASS_K_RANGE = (1.0, 10.0)        # MCT slider; 1.0 = the engine's own braced mass
+BRACE_MASS_K_STEP = 0.1
+BRACE_SHARE_MIN = 0.5
+BRACE_SHARE_MIN_RANGE = (0.0, 1.0)      # MCT slider; 0 = the engine's own share
+BRACE_SHARE_MIN_STEP = 0.05
+BRACE_WORD_SCALE = 100                  # hundredths
+# MCT option keys, in the breath switch's MCT mod (BREATH_SWITCH_MCT_MOD) and its one section
+BRACE_MCT_OPTIONS = {"on": "braced_line_on", "k": "braced_line_mass", "share": "braced_line_share",
+                     "cost": "braced_line_cost"}
+
+
+def brace_word(k, share):
+    """The u32 the battle script writes for dv_brace when the switch is on; refuses values outside the sliders'
+    ranges (lib/brace_rule.lua computes the same word in game)."""
+    if not (BRACE_MASS_K_RANGE[0] <= k <= BRACE_MASS_K_RANGE[1]
+            and BRACE_SHARE_MIN_RANGE[0] <= share <= BRACE_SHARE_MIN_RANGE[1]):
+        raise ValueError(f"[air_dive_rules] REFUSING: brace k {k!r} / share {share!r} outside the sliders' ranges")
+    return int(k * BRACE_WORD_SCALE + 0.5) | (int(share * BRACE_WORD_SCALE + 0.5) << 16)
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)
@@ -1518,7 +1572,8 @@ TAKEOFF_SITE_LUA_PATH = "script/campaign/flyer_dive/data/takeoff_site.lua"
 # model of each body size stays down after a melee hit; smaller waits longer ("越小等越久").
 # A ridden unit uses its mount's size: the entity that carries the flight controller is the
 # mount (measured, TAKEOFF_SIZE_CODES). After the window the 3.0 s timer still has to run out.
-TAKEOFF_PIN_WINDOWS = {"very_large": 30, "large": 35, "medium": 40, "small": 45}
+# [D37] one second (10 ticks) more for every size (owner 2026-11-20): was 30 / 35 / 40 / 45.
+TAKEOFF_PIN_WINDOWS = {"very_large": 40, "large": 45, "medium": 50, "small": 55}
 # [D3-1118] What the engine keeps at flying entity +0x74 for each battle_entities size.
 # Measured 2026-11-18 (ingame_1118 item2_1, flyer_size_probe_report HOLDS; again in item6_1 and
 # item6_2): harpies 1, pegasus knights 2, feral manticore 3, star dragon 4, every model, both
@@ -1543,6 +1598,15 @@ TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE = max(TAKEOFF_PIN_WINDOWS.values())
 # so a 1 still reaches the gate as 1. Only a 0 is ever written over (lock cmpxchg 0 -> 1).
 TAKEOFF_GAP_RAISE_TO = 1
 TAKEOFF_GAP_RAISE_PHASES = (1, 2)       # FC+0x90: 1 on the ground, 2 take-off requested (0x14304cea0)
+# [D39, owner 2026-11-21] Every model of a fighting flying unit waits at least the game's own 3.0 s after the
+# away order, touching an enemy or not; a model hit within its size window still waits that out first.
+# "Fighting" is judged by hits, like D3: a melee hit on any model of the unit within the last
+# TAKEOFF_UNIT_WINDOW ticks. The stamp cave also stamps the unit; while a model is on the ground (flight
+# phase TAKEOFF_UNIT_HOLD_PHASE) the hold cave answers "held" for a unit stamp younger than the window, so the
+# engine keeps the countdown at 30 and the away order starts from a full 3.0 s. After the order (phase 2) only
+# the model's own window holds. / 部队在挨打：地面兵模的倒计时保持满 3 秒，撤离令后每个兵模至少等 3 秒。
+TAKEOFF_UNIT_WINDOW = 30                # ticks; the game's take-off timer (FC+0x44 re-armed to 30)
+TAKEOFF_UNIT_HOLD_PHASE = 1             # FC+0x90 == 1: on the ground, no take-off requested yet
 
 
 def takeoff_pin_window(size):

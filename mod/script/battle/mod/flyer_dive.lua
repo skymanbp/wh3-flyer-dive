@@ -80,8 +80,55 @@ record(("BATTLE mp=%s campaign=%s %s, caves format %s built for %s"):format(tost
 local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, flight stops held off %d, "
     .. "engage re-paths held off %d, charge-order re-paths held off %d, melee engages held off %d, "
     .. "blocked stops held off %d, slides ended %d, landings kept %d, "
-    .. "slides ended by melee %d, bodies already in melee not carried %d"
+    .. "slides ended by melee %d, bodies already in melee not carried %d, braced masses scaled %d"
 local TICK_NAME, TICK_MS = "flyer_dive_counts", 10000
+
+-- [D31] The braced-line settings (lib/brace_rule.lua): master switch, k, s*, the dive cost. MCT is optional; it
+-- holds its values once every battle script has loaded (ScriptEventAllModsLoaded, MctInitialized), so they are read
+-- on whichever comes first, without MCT at once; Deployed reads them too if neither came. Until then dv_brace runs on
+-- the defaults dive.arm wrote. One BRACE line says what is in force and why.
+-- / 阵列齐整对俯冲的设置：MCT 有值后读一次，写入 dv_brace 的设置字；一行 BRACE 记录生效的设置。
+local brace = nil                      -- {on, k, share, cost, why} once read
+local brace_ok, brace_rule = pcall(require, "script/campaign/flyer_dive/lib/brace_rule")
+if not brace_ok or type(brace_rule) ~= "table" then
+    record("BRACE defaults stay: lib/brace_rule did not load: " .. tostring(brace_rule))
+    brace_rule = nil
+end
+
+local function read_mct(mod_key, option_key)
+    local mct = get_mct()
+    local mod = mct and mct:get_mod_by_key(mod_key)
+    if not mod then return nil end
+    local option = mod:get_option_by_key(option_key)
+    if not option then return nil end
+    return option:get_finalized_setting()
+end
+
+local function read_brace(when)
+    if brace or not (buffer and brace_rule and okv and type(site) == "table" and type(site.brace) == "table") then
+        return
+    end
+    local done, problem = pcall(function()
+        local s = brace_rule.decide(site.brace, mp, from_campaign, type(get_mct) == "function" and read_mct or nil)
+        dive.set_brace(buffer, brace_rule.word(site.brace, s))
+        brace = s
+        record(("BRACE %s (%s; read on %s)"):format(brace_rule.describe(site.brace, s), s.why, when))
+    end)
+    if not done then record("BRACE defaults stay: " .. tostring(problem)) end
+end
+
+if buffer and brace_rule then
+    local waits = false
+    if type(get_mct) == "function" and type(core) == "table" then
+        waits = pcall(function()
+            core:add_listener("flyer_dive_brace_mct", "MctInitialized", true, function() read_brace("MctInitialized") end,
+                false)
+            core:add_listener("flyer_dive_brace_mods_loaded", "ScriptEventAllModsLoaded", true,
+                function() read_brace("ScriptEventAllModsLoaded") end, false)
+        end)
+    end
+    if not waits then read_brace("load (no MCT)") end
+end
 
 -- [D15, d15-1118 stage 5] The braced-spear cost of a dive (lib/dive_cost.lua): the caves judge the contacts, this
 -- entry reads their ring every COST_MS from Deployed and takes the shares through unit:reduce_hitpoints_unary. A
@@ -96,8 +143,18 @@ if buffer and okv and type(site) == "table" and type(site.cost) == "table" then
         record("COST off: lib/dive_cost did not load: " .. tostring(dive_cost))
     else
         bm:register_phase_change_callback("Deployed", function()
+            read_brace("Deployed")
+            -- [D31] the cost follows the braced-line settings: none when the switch is off or the cost is 0%;
+            -- otherwise that share for every body size (without brace_rule: the site table's defaults)
+            local share = (brace and brace_rule) and brace_rule.cost_share(site.brace, brace) or nil
+            if brace and not share then
+                record("COST off: " .. (brace.on and "the dive cost setting is 0%" or "braced-line switch off"))
+                return
+            end
+            local cost_site = site
+            if share then cost_site = { layout = site.layout, cost = brace_rule.cost_table(site.cost, share) } end
             local started, why = pcall(function()
-                cost = dive_cost.new(_G.memreader_plus, buffer, site, record)
+                cost = dive_cost.new(_G.memreader_plus, buffer, cost_site, record)
                 cost:map(bm)
                 bm:repeat_callback(function()
                     local tok, err = pcall(cost.tick, cost, bm:time_elapsed_ms(), bm)
@@ -125,7 +182,7 @@ if buffer then
                 return
             end
             local line = COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-                c.released, c.committed, c.closed, c.engaged_body) .. cost_counts()
+                c.released, c.committed, c.closed, c.engaged_body, c.braced) .. cost_counts()
             if line ~= last then
                 last = line
                 record("NOW " .. line)
@@ -143,6 +200,6 @@ bm:register_phase_change_callback("Complete", function()
         local c = dive.counters(buffer)
         dive.pass_through(buffer)
         record("END " .. COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-            c.released, c.committed, c.closed, c.engaged_body) .. cost_counts())
+            c.released, c.committed, c.closed, c.engaged_body, c.braced) .. cost_counts())
     end)
 end)

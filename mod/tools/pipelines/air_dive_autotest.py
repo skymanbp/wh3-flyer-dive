@@ -445,6 +445,39 @@ def has(lines, word):
     return any(ln.split(" ", 1)[-1].startswith(word) for ln in lines)
 
 
+def guard_report(status_lines, cmd):
+    """[regroup-1119, D23; owner 2026-11-19 22:12] What the run recorded about guard mode ("defend"): every run
+    must carry one ``lane <i> guard_setup`` line and one ``behaviours start lane <i>`` line per lane, written by
+    the driver Lua. Returns (summary, reasons): the summary maps ``<tag> lane <i>`` to {unit_behaviour: value}
+    (values 'true' / 'false' / 'ERR(...)'), reasons are the run's own failures: a missing record, or a state that
+    contradicts what was set (guard_on=0 but the read-back says defend=true; guard_on=1 but it says false)."""
+    want_on = any(kv.strip().replace(" ", "") == "guard_on=1" for kv in (cmd or "").split(","))
+    summary, reasons, setups = {}, [], set()
+    for ln in status_lines:
+        body = ln.split(" ", 1)[-1]
+        parts = body.split()
+        if len(parts) >= 3 and parts[0] == "lane" and parts[2] == "guard_setup":
+            setups.add(parts[1])
+            if " ok=false" in body:
+                reasons.append("guard mode: the set call failed: " + body)
+        if len(parts) >= 4 and parts[0] == "behaviours" and parts[2] == "lane":
+            summary[f"{parts[1]} lane {parts[3]}"] = dict(kv.split("=", 1) for kv in parts[4:] if "=" in kv)
+    starts = {k.split()[-1] for k in summary if k.startswith("start ")}
+    if not setups:
+        reasons.append("guard mode: the driver never wrote 'guard_setup' (old driver Lua? the state is unrecorded)")
+    if not starts:
+        reasons.append("guard mode: the driver never wrote 'behaviours start' (the state is unrecorded)")
+    for key, vals in summary.items():
+        if not key.startswith("start "):
+            continue
+        for who, want in (("flyer", False), ("target", want_on)):
+            got = vals.get(f"{who}_defend")
+            if got in ("true", "false") and (got == "true") != want:
+                reasons.append(f"guard mode: {key} {who} reads defend={got} but it was set "
+                               f"{'on' if want else 'off'}")
+    return summary, reasons
+
+
 # ----------------------------------------------------------------- judge
 def lane_uids(status_lines):
     """{lane: (flyer_uid, flyer_key, target_uid)} from the driver's lane lines."""
@@ -1183,6 +1216,11 @@ def run(args):
                        entity_text=entity_text)
     result["reasons"] = reasons + result["reasons"]
     if reasons:
+        result["verdict"] = "FAIL"
+    guard, guard_reasons = guard_report(status_lines, args.cmd)
+    result["guard_mode"] = guard
+    if guard_reasons:
+        result["reasons"] += guard_reasons
         result["verdict"] = "FAIL"
     if not deviations and not has(status_lines, "SETUP standard"):
         result["reasons"].append("standard setup but the driver never wrote 'SETUP standard' (old driver Lua?)")

@@ -1136,3 +1136,18 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   the charge weapons' collision targets and clones, the entity's turn / deceleration / jump / charge-distance /
   locomotion cells). Our `mass` cut and `flying_charge_speed` are not applied on SFO's rows. It loads above SFO and
   the main pack. Which entity cells count as "what the dive needs" is to be pinned against the code before building.
+
+### D57 · How the SFO submod is built and why it wins (2026-11-21)
+
+> Owner, 2026-11-21: 「继续，完成SFO子模组后通知我」 (building D56).
+
+- Pack `!flyer_dive_takeoff_sfo.pack`, its table fragments `!flyer_dive_takeoff_sfo`. Measured rule (HISTORY, the
+  withdrawn balance submod): the pack or fragment whose name sorts first wins a row. SFO's fragments are `#SFO_hero`,
+  `SFO_data`, `SFO_units` in `sfo_grimhammer_3_main.pack`; `!` sorts before `#`, letters and `f`, in plain and in
+  case-blind order, so the submod wins over SFO and over the main pack on both levels.
+- Built by the same build code, reading the installed tables with SFO's rows laid over them (SFO's row replaces
+  vanilla's by key, SFO's new keys added) for land_units, battle_entities, mounts and melee_weapons. On that base the
+  entity rule runs with `mass` and `flying_charge_speed` left alone (D56); everything else is the main pack's rule.
+- Shipped: only rows whose key SFO defines in that table, plus the `_dive` weapon clones whose source weapon SFO
+  defines. Animation tables, scripts and every other row stay in the main pack; the submod needs both SFO and the
+  main pack.

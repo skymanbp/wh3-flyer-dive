@@ -845,3 +845,19 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   under this mod's; the owner's expectation is the opposite. Find the cause by measurement before the comparison is
   recorded with the longma.
 - The upload (D36) waits for both.
+
+### D38 · Why the great longma leaves easily; the owner keeps only the +1 s (2026-11-21)
+
+- Cause, measured (lane `takeoff-longma-1121`, re-checked by the maintainer on the E lines): under this mod's rule an
+  unhit model's take-off countdown runs out during the fight, so at the away order most unhit models are at 0 and leave
+  at once (`runs/tk_mod_longma`, E 24300: most models `:0`); under the game's own rule every model in contact is reset
+  to 30 and waits about 3 s (`runs/tk_van_longma`, E 24300: `:29`/`:30`). A longma unit has 24 medium models and the
+  Chosen hit only 8-13 of them; a griffon unit has 4 very large models and all are hit. Size mapping is right (longma
+  medium = 5.0 s after D37, griffon very large = 4.0 s). D3 had replaced the game's 3.0 s single-model rule.
+
+> Owner, 2026-11-21 about 00:15, asked whether a model in contact but not hit should also wait (as in the base game),
+> or every model at least 3 s, or only the +1 s: 「只加 1 秒」
+
+- Only D37's +1 s per size ships; unhit models keep leaving at once. Built on `release-1120` `725e1ff` (windows 55 /
+  50 / 45 / 40 ticks, take-off marker `FLYPINS7`; suite 296 passed).
+- The comparison is recorded again with the longma on the new pack.

@@ -958,3 +958,14 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 > Owner, 2026-11-21, asked whether to fix it now or after release: chose 「继续查到底再发」.
 
 - Release waits for it: probe why that model's task is not run, fix the cause, check in game.
+
+### D47 · Release now with the agreed text; the two fixes get no changenote lines (2026-11-21)
+
+- Both D44 (dropped order) and D46 (straggler landing bob) are fixed and checked in game (release-1120
+  `docs/HISTORY.md` CWINGAME-1121). Asked whether to add two changenote lines for them.
+
+> Owner, 2026-11-21: 「这两条不用加，直接按照我们想去定好的文案发就行」
+
+- The changenote and page text stay as already agreed (`workshop/flyer_dive/changenote.txt`, `en/description.txt`).
+  This is the owner's go-ahead for this release: merge `release-1120` into `main`, push, upload with steamcmd
+  (the owner logs in), post-upload checks per `docs/WORKSHOP.md`.

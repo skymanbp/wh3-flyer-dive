@@ -828,3 +828,20 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 - The take-off question is measured before the upload: the same scene with the game's own take-off rule and with this
   mod's rule; if this mod's rule lets the longma leave much more easily than the game's own, that is reported and
   treated before anything ships.
+
+### D37 · Take-off one second harder per body size; a great longma must not leave more easily than a griffon (2026-11-21)
+
+> Owner, 2026-11-20 about 23:55, in this repository's session, shown that with this mod's per-model rule unhit models
+> leave right after the order while the game's own rule holds the whole unit about 3 s
+> (`runs/tk_van_longma`, `runs/tk_mod_longma`):
+>
+> 「1，但是略微增加起飞难度。我们mod的起飞条件应该是根据不同体型逐个兵模计算脱战时间来判断是否允许起飞，那这个时间长短是不是需要调整？各体型增加一秒的脱战时长起飞条件试试看？」
+>
+> On the recording: 「2。龙马不管是我们mod的改动还是原版，应该都是比狮鹫更难起飞的。如果不是，那一定有问题，需要找到原因」
+
+- Keep D3's per-model, by-size rule; add one second to every size's window (small 4.5 → 5.5 s, medium 4.0 → 5.0,
+  large 3.5 → 4.5, very large 3.0 → 4.0), then measure. A take-off rule change means a new take-off multiplayer marker.
+- Investigate why the Great Longma Riders leave melee more easily than griffon knights, under the game's own rule and
+  under this mod's; the owner's expectation is the opposite. Find the cause by measurement before the comparison is
+  recorded with the longma.
+- The upload (D36) waits for both.

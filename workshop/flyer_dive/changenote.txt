@@ -1,5 +1,6 @@
 - Braced units with high charge resistance are much less likely to be ploughed through by a diving flyer. Ground charges are unchanged.
 - Charge Reflection deals significantly more damage to diving flyers.
 - Multi-model flying units: models that have taken off fly on with their unit's orders.
+- Take-off: a model hit in melee stays on the ground one second longer for every body size, and a unit under melee attack needs at least 3 seconds to take off.
 - New Mod Configuration Tool settings: braced lines against dives (on/off), their strength, and the Charge Reflection damage. In a multiplayer campaign the host's settings apply.
 - This version does not pair with the previous one in multiplayer.

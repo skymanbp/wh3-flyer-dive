@@ -8,6 +8,9 @@ Flyers now charge like flyers. Dragons, griffons, pegasi, manticores and every o
 [*][b]More Charge Reflection damage.[/b] Charge Reflection deals significantly more damage to diving flyers. Can be adjusted with MCT.
 [*][b]Whole units land together.[/b] Multi-entity flyers no longer bob back up into the air when the leader touches down.
 [*][b]Fairer take-off.[/b] Take-off is judged by body size, per model, and by the time since the last melee hit. Models that have taken off fly on with their unit's orders.
+[list]
+[*]A model hit in melee stays on the ground for 5.5 / 5.0 / 4.5 / 4.0 seconds after the last hit (small / medium / large / very large). A unit under melee attack needs at least 3 seconds to take off.
+[/list]
 [*][b]Breath in melee.[/b] Dragon breath and similar breath abilities can be used while engaged or grounded. Can be adjusted with MCT.
 [*][b]Tuned flyers.[/b] Per-flyer charge speeds set by role and lore; every flyer gets a moving attack; large flyers are 15% lighter and very large flyers 25% lighter (flying war machines and chariots unchanged).
 [/list]

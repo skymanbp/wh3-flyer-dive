@@ -936,3 +936,15 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   the order. Player and AI alike.
 - Next: find the engine code that drops the order (probe-backed), make it keep the order for flying units, check in
   game that both the player's order sticks and that infantry still pins an AI flyer's hit models.
+
+### D45 · The leftover bobbing on landing is found and removed in this release too (2026-11-21)
+
+- Measured (heights from the recorder's P lines, `takeoff-longma-1121/bob2.py`): after half a unit has landed, without
+  the mod (`runs/pop_pure2`, `pop_pure3`) 3-8 models per unit are still up and move up and down; with the mod, 5 of 6
+  landings checked (`sw_mod1`, `rec3_on`, `recg_on`) had none bobbing, 1 (`sw_mod1` lane 1) had 2 models that dropped
+  and rose again once each.
+
+> Owner, 2026-11-21 (had seen one or two models bob while the rest had landed): asked whether to remove the rest now
+> or later: 「这次一起查清根除」
+
+- Release waits for both: the dropped order (D42/D44) and the leftover bobbing. Probe first, root cause, then the fix.

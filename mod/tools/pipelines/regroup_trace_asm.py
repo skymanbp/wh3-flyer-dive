@@ -133,7 +133,8 @@ FLYQ_VTS = (0x143926520, 0x143AEF2A0)
 # controller's stay flag through 0x1430e5bc0). al = the answer, rbx = the behaviour, rdi = the contact record
 # 0x1430e16c8([beh+8]+0xcf0, [beh+0x68]) or 0, xmm6 = the record branch's threshold. Every call is logged
 # (about six a battle), its answer al at ext +84:
-# +0 behaviour, +8 its unit [beh+8], +16 the test's caller, +32 record, +40 record +8, +44 record +0xc,
+# +0 behaviour, +8 its unit [beh+8], +16 the test's caller, +32 record (on a no answer possibly not loaded yet: the early exit 0x14328ca72 comes before it), +40 record +8,
+# +44 record +0xc (both read only on a yes answer),
 # +48 xmm6 bits, +52 the target's main-controller model count [[beh+0x68]+0x32f8]+0x24, +56 [beh+0xa0];
 # ext +64 the state [beh+0x38], +72 the target unit [beh+0x68], +80 the own main-controller model count, +84 al.
 PURSUE_KIND = 14
@@ -283,6 +284,8 @@ pu_nown:
     mov eax, dword ptr [rdx + {C_MEN:#x}]
     mov dword ptr [r11 + 52], eax
 pu_ntgt:
+    cmp dword ptr [r11 + 84], 0
+    je pu_nrec
     test rdi, rdi
     jz pu_nrec
     mov eax, dword ptr [rdi + {R_N8}]
@@ -742,9 +745,10 @@ def _check_pursue(code):
     fails = []
     beh, unit, tgt, rec, own_c, tgt_c = (OBJ + 0x10000 * i for i in range(1, 7))
     state, xmm6 = 0x143D2BC58, 0x41C80000
+    JUNK = 0xDEAD0000                  # unmapped: reading it faults, as the caller's rdi would
     cases = [("true, record", 1, 0x01, True, True, True, True), ("true, no record", 1, 0x01, True, False, True, True),
              ("true, no target", 1, 0x01, True, True, False, True),
-             ("false", 1, 0xABCD00, True, True, True, True), ("null behaviour", 1, 0x01, False, True, True, False),
+             ("false", 1, 0xABCD00, True, True, True, True), ("false, rdi not loaded", 1, 0x00, True, "junk", True, True), ("null behaviour", 1, 0x01, False, True, True, False),
              ("off", 0, 0x01, True, True, True, False)]
     for label, mode, rax, has_beh, has_rec, has_tgt, want in cases:
         for flags in (0x202, 0x8D7):
@@ -765,7 +769,7 @@ def _check_pursue(code):
             mu.mem_write(rsp + PURSUE_UP, struct.pack("<Q", RET))
             mu.reg_write(X.UC_X86_REG_XMM6, xmm6)
             try:
-                changed = _run(mu, code, {"rax": rax, "rbx": beh if has_beh else 0, "rdi": rec if has_rec else 0,
+                changed = _run(mu, code, {"rax": rax, "rbx": beh if has_beh else 0, "rdi": JUNK if has_rec == "junk" else rec if has_rec else 0,
                                           "rsp": rsp}, flags)
             except Exception as err:      # a fault is a failed case
                 fails.append(f"rt_pursue {label}: faulted {err}")
@@ -783,8 +787,10 @@ def _check_pursue(code):
                 if written or any(entry):
                     fails.append(f"rt_pursue {label}: written {written}")
                 continue
-            exp = struct.pack("<QQQIIQIIIII", beh, unit, RET, 0, PURSUE_KIND, rec if has_rec else 0,
-                              5 if has_rec else 0, 900 if has_rec else 0, xmm6, 77 if has_tgt else NONE32, 2)
+            read = has_rec is True and rax & 0xFF
+            exp = struct.pack("<QQQIIQIIIII", beh, unit, RET, 0, PURSUE_KIND,
+                              JUNK if has_rec == "junk" else rec if has_rec else 0,
+                              5 if read else 0, 900 if read else 0, xmm6, 77 if has_tgt else NONE32, 2)
             exp += struct.pack("<IQQII", 8, state, tgt if has_tgt else 0, 13, rax & 0xFF)
             exp += bytes(ENTRY - len(exp))
             if written != 1 or entry != exp:
@@ -972,6 +978,7 @@ MUTANTS = (
     ("rt_pursue", "mov eax, dword ptr [rbx + 0xa0]", "mov eax, dword ptr [rbx + 0xa4]"),
     ("rt_pursue", "jz pu_ntgt\n    mov rdx", "jz pu_nrec\n    mov rdx"),
     ("rt_pursue", "test rdi, rdi\n    jz pu_nrec", "nop\n    nop"),
+    ("rt_pursue", "cmp dword ptr [r11 + 84], 0\n    je pu_nrec", "nop\n    nop"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),
     ("rt_land", "mov rax, qword ptr [rsp + 56]", "mov rax, qword ptr [rsp + 48]"),

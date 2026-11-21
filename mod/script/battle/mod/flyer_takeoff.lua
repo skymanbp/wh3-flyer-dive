@@ -97,6 +97,7 @@ bm:register_phase_change_callback("Complete", function()
             .. (rg and (", regroup (D23) skipped %d of %d (would %d, queued %d, no held model %d)"):format(
                 rg.skipped, rg.calls, rg.would, rg.queued, rg.unheld) or "")
             .. (c.unit and (", unit rule (D39) held %d, unit hits %d (%d not recorded), %d ticks"):format(
-                c.unit.held, c.unit.stamps, c.unit.dropped, c.unit.ticks) or ""))
+                c.unit.held, c.unit.stamps, c.unit.dropped, c.unit.ticks) or "")
+            .. (c.repick and (", order re-issued on a new main controller (D44) %d"):format(c.repick) or ""))
     end)
 end)

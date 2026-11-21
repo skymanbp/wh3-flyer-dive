@@ -120,7 +120,7 @@
 --                                 then); a tick that cannot be read is -1
 --   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> unsized=<n> unmatched=<n>
 --     used=<entries> stray=<n>[ rg_off=<0|1> rg_calls=<n> rg_skipped=<n> rg_would=<n> rg_queued=<n>
---     rg_unheld=<n>][ u_held=<n> u_stamps=<n> u_dropped=<n> u_ticks=<n> (D39)][ trace=<entries> trace_lost=<n>]
+--     rg_unheld=<n>][ u_held=<n> u_stamps=<n> u_dropped=<n> u_ticks=<n> (D39)][ repick=<n> (D44)][ trace=<entries> trace_lost=<n>]
 --                                 rg_*: [D23] the regroup caves' counters (pin_cave_asm.py), when the
 --                                 take-off caves carry them
 --                                 every 2 s; stray = entries that never were
@@ -557,6 +557,7 @@ local function sample()
                 c.regroup.unheld) or "")
             .. (c.unit and fmt(" u_held=%d u_stamps=%d u_dropped=%d u_ticks=%d", c.unit.held, c.unit.stamps,
                 c.unit.dropped, c.unit.ticks) or "")
+            .. (c.repick and fmt(" repick=%d", c.repick) or "")
             .. (trace and fmt(" trace=%d trace_lost=%d", trace.seen, trace.lost) or ""))
     end
     flush()

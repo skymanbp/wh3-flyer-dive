@@ -4,7 +4,7 @@ Flyers now charge like flyers. Dragons, griffons, pegasi, manticores and every o
 [h2]What changes[/h2]
 [list]
 [*][b]Dive and plough.[/b] The charge comes in at a shallow angle instead of dropping straight down. On landing the flyer keeps moving through the enemy rank; only collisions slow it, and those collisions deal the engine's own impact damage.
-[*][b]Braced lines hold.[/b] Units with high charge resistance are much less likely to be ploughed through: a flyer that dives into the front of a braced unit is slowed by the collision itself. Ground charges are unchanged. Can be adjusted with MCT.
+[*][b]No dead stop on braced spears.[/b] Infantries no longer freeze a landing flyer on first contact. Although, units with high charge resistance are much less likely to be ploughed through. This can be adjusted with MCT.
 [*][b]More Charge Reflection damage.[/b] Charge Reflection deals significantly more damage to diving flyers. Can be adjusted with MCT.
 [*][b]Whole units land together.[/b] Multi-entity flyers no longer bob back up into the air when the leader touches down.
 [*][b]Fairer take-off.[/b] Take-off is judged by body size, per model, and by the time since the last melee hit. Models that have taken off fly on with their unit's orders.

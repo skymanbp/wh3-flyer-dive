@@ -1070,3 +1070,6 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - One sentence added at the end of the opening paragraph on both pages: whole units land together (D45/D46), and
   models that have taken off keep following orders instead of being pulled back by models held on the ground
   (D44). The bullets below stay as they are.
+- Owner, same day: 「还有下面正文，为什么没有起飞后不被拽回那点？」 The take-off bullet's last sentence now says it
+  too: models that have taken off fly on with the unit's orders and are no longer pulled back down by models held on
+  the ground (Chinese 「指令」 for "orders", the owner's word).

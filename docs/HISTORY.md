@@ -2647,3 +2647,9 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 - **中文一栏**：按 D35 由主人在网页上手动粘贴；仓库里的中文页这一版没改（`98096eb` 起「中文页留给主人」）。写这条时还没贴。
 - **推送**：`main` 推到 `fb407bc`（`aa6c7fc..fb407bc`）；记这一条的提交随后推送。本地：新包放了一份在桌面（sha256 相同）；游戏 `data/` 没放（主人订阅着条目）。
 - **没验证的**：订阅者一侧实际收到的文件；真人联机仍没跑过。
+
+## PAGE-1121 2026-11-21：英文页起飞那条改回不带秒数（D48）
+
+- 主人令（D48）去掉起飞那条下的子条目（5.5 / 5.0 / 4.5 / 4.0 秒、至少 3 秒），回到 D40 之前的说法；英文、中文页都改（`effbe02`）。中文一栏由主人在网页上粘贴（桌面 `飞兽模组_中文说明.txt`）。
+- 英文页（默认栏）由主管用 steamcmd 只改说明：上传文件 `D:/Projects/.worktrees/wh3-flyer-dive/upload-1121/item_desc_1121.vdf` 只含 `appid`、`publishedfileid`、`title`（照抄线上）、`description`，不含内容目录、更新说明与可见性；`Committing update...Success`。
+- 核对（公开接口，`details_desc_before.json` / `details_desc_after.json`）：线上说明与仓库英文页逐字相同、子条目已不在；`hcontent_file` 3595725939344922217、`file_size` 14,247,908、`time_updated` 1795274310 都没变（文件没动）；可见性 0；标签仍 `mod`、`battle`。

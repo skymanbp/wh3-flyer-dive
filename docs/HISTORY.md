@@ -2541,3 +2541,10 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 - **包**（`release-1120/build3/`）：正式包 14,115,668 字节 sha256 `78d81520ee4d427d0204f39bb0ab0547a9f486b5f62c4d42d68d14d37a2cf047`；`probe/` 14,124,705 字节 `3b9ae6df68c2504963c572c31cd113ec2a8cef97a0fb42d43a6aae88c3aed178`；记录包 `pin_record_d39.pack` 94,067 字节 `c348db0a850feecc5fa92bdedf293e48296c4a51c733e51146b13da8cda2add7`。读包核对（`release-1120/packcheck_d39.py`）：与 `build2/` 比条目数相同，变的只有 `flyer_takeoff.lua`、`takeoff_site.lua`、`takeoff.lua`（记录包另有 `pin_on_hit_probe.lua`），`FLYPINS8`，脚本与树上逐字节相同，正式包没有测试名字。
 - **实机**（`runs/rec3_off`、`runs/rec3_on`，巨龙马三队对奸奇神选长戟，cycle 场景，镜头跟拍第 1 路 `fails=0`）：撤离令时在地上的兵模最早离地 3.3–3.4 秒（三队 × 两局，中位 3.5–4.6 秒）；D37 的包同场景最早 0.4 秒（`tk_mod_longma`），原版 3.4 秒（`tk_van_longma`）。部队规则答「按住」8,023 / 9,260 次，部队打击 261 / 248 次、0 丢失、窗口 30。两局都没出现「一半在天上、一半被按住」：`rg_would = 0`（关修法那局）、`rg_skipped = 0`，拉回的对比镜头这一场景拍不到。
 - **一个单独的现象**：`rec3_on` 有 1 个兵模在挨打后 0.1 秒离地（`takeoff-longma-1121/fasthit.py`：那一刻阶段 2、倒计时 0，下一采样已是阶段 3）：打击与离地落在同一 tick，打击在引擎决定起飞之后到达，阶段 3 不在抬升范围里。是 D11 那条间隙的同一 tick 边界，与 D39 无关，没改。
+
+## PULLBACK-CLIP-1121 2026-11-21：拉回对比镜头在新版上拍不到（D40、D41），按主人的话不放对比
+
+- 场景都用 `build3` 的包（D39，`FLYPINS8`），cycle 场景，镜头跟拍第 1 路（四局都 `fails=0`），一局关修法（`regroup 0`）、一局开。
+- 狮鹫骑士对奸奇神选长戟（`runs/recg_off`、`runs/recg_on`，D40）：`rg_would = 0`、`rg_skipped = 0`，`chaincheck.py` 拉回的兵模 0 个。
+- 狮鹫骑士对帝国戟兵（`runs/rece_off`、`runs/rece_on`，D41；D37 之前同场景关修法拉回 9 / 3 / 3）：同样 0。
+- 读法：D39 以后挨打的部队整队至少等 3 秒、一起离地，「一半在天上、一半被按住、部队又没有命令」的局面在这几局里没出现，引擎就没有把飞起来的兵模派回去冲锋。修法照旧随包发布（模拟器与 D23-AB-1120 的实机结果不变）。主人 D41：还是没有就不放对比，直接发布。

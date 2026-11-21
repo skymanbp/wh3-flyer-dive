@@ -24,7 +24,7 @@
 - 现行的包在 `D:/Projects/.worktrees/wh3-flyer-dive/release-1120/build3/`（D39 之后，`FLYPINS8`）：正式包、带移动记录器的 `probe/`、D23 记录包 `pin_record_d39.pack`；`build2/` 是 D37 的（`FLYPINS7`），不要再用；MCT 关的替身仍用 `build/brace_mct_off.pack`（与起飞无关）。`build/` 里其余三个包是 D37 之前的（`FLYPINS6`），不要再用来测或发。sha256 见 HISTORY 的 TAKEOFF-PLUS1-1121 与 RELEASE-PREP-1120。
 - 更新说明草稿 `workshop/flyer_dive/changenote.txt`（英文在前、简体中文在后）；页面改动草稿（没改仓库里的页面）`D:/Projects/.worktrees/wh3-flyer-dive/release-1120/page_lines_draft.diff`。两样都要主人逐条点过（D19–D21）。
 - **欠实机（主管跑）**：清单 `D:/Projects/.worktrees/wh3-flyer-dive/release-1120/jobs_release_1120.txt`（七局：D23 修法开三局、撞枪阵默认值与 MCT 关各一局、地面骑兵对照、标准三星龙基线）。
-- 还欠：D23 的说明与对比图（D23）；D23 的拉回对比镜头在龙马对神选长戟里拍不到（D39 后整队一起走，没有一半被按住的局面，TAKEOFF-UNIT-1121），换什么拍或不放要主人定；主人对更新说明、页面改动、推送与上传的同意。
+- 还欠：D23 的说明与对比图（D23）；D23 的拉回对比：龙马、狮鹫对神选长戟、狮鹫对帝国戟兵四局都没出现拉回（PULLBACK-CLIP-1121），按 D41 不放对比；主人对更新说明、页面改动、推送与上传的同意。
 
 ## 这一版的来历：分支 `update-1117`，改名在其上的 `rename-1118`（2026-11-19 已发布，下面是做它时的记录）
 

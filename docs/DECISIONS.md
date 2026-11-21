@@ -912,3 +912,14 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 
 - Release waits. The maintainer finds where the engine drops the order (probe first), then proposes the fix; the change
   is flyers only and is checked in game against the same scene before release.
+
+### D43 · The dropped-order fix is for the player's flying units only, while the unit is split (2026-11-21)
+
+> Owner, 2026-11-21: 「这项改动仅对玩家生效。很多时候玩家用步兵去拦截AI的部队，就是靠的这个特性，不然AI的部队会不被步兵攻击拦截。或者你有没有更好的方法？」
+> Asked whether to limit it further to the time the flying unit is split (some models in the air, some held on the
+> ground): 「1。不过我感觉1和2没区别就是了。你同时思考有没有更优雅更原理性的解决方案，总感觉这样条件判断有点"作弊"的意思」
+
+- Scope: only units the player controls, only flying units, only while part of the unit is airborne and part held.
+  AI units keep the game's own handling (infantry can still pin them by making their orders drop).
+- The owner wants a more principled fix than a condition patch if one exists: the maintainer first finds why the
+  engine drops the order (probe-backed), then proposes the fix that follows from that cause, condition patch as fallback.

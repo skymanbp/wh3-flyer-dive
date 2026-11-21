@@ -571,3 +571,195 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   side that is attacked must not have guard mode switched on. The harness now sets guard mode off explicitly for
   every flyer and every target and writes each unit's behaviour state at the start and at every re-attack
   (`mod/tools/pipelines/air_dive_autotest.lua`, `guard_on=<0|1>`); no earlier run of today recorded it.
+
+### D24 · The two local docs commits are pushed (2026-11-19)
+
+> One question in a sitting of three (owner, 2026-11-19 about 20:12, recorded here at 20:20):
+>
+> - 「本地还没推到 GitHub 的提交推不推？主模组 2 笔（都是今晚的文档与计划表），飞行模组 2 笔（都是文档，含你刚提的多兵模问题那条记录）。」 → 「两边都推」
+
+- Pushed at 20:12: `main` from `5a98bb4` to `57ac401` (commits `2b17a85` and `57ac401`, docs only). Checked by
+  fetching afterwards: the remote `main` is `57ac401`.
+- The consent covers this one push (D6). This record's own commit stays local until the next push is asked for.
+- Lane branch `regroup-1119` (D23) is local only.
+
+## 2026-11-20
+
+### D25 · Braced charge-defence infantry against a dive: settled by the engine's own physics, tunable in MCT (2026-11-20)
+
+> Owner, 2026-11-20 about 13:29, in the main mod's session, with a screenshot of two comments on the Workshop page
+> (one asks for an MCT toggle for "no dead stop on braced spears"; the other says that 3% damage is nothing when the
+> dive breaks the formation so badly):
+>
+> 「看截图，这俩评论我觉得说得都有道理。我们现在的冲穿冲锋反制部队的改动是怎么做的？我记得原版的话冲锋反制是会增加质量/冲锋抗性来着？因为增加的冲锋抗性所以原版才会更难冲穿冲锋反制部队。我们mod是怎么做的？并没有强制冲穿吧？研究一下。」
+>
+> Asked the same day (about 14:00, in one sitting) how a frontal dive into braced charge-defence infantry should be
+> settled from now on, he wrote his own answer instead of taking an option:
+>
+> 「1.增加冲锋抗性的效果。2.增加冲锋反制的造伤。3.加mct选项，让玩家可以自行调整平衡。总之，不设置条件判断来硬改，而是从游戏本身的物理引擎来解决问题。」
+>
+> - Size of the cost of a frontal dive into braced Charge Reflection infantry (3% of a model's maximum health today,
+>   D15): 「提到 10%」
+> - An MCT switch for it: 「加开关（推荐）」
+> - In-game tests: 「我接下来有些会议，所有实机测试暂停，等我指示。其他方向的任务应该有一大堆没做完，不要停。」
+
+- What he was told before he answered (from this repository's records; nothing new was measured): the mod does not
+  force a charge-through and does not change the brace mass multiplier or any `_kv_rules` value. It gives the dive a
+  through-goal, keeps the landing speed, and holds off the engine's "touched an upright enemy, so the order becomes a
+  melee order and the unit brakes" while the landed flyer is still fast (D4, `docs/HISTORY.md` AIR-DIVE-BRACE-W1).
+  Measured with the mass cut: 16 early stops in 120 dives into braced spears and halberds. So bracing barely counters
+  a big flyer's dive and the price is D15's 3%. His memory of vanilla is right in substance: a standing soldier's mass
+  multiplier is doubled by the two charge-defence attributes (`docs/SPEC.md`, pillar two); Charge Reflection is the
+  damage attribute.
+- The ruling, in the maintainer's words: (1) the engine's charge resistance has to count for more; (2) Charge
+  Reflection has to hurt more; (3) the balance is the player's to tune in MCT; and there is to be no rule of the form
+  "if the target is braced charge-defence infantry, stop the flyer": the outcome has to come out of the collision.
+- Maintainer's readings, not the owner's words. "10%" is the size the cost should have: it is to be delivered by the
+  engine's own Charge Reflection damage where that can be brought there (the game already applies
+  `charge_reflect_damage_multiplier` to a diving flyer, D4's in-game measurement); D15's scripted deduction stays only
+  if the engine's damage cannot be brought there, and the owner is told which it is before anything ships. "An MCT
+  switch" and "MCT options" are read as one set of settings whose defaults are these choices.
+- Open, and the maintainer's to settle by reading and measurement: which values carry this and whether they are pack
+  rows or constants in the executable; that a `_kv_rules` value is global, so ground cavalry and monsters feel it too;
+  how an MCT setting reaches a value the pack fixes at load; whether the hold on the melee-order switch is itself a
+  forced outcome under this ruling. Nothing is built or verified.
+- Order of work: an offline, read-only survey of the engine values and the design options (started 2026-11-20); the
+  design is chosen by the maintainer and recorded here; it is built offline; it is measured in game with negative
+  controls **once the owner lifts the pause**; page text and upload go the way D6 and D19 to D21 set (the page lines
+  "No dead stop on braced spears" and "More Charge Reflection damage" then need the owner's item-by-item pass).
+- **All in-game tests of this mod are paused from 2026-11-20 about 14:05 until the owner says otherwise.** That
+  covers D23's reproduction runs. The game is not started.
+- A rule change in the battle simulation means a new multiplayer agreement marker (CLAUDE.md); MCT settings follow
+  the host (D14).
+
+### D26 · The brace changes are for flyers only; charge resistance is a stat of its own (2026-11-20)
+
+> Owner, 2026-11-20 about 14:55, in the main mod's session:
+>
+> 「飞行mod怎么样了？还有，冲锋反制和抵御冲锋的修改都是针对飞行部队，地面部队冲锋效果不要变。我比较好奇为什么到飞行部队身上抵御冲锋的效果就变差了，要不要换个方向，继续调整飞行单位的质量？还是继续调抵御冲锋给的冲锋抗性（冲锋抗性是个单独的属性，你去看一下，不只是质量）、冲锋反制给的伤害？」
+
+- **Constraint (the owner's):** whatever D25 changes applies to flying units only. A ground unit's charge into braced
+  infantry stays exactly vanilla. That rules out changing a global `_kv_rules` value (`bracing_*`,
+  `charge_reflect_damage_multiplier`) and rules out raising a spear unit's own charge resistance for every charger.
+- **He is right about the stat (read from the installed game on 2026-11-20, read-only).** The game has a unit stat
+  `scalar_bracing`; the client's Chinese name for it is 「冲锋抗性」
+  (`unit_stat_localisations_onscreen_name_scalar_bracing`). Three vanilla ability phases multiply it:
+  `wh2_main_lord_passive_glamour_of_hoeth` ×3, `wh3_main_unit_passive_defensive_stance` ×1.25,
+  `wh3_main_unit_passive_defensive_stance_buffer` ×1.1 (table `special_ability_phase_stat_effects`, read from its raw
+  bytes; control: 21 rows of `stat_bonus_vs_large` parse with the same layout). This repository's records never
+  looked at it: `docs/SPEC.md` pillar two describes the brace multiplier only by ranks, direction and the two
+  charge-defence attributes. How the engine combines the stat with that multiplier has not been read.
+- **Why charge defence does little against a flyer, as far as the records go.** In vanilla a flyer never tests it: the
+  engine stops a landed flyer at the first upright enemy whatever the masses (`docs/HISTORY.md` AIR-DIVE-BRACE-W1).
+  With this mod's holds the collision decides for the first time, and there a braced soldier's mass times its
+  multiplier stays under every flyer's mass. Numbers from the offline survey of 2026-11-20, not re-read by the
+  maintainer: Empire spearmen 100, High Elf spearmen 150, the largest multiplier seen in a run 5.43, the cap 10;
+  flyers after the mass cut from 1300 (pegasus) to 4425 (star dragon). The exact rule by which the pairwise
+  collision uses mass and the brace value is not recorded; that gap is the next thing to close.
+- **Direction chosen by the maintainer (technical route; the owner was told):** not a deeper mass cut. Mass makes a
+  flyer weaker against everything, not only against a braced line, and no cut within reason brings a dragon under a
+  spearman. Instead: scale the engine's own brace value where the two bodies meet, only when the charger is a diving
+  flyer, so that the collision still decides and ground chargers see vanilla; the strength is an MCT setting. The
+  cost of the dive stays D15's scripted share, raised to the owner's 10%, also an MCT setting. A flyer-only factor on
+  the Charge Reflection multiplier is the second step, if that code site lets the target be identified. All of this
+  is unverified until the collision code has been read; if it cannot be done for flyers only, the owner is told
+  before anything else is tried.
+- In-game tests stay paused (D25).
+
+### D27 · What the brace value does in a collision: D26's route would not stop a flyer (2026-11-20)
+
+Maintainer's finding and change of route, about 15:45; no new instruction from the owner. It answers his question in
+D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and withdraws the route D26 announced, as D26 promised.
+
+- **What was read** (installed game 9.0.5, read-only, offline; `docs/HISTORY.md` BRACE-READ-1120). The engine keeps
+  one brace multiplier per body. In the battle code it meets the body's mass in exactly one place the census found:
+  the collision damage formula, where the charger's mass is divided by the struck body's mass times its brace
+  multiplier, then multiplied by the relative speed and passed through the `collision_damage_*` rules. Its only other
+  road into the collision is a flag, "cannot be pushed", set when brace times mass reaches
+  `bracing_immovable_by_small_entity_mass` (600). The two places that honour the flag do so only for a pusher whose
+  size class is at most 1 and not above the braced body's own.
+- **So D26's route is withdrawn.** Scaling the brace value against a diving flyer would lower the collision damage
+  the flyer deals to the braced soldiers. Nothing read says it would slow or stop the flyer.
+- **Answer to the owner's question.** Charge defence was never what stops a large body in this engine. The brace
+  value protects a braced soldier from impact damage and from being pushed by bodies of its own size class or
+  smaller. In vanilla a diving flyer is stopped by a different rule, the engine's brake at the first upright enemy,
+  braced or not (`docs/HISTORY.md` AIR-DIVE-BRACE-W1), and this mod removes that brake on purpose. What is left
+  against a flyer is the Charge Reflection hit and D15's scripted cost.
+- **Not known.** Which code slows a large body that ploughs through small ones; two functions are named as
+  candidates and are only partly read. Whether `scalar_bracing` is the unit-level factor inside the brace
+  multiplier is likely but unproven. The census has limits (see the HISTORY section).
+- **Route from here (maintainer's, technical):**
+  1. Offline: read the step that slows the large body. If it compares masses, the lever that fits D25 and D26 is to
+     let a braced body's brace multiplier count as mass in that comparison when the pusher is a diving flyer. That
+     uses the engine's own number (ranks, facing, the charge-defence attributes, charge resistance); ground chargers
+     see vanilla; the strength is an MCT setting. If masses are not compared there, the owner is told.
+  2. Offline, independent of 1: D15's cost from 3% to the owner's 10% as an MCT setting with the master switch
+     (D25), and a flyer-only factor on the Charge Reflection multiplier. The reflection code names the struck
+     charger, so flyers can be told apart there; the patch is designed but not assembled.
+  3. Needs the game (paused, D25): a passive probe that logs the flyer's speed and the pair results each tick, to
+     confirm 1, then the standard runs.
+- Still no deeper global mass cut (D26's reason stands).
+
+### D28 · All flyer mod work moves to this repository's own session (2026-11-20)
+
+> Owner, 2026-11-20 about 16:05, in the main mod's session:
+>
+> 「这样，飞行mod的所有更新、信息、内容、规则、要求、历史记录，等等等等，所有东西，全部做好交接，发送给飞行mod仓库的会话（我那边开了新会话），所有飞行mod的更新、开发都在那边进行。」
+
+- From this statement on the main mod's session does no flyer work: no research lanes, no documents, no commits in
+  this repository. A flyer question asked over there is passed on to this repository's session, not worked on there.
+- The handover is `docs/research/2026-11-20-handover.md`: every statement the owner made about this mod on
+  2026-11-20, what was read and by whom, what he has and has not been told, what is owed. The three research reports
+  of that day are beside it. The commit that adds them is the main session's last one here.
+- Handed over unfinished: D25 to D27 (nothing built, nothing measured; the newest reading, BRACE-READ-1120b, has not
+  been re-read by anyone and has not been reported to the owner), D23 (not started), the unpushed docs commits
+  (a push needs the owner's consent), and the pause on all in-game tests (D25), which only the owner lifts.
+
+### D29 · Stopping a dive at a braced line: extend the engine's "cannot be pushed" rule; mass cut as the fallback; the pause is lifted (2026-11-20)
+
+> Owner, 2026-11-20 about 16:40, in this repository's session, answering one set of questions after being told that the
+> engine's physics can only make a braced line hurt more, not stop a flyer:
+>
+> - Stop the flyer or not (options: extend the engine's "cannot be pushed" rule to a diving flyer / do not stop it,
+>   only more damage / a rule at the brake moment): 「1+加伤害，如果不行就减飞行单位的质量」
+> - Lift the in-game pause for a log-only probe: 「解除，直接跑。」
+> - Push the docs-only commits on `main`: 「现在推」
+
+- **Verified before he was asked** (`docs/HISTORY.md` VERIFY-1120c): the maintainer re-read the addresses
+  BRACE-READ-1120b rests on; every one read as the lane said. Mass enters the impulse function `0x142f8d520` and the
+  priority test `0x142f95da0` only as stated; neither writes the pusher's velocity. "Nothing slows a large body by the
+  small bodies' mass" is still "not found", not "proven absent".
+- **The ruling, in the maintainer's words:** (1) a diving flyer is to be stopped, if at all, by the engine's own
+  "cannot be pushed" rule (`bracing_immovable_by_small_entity_mass`, brace × mass ≥ 600), extended so that it counts
+  against a diving flyer as it counts against a small body (lever A of BRACE-READ-1120b); (2) plus more damage: D25's
+  10% cost and a flyer-only factor on Charge Reflection, both MCT settings with the master switch; (3) if lever A, once
+  measured, does not stop the flyer, the fallback is a deeper cut of the flyers' mass. That fallback is the owner's
+  call and overrides D26's and D27's "no deeper mass cut" for this case; how deep is measured, then reported.
+- No rule at the brake moment (option C), as D25 said.
+- **The in-game pause (D25) is lifted.** The first run is the log-only probe of BRACE-READ-1120b's unknowns (what the
+  `+0x1b0` mark does, whether lever A's flag is reached, what takes the flyer's speed in the block). The machine checks
+  of CLAUDE.md still apply (the owner's games, one heavy job at a time, said before it starts).
+- Push consent: the docs-only commits on `main` as of this decision, this once.
+
+### D30 · The next version ships the braced-line work and the pull-back fix together (2026-11-20)
+
+> Owner, 2026-11-20 evening, in this repository's session: 「汇报进度，开始推进，发布新版更新」. Asked whether the next
+> version waits for both open items (D29's braced-line work; D23's pull-back of models that took off) or ships each as
+> it is checked, he chose: 「两件一起发」.
+
+- The next upload carries D29 and D23 together, each built and checked in game first. The upload itself, the page
+  text and the D23 comparison picture are still each shown to him and need his go-ahead (D6, D19 to D21, D23).
+- Correction of the record: `docs/STATUS.md` and the handover said D23 was "not started". Branch `regroup-1119` has
+  three commits from 2026-11-19 evening (`54cf6ce`, `0389a23`, `a71871b`): a per-model recorder, six trace caves and a
+  probe-backed partial root cause (an airborne idle model is given a ground enemy as command target, the engine asks
+  it to land, it flies back); the unit-level caller is not yet found; guard mode is now set off and recorded in every
+  run. None of it is on `main`.
+
+- **2026-11-20 约 17:40, correction to D27 (maintainer's reading, `docs/HISTORY.md` PAIR-SOLVER-1120):** D27's
+  "the brace value only enters the collision damage formula" is wrong. The real pair solver `0x14317768c` multiplies a
+  braced, front-facing enemy's mass by its brace multiplier when it computes the velocity correction (re-read at
+  `0x1431781ee` / `0x1431781fe`). What keeps a big flyer from slowing is the solver's size-tier share (0.8 / 0.2 /
+  0.1 / 0 for tier gaps 1-4, re-read). So D25's "charge resistance counts for more" can be done inside the engine's own
+  formula: for a diving flyer only, raise the braced soldier's effective mass and the flyer's tier share there, as MCT
+  settings. D29's lever A is dropped (BRACE-PROBE-1120); a mass cut stays the fallback (capped by the same share).
+  Not yet measured: whether the solver's result reaches a landed flyer in game.

@@ -752,3 +752,14 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   formula: for a diving flyer only, raise the braced soldier's effective mass and the flyer's tier share there, as MCT
   settings. D29's lever A is dropped (BRACE-PROBE-1120); a mass cut stays the fallback (capped by the same share).
   Not yet measured: whether the solver's result reaches a landed flyer in game.
+
+### D32 · Braced line against a dive: lighter defaults, measured again (2026-11-20)
+
+> Owner, 2026-11-20 about 21:35, in this repository's session, shown the five runs of `docs/HISTORY.md` BRACE-AB-1120
+> (manticore stopped in 0.2 s, star dragon in about 10 m), asked how heavy the default should be:
+> 「调轻一档再量(推荐)」
+
+- The defaults of D31 (k 3.4, s* 0.8) are too heavy. Target, in the maintainer's words: a big flyer goes a few metres to
+  a dozen metres into a braced line before it stops, not dead on contact. The maintainer picks the new defaults from
+  the formula, measures them in game on the same scene, and reports the numbers before the release (D30). Players can
+  still set anything in MCT.

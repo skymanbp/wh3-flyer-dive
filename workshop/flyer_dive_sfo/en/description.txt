@@ -10,8 +10,8 @@ Lets Flying Charge Overhaul run with SFO: Grimhammer III without undoing SFO's f
 
 [h2]Requirements[/h2]
 [list]
-[*]Flying Charge Overhaul
-[*]SFO: Grimhammer III
-[*]memreader Plus (win64 / Proton)
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3840651516]Flying Charge Overhaul[/url] (the main mod)
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2792731173]SFO: Grimhammer III[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3811098873]memreader Plus (win64 / Proton)[/url]
 [/list]
 Place this mod above both in the load order.

@@ -30,6 +30,7 @@
 
 [h2]兼容[/h2]
 [list]
+[*]用 SFO: Grimhammer III 的话，请同时订阅[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3843730179]SFO 兼容子模组[/url]。
 [*]改同一批飞兽单位、坐骑、战斗实体行的模组，按加载顺序决定谁生效。
 [*]本模组替换了原版「陷入近战时禁用技能」那张表，带同一张表的模组会冲突。
 [/list]

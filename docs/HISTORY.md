@@ -2700,3 +2700,21 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
   抽查：飞马骑士每兵模血量加成 原版 245 / SFO 375 / 主包 245 / 子包 375；野生蝎尾狮 5095 / 7500 / 5095 / 7500，子包动作表为 `bc3_manticore_dive`。
 - **主包没变**：本分支重建的主包 sha256 `d898c50a…be30`，与已发布的一致。全套测试 299 项通过（新增 `test_sfo_submod.py` 6 项）。
 - **没验证**：没进游戏；「名字排前的行生效」是此前测得的规律，这个子包与 SFO 一起没实测过。工坊条目没建（要主人同意）。
+
+## SFO-PUBLISH-1121 2026-11-21 晚：SFO 子模组上了工坊（D58），两页互链；标签与前置条目没设上；官方启动器初查
+
+- **新条目 3843730179**「Flying Charge Overhaul - SFO Compatibility」，steamcmd 建（`Create new workshop item ( PublishFileID 3843730179)`，
+  `Committing update...Success`）。暂存：`D:/Projects/.worktrees/wh3-flyer-dive/sfo-1121/upload/`（包 297,565 字节、封面用主模组那张）。
+  公开接口核对：公开、`file_size` 426,597 ＝ 包 ＋ 封面、英文说明与仓库逐字相同。
+- **互链**：子模组前置列出主模组、SFO、memreader Plus（都带链接）；主模组「兼容」一节首条加 SFO 子模组链接。主模组英文页只改说明上线
+  （核对：逐字相同，包未动）。中文两份放在桌面（`飞兽模组_中文说明.txt`、`SFO子模组_中文说明.txt`），由主人贴。
+- **没设上的**：新条目的标签（`mod`、`battle`）与三个前置条目。经游戏的 steam_api64.dll 调 `SetItemTags` / `AddDependency`
+  （`sfo-1121/upload/ugc.py`）全部返回 3（No Connection）。根因（Steam `logs/connection_log.txt`）：15:31:48 桌面客户端
+  `RecvMsgClientLoggedOff('Session Replaced')`，`not auto reconnecting`——是 steamcmd 用同一账号登录把它顶下线的。
+  主人的客户端重新上线后再调；期间不再用 steamcmd。（11-16 那次补标签「回调不回」很可能是同一原因。）
+- **官方启动器初查**（`D:/Projects/.worktrees/wh3-flyer-dive/launcher-1121/`）：启动器的本地模组表 `20190104-moddata.dat`
+  （主人这台机器，最后一次 11-21 06:25 UTC）有 281 条；订阅的 240 个里 8 个不在表里，本模组是其中之一。8 个里 7 个带 `battle` 标签、
+  都是较新的订阅；较早订阅、同样带 `battle` 的 3 个在表里（类别 battle），启动器代码里的类别表也有 Battle，所以不是标签本身。
+  公开接口能看到的字段（结果、可见性、文件名、消费者 App、封禁）在表内与表外的条目之间没有差别。启动器的列表来自它自带的
+  greenworks（CA 改版）`getModInformation`，按「已订阅、订阅时间倒序」查 Steam。日志里每次都有 totalwar.com 接口 403。
+  **根因未定**。下一步：客户端重新上线后，用同一接口查 Steam 返回的已订阅列表，看这 8 个在不在里面。

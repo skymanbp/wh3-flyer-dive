@@ -30,6 +30,7 @@ Multiplayer campaign/battle supported.
 
 [h2]Compatibility[/h2]
 [list]
+[*]Playing with SFO: Grimhammer III? Also subscribe to the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3843730179]SFO compatibility submod[/url].
 [*]Any mod that changes the same flyer unit rows, mounts or battle entities wins or loses by load order.
 [*]This mod replaces the vanilla table that stops abilities in melee. A mod that ships the same table conflicts.
 [/list]

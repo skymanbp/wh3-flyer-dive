@@ -10,8 +10,8 @@
 
 [h2]前置[/h2]
 [list]
-[*]飞兽俯冲冲锋重做
-[*]SFO: Grimhammer III
-[*]memreader Plus (win64 / Proton)
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3840651516]飞兽俯冲冲锋重做[/url]（主模组）
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2792731173]SFO: Grimhammer III[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3811098873]memreader Plus (win64 / Proton)[/url]
 [/list]
 加载顺序放在这两个模组之上。

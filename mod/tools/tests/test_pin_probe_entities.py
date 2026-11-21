@@ -250,7 +250,8 @@ class EntityLines(unittest.TestCase):
                                       "p18=00000000c0ffee00 p20=0000000000000005 p28=00000000a0a0a0a0 "
                                       "p30=0000000000000000"), g[1])
         gc = next(ln for ln in lines if ln.startswith("GC "))
-        self.assertTrue(gc.endswith("land=3 cancel=0 target=1 stay=0 order=1 stub=1 task1=1 task2=0 mktask=1 lost=0"),
+        # [D42] pop= is the order-queue pop probe's counter (rt_pop, kind 10)
+        self.assertTrue(gc.endswith("land=3 cancel=0 target=1 stay=0 order=1 stub=1 task1=1 task2=0 mktask=1 pop=0 lost=0"),
                         gc)
         rec, problems = rep.parse("\n".join(lines))
         self.assertEqual(problems, [])

@@ -358,10 +358,10 @@ local function drain_calls(ms, uid_of)
         end
         if stop then break end
     end
-    local raw = mr.read(c.buf, l.calls_at, 36)
-    local line = fmt("land=%d cancel=%d target=%d stay=%d order=%d stub=%d task1=%d task2=%d mktask=%d lost=%d",
+    local raw = mr.read(c.buf, l.calls_at, 40)
+    local line = fmt("land=%d cancel=%d target=%d stay=%d order=%d stub=%d task1=%d task2=%d mktask=%d pop=%d lost=%d",
         u32le(raw, 1), u32le(raw, 5), u32le(raw, 9), u32le(raw, 13), u32le(raw, 17), u32le(raw, 21), u32le(raw, 25),
-        u32le(raw, 29), u32le(raw, 33), c.lost)
+        u32le(raw, 29), u32le(raw, 33), u32le(raw, 37), c.lost)
     if line ~= c.last then
         c.last = line
         emit(fmt("GC %d %s", ms, line))

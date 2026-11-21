@@ -878,3 +878,16 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   countdown at 30 and the away order starts from a full 3 s. After the order (phase 2) only the model's own window holds.
 - Battle-sim change: take-off marker `FLYPINS7` -> `FLYPINS8`. Checked in game with the great longma against the Tzeentch
   Chosen halberds before release (models still on the ground at the order wait 3 s or more).
+
+### D40 · The pull-back comparison is filmed with griffons; the take-off line gets a sub-bullet (2026-11-21)
+
+- Measured first (`TAKEOFF-UNIT-1121` on `release-1120`): after D39 the great longma unit leaves together, so no
+  model is airborne while another is held, and the pull-back cannot be filmed with longma.
+
+> Owner, 2026-11-21, asked what the comparison should use (griffons, or no comparison): 「Film with griffons」
+> Asked whether to add the 3 s rule to the English "Fairer take-off" line: 「可以换行然后加一个子句bullet，简要说一下规则。」
+
+- The comparison: same Tzeentch Chosen halberds, griffon knights (`wh2_dlc15_hef_inf_mistwalkers_griffon_knights_0`)
+  as the flyer, fix off / fix on, on the D39 packs.
+- The English page: under "Fairer take-off", a nested bullet that states the take-off rule briefly; shown to the owner
+  before upload (D35: positive facts only).

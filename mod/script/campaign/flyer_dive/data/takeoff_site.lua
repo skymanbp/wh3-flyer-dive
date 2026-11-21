@@ -45,6 +45,12 @@ return {
             at = 14, expect = '48 8B 53 10 48 8B 4A 08 48 8D 54 24 20',
             bytes = '9C 50 51 52 56 57 41 50 41 51 41 52 41 53 49 B9 {buf:8} 41 83 79 04 01 0F 85 5F 01 00 00 F0 41 FF 41 44 48 85 DB 0F 84 51 01 00 00 48 8B 43 10 48 85 C0 0F 84 44 01 00 00 48 8B 48 08 48 85 C9 0F 84 37 01 00 00 83 B9 04 01 00 00 02 0F 85 2A 01 00 00 48 8B 91 E8 02 00 00 48 85 D2 0F 84 1A 01 00 00 83 BA 88 2F 00 00 00 74 0A F0 41 FF 41 50 E9 07 01 00 00 48 8B 41 58 48 85 C0 0F 84 C4 00 00 00 48 8B 80 40 04 00 00 48 85 C0 0F 84 B4 00 00 00 44 8B 80 98 00 00 00 8B B2 84 01 00 00 8D 46 FF 3D FF 03 00 00 0F 87 99 00 00 00 48 8B 92 88 01 00 00 48 85 D2 0F 84 89 00 00 00 4C 8B 12 4D 85 D2 74 75 41 83 BA 04 01 00 00 00 75 6B 41 8B 42 74 FF C8 83 F8 03 76 05 B8 04 00 00 00 45 8B 5C 81 2C 4C 89 D0 48 C1 E8 04 4C 89 D1 48 C1 E9 11 48 31 C8 4C 89 D1 48 C1 E9 1E 48 31 C8 25 FF 1F 00 00 BF 40 00 00 00 89 C1 48 C1 E1 04 49 8D 8C 09 80 00 00 00 4C 39 11 74 13 48 83 39 00 74 18 FF C0 25 FF 1F 00 00 FF CF 75 DC EB 0B 44 89 C0 2B 41 08 44 39 D8 72 13 48 83 C2 08 FF CE 0F 85 77 FF FF FF F0 41 FF 41 54 EB 2F 41 83 79 40 00 75 23 F0 41 FF 41 48 41 5B 41 5A 41 59 41 58 5F 5E 5A 59 58 9D 50 48 B8 {resume:8} 48 87 04 24 C3 F0 41 FF 41 4C 41 5B 41 5A 41 59 41 58 5F 5E 5A 59 58 9D',
         },
+        {
+            name = 'pin_repick', feature = 'takeoff', kind = 'cave',
+            pattern = '83 7B 24 00 75 4F 48 8B 87 F8 32 00 00 48 3B D8 75 14 48 8B CF E8 ?? ?? ?? ?? 48 8B 87 F8 32 00 00 48 3B D8 74 2F',
+            at = 26, expect = '48 8B 87 F8 32 00 00',
+            bytes = '48 8B 87 F8 32 00 00 49 B9 {buf:8} 49 BA {resume:8} 41 83 79 04 01 75 68 48 85 C0 74 63 48 39 D8 74 5E 83 BF 84 01 00 00 00 74 55 83 BF 88 2F 00 00 00 74 4C 8B 8F 94 32 00 00 83 F9 40 77 41 48 8B 97 98 32 00 00 48 85 D2 74 35 85 C9 74 31 48 39 02 74 08 48 83 C2 08 FF C9 EB EF F0 41 FF 41 68 50 41 52 48 83 EC 20 48 8D 8F 78 02 00 00 4D 8D 9A 29 4C 00 00 41 FF D3 48 83 C4 20 41 5A 58 41 FF E2',
+        },
         -- unit +0x184/+0x188 flight entities, entity +0x128 FC
         { name = 'pin_layout_list', feature = 'takeoff', kind = 'anchor',
           pattern = '44 39 B2 84 01 00 00 0F 86 ?? ?? ?? ?? 48 8B 82 88 01 00 00 8B CD 4C 8B 04 C8 49 8B B8 28 01 00 00 48 85 FF' },
@@ -75,13 +81,16 @@ return {
         -- damage type 1..4: ranged and explosions
         { name = 'pin_kind_ranged', feature = 'takeoff', kind = 'anchor',
           pattern = '41 83 E0 03 41 FF C0 88 5C 24 30 44 89 44 24 28 44 8B C0 88 54 24 20 48 8B D7 E8' },
+        -- the order restart 0x14304e030 pin_repick calls
+        { name = 'pin_call_restart', feature = 'takeoff', kind = 'anchor',
+          pattern = '48 83 EC 28 83 B9 10 2D 00 00 00 74 1A 8B 81 14 2D 00 00' },
     },
-    caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2' },
-    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22 },
+    caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick' },
+    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 7 },
     layout = {
         bytes = 147584, mode_at = 4,
         stamps_at = 8, allowed_at = 12,
-        magic_at = 16, magic = 'FLYPINS8',
+        magic_at = 16, magic = 'FLYPINS9',
         dropped_at = 24, unmatched_at = 28,
         held_at = 32, free_at = 36, unsized_at = 40,
         table_at = 128, table_slots = 8192,
@@ -96,8 +105,11 @@ return {
         unit_held_at = 92, unit_stamps_at = 96,
         unit_dropped_at = 100,
         unit_table_at = 131200, unit_slots = 1024,
+        repick_at = 104,
     },
-    format = 206205,
+    -- [D44] pin_repick calls the engine's restart: the two found addresses must be this far apart
+    distances = { { from = 'pin_repick', to = 'pin_call_restart', bytes = 19504 } },
+    format = 1027110,
     build = '6ae2a00b',
-    source_sha = '3257b6e0c9fa3f6f840736d3281469143b513978b43e4e4a025957b33287cdcc',
+    source_sha = 'fac24267c703bd740514bacd27a247623efc56de9d7dca7e117d73888b8e978a',
 }

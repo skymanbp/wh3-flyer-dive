@@ -150,6 +150,14 @@ function M.install(log_fn)
             local resume = mr.add(hold, site.resume_at)
             for _, name in ipairs(site.caves) do given[name] = { buf = have, resume = resume } end
         end
+        -- [D44] a cave that calls an engine function: the two found addresses must be the table's distance apart
+        for _, d in ipairs(site.distances or {}) do
+            local a, b = api.address(d.from), api.address(d.to)
+            if not a or not b then return nil, "no address for " .. tostring(d.from) .. " / " .. tostring(d.to) end
+            if mr.tostring(mr.add(a, d.bytes)) ~= mr.tostring(b) then
+                return nil, d.to .. " is not " .. tostring(d.bytes) .. " bytes after " .. d.from .. " (game patched?)"
+            end
+        end
         local done, problem = api.install_feature(site.feature, given)
         if not done then return nil, tostring(problem) end
         local now, placed = installed()
@@ -198,7 +206,7 @@ function M.arm(buf, windows, mode, regroup_off)
     for _, at in ipairs({ layout.stamps_at, layout.dropped_at, layout.unmatched_at, layout.held_at,
             layout.free_at, layout.unsized_at, layout.regroup_calls_at, layout.regroup_skipped_at,
             layout.regroup_would_at, layout.regroup_queued_at, layout.regroup_unheld_at,
-            layout.unit_held_at, layout.unit_stamps_at, layout.unit_dropped_at }) do
+            layout.unit_held_at, layout.unit_stamps_at, layout.unit_dropped_at, layout.repick_at }) do
         if at then put_u32(buf, at, 0) end
     end
     if layout.regroup_off_at then put_u32(buf, layout.regroup_off_at, regroup_off and 1 or 0) end
@@ -238,7 +246,8 @@ function M.counters(buf)
     return { windows = windows, mode = u32(buf, l.mode_at),
         stamps = u32(buf, l.stamps_at), dropped = u32(buf, l.dropped_at),
         unmatched = u32(buf, l.unmatched_at), held = u32(buf, l.held_at),
-        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup, unit = unit }
+        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup, unit = unit,
+        repick = l.repick_at and u32(buf, l.repick_at) or nil }
 end
 
 function M.layout() return site and site.layout end

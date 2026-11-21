@@ -185,6 +185,13 @@ PROBES = 64
 # [D39] the unit rule: its window (written by Lua), then three counters (ends at 104); the unit table follows
 # the model table (same entry shape: u64 unit, u32 tick of its last melee hit, u32 hits; same hash)
 UNIT_WINDOW_AT, UNIT_HELD_AT, UNIT_STAMPS_AT, UNIT_DROPPED_AT = 88, 92, 96, 100
+# [D44] pin_repick: restarts counted at +104 (the order re-given to the new main controller)
+REPICK_AT = 104
+U_MAIN_CTRL, U_CTRL_N, U_CTRL_LIST, U_QUEUE_MGR = 0x32F8, 0x3294, 0x3298, 0x278
+CTRL_LIST_MAX = 64
+REPICK_SITE, REPICK_RESUME_AT, RESTART_FN = 0x143049400, 7, 0x14304E030
+RESTART_FROM_RESUME = RESTART_FN - (REPICK_SITE + REPICK_RESUME_AT)      # 0x4c29, checked in Lua at install
+RESTART_FROM_SITE = RESTART_FN - REPICK_SITE                              # the distance the site table carries
 UNIT_TABLE_AT = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
 UNIT_SLOTS = 1024                   # power of two; flying units in one battle
 UNIT_PROBES = 64
@@ -196,7 +203,8 @@ GROUND_PHASE = air_dive_rules.TAKEOFF_UNIT_HOLD_PHASE
 # 6: the regroup caves skip the engine's charge for an airborne model of an idle unit with held models (D23)
 # 7: every size window one second longer (D37); cave bytes unchanged, the windows the buffer carries changed
 # 8: a unit hit within 3 s keeps every model on the ground at a full countdown (D39); new unit table
-MAGIC = b"FLYPINS8"
+# 9: the order is restarted when the main controller changes because the old one emptied (D44, pin_repick)
+MAGIC = b"FLYPINS9"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -241,12 +249,19 @@ CAVES = {
     "pin_regroup2": ("48 8D 51 40 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 53 10 48 8B 4A 08 48 8D 54 24 20 48 8B 01 "
                      "FF 90 F8 04 00 00 C6 83 80 00 00 00 01 48 8B 4B 18", 14,
                      "48 8B 53 10 48 8B 4A 08 48 8D 54 24 20", "regroup"),
+    # [D44] 0x143049400, right after the re-pick 0x1430493fb in the "controller emptied" branch: cmp [rbx+0x24],0;
+    # jne; mov rax,[rdi+0x32f8]; cmp rbx,rax; jne; mov rcx,rdi; call 0x14302a11c; (site) mov rax,[rdi+0x32f8];
+    # cmp rbx,rax; je
+    "pin_repick": ("83 7B 24 00 75 4F 48 8B 87 F8 32 00 00 48 3B D8 75 14 48 8B CF E8 ?? ?? ?? ?? "
+                   "48 8B 87 F8 32 00 00 48 3B D8 74 2F", 26,
+                   "48 8B 87 F8 32 00 00", "repick"),
 }
 HOLD_NAME, HOLD_RESUME_AT = "pin_hold", 8      # resume at `test al,al`
 # where a cave resumes when it does not fall through to its stolen bytes: site + offset. The regroup caves skip
 # the stolen bytes (13), mov rax,[rcx] (3) and call [rax+0x4f8] (6): 0x142f7f71c / 0x142f8ffda
 REGROUP_SKIP = 13 + 3 + 6
-RESUME_AT = {HOLD_NAME: HOLD_RESUME_AT, "pin_regroup1": REGROUP_SKIP, "pin_regroup2": REGROUP_SKIP}
+RESUME_AT = {HOLD_NAME: HOLD_RESUME_AT, "pin_regroup1": REGROUP_SKIP, "pin_regroup2": REGROUP_SKIP,
+             "pin_repick": REPICK_RESUME_AT}
 MELEE = 0                                      # the applier's damage type of a melee hit
 TYPE_ARG = 0x30                                # entry rsp offset of the damage type
 # name -> (pattern, what it pins)
@@ -289,6 +304,10 @@ ANCHORS = {
     # 0x1430aab65 ranged / explosion: and r8d,3; inc r8d; mov [rsp+0x28],r8d (1..4)
     "pin_kind_ranged": ("41 83 E0 03 41 FF C0 88 5C 24 30 44 89 44 24 28 44 8B C0 88 54 24 20 "
                         "48 8B D7 E8", "damage type 1..4: ranged and explosions"),
+    # [D44] 0x14304e030, the engine's order restart: sub rsp,0x28; cmp [rcx+0x2d10],0; je; mov eax,[rcx+0x2d14]
+    # (queue manager unit+0x278: count, head) -- pin_repick calls it; Lua checks its distance from pin_repick
+    "pin_call_restart": ("48 83 EC 28 83 B9 10 2D 00 00 00 74 1A 8B 81 14 2D 00 00",
+                         "the order restart 0x14304e030 pin_repick calls"),
 }
 
 
@@ -705,8 +724,59 @@ def regroup_source(mutate=()):
     """, "regroup", mutate)
 
 
+def repick_source(mutate=()):
+    """[D44] rdi = the unit, rbx = the emptied old main controller. Restart the current order when the re-pick
+    changed the main controller (see the module text and docs/HISTORY.md DROP-FIX-1121). rax = the new main
+    controller on every exit (the next instruction compares it); volatile registers are dead here (the picker call
+    just returned); callee-saved ones are untouched."""
+    return _mutated(f"""
+        mov rax, qword ptr [rdi + {U_MAIN_CTRL:#x}]
+        mov r9, {BUFFER_PLACEHOLDER:#x}
+        mov r10, {RESUME_PLACEHOLDER:#x}
+        cmp dword ptr [r9 + {MODE_AT}], 1
+        jne out
+        test rax, rax
+        jz out
+        cmp rax, rbx
+        je out
+        cmp dword ptr [rdi + {LIST_COUNT_OFF:#x}], 0
+        je out
+        cmp dword ptr [rdi + {QUEUE_COUNT_OFF:#x}], 0
+        je out
+        mov ecx, dword ptr [rdi + {U_CTRL_N:#x}]
+        cmp ecx, {CTRL_LIST_MAX}
+        ja out
+        mov rdx, qword ptr [rdi + {U_CTRL_LIST:#x}]
+        test rdx, rdx
+        jz out
+    look:
+        test ecx, ecx
+        jz out
+        cmp qword ptr [rdx], rax
+        je restart
+        add rdx, 8
+        dec ecx
+        jmp look
+    restart:
+        lock inc dword ptr [r9 + {REPICK_AT}]
+        push rax
+        push r10
+        sub rsp, 0x20
+        lea rcx, [rdi + {U_QUEUE_MGR:#x}]
+        lea r11, [r10 + {RESTART_FROM_RESUME:#x}]
+        call r11
+        add rsp, 0x20
+        pop r10
+        pop rax
+    out:
+        jmp r10
+    """, "repick", mutate)
+
+
 def cave_source(name, mutate=()):
     role = CAVES[name][3]
+    if role == "repick":
+        return repick_source(mutate)
     if role == "regroup":
         return regroup_source(mutate)
     return hold_source(mutate) if role == "hold" else stamp_source(mutate)
@@ -725,7 +795,7 @@ def layout():
             "regroup_unheld_at": RG_UNHELD_AT,
             "unit_ticks_at": UNIT_WINDOW_AT, "unit_ticks": UNIT_WINDOW, "unit_held_at": UNIT_HELD_AT,
             "unit_stamps_at": UNIT_STAMPS_AT, "unit_dropped_at": UNIT_DROPPED_AT,
-            "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS}
+            "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS, "repick_at": REPICK_AT}
 
 
 def source_sha():
@@ -1745,11 +1815,88 @@ def check(mutate=()):
     expect("regroup a large window later", m.regroup(ents[0], ents)["where"], "through")
     m.stamp(6, 30, victims[3])                              # a charge's collision attack does not hold
     expect("regroup after a non-melee hit", m.regroup(ents[0], ents)["where"], "through")
+    # [D44] pin_repick: restart only on a real change of the main controller, inside the list, with orders queued
+    m.uc.mem_map(RESUME + 0x1000, 0x10000)
+    restart_at = RESUME + RESTART_FROM_RESUME
+    m.uc.mem_write(restart_at, b"\xc3")
+    begin, size = m.code["pin_repick"]
+    ctl_old, ctl_new, ctl_other = UNIT + 0x4000, UNIT + 0x5000, UNIT + 0x6000
+    lst = UNIT + 0x7000
+
+    def repick(label, mode=1, new=ctl_new, old=ctl_old, flyers=2, queue=1, members=(ctl_new,), count=None,
+               want_restart=True):
+        from unicorn import UC_HOOK_CODE, UcError
+        x, uc = m.x, m.uc
+        m.reset(mode=mode)
+        uc.mem_write(UNIT + U_MAIN_CTRL, struct.pack("<Q", new))
+        uc.mem_write(UNIT + LIST_COUNT_OFF, struct.pack("<I", flyers))
+        uc.mem_write(UNIT + QUEUE_COUNT_OFF, struct.pack("<I", queue))
+        uc.mem_write(UNIT + U_CTRL_N, struct.pack("<I", len(members) if count is None else count))
+        uc.mem_write(UNIT + U_CTRL_LIST, struct.pack("<Q", lst))
+        uc.mem_write(lst, bytes(0x400))
+        uc.mem_write(lst, b"".join(struct.pack("<Q", c) for c in members))
+        m._registers()
+        uc.reg_write(x.UC_X86_REG_RDI, UNIT)
+        uc.reg_write(x.UC_X86_REG_RBX, old)
+        before = {r: uc.reg_read(r) for r in m.callee_saved}
+        seen, landed = [], []
+
+        def at_restart(mu, _a, _s, _d):
+            seen.append((mu.reg_read(x.UC_X86_REG_RCX), mu.reg_read(x.UC_X86_REG_RSP) % 16))
+
+        def at_resume(mu, _a, _s, _d):
+            landed.append(mu.reg_read(x.UC_X86_REG_RAX))
+            mu.emu_stop()
+        h1 = uc.hook_add(UC_HOOK_CODE, at_restart, begin=restart_at, end=restart_at)
+        h2 = uc.hook_add(UC_HOOK_CODE, at_resume, begin=RESUME, end=RESUME)
+        uc.ctl_flush_tb()          # because hooks added after earlier runs need fresh translation (see stamp())
+        try:
+            uc.emu_start(begin, begin + size, count=100_000)
+        except UcError:
+            landed.append("crash")
+        uc.hook_del(h1)
+        uc.hook_del(h2)
+        expect(f"repick {label}: resumed with the new main controller in rax", landed, [new])
+        expect(f"repick {label}: callee-saved registers", all(uc.reg_read(r) == v for r, v in before.items()), True)
+        expect(f"repick {label}: rsp", uc.reg_read(x.UC_X86_REG_RSP), STACK + 0x8000)
+        # the call is made with rsp 16-byte aligned after the return address push: rsp % 16 == 8 at the callee
+        expect(f"repick {label}: restart calls", seen,
+               [(UNIT + U_QUEUE_MGR, 8)] if want_restart else [])
+        expect(f"repick {label}: counted", m.head(REPICK_AT), 1 if want_restart else 0)
+
+    repick("changed, in the list, orders queued")
+    repick("new one last in a list of three", members=(ctl_other, ctl_old, ctl_new))
+    repick("unchanged", new=ctl_old, members=(ctl_old,), want_restart=False)
+    repick("no new main controller", new=0, want_restart=False)
+    repick("new one not in the list", members=(ctl_other,), want_restart=False)
+    repick("empty list", members=(), want_restart=False)
+    repick(f"list count {CTRL_LIST_MAX + 1}", count=CTRL_LIST_MAX + 1, want_restart=False)
+    repick("no orders queued", queue=0, want_restart=False)
+    repick("not a flying unit", flyers=0, want_restart=False)
+    repick("mode 0", mode=0, want_restart=False)
+    repick("mode 2", mode=2, want_restart=False)
     return failures, count[0]
 
 
 # Source edits that break the rule: the cases above must catch each one.
 MUTANTS = (
+    ("repick: restarts when unchanged", "repick", "cmp rax, rbx\n        je out", "cmp rax, rbx\n        nop"),
+    ("repick: list membership not checked", "repick", "cmp qword ptr [rdx], rax\n        je restart",
+     "cmp qword ptr [rdx], rax\n        jmp restart"),
+    ("repick: empty queue restarts", "repick", f"cmp dword ptr [rdi + {QUEUE_COUNT_OFF:#x}], 0\n        je out",
+     f"cmp dword ptr [rdi + {QUEUE_COUNT_OFF:#x}], 0\n        nop"),
+    ("repick: ground units too", "repick", f"cmp dword ptr [rdi + {LIST_COUNT_OFF:#x}], 0\n        je out",
+     f"cmp dword ptr [rdi + {LIST_COUNT_OFF:#x}], 0\n        nop"),
+    ("repick: wrong queue manager", "repick", f"lea rcx, [rdi + {U_QUEUE_MGR:#x}]", "lea rcx, [rdi + 0x288]"),
+    ("repick: rax lost", "repick", "pop r10\n        pop rax", "pop rax\n        pop r10"),
+    ("repick: misaligned call", "repick", "sub rsp, 0x20\n        lea rcx", "sub rsp, 0x18\n        lea rcx"),
+    ("repick: wrong restart address", "repick", f"lea r11, [r10 + {RESTART_FROM_RESUME:#x}]",
+     f"lea r11, [r10 + {RESTART_FROM_RESUME + 1:#x}]"),
+    ("repick: mode 2 restarts", "repick", f"cmp dword ptr [r9 + {MODE_AT}], 1\n        jne out",
+     f"cmp dword ptr [r9 + {MODE_AT}], 0\n        je out"),
+    ("repick: no bound on the list", "repick", f"cmp ecx, {CTRL_LIST_MAX}\n        ja out",
+     f"cmp ecx, {CTRL_LIST_MAX}\n        nop"),
+    ("repick: not counted", "repick", f"lock inc dword ptr [r9 + {REPICK_AT}]", "nop"),
     ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae own_free",
      "cmp eax, r10d\n        ja own_free"),
     ("the size code used as the index without -1", "hold", "dec eax\n", "nop\n"),
@@ -1953,7 +2100,10 @@ def site_lua(codes):
         f"        unit_held_at = {lay['unit_held_at']}, unit_stamps_at = {lay['unit_stamps_at']},",
         f"        unit_dropped_at = {lay['unit_dropped_at']},",
         f"        unit_table_at = {lay['unit_table_at']}, unit_slots = {lay['unit_slots']},",
+        f"        repick_at = {lay['repick_at']},",
         "    },",
+        "    -- [D44] pin_repick calls the engine's restart: the two found addresses must be this far apart",
+        f"    distances = {{ {{ from = 'pin_repick', to = 'pin_call_restart', bytes = {RESTART_FROM_SITE} }} }},",
         f"    format = {agreement_format()},",
         f"    build = '{BUILD}',",
         f"    source_sha = '{source_sha()}',",
@@ -1998,6 +2148,11 @@ def check_exe(exe_path):
             raise RuntimeError(f"[pin_cave_asm] REFUSING: {name} found {len(hits)} times in "
                                f"{exe_path} (a game patch moved it)")
         found[name] = hits[0]
+    # [D44] pin_repick calls the restart through its distance from the site: both must sit where the static read put them
+    if (found.get("pin_repick"), found.get("pin_call_restart")) != (REPICK_SITE, RESTART_FN):
+        raise RuntimeError(f"[pin_cave_asm] REFUSING: pin_repick / pin_call_restart at "
+                           f"{found.get('pin_repick')} / {found.get('pin_call_restart')}, want "
+                           f"{REPICK_SITE:#x} / {RESTART_FN:#x}")
     return found
 
 

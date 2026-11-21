@@ -82,8 +82,8 @@ class SiteTable(unittest.TestCase):
         cls.text = SITE_FILE.read_text(encoding="utf-8")
 
     def test_caves_resume_and_layout(self):
-        self.assertIn("caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2' },", self.text)
-        self.assertIn("resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22 },", self.text)
+        self.assertIn("caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick' },", self.text)
+        self.assertIn("resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 7 },", self.text)
         self.assertIn("regroup_off_at = 64, regroup_calls_at = 68,", self.text)
         self.assertIn("regroup_skipped_at = 72, regroup_would_at = 76,", self.text)
         self.assertIn("regroup_queued_at = 80, regroup_unheld_at = 84,", self.text)
@@ -106,7 +106,8 @@ local MOD, FORM = arg[1], arg[2]
 package.path = MOD .. "/?.lua;" .. package.path
 local mem, next_alloc = {}, 0x10000000
 local addresses = { pin_stamp = 0x14325a9c4, pin_hold = 0x143053cfb, pin_regroup1 = 0x142f7f706,
-                    pin_regroup2 = 0x142f8ffc4 }
+                    pin_regroup2 = 0x142f8ffc4, pin_repick = 0x143049400,
+                    pin_call_restart = 0x14304e030 }   -- [D44]
 local installed, given_seen = {}, nil
 local mr = {}
 function mr.game_alloc(n) local a = next_alloc; next_alloc = next_alloc + 0x100000; return a end
@@ -140,9 +141,18 @@ local site = dofile(MOD .. "/script/campaign/flyer_dive/data/takeoff_site.lua")
 if FORM == "old" then          -- the older single-resume form (the traced table's)
     site.resume_at, site.hold = 8, "pin_hold"
 end
+if FORM == "baddist" then      -- [D44] the restart found one byte off: the install must refuse, nothing installed
+    addresses.pin_call_restart = addresses.pin_call_restart + 1
+end
 package.preload["script/campaign/flyer_dive/data/takeoff_site"] = function() return site end
 local takeoff = require("script/campaign/flyer_dive/lib/takeoff")
 local buf = takeoff.install(function(t) end)
+if FORM == "baddist" then
+    local n = 0
+    for _ in pairs(installed) do n = n + 1 end
+    print(string.format("BADDIST buf=%s installed=%d why=%s", tostring(buf), n, tostring(takeoff.state().why)))
+    os.exit(0)
+end
 assert(buf, "install failed: " .. tostring(takeoff.state().why))
 local names = {}
 for name in pairs(given_seen) do names[#names + 1] = name end
@@ -191,8 +201,16 @@ class LuaInstall(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr + proc.stdout)
         return proc.stdout.splitlines()
 
+    def test_a_restart_found_at_the_wrong_distance_refuses_the_install(self):
+        """[D44] pin_repick calls the engine's restart by its distance from the site; a moved function is refused."""
+        out = self.run_lua("baddist")
+        line = next((ln for ln in out if ln.startswith("BADDIST ")), "")
+        self.assertTrue(line.startswith("BADDIST buf=nil installed=0 why="), line)
+        self.assertIn("pin_call_restart is not", line)
+
     def test_each_cave_gets_its_own_resume(self):
         out = self.run_lua("new")
+        self.assertIn(f"GIVEN pin_repick buf=yes resume={0x143049407:X}", out)     # [D44]
         self.assertIn("GIVEN pin_stamp buf=yes resume=none", out)
         self.assertIn(f"GIVEN pin_hold buf=yes resume={0x143053cfb + 8:X}", out)
         self.assertIn(f"GIVEN pin_regroup1 buf=yes resume={0x142f7f71c:X}", out)

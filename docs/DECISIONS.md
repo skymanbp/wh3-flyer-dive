@@ -1063,6 +1063,31 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Licence: MIT for this repository's own code and documentation (`LICENSE`); game data and third-party parts excluded.
 - Real two-player multiplayer: the owner tested it, no problems.
 
+### D51 · Charge Reflection on flyers: the engine's own reflection multiplier, doubled for flyers only (2026-11-21, replaces D15's cost)
+
+> Owner, 2026-11-21, on D15's flat dive cost (10% of maximum health once per dive): 「不能这么做。这么做治标不治本。必须从原理上出发，从物理引擎的角度让冲锋反制造伤增加。改成只对飞兽生效加倍。」
+
+- **What changes.** D15's dive cost (the `dv_cost` cave, its anchor `dv_facing` and `lib/dive_cost.lua`, which took
+  a share of maximum health through a battle-script call) is removed. In its place, a cave `dv_reflect` at the
+  engine's own Charge Reflection multiply (`0x142e600af`, `mulss xmm8, xmm7`, xmm7 = kv
+  `charge_reflect_damage_multiplier` 2.0, inside the melee damage calculator `0x142e5fcb0`) multiplies the damage
+  factor once more when the charger being hit is a flyer.
+- **Which hits.** Only hits the game itself already counts as Charge Reflection (every gate before the multiply is
+  the engine's: target state, the striker's charge_reflection attribute, the striker braced, the charger's charge
+  factor at least 0.7). The cave adds no hit and no condition of its own beyond "flyer".
+- **Flyer.** The charger's entity, read through the charger's own vfunc `+8` (the getter the engine calls there), or
+  the entity it rides (up to 4 links, the same chain as `dv_brace`), carries a flight controller (`+0x128` not 0).
+  Not limited to the landed dive: a flyer charging on the ground into braced Charge Reflection is hit by the same
+  rule (the owner's words are "only for flyers").
+- **Factor.** Default 2.0 (the engine's ×2 becomes ×4 for flyers). MCT slider in the braced-line section, replacing
+  the dive-cost slider: 1.00-4.00 in steps of 0.25, 1.00 = base game. The braced-line master switch off = 1.00.
+- **Known limit, from measurement (HISTORY D15-ANALYSIS-1118).** At the dive's own contact the engine's reflection
+  gates often do not hold (no hit counted as reflection there); the doubling then acts on the reflection hits that do
+  occur, mostly in the melee after the landing. The in-game A/B measures how much damage this is.
+- The dive mark (`dive_mark_asm.py`, armed / stamped by the dive caves) stays as it is: nothing reads it once
+  `dv_cost` is gone, but removing it changes the bytes of the eleven dive caves; that cleanup is its own batch.
+- Battle-sim change: the dive marker goes from `FLYDIVE5` to `FLYDIVE6`.
+
 ### D52 · The opening paragraph names the two unit-cohesion fixes (2026-11-21)
 
 > Owner, 2026-11-21: 「还有说明文字里，为什么没有"多模组部队部分模组起飞后不会被拦在地面的兵模拽回/不听指令"？这一点和整队一起降落那个，一起在最上面flying charge overhaul那个段落结尾处一起简短的提一下。这两个改动很关键。」

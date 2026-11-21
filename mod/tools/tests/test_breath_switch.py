@@ -409,8 +409,10 @@ class BracePage(unittest.TestCase):
         self.assertEqual(page["opt4"], f"{r.BRACE_MCT_OPTIONS['share']}|slider|{r.BRACE_SHARE_MIN:g}|"
                                        f"{r.BRACE_SHARE_MIN_RANGE[0]:g}|{r.BRACE_SHARE_MIN_RANGE[1]:g}|"
                                        f"{r.BRACE_SHARE_MIN_STEP}|2|2")
-        self.assertEqual(page["opt5"], f"{r.BRACE_MCT_OPTIONS['cost']}|slider|{r.DIVE_COST_PERCENT_DEFAULT}|"
-                                       f"{r.DIVE_COST_PERCENT_RANGE[0]}|{r.DIVE_COST_PERCENT_RANGE[1]}|1|0|0")
+        # [D51] the Charge Reflection factor on flyers in place of D15's dive cost
+        self.assertEqual(page["opt5"], f"{r.BRACE_MCT_OPTIONS['reflect']}|slider|{r.REFLECT_FLYER_FACTOR:g}|"
+                                       f"{r.REFLECT_FLYER_FACTOR_RANGE[0]:g}|{r.REFLECT_FLYER_FACTOR_RANGE[1]:g}|"
+                                       f"{r.REFLECT_FLYER_FACTOR_STEP}|2|2")
 
     def test_one_language_per_client(self):
         en, cn = self.page("en"), self.page("cn")
@@ -421,11 +423,11 @@ class BracePage(unittest.TestCase):
                     self.assertFalse(any("一" <= ch <= "鿿" for ch in en[key]), en[key])
                     self.assertTrue(any("一" <= ch <= "鿿" for ch in cn[key]), cn[key])
                     self.assertFalse(any("a" <= ch.lower() <= "z" for ch in cn[key]), cn[key])
-        # the client's own words (local_cn.pack): 阵列齐整 bracing, 冲锋反制 Charge Reflection, 质量 mass, 生命值 health
+        # the client's own words (local_cn.pack): 阵列齐整 bracing, 冲锋反制 Charge Reflection, 质量 mass, 飞行部队 flying units
         self.assertIn("阵列齐整", cn["text2"])
         self.assertIn("质量", cn["text3"])
         self.assertIn("冲锋反制", cn["text5"])
-        self.assertIn("生命值", cn["tip5"])
+        self.assertIn("飞行部队", cn["text5"])
 
     def test_master_tooltip_states_the_multiplayer_rule(self):
         en, cn = self.page("en")["tip2"], self.page("cn")["tip2"]

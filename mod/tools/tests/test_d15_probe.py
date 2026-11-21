@@ -70,7 +70,7 @@ class MarkedCaves(unittest.TestCase):
 class ProbePack(unittest.TestCase):
     def test_base_must_carry_d15(self):
         shipped = (TOOLS_DIR.parent / build_probe_pack.DIVE_SITE).read_bytes()
-        eleven = b"\n".join(ln for ln in shipped.splitlines() if b"dv_cost" not in ln and b"cost_ring_at" not in ln)
+        eleven = b"\n".join(ln for ln in shipped.splitlines() if b"dv_reflect" not in ln and b"reflect_word_at" not in ln)
         for entries in ([("script/other.lua", b"")],
                         [(build_probe_pack.DIVE_SITE, shipped), (build_probe_pack.DIVE_SITE.replace("/", "\\"), shipped)],
                         [(build_probe_pack.DIVE_SITE, eleven)]):

@@ -80,15 +80,16 @@ record(("BATTLE mp=%s campaign=%s %s, caves format %s built for %s"):format(tost
 local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, flight stops held off %d, "
     .. "engage re-paths held off %d, charge-order re-paths held off %d, melee engages held off %d, "
     .. "blocked stops held off %d, slides ended %d, landings kept %d, "
-    .. "slides ended by melee %d, bodies already in melee not carried %d, braced masses scaled %d"
+    .. "slides ended by melee %d, bodies already in melee not carried %d, braced masses scaled %d, "
+    .. "Charge Reflection hits on flyers raised %d"
 local TICK_NAME, TICK_MS = "flyer_dive_counts", 10000
 
--- [D31] The braced-line settings (lib/brace_rule.lua): master switch, k, s*, the dive cost. MCT is optional; it
+-- [D31 / D51] The braced-line settings (lib/brace_rule.lua): master switch, k, s*, the reflection factor. MCT is optional; it
 -- holds its values once every battle script has loaded (ScriptEventAllModsLoaded, MctInitialized), so they are read
 -- on whichever comes first, without MCT at once; Deployed reads them too if neither came. Until then dv_brace runs on
 -- the defaults dive.arm wrote. One BRACE line says what is in force and why.
 -- / 阵列齐整对俯冲的设置：MCT 有值后读一次，写入 dv_brace 的设置字；一行 BRACE 记录生效的设置。
-local brace = nil                      -- {on, k, share, cost, why} once read
+local brace = nil                      -- {on, k, share, reflect, why} once read
 local brace_ok, brace_rule = pcall(require, "script/campaign/flyer_dive/lib/brace_rule")
 if not brace_ok or type(brace_rule) ~= "table" then
     record("BRACE defaults stay: lib/brace_rule did not load: " .. tostring(brace_rule))
@@ -110,7 +111,7 @@ local function read_brace(when)
     end
     local done, problem = pcall(function()
         local s = brace_rule.decide(site.brace, mp, from_campaign, type(get_mct) == "function" and read_mct or nil)
-        dive.set_brace(buffer, brace_rule.word(site.brace, s))
+        dive.set_brace(buffer, brace_rule.word(site.brace, s), brace_rule.reflect_word(site.brace, s))
         brace = s
         record(("BRACE %s (%s; read on %s)"):format(brace_rule.describe(site.brace, s), s.why, when))
     end)
@@ -130,43 +131,10 @@ if buffer and brace_rule then
     if not waits then read_brace("load (no MCT)") end
 end
 
--- [D15, d15-1118 stage 5] The braced-spear cost of a dive (lib/dive_cost.lua): the caves judge the contacts, this
--- entry reads their ring every COST_MS from Deployed and takes the shares through unit:reduce_hitpoints_unary. A
--- failure stops the cost for this battle with one log line; the dive itself goes on.
--- / 俯冲撞枪阵代价：洞内判定，本入口每 100 毫秒读一次并用游戏自己的命令扣血；出错只停代价、记一行。
-local COST_NAME, COST_MS = "flyer_dive_cost", 100
-local cost = nil
-local function cost_counts() return cost and (", " .. cost:counts()) or "" end
-if buffer and okv and type(site) == "table" and type(site.cost) == "table" then
-    local okc, dive_cost = pcall(require, "script/campaign/flyer_dive/lib/dive_cost")
-    if not okc or type(dive_cost) ~= "table" then
-        record("COST off: lib/dive_cost did not load: " .. tostring(dive_cost))
-    else
-        bm:register_phase_change_callback("Deployed", function()
-            read_brace("Deployed")
-            -- [D31] the cost follows the braced-line settings: none when the switch is off or the cost is 0%;
-            -- otherwise that share for every body size (without brace_rule: the site table's defaults)
-            local share = (brace and brace_rule) and brace_rule.cost_share(site.brace, brace) or nil
-            if brace and not share then
-                record("COST off: " .. (brace.on and "the dive cost setting is 0%" or "braced-line switch off"))
-                return
-            end
-            local cost_site = site
-            if share then cost_site = { layout = site.layout, cost = brace_rule.cost_table(site.cost, share) } end
-            local started, why = pcall(function()
-                cost = dive_cost.new(_G.memreader_plus, buffer, cost_site, record)
-                cost:map(bm)
-                bm:repeat_callback(function()
-                    local tok, err = pcall(cost.tick, cost, bm:time_elapsed_ms(), bm)
-                    if not tok then
-                        record("COST stopped: " .. tostring(err))
-                        pcall(function() bm:remove_callback(COST_NAME) end)
-                    end
-                end, COST_MS, COST_NAME)
-            end)
-            if not started then record("COST off: " .. tostring(why)) end
-        end)
-    end
+-- [D51] D15's dive cost (its battle module) is gone: Charge Reflection on flyers is dv_reflect's, inside the
+-- engine. Deployed still reads the settings if neither MCT event came.
+if buffer and brace_rule then
+    pcall(function() bm:register_phase_change_callback("Deployed", function() read_brace("Deployed") end) end)
 end
 
 -- Every 10 s, a NOW line when the counters changed: the END line needs the
@@ -182,7 +150,7 @@ if buffer then
                 return
             end
             local line = COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-                c.released, c.committed, c.closed, c.engaged_body, c.braced) .. cost_counts()
+                c.released, c.committed, c.closed, c.engaged_body, c.braced, c.reflected)
             if line ~= last then
                 last = line
                 record("NOW " .. line)
@@ -196,10 +164,9 @@ bm:register_phase_change_callback("Complete", function()
     pcall(function() bm:remove_callback(TICK_NAME) end)
     pcall(function() bm:remove_callback(COST_NAME) end)
     pcall(function()
-        if cost then pcall(cost.tick, cost, bm:time_elapsed_ms(), bm) end
         local c = dive.counters(buffer)
         dive.pass_through(buffer)
         record("END " .. COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-            c.released, c.committed, c.closed, c.engaged_body, c.braced) .. cost_counts())
+            c.released, c.committed, c.closed, c.engaged_body, c.braced, c.reflected))
     end)
 end)

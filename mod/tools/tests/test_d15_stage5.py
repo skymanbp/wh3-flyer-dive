@@ -6,12 +6,11 @@ Two defects the spear run showed, pinned on small synthetic records:
 * the cost's own application (an applier call of type 2 with no attacker on a model of the paying unit) was
   counted as ordinary damage, so every COST line said "attributable 0.0000".
 
-And what the shipped form (pipelines/dive_cost_asm.py, lib/dive_cost.lua) rests on, read from the installed exe and
-data: the bracing update sets +0x68 bit 3 without looking at any enemy; the angle the game uses with the
-soldier's facing (0x14307c404); the facing source (+0xb0) and its table; the attribute test dv_cost inlines
-(0x1414755e0); the site's angle from the installed kv rules; the battle entry's wiring of the cost.
+And, read from the installed exe: the bracing update sets +0x68 bit 3 without looking at any enemy. [D51] D15's
+cost (dv_cost, lib/dive_cost.lua) is removed; in its place what dv_reflect rests on: the engine's reflection
+multiply, the gates before it, the jump past it, and the getter the cave calls on the struck charger; and the
+battle entry's wiring of the factor word.
 """
-import math
 import os
 import struct
 import sys
@@ -24,11 +23,10 @@ if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 import rolepath  # noqa: E402,F401 -- because it puts the role dirs on sys.path
 import reflect_probe_report as rrep  # noqa: E402 -- because rolepath above puts pipelines/ on sys.path
-import dive_cost_asm  # noqa: E402 -- same reason
-import unit_attributes  # noqa: E402 -- same reason (lib/)
+import dive_reflect_asm  # noqa: E402 -- same reason
 
 GAME = Path(os.environ.get("WH3_ROOT", r"D:\SteamLibrary\steamapps\common\Total War WARHAMMER III"))
-EXE, DB = GAME / "Warhammer3.exe", GAME / "data" / "db.pack"
+EXE = GAME / "Warhammer3.exe"
 
 UNIT = "B2E690B0"
 
@@ -144,54 +142,33 @@ class StaticReading(unittest.TestCase):
         for pos in (bytes([0x88, 0, 0, 0]), bytes([0x90, 0, 0, 0])):       # +0x88 / +0x90 displacements
             self.assertNotIn(pos, code)
 
-    def test_angle_in_the_contact_engage(self):
-        # movss xmm0,[rax+0x1050] (bracing_attack_angle); mulss xmm0,[rip+X] (pi / 180); call; facing vfunc +0xc8
-        self.assertEqual(_Exe.read(0x14307C556, 8), bytes.fromhex("F30F108050100000"))
-        rel = struct.unpack("<i", _Exe.read(0x14307C562, 4))[0]
-        deg = struct.unpack("<f", _Exe.read(0x14307C566 + rel, 4))[0]
-        self.assertAlmostEqual(deg, math.pi / 180, places=7)
-        self.assertEqual(_Exe.read(0x14307C5B7, 6), bytes.fromhex("FF90C8000000"))
-        # the facing vfunc of the entity classes: movzx eax, word [rcx+0xb0]
-        self.assertEqual(_Exe.read(0x1408F84F0, 7), bytes.fromhex("0FB781B0000000"))
-        # the table the anchor's read resolves to: lea rax,[rip+X] at 0x14307c5c6
-        self.assertEqual(_Exe.read(0x14307C5C6, 3), bytes.fromhex("488D05"))
-        self.assertEqual(0x14307C5CD + struct.unpack("<i", _Exe.read(0x14307C5C9, 4))[0], 0x143E9A8C0)
-        self.assertEqual(dive_cost_asm.EXE_SITES["dv_facing"] + dive_cost_asm.FACING_READ_AFTER, 0x14307C5CD)
-
-    def test_attribute_test_inlined(self):
-        # 0x1414755e0: +0x28 set, [+0x20] set, +0x58 removed, +0x38 set, +0x48 set (test qword [r9+rdx*8+X], r8)
-        code = _Exe.read(0x1414755E0, 0x50)
-        for disp in (0x28, 0x58, 0x38, 0x48):
-            self.assertIn(bytes.fromhex("4D8544D1") + bytes([disp]), code)
-        self.assertIn(bytes.fromhex("498B4920"), code)                     # mov rcx,[r9+0x20]
-        self.assertEqual(dive_cost_asm.ATTR_WORDS, (0x28, 0x20, 0x58, 0x38, 0x48))
-        self.assertEqual(_Exe.read(0x1430B7A61, 3), bytes.fromhex("8D5027"))   # slot 0x38 asks for 0x27
-        self.assertEqual(dive_cost_asm.ATTR_ID, 0x27)
-
-    def test_cost_site(self):
-        self.assertEqual(_Exe.read(0x14325AA9E, 26).hex().upper(),
-                         "".join(dive_cost_asm.COST_SITE.split()[:26]))
-        # both exits: 0x14325aab8 (resume) and 0x14325ab6a (the two je's targets)
-        self.assertEqual(0x14325AAA5 + 6 + struct.unpack("<i", _Exe.read(0x14325AAA7, 4))[0], 0x14325AB6A)
-        self.assertEqual(0x14325AAB8 + dive_cost_asm.SKIP_DISP, 0x14325AB6A)
-
-    def test_angle_from_the_game_data(self):
-        angle = unit_attributes.kv_rules(need(DB))["bracing_attack_angle"]
-        self.assertEqual(angle, 80.0)
-        site = (TOOLS_DIR.parent / "script" / "campaign" / "flyer_dive" / "data" / "dive_site.lua").read_text("utf-8")
-        cos_bytes = struct.pack("<f", math.cos(angle * math.pi / 180))
-        self.assertIn("arc_cos_bytes = '" + "".join("\\" + str(b) for b in cos_bytes) + "',", site)
-        self.assertIn("front_arc = true, angle = 80.0,", site)
+    def test_reflection_multiply(self):
+        # [D51] the block 0x142e6004c..0x142e600af of the damage calculator 0x142e5fcb0
+        self.assertEqual(_Exe.read(0x142E60052, 10), bytes.fromhex("F3410F10BC2470660000"))   # xmm7 = kv +0x6670
+        self.assertEqual(_Exe.read(dive_reflect_asm.EXE_SITE, 5), dive_reflect_asm.REPLACED)  # mulss xmm8, xmm7
+        self.assertEqual(_Exe.read(0x142E600B4, 3), bytes.fromhex("4084ED"))                  # test bpl, bpl next
+        # the striker not braced jumps past the multiply (je 0x142e600b4), the charge factor below the threshold
+        # jumps away (jb 0x142e6028a): the multiply runs only when every engine gate held
+        self.assertEqual(_Exe.read(0x142E60089, 2), bytes.fromhex("7429"))
+        self.assertEqual(0x142E6008B + 0x29, 0x142E600B4)
+        self.assertEqual(_Exe.read(0x142E600A9, 2), bytes.fromhex("0F82"))
+        self.assertEqual(0x142E600AF + struct.unpack("<i", _Exe.read(0x142E600AB, 4))[0], 0x142E6028A)
+        # the getter: rdi->vfunc[+8], for the participant vtable 0x143ae0278 mov rax, [rcx + 8]; ret
+        self.assertEqual(_Exe.read(0x142E600B9, 9), bytes.fromhex("488B07488BCFFF5008"))      # the engine calls it
+        getter = struct.unpack("<Q", _Exe.read(0x143AE0278 + 8, 8))[0]
+        self.assertEqual(getter, 0x1408D9B70)
+        self.assertEqual(_Exe.read(getter, 5), dive_reflect_asm.GET_PLAIN)
 
 
 class BattleEntry(unittest.TestCase):
-    def test_cost_wired(self):
+    def test_reflect_wired(self):
         text = (TOOLS_DIR.parent / "script" / "battle" / "mod" / "flyer_dive.lua").read_text("utf-8")
-        for needle in ('require, "script/campaign/flyer_dive/lib/dive_cost")', 'bm:register_phase_change_callback("Deployed"',
-                       "local tok, err = pcall(cost.tick, cost, bm:time_elapsed_ms(), bm)",
-                       'record("COST stopped: " .. tostring(err))', "c.released, c.committed, c.closed, c.engaged_body, c.braced) .. cost_counts()"):
+        for needle in ("dive.set_brace(buffer, brace_rule.word(site.brace, s), brace_rule.reflect_word(site.brace, s))",
+                       'bm:register_phase_change_callback("Deployed", function() read_brace("Deployed") end)',
+                       "c.released, c.committed, c.closed, c.engaged_body, c.braced, c.reflected)"):
             self.assertIn(needle, text)
-        self.assertEqual(text.count(".. cost_counts()"), 2)                  # NOW and END
+        self.assertEqual(text.count("c.braced, c.reflected)"), 2)             # NOW and END
+        self.assertNotIn("dive_cost", text)
 
 
 if __name__ == "__main__":

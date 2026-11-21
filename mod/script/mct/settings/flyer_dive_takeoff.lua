@@ -6,7 +6,8 @@
 -- (data/breath_rows.lua default_on). The keys and the default come from that generated module, so this page and
 -- the battle script (battle/mod/flyer_breath.lua) cannot disagree.
 -- [D25 / D31, brace-solver-1120] Four more, in the same section: the braced-line switch, the braced mass against a
--- dive (k), the least share of the slowing a diving flyer takes (s*), and the dive cost (percent). Keys, defaults
+-- dive (k), the least share of the slowing a diving flyer takes (s*), and (D51, in place of D15's dive cost) the
+-- Charge Reflection factor on flyers. Keys, defaults
 -- and ranges come from the generated site table's `brace` block (data/dive_site.lua), which the battle script
 -- (lib/brace_rule.lua) reads too. If that table does not load, the breath setting is still registered.
 -- The page is English, or Simplified Chinese when the game's own text for the breath ability type is the
@@ -44,8 +45,8 @@ local TEXT = {
             .. "from the next battle.",
         brace_on = "Braced units against dives",
         brace_on_tip = "On: a flying unit that dives into the front of a braced unit is slowed by it as the two "
-            .. "settings below say, and each diving model that hits a braced unit with Charge Reflection pays the "
-            .. "cost set below. Off: as in the base game, and no cost. Charges along the ground are never changed. "
+            .. "settings below say, and Charge Reflection hurts flying units more as the last setting says. "
+            .. "Off: as in the base game. Units that cannot fly are never changed. "
             .. "In a multiplayer campaign the host's settings apply to every player; multiplayer battles outside "
             .. "a campaign always use the defaults. Takes effect from the next battle.",
         brace_k = "Braced mass against a dive",
@@ -56,9 +57,9 @@ local TEXT = {
         brace_share_tip = "In the game a much bigger body takes only part of the slowing when it hits a smaller "
             .. "one (0.8 one size apart, 0.2 two, 0.1 three). A diving flyer that hits the front of a braced unit "
             .. "takes at least this part. 0 = as in the base game.",
-        brace_cost = "Cost of a dive into Charge Reflection (%)",
-        brace_cost_tip = "Each diving model that hits the front of a braced unit with Charge Reflection loses this "
-            .. "share of its own maximum health, once per dive. 0 = no cost.",
+        brace_reflect = "Charge Reflection damage to flying units",
+        brace_reflect_tip = "The Charge Reflection damage a flying unit takes when it charges into a braced unit "
+            .. "with Charge Reflection, as a multiple of the base game's. 1 = as in the base game.",
     },
     cn = {
         title = "飞兽俯冲与近战起飞",
@@ -67,8 +68,8 @@ local TEXT = {
         tooltip = "开：部队陷入近战时也能使用吹息技能，龙落在地面上时也能吹息。关：与原版相同。多人战役里以主机的"
             .. "设置为准；战役之外的多人战斗始终为开。从下一场战斗起生效。",
         brace_on = "阵列齐整的部队抵御俯冲",
-        brace_on_tip = "开：飞行部队俯冲撞上阵列齐整的部队正面时，按下面两项被它减速；每个撞上阵列齐整且有冲锋反制的"
-            .. "部队的俯冲模型，付出下面设定的代价。关：与原版相同，也不付代价。地面上的冲锋不受影响。多人战役里以主机"
+        brace_on_tip = "开：飞行部队俯冲撞上阵列齐整的部队正面时，按下面两项被它减速；冲锋反制对飞行部队的伤害按"
+            .. "最后一项加重。关：与原版相同。不会飞的部队不受影响。多人战役里以主机"
             .. "的设置为准；战役之外的多人战斗始终用默认值。从下一场战斗起生效。",
         brace_k = "阵列齐整时抵御俯冲的质量倍数",
         brace_k_tip = "俯冲的飞行部队撞上阵列齐整的士兵正面时，士兵的质量按几倍计算。游戏本来就按排数与朝向加重阵列"
@@ -76,9 +77,8 @@ local TEXT = {
         brace_share = "俯冲撞上阵列齐整部队时的减速比例",
         brace_share_tip = "游戏里体型大得多的一方撞上小的一方时只承受一部分减速（差一级 0.8，两级 0.2，三级 0.1）。"
             .. "俯冲的飞行部队撞上阵列齐整的部队正面时，至少承受这一比例。0 为原版。",
-        brace_cost = "俯冲撞上冲锋反制部队的代价（%）",
-        brace_cost_tip = "每个俯冲撞上阵列齐整且有冲锋反制的部队正面的模型，每次俯冲失去自身最大生命值的这一百分比。"
-            .. "0 为不扣。",
+        brace_reflect = "冲锋反制对飞行部队的伤害倍数",
+        brace_reflect_tip = "飞行部队冲锋撞上阵列齐整且有冲锋反制的部队时，所受冲锋反制伤害是原版的几倍。1 为原版。",
     },
 }
 
@@ -126,7 +126,8 @@ local ok_b, problem_b = pcall(function()
     end
     slider(b.mct_k, text.brace_k, text.brace_k_tip, b.k_min, b.k_max, b.k_step, 1, b.k)
     slider(b.mct_share, text.brace_share, text.brace_share_tip, b.share_min, b.share_max, b.share_step, 2, b.share)
-    slider(b.mct_cost, text.brace_cost, text.brace_cost_tip, b.cost_min, b.cost_max, 1, 0, b.cost)
+    slider(b.mct_reflect, text.brace_reflect, text.brace_reflect_tip, b.reflect_min, b.reflect_max,
+        b.reflect_step, 2, b.reflect)
 end)
 if not ok_b and type(ModLog) == "function" then
     pcall(ModLog, "[flyer_dive_takeoff] braced-line settings not registered: " .. tostring(problem_b))

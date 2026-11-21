@@ -14,9 +14,9 @@ Pinned here (system Python: no keystone, no unicorn):
   outside lands inside the replaced range (byte scan; the scan finds the range's own internal jump when told not to
   skip it);
 * LuaJIT: lib/brace_rule.lua decides the settings (D14 / D31 multiplayer rule, MCT values, out-of-range and
-  failing reads fall back per setting), its word equals air_dive_rules.brace_word, the cost share and table; the
-  battle entry writes the word once MCT has its values (or at Deployed), takes the cost with the setting's share,
-  or none when the switch is off or the cost is 0%; the MCT stand-in hands its values to it.
+  failing reads fall back per setting), its words equal air_dive_rules.brace_word / reflect_word; the battle
+  entry writes both words once MCT has its values (or at Deployed), 0 when the switch is off; the MCT stand-in
+  hands its values to it. [D51] D15's dive cost (its share, table and module) is removed.
 The emulator check (28 cases against the replaced bytes themselves, 19 broken caves each caught) needs keystone +
 unicorn and runs in dive_cost_asm.py before it writes the table. luajit or the installed exe missing is a failure,
 not a skip.
@@ -148,18 +148,22 @@ class SiteTable(unittest.TestCase):
 
     def test_current_and_the_marker(self):
         self.assertTrue(dive_cost_asm.check_site_file(MOD_DIR))
-        self.assertIn("magic = 'FLYDIVE5'", self.text)
-        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE5")
-        self.assertIn("dv_brace = 26 }", self.text)
+        self.assertIn("magic = 'FLYDIVE6'", self.text)
+        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE6")
+        self.assertIn("dv_brace = 26, dv_reflect = 5 }", self.text)
         self.assertIn(f"            pattern = '{brace.SITE}',", self.text.splitlines())
         self.assertIn(f"            at = 0, expect = '{brace.STOLEN}',", self.text.splitlines())
         self.assertIn(f"default_word = {air_dive_rules.brace_word(air_dive_rules.BRACE_MASS_K, air_dive_rules.BRACE_SHARE_MIN)},",
                       self.text)
 
-    def test_layout_after_the_cost_ring(self):
+    def test_layout_after_the_reserved_area(self):
+        # [D51] the 3136 bytes D15's cost used stay reserved, so dv_brace's offsets are those it shipped with
         lay = dive_cost_asm.layout()
-        self.assertEqual(lay["brace_word_at"], dive_cost_asm.COST_RING_AT + dive_cost_asm.COST_SLOTS * dive_cost_asm.COST_ENTRY)
+        self.assertEqual(lay["brace_word_at"], dive_cost_asm.RESERVED_AT + 64 + 64 * 48)
+        self.assertEqual(lay["brace_word_at"], 10432)
         self.assertEqual(lay["brace_count_at"], lay["brace_word_at"] + 4)
+        self.assertEqual((lay["reflect_word_at"], lay["reflect_count_at"]),
+                         (lay["brace_word_at"] + 8, lay["brace_word_at"] + 12))
         self.assertEqual(lay["bytes"], lay["brace_word_at"] + 64)
         self.assertEqual(lay["brace_word_at"] % 64, 0)
 
@@ -283,27 +287,24 @@ local function mct(t) return function(m, o)
 end end
 local function show(label, s)
     print(("%s|%s|%s|%s|%s|%s|%s|%s"):format(label, tostring(s.on), tostring(s.k), tostring(s.share),
-        tostring(s.cost), tostring(R.word(b, s)), tostring(R.cost_share(b, s)), s.why))
+        tostring(s.reflect), tostring(R.word(b, s)), tostring(R.reflect_word(b, s)), s.why))
 end
-local all = { [b.mct_on] = true, [b.mct_k] = 5.0, [b.mct_share] = 0.5, [b.mct_cost] = 20 }
+local all = { [b.mct_on] = true, [b.mct_k] = 5.0, [b.mct_share] = 0.5, [b.mct_reflect] = 3.0 }
 show("mp_outside", R.decide(b, true, false, mct({ [b.mct_on] = false })))
 show("no_mct", R.decide(b, false, false, nil))
 show("mct", R.decide(b, false, false, mct(all)))
 show("mpc", R.decide(b, true, true, mct(all)))
 show("off", R.decide(b, false, false, mct({ [b.mct_on] = false, [b.mct_k] = 5.0 })))
-show("zero_cost", R.decide(b, false, false, mct({ [b.mct_on] = true, [b.mct_cost] = 0 })))
+show("neutral", R.decide(b, false, false, mct({ [b.mct_on] = true, [b.mct_reflect] = 1.0 })))
 show("bad", R.decide(b, false, false, mct({ [b.mct_on] = "yes", [b.mct_k] = 50, [b.mct_share] = "boom",
-    [b.mct_cost] = -1 })))
+    [b.mct_reflect] = 0.5 })))
 show("edges", R.decide(b, false, false, mct({ [b.mct_on] = true, [b.mct_k] = b.k_max, [b.mct_share] = b.share_min,
-    [b.mct_cost] = b.cost_max })))
+    [b.mct_reflect] = b.reflect_max })))
 -- an MCT slider value is a float32: 3.4f, 0.8f, 0.35f
 show("float32", R.decide(b, false, false, mct({ [b.mct_on] = true, [b.mct_k] = 3.4000000953674316,
-    [b.mct_share] = 0.800000011920929, [b.mct_cost] = 10 })))
+    [b.mct_share] = 0.800000011920929, [b.mct_reflect] = 2.25 })))
 show("float32b", R.decide(b, false, false, mct({ [b.mct_on] = true, [b.mct_k] = 1.25,
-    [b.mct_share] = 0.3499999940395355 })))
-local t = R.cost_table(site.cost, 0.2)
-print("TABLE " .. table.concat(t.share_by_code, ",") .. " " .. table.concat(site.cost.share_by_code, ",") .. " "
-    .. tostring(t.max_call == site.cost.max_call) .. " " .. tostring(t.kinds == site.cost.kinds))
+    [b.mct_share] = 0.3499999940395355, [b.mct_reflect] = 1.7499999 })))
 print("DESC " .. R.describe(b, R.decide(b, false, false, nil)))
 print("DESC " .. R.describe(b, R.decide(b, false, false, mct({ [b.mct_on] = false }))))
 '''
@@ -326,51 +327,61 @@ class BraceRule(unittest.TestCase):
         cls.rows = rule_rows()
         r = air_dive_rules
         cls.default_word = str(r.brace_word(r.BRACE_MASS_K, r.BRACE_SHARE_MIN))
+        cls.default_reflect = str(r.reflect_word(r.REFLECT_FLYER_FACTOR))
 
     def test_defaults_without_mct_and_outside_a_campaign(self):
         for label, why in (("mp_outside", "multiplayer battle outside a campaign"), ("no_mct", "MCT not installed")):
             with self.subTest(label=label):
-                on, k, share, cost, word, cshare, w = self.rows[label]
-                self.assertEqual((on, k, share, cost), ("true", "2", "0.5", "10"))   # D33 defaults (Lua prints 2.0 as 2)
+                on, k, share, reflect, word, rword, w = self.rows[label]
+                self.assertEqual((on, k, share, reflect), ("true", "2", "0.5", "2"))  # D33 / D51 (Lua prints 2.0 as 2)
                 self.assertEqual(word, self.default_word)
-                self.assertEqual(cshare, "0.1")
+                self.assertEqual(rword, self.default_reflect)
+                self.assertEqual(rword, "200")
                 self.assertIn(why, w)
 
     def test_mct_values_single_player_and_multiplayer_campaign(self):
         want_word = str(air_dive_rules.brace_word(5.0, 0.5))
-        self.assertEqual(self.rows["mct"][:7], ["true", "5", "0.5", "20", want_word, "0.2", "MCT"])
-        self.assertEqual(self.rows["mpc"][:7], ["true", "5", "0.5", "20", want_word, "0.2",
+        self.assertEqual(self.rows["mct"][:7], ["true", "5", "0.5", "3", want_word, "300", "MCT"])
+        self.assertEqual(self.rows["mpc"][:7], ["true", "5", "0.5", "3", want_word, "300",
                                                 "MCT, multiplayer campaign"])
 
-    def test_switch_off_and_zero_cost(self):
+    def test_switch_off_and_neutral_factor(self):
         self.assertEqual(self.rows["off"][0], "false")
-        self.assertEqual(self.rows["off"][4:6], ["0", "nil"])
-        self.assertEqual(self.rows["zero_cost"][4:6], [self.default_word, "nil"])
+        self.assertEqual(self.rows["off"][4:6], ["0", "0"])
+        self.assertEqual(self.rows["neutral"][4:6], [self.default_word, "100"])        # 1.00 = the base game
 
     def test_bad_values_fall_back_one_by_one(self):
-        on, k, share, cost, word, cshare, why = self.rows["bad"]
-        self.assertEqual((on, k, share, cost, word, cshare), ("true", "2", "0.5", "10", self.default_word, "0.1"))
+        on, k, share, reflect, word, rword, why = self.rows["bad"]
+        self.assertEqual((on, k, share, reflect, word, rword), ("true", "2", "0.5", "2", self.default_word,
+                                                                self.default_reflect))
         for note in ("on default (MCT holds yes)", "k default (MCT holds 50)", "share default (reading MCT failed: boom)",
-                     "cost default (MCT holds -1)"):
+                     "reflect default (MCT holds 0.5)"):
             self.assertIn(note, why)
 
     def test_words_equal_the_rules_file(self):
         r = air_dive_rules
         self.assertEqual(self.rows["edges"][4], str(r.brace_word(r.BRACE_MASS_K_RANGE[1], r.BRACE_SHARE_MIN_RANGE[0])))
-        self.assertEqual(self.rows["edges"][5], str(r.DIVE_COST_PERCENT_RANGE[1] / 100))
+        self.assertEqual(self.rows["edges"][5], str(r.reflect_word(r.REFLECT_FLYER_FACTOR_RANGE[1])))
         self.assertEqual(self.rows["float32"][4], str(r.brace_word(3.4, 0.8)))   # float32 3.4f / 0.8f decode exactly
+        self.assertEqual(self.rows["float32"][5], str(r.reflect_word(2.25)))
         self.assertEqual(self.rows["float32b"][4], str(r.brace_word(1.25, 0.35)))
+        self.assertEqual(self.rows["float32b"][5], str(r.reflect_word(1.75)))      # 1.7499999 rounds to 175
+        with self.assertRaises(ValueError):
+            r.reflect_word(0.5)
+        with self.assertRaises(ValueError):
+            r.reflect_word(4.5)
         self.assertLess(r.brace_word(r.BRACE_MASS_K_RANGE[1], r.BRACE_SHARE_MIN_RANGE[1]), 1 << 24)  # exact in float32
         with self.assertRaises(ValueError):
             r.brace_word(0.5, 0.8)
         with self.assertRaises(ValueError):
             r.brace_word(3.4, 1.5)
 
-    def test_cost_table_and_text(self):
-        self.assertEqual(self.rows["TABLE"], ["TABLE 0.2,0.2,0.2,0.2 0.1,0.1,0.1,0.1 true true"])
+    def test_text(self):
         self.assertEqual(self.rows["DESC"][0], f"DESC on: braced mass x{air_dive_rules.BRACE_MASS_K:.2f} against a diving flyer, its share of the "
-                                               f"slowing at least {air_dive_rules.BRACE_SHARE_MIN:.2f}, word {self.default_word}, dive cost 10%")
-        self.assertEqual(self.rows["DESC"][1], "DESC off: braced units against a dive as in the base game, no dive cost")
+                                               f"slowing at least {air_dive_rules.BRACE_SHARE_MIN:.2f}, word {self.default_word}, "
+                                               f"Charge Reflection on flyers x{air_dive_rules.REFLECT_FLYER_FACTOR:.2f}, word {self.default_reflect}")
+        self.assertEqual(self.rows["DESC"][1],
+                         "DESC off: braced units against a dive and Charge Reflection on flyers as in the base game")
 
 
 ENTRY_CASE = r'''
@@ -388,17 +399,10 @@ package.preload["script/campaign/flyer_dive/lib/dive"] = function()
         allowed = function() return true end,
         pass_through = function() end,
         arm = function() ev("ARM") end,
-        set_brace = function(_, w) ev("WORD " .. tostring(w)) end,
+        set_brace = function(_, w, r) ev("WORD " .. tostring(w) .. " " .. tostring(r)) end,
         counters = function() return { throughs = 0, skipped = 0, kept = 0, engaged = 0, reordered = 0, contact = 0,
-            settled = 0, released = 0, committed = 0, closed = 0, engaged_body = 0, braced = 7 } end,
+            settled = 0, released = 0, committed = 0, closed = 0, engaged_body = 0, braced = 7, reflected = 3 } end,
     }
-end
-package.preload["script/campaign/flyer_dive/lib/dive_cost"] = function()
-    return { new = function(_, buf, s, _rec)
-        ev("COSTNEW " .. tostring(buf) .. " " .. table.concat(s.cost.share_by_code, ",") .. " "
-            .. tostring(s.layout == site.layout))
-        return { map = function() end, tick = function() end, counts = function() return "dive costs: stub" end }
-    end }
 end
 _G.memreader_plus = {}
 local real_open = io.open
@@ -421,9 +425,9 @@ bm = {
 }
 core = { add_listener = function(_, name, event, cond, fn) listeners[#listeners + 1] = { event = event, fn = fn } end }
 local VALUES = {
-    mct = { [b.mct_on] = true, [b.mct_k] = 5.0, [b.mct_share] = 0.5, [b.mct_cost] = 20 },
+    mct = { [b.mct_on] = true, [b.mct_k] = 5.0, [b.mct_share] = 0.5, [b.mct_reflect] = 3.0 },
     mct_off = { [b.mct_on] = false }, mp_off = { [b.mct_on] = false }, mpc_off = { [b.mct_on] = false },
-    zero = { [b.mct_on] = true, [b.mct_cost] = 0 }, silent = { [b.mct_k] = 3.0 },
+    neutral = { [b.mct_on] = true, [b.mct_reflect] = 1.0 }, silent = { [b.mct_k] = 3.0 },
 }
 if MODE == "stub" then
     local f = assert(real_open(STUB, "rb")); local text = f:read("*a"); f:close()
@@ -457,75 +461,71 @@ def entry(mode, stub=None):
 
 class BattleEntry(unittest.TestCase):
     default_word = air_dive_rules.brace_word(air_dive_rules.BRACE_MASS_K, air_dive_rules.BRACE_SHARE_MIN)
+    default_reflect = air_dive_rules.reflect_word(air_dive_rules.REFLECT_FLYER_FACTOR)
 
     def brace_lines(self, lines):
         return [ln for ln in lines if ln.startswith("LOG BRACE")]
 
+    def words(self, lines):
+        return [ln for ln in lines if ln.startswith("WORD")]
+
     def test_without_mct_defaults_at_load(self):
         lines = entry("none")
         self.assertEqual(lines[0], "ARM")
-        self.assertEqual([ln for ln in lines if ln.startswith("WORD")], [f"WORD {self.default_word}"])
+        self.assertEqual(self.words(lines), [f"WORD {self.default_word} {self.default_reflect}"])
         self.assertEqual(len(self.brace_lines(lines)), 1)
         self.assertIn("(default (MCT not installed); read on load (no MCT))", self.brace_lines(lines)[0])
-        self.assertIn("COSTNEW BUF 0.1,0.1,0.1,0.1 true", lines)
-        self.assertTrue([ln for ln in lines if "braced masses scaled 7, dive costs: stub" in ln], lines)
+        self.assertTrue([ln for ln in lines if ln.endswith("braced masses scaled 7, Charge Reflection hits on flyers "
+                                                           "raised 3")], lines)
+        self.assertFalse([ln for ln in lines if "COST" in ln], lines)
 
     def test_mct_values_once_both_events_fired(self):
         lines = entry("mct")
         self.assertEqual(lines[:2], ["ARM", "LOADED 2"])                     # nothing read before MCT has values
-        self.assertEqual([ln for ln in lines if ln.startswith("WORD")], [f"WORD {air_dive_rules.brace_word(5.0, 0.5)}"])
+        self.assertEqual(self.words(lines), [f"WORD {air_dive_rules.brace_word(5.0, 0.5)} "
+                                             f"{air_dive_rules.reflect_word(3.0)}"])
         self.assertEqual(len(self.brace_lines(lines)), 1)
         self.assertIn("(MCT; read on ScriptEventAllModsLoaded)", self.brace_lines(lines)[0])
-        self.assertIn("COSTNEW BUF 0.2,0.2,0.2,0.2 true", lines)
 
-    def test_switch_off_no_cost(self):
-        lines = entry("mct_off")
-        self.assertIn("WORD 0", lines)
-        self.assertIn("LOG COST off: braced-line switch off", lines)
-        self.assertFalse([ln for ln in lines if ln.startswith("COSTNEW")], lines)
+    def test_switch_off_both_words_zero(self):
+        self.assertEqual(self.words(entry("mct_off")), ["WORD 0 0"])
 
-    def test_zero_cost_keeps_the_brace(self):
-        lines = entry("zero")
-        self.assertIn(f"WORD {self.default_word}", lines)
-        self.assertIn("LOG COST off: the dive cost setting is 0%", lines)
-        self.assertFalse([ln for ln in lines if ln.startswith("COSTNEW")], lines)
+    def test_neutral_factor_keeps_the_brace(self):
+        self.assertEqual(self.words(entry("neutral")), [f"WORD {self.default_word} 100"])
 
     def test_multiplayer(self):
         out = entry("mp_off")                                                # outside a campaign: defaults
-        self.assertIn(f"WORD {self.default_word}", out)
+        self.assertEqual(self.words(out), [f"WORD {self.default_word} {self.default_reflect}"])
         self.assertIn("multiplayer battle outside a campaign", self.brace_lines(out)[0])
-        self.assertIn("COSTNEW BUF 0.1,0.1,0.1,0.1 true", out)
         camp = entry("mpc_off")                                              # campaign: the host's (MCT's) value
-        self.assertIn("WORD 0", camp)
+        self.assertEqual(self.words(camp), ["WORD 0 0"])
         self.assertIn("MCT, multiplayer campaign", self.brace_lines(camp)[0])
 
     def test_read_at_deployed_when_no_event_came(self):
         lines = entry("silent")
         self.assertEqual(len(self.brace_lines(lines)), 1)
         self.assertIn("read on Deployed", self.brace_lines(lines)[0])
-        self.assertIn(f"WORD {air_dive_rules.brace_word(3.0, air_dive_rules.BRACE_SHARE_MIN)}", lines)
+        self.assertEqual(self.words(lines), [f"WORD {air_dive_rules.brace_word(3.0, air_dive_rules.BRACE_SHARE_MIN)} "
+                                             f"{self.default_reflect}"])
 
     def test_stand_in_hands_its_values_over(self):
         import build_breath_mct_stub as stub
         with tempfile.TemporaryDirectory() as td:
-            for brace_v, want_word, want_cost in (stub.brace_values(False), "WORD 0", None), \
-                    (stub.brace_values(True, 2.5, 0.4, 15), f"WORD {air_dive_rules.brace_word(2.5, 0.4)}",
-                     "COSTNEW BUF 0.15,0.15,0.15,0.15 true"), \
-                    (None, f"WORD {self.default_word}", "COSTNEW BUF 0.1,0.1,0.1,0.1 true"):
+            for brace_v, want in ((stub.brace_values(False), "WORD 0 0"),
+                                  (stub.brace_values(True, 2.5, 0.4, 3.5),
+                                   f"WORD {air_dive_rules.brace_word(2.5, 0.4)} {air_dive_rules.reflect_word(3.5)}"),
+                                  (None, f"WORD {self.default_word} {self.default_reflect}")):
                 with self.subTest(brace=brace_v):
                     _path, data = stub.stub_entry("off", brace_v)
                     f = Path(td) / "stub.lua"
                     f.write_bytes(data)
-                    lines = entry("stub", str(f))
-                    self.assertIn(want_word, lines)
-                    if want_cost:
-                        self.assertIn(want_cost, lines)
-                    else:
-                        self.assertFalse([ln for ln in lines if ln.startswith("COSTNEW")], lines)
-        with self.assertRaises(SystemExit):
-            stub.brace_values(True, cost=30)
+                    self.assertEqual(self.words(entry("stub", str(f))), [want])
+        with self.assertRaises(ValueError):
+            stub.brace_values(True, reflect=5.0)
         with self.assertRaises(SystemExit):
             stub.main(["--value", "on", "--k", "2", "--out", "x.pack"])
+        with self.assertRaises(SystemExit):
+            stub.main(["--value", "on", "--reflect", "2", "--out", "x.pack"])
         with self.assertRaises(ValueError):
             stub.brace_values(True, k=0.5)
 

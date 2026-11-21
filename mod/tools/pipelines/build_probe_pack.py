@@ -10,9 +10,10 @@ the output adds:
   --reflect     pipelines/reflect_probe.lua and the site table reflect_probe_asm.py generates
                 (part C: two logger caves, needs keystone + unicorn to assemble and to pass its
                 emulator check and negative controls before anything is written)
-                [d15-1118 stage 5] D15 ships: the base's own dive site table carries the dive mark and
-                dv_cost (dive_cost_asm.py), and --reflect refuses a base without them. The recorder
-                hands the marks to rf_dmg (which only reads them) and observes the shipped cost module.
+                [d15-1118 stage 5 / D51] the base's own dive site table carries the dive mark and (since
+                D51, in place of D15's dv_cost) dv_reflect (dive_cost_asm.py), and --reflect refuses a base
+                without them. The recorder hands the marks to rf_dmg (which only reads them); rf_cmul
+                records the reflection multiply dv_reflect then raises for flyers.
                 The pack replaces the shipped one in the run.
 
 The output name may not be the shipped pack's (flyer_dive_takeoff.pack).
@@ -38,16 +39,16 @@ DIVE_SITE = "script/campaign/flyer_dive/data/dive_site.lua"
 
 
 def require_d15_site(entries):
-    """[d15-1118 stage 5] refuses a base without exactly one dive site table carrying the dive mark and dv_cost
-    (a pack built before D15 shipped: rf_dmg would find no marks and nothing would take a cost)."""
+    """[d15-1118 stage 5 / D51] refuses a base without exactly one dive site table carrying the dive mark and
+    dv_reflect (a pack built before D51: its flyers would pay D15's flat cost instead)."""
     norm = [p.replace("\\", "/").lower() for p, _d in entries]
     at = [i for i, p in enumerate(norm) if p == DIVE_SITE]
     if len(at) != 1:
         raise SystemExit(f"[probe pack] REFUSING: the base carries {len(at)} {DIVE_SITE}, want 1")
     text = entries[at[0]][1].decode("utf-8", errors="replace")
-    for needle in ("name = 'dv_cost'", "mark_table_at = ", "cost_ring_at = "):
+    for needle in ("name = 'dv_reflect'", "mark_table_at = ", "reflect_word_at = "):
         if needle not in text:
-            raise SystemExit(f"[probe pack] REFUSING: the base's {DIVE_SITE} lacks {needle!r} (built before D15?)")
+            raise SystemExit(f"[probe pack] REFUSING: the base's {DIVE_SITE} lacks {needle!r} (built before D51?)")
     return entries
 
 

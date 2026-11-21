@@ -1040,8 +1040,9 @@ BRACE_SHARE_MIN_RANGE = (0.0, 1.0)      # MCT slider; 0 = the engine's own share
 BRACE_SHARE_MIN_STEP = 0.05
 BRACE_WORD_SCALE = 100                  # hundredths
 # MCT option keys, in the breath switch's MCT mod (BREATH_SWITCH_MCT_MOD) and its one section
+# [D51] "reflect" replaces D15's "cost" (a new key: a saved cost percentage is never read as a factor)
 BRACE_MCT_OPTIONS = {"on": "braced_line_on", "k": "braced_line_mass", "share": "braced_line_share",
-                     "cost": "braced_line_cost"}
+                     "reflect": "braced_line_reflect"}
 
 
 def brace_word(k, share):
@@ -1051,6 +1052,25 @@ def brace_word(k, share):
             and BRACE_SHARE_MIN_RANGE[0] <= share <= BRACE_SHARE_MIN_RANGE[1]):
         raise ValueError(f"[air_dive_rules] REFUSING: brace k {k!r} / share {share!r} outside the sliders' ranges")
     return int(k * BRACE_WORD_SCALE + 0.5) | (int(share * BRACE_WORD_SCALE + 0.5) << 16)
+# [D51] Charge Reflection on flyers (cave dv_reflect, pipelines/dive_reflect_asm.py; replaces D15's dive cost):
+# at the engine's own reflection multiply (0x142e600af, damage factor x kv charge_reflect_damage_multiplier 2.0)
+# the factor is multiplied once more by REFLECT_FLYER_FACTOR when the charger being hit is, or rides, a flyer.
+# 1.0 = the base game. The battle script writes it as a u32 in hundredths (reflect_word; 0 = off), exact in a
+# float32. MCT slider over REFLECT_FLYER_FACTOR_RANGE in steps of REFLECT_FLYER_FACTOR_STEP, under the braced-line
+# master switch (off = the base game).
+REFLECT_FLYER_FACTOR = 2.0
+REFLECT_FLYER_FACTOR_RANGE = (1.0, 4.0)
+REFLECT_FLYER_FACTOR_STEP = 0.25
+
+
+def reflect_word(factor):
+    """The u32 the battle script writes for dv_reflect when the switch is on; refuses values outside the slider's
+    range (lib/brace_rule.lua computes the same word in game)."""
+    if not REFLECT_FLYER_FACTOR_RANGE[0] <= factor <= REFLECT_FLYER_FACTOR_RANGE[1]:
+        raise ValueError(f"[air_dive_rules] REFUSING: reflection factor {factor!r} outside the slider's range")
+    return int(factor * BRACE_WORD_SCALE + 0.5)
+
+
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)

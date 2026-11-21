@@ -159,24 +159,25 @@ function M.arm(buf)
     local zeros = string.rep("\0", l.slide_slots * 16)
     mr_().write(buf, l.slide_at, zeros)
     put_u32(buf, l.skip_speed_at, site.skip_speed_bits)
-    -- [D15, d15-1118 stage 5] the dive marks and the cost ring of the last battle are cleared; the front-arc
-    -- switch and the game's cos(bracing_attack_angle) are written as the site table carries them (raw F32
-    -- bytes: a game Lua number is float32 and could not carry the bits exactly)
+    -- [D15] the dive marks of the last battle, and everything after them, are cleared (dv_brace's and
+    -- dv_reflect's words and counters among it, written again just below)
     if l.mark_count_at then mr_().write(buf, l.mark_count_at, string.rep("\0", l.bytes - l.mark_count_at)) end
-    if site.cost and l.cost_arc_on_at then
-        mr_().write(buf, l.cost_arc_cos_at, site.cost.arc_cos_bytes)
-        put_u32(buf, l.cost_arc_on_at, site.cost.front_arc and 1 or 0)
-    end
-    -- [D31] dv_brace's setting word: the defaults until the battle entry has read MCT (M.set_brace)
+    -- [D31 / D51] dv_brace's and dv_reflect's words: the defaults until the battle entry has read MCT
+    -- (M.set_brace)
     if site.brace and l.brace_word_at then
         put_u32(buf, l.brace_word_at, site.brace.default_on and site.brace.default_word or 0)
+    end
+    if site.brace and l.reflect_word_at then
+        put_u32(buf, l.reflect_word_at, site.brace.default_on and site.brace.default_reflect_word or 0)
     end
     put_u32(buf, l.mode_at, 1)
 end
 
--- [D31] dv_brace's setting word (lib/brace_rule.lua word(); 0 = the vanilla result). / 写入 dv_brace 的设置字。
-function M.set_brace(buf, word)
+-- [D31 / D51] dv_brace's setting word and dv_reflect's factor word (lib/brace_rule.lua word() / reflect_word();
+-- 0 = the vanilla result). / 写入 dv_brace 的设置字与 dv_reflect 的倍数字。
+function M.set_brace(buf, word, reflect_word)
     if site.layout.brace_word_at then put_u32(buf, site.layout.brace_word_at, word) end
+    if reflect_word and site.layout.reflect_word_at then put_u32(buf, site.layout.reflect_word_at, reflect_word) end
 end
 
 -- Mode 0: every call passes through (vanilla). / 回到原版行为。
@@ -202,7 +203,9 @@ function M.counters(buf)
         -- melee with another unit, not carried
         closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at),
         -- [D31] braced masses dv_brace scaled against a landed diving flyer (one per braced body per pair step)
-        braced = l.brace_count_at and u32(buf, l.brace_count_at) or 0 }
+        braced = l.brace_count_at and u32(buf, l.brace_count_at) or 0,
+        -- [D51] Charge Reflection hits on a flyer that dv_reflect multiplied
+        reflected = l.reflect_count_at and u32(buf, l.reflect_count_at) or 0 }
 end
 
 -- Off for this session's later battles too (the agreement said no or has not

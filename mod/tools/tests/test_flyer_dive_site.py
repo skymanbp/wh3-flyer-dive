@@ -53,16 +53,15 @@ class DiveSiteTable(unittest.TestCase):
 
     def test_names_every_cave_and_nothing_else(self):
         named = re.findall(r"name = '([a-z_]+)', feature = '([a-z_]+)', kind = '([a-z]+)'", self.text)
-        # [D15, d15-1118 stage 5] + the facing anchor and dv_cost (dive_cost_asm.py); [D31] + dv_brace
+        # [D31] + dv_brace; [D51] + dv_reflect (D15's facing anchor and dv_cost removed)
         self.assertEqual(named, [(n, dive_cave_asm.FEATURE, "cave") for n in dive_cave_asm.CAVES]
-                         + [("dv_facing", dive_cave_asm.FEATURE, "anchor"), ("dv_cost", dive_cave_asm.FEATURE, "cave"),
-                            ("dv_brace", dive_cave_asm.FEATURE, "cave")])
+                         + [("dv_brace", dive_cave_asm.FEATURE, "cave"), ("dv_reflect", dive_cave_asm.FEATURE, "cave")])
         self.assertIn(f"    owner = '{dive_cave_asm.OWNER}',", self.text.splitlines())
         self.assertIn("    resume_at = { dv_through = 29, dv_engage = 11, dv_reorder = 8, dv_reorder_move = 10, "
-                      "dv_attack_move = 17, dv_tick_move = 11, dv_settle = 14, dv_commit = 12, dv_cost = 26, dv_brace = 26 },",
+                      "dv_attack_move = 17, dv_tick_move = 11, dv_settle = 14, dv_commit = 12, dv_brace = 26, dv_reflect = 5 },",
                       self.text.splitlines())
-        self.assertIn("            reads = { facing = { from = 'dv_facing' } },", self.text.splitlines())
-        self.assertIn("            reads = { facing = { at = 12, after = 16 } },", self.text.splitlines())
+        self.assertNotIn("facing", self.text)
+        self.assertIn("            at = 14, expect = 'F3 44 0F 59 C7',", self.text.splitlines())
         # [AIR-DIVE-RELEASE-W1] each call-site cave names the call it replaces
         for name, site in dive_cave_asm.CALL_SITES.items():
             with self.subTest(cave=name):
@@ -72,8 +71,7 @@ class DiveSiteTable(unittest.TestCase):
     def test_patterns_fit_the_loader(self):
         limit = loader_pattern_limit()
         patterns = {name: spec[0] for name, spec in dive_cave_asm.CAVES.items()}
-        patterns.update({"dv_cost": dive_cost_asm.COST_SITE, "dv_facing": dive_cost_asm.FACING_ANCHOR,
-                         "dv_brace": dive_cost_asm.brace.SITE})
+        patterns.update({"dv_brace": dive_cost_asm.brace.SITE, "dv_reflect": dive_cost_asm.reflect.SITE})
         for name, pattern in patterns.items():
             with self.subTest(cave=name):
                 tokens = pattern.split()
@@ -84,8 +82,8 @@ class DiveSiteTable(unittest.TestCase):
         if not GAME_EXE.is_file():
             raise RuntimeError(f"required input missing: installed game exe {GAME_EXE}")
         found = dive_cost_asm.check_exe(GAME_EXE)
-        self.assertEqual(sorted(found), sorted(list(dive_cave_asm.CAVES) + ["dv_cost", "dv_facing", "dv_brace"]))
-        self.assertEqual({k: found[k] for k in ("dv_cost", "dv_facing", "dv_brace")}, dive_cost_asm.EXE_SITES)
+        self.assertEqual(sorted(found), sorted(list(dive_cave_asm.CAVES) + ["dv_brace", "dv_reflect"]))
+        self.assertEqual({k: found[k] for k in ("dv_brace", "dv_reflect")}, dive_cost_asm.EXE_SITES)
 
 
 if __name__ == "__main__":

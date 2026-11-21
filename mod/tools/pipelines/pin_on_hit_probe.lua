@@ -345,6 +345,8 @@ local function drain_calls(ms, uid_of)
                 extra = fmt(" t18=%s t58=%s t68=%s f74=%s f80=%s t84=%s sn=%s", hex_bytes(chunk, at + 64, 8),
                     hex_bytes(chunk, at + 72, 8), hex_bytes(chunk, at + 80, 8), hex_bytes(chunk, at + 88, 4),
                     hex_bytes(chunk, at + 92, 4), hex_bytes(chunk, at + 96, 4), hex_bytes(chunk, at + 100, 4))
+            elseif kind == 10 then                  -- [D42] rt_pop: the clear-queue loop's caller (0 = not from it)
+                extra = " c2=" .. hex_bytes(chunk, at + 64, 8)
             elseif kind == 9 then                   -- the new task's parameters
                 local p = {}
                 for i = 0, 6 do p[#p + 1] = fmt("p%02x=%s", 8 * i, hex_bytes(chunk, at + 64 + 8 * i, 8)) end

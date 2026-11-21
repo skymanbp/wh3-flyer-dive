@@ -110,6 +110,9 @@ TASK_KINDS = (7, 8)
 POP_UNIT, POP_HEAD, POP_STRIDE, POP_ORDER, POP_FLAG, POP_SLOTS = 0x10, 0x2D04, 0x120, 0x18, 0x39, 40
 U_OV_ARRAY, U_OV_COUNT, U_OV_MAX, OV_STATE = 0x3300, 0x3310, 2, 0x88
 POP_KIND = 10
+# the clear-queue loop 0x142f4641c (push rbx; sub rsp, 0x20) pops through call -> return 0x142f46436; its own
+# caller's return address then sits 0x30 above the pop's entry rsp: logged at ext +64 (0 for any other caller)
+POP_CLEAR_RET, POP_CLEAR_UP = 0x142F46436, 0x30
 
 # name: (pattern, at, stolen bytes (whole instructions, no relative operand), exe address of the site)
 SITES = {
@@ -194,7 +197,14 @@ pop_noorder:
     mov dword ptr [r11 + 52], ecx
     mov ecx, dword ptr [rax + {OV_STATE:#x}]
     mov dword ptr [r11 + 56], ecx
-pop_end:"""
+pop_end:
+    mov rax, qword ptr [rsp + {PUSHES * 8}]
+    mov rdx, {POP_CLEAR_RET:#x}
+    cmp rax, rdx
+    jne pop_noclear
+    mov rax, qword ptr [rsp + {PUSHES * 8 + POP_CLEAR_UP}]
+    mov qword ptr [r11 + {EXT}], rax
+pop_noclear:"""
 
 
 def source(name, mutate=None):
@@ -549,15 +559,19 @@ def _check_pop(code, mutated=False):
                                                             st=NONE32)),
              ("null unit", 1, {"null_unit": True}, dict(flag=1, vt=order_vt, unit=0, n=NONE32, ovvt=NONE32,
                                                          st=NONE32)),
+             ("from the clear loop", 1, {"clear": True}, dict(flag=1, vt=order_vt, unit=unit, n=1, ovvt=ov_vt,
+                                                              st=state, c2=0x143025D19)),
              ("off", 0, {}, None)]
     for label, mode, wk, want in cases:
+        clear = wk.pop("clear", False) if want is not None else False
         for flags in (0x202, 0x8D7):
             mu = _machine(code)
             world(mu, **wk)
             mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
             mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
             rsp = STACK + 0x4000
-            mu.mem_write(rsp, struct.pack("<Q", RET))
+            mu.mem_write(rsp, struct.pack("<Q", POP_CLEAR_RET if clear else RET))
+            mu.mem_write(rsp + POP_CLEAR_UP, struct.pack("<Q", 0x143025D19))
             try:
                 changed = _run(mu, code, {"rcx": ring, "rdx": 0x4242, "rsp": rsp}, flags)
             except Exception as err:      # a fault is a failed case
@@ -572,8 +586,10 @@ def _check_pop(code, mutated=False):
                 if written or calls or any(entry):
                     fails.append(f"rt_pop {label}: logged in mode 0")
                 continue
-            exp = struct.pack("<QQQIIQQIIII", ring, want["flag"], RET, 0, POP_KIND, want["vt"], want["unit"],
+            exp = struct.pack("<QQQIIQQIIII", ring, want["flag"], POP_CLEAR_RET if clear else RET, 0, POP_KIND,
+                              want["vt"], want["unit"],
                               want["n"], want["ovvt"] & 0xFFFFFFFF, want["st"], 8)   # the cave keeps the low 32 bits
+            exp += struct.pack("<Q", want.get("c2", 0))
             exp += bytes(ENTRY - len(exp))
             if written != 1 or calls != 1 or entry != exp:
                 fails.append(f"rt_pop {label}: written {written} calls {calls} entry {entry.hex()} want {exp.hex()}")
@@ -612,6 +628,8 @@ MUTANTS = (
     ("rt_pop", "cmp eax, 1\n    ja pop_end", "cmp eax, 2\n    ja pop_end"),
     ("rt_pop", "mov ecx, dword ptr [rax + 0x88]", "mov ecx, dword ptr [rax + 0x80]"),
     ("rt_pop", "mov dword ptr [r11 + 28], 10", "mov dword ptr [r11 + 28], 9"),
+    ("rt_pop", "mov rax, qword ptr [rsp + 104]", "mov rax, qword ptr [rsp + 96]"),
+    ("rt_pop", "cmp rax, rdx\n    jne pop_noclear", "cmp rax, rdx\n    nop"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),
     ("rt_land", "mov rax, qword ptr [rsp + 56]", "mov rax, qword ptr [rsp + 48]"),

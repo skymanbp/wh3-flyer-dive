@@ -809,3 +809,22 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 - The new text is shown to the owner with a comparison against the live text before anything is uploaded.
 - Once this version is uploaded and closed out, the main mod's session may run its in-game tests (supersedes the
   hold in D33 at that point).
+
+### D36 · Final page wording; release once the comparison is added; a take-off question (2026-11-20)
+
+> Owner, 2026-11-20 about 23:40, in this repository's session:
+>
+> 「No dead stop on braced spears. Infantries no longer freeze a landing flyer on first contact. Although, units with
+> high charge resistance are much less likely to be ploughed through. This can be adjusted with MCT.
+>
+> 这么说就行，我删掉的那些全是“此地无银三百两”式句子，没必要。其他可以，加上对比图就行，发布吧。」
+>
+> And, on the recording failing to show a pull-back (Chosen halberds never tied the Great Longma Riders down):
+> 「额，那有问题啊。神选者长戟理论上是有很高的反大型命中率的，不可能没法困住巨龙马骑兵。是不是我们的起飞规则让这些飞行部队太过于容易起飞了？」
+
+- The English page line is the owner's text verbatim (branch `release-1120`); the other three line changes and the
+  changenote stand.
+- Go-ahead for push and upload once the comparison is added: this once, for this version.
+- The take-off question is measured before the upload: the same scene with the game's own take-off rule and with this
+  mod's rule; if this mod's rule lets the longma leave much more easily than the game's own, that is reported and
+  treated before anything ships.

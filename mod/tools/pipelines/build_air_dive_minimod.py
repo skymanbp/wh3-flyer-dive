@@ -278,6 +278,7 @@ DIVE_SCRIPTS = (
     "script/campaign/mod/flyer_dive.lua",
     "script/campaign/flyer_dive/lib/dive.lua",
     "script/campaign/flyer_dive/lib/dive_cost.lua",
+    "script/campaign/flyer_dive/lib/brace_rule.lua",    # [D31] the braced-line settings (MCT)
     # lib/cave_common.lua, which the dive module requires too, ships once in
     # TAKEOFF_SCRIPTS: dive_rule_entries() never ships without takeoff_entries().
     "script/campaign/flyer_dive/data/dive_site.lua",

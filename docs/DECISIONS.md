@@ -752,3 +752,40 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   formula: for a diving flyer only, raise the braced soldier's effective mass and the flyer's tier share there, as MCT
   settings. D29's lever A is dropped (BRACE-PROBE-1120); a mass cut stays the fallback (capped by the same share).
   Not yet measured: whether the solver's result reaches a landed flyer in game.
+
+### D31 · The braced-line build: braced mass and the flyer's share in the pair solver, the 10% cost, all in MCT (2026-11-20)
+
+Maintainer's technical route under D25, D26 and D29 (with the correction to D27 recorded under D30); no new
+instruction from the owner. Built offline on branch `brace-solver-1120`; nothing of it has run in game.
+
+- **Where:** the engine's own pair solver `0x14317768c`, at the 26 bytes `0x1431781e9`..`0x143178202` where it
+  multiplies a braced body's mass by its brace multiplier (`docs/HISTORY.md` PAIR-SOLVER-1120, PAIR-PROBE-1120). A
+  new dive cave `dv_brace` there does exactly what those bytes do, then, only when the engine itself counted a body's
+  brace (`r12b` for body A, `r13b` for body B: enemies, braced, the other in its front) **and** the other body's
+  entity is a flyer in a landed dive (own or ridden flight controller, `+0x104` 0, `+0x710` not 0, the dive caves'
+  test): the braced body's mass is multiplied again by **k**, and the flyer's size-tier share (`xmm12` when the flyer
+  is A, `xmm6` when it is B) is raised to at least **s\***. Nothing else changes: ground chargers, an unbraced or
+  side-on soldier (the engine's own flags are 0), a flyer still in the air or one that has stopped flying, the
+  position push before the block (it has already used the shares). The same buffer as the other dive caves; mode 0
+  or a zero setting word is the vanilla bytes' result exactly.
+- **Defaults, from the solver's formula** (`mod/tools/lib/air_dive_rules.py`): per contact the flyer keeps
+  `1 - s·(1+e)·M'/(m + M')` of its momentum (s its share, e = 0.3 read in game, m its mass, M' the braced soldier's
+  mass × brace × k). The pegasus knights today: 0.8 × 1.3 × 543 / (1,300 + 543) = 0.306. The star dragon today:
+  0.1 × 1.3 × 543 / (4,425 + 543) = 0.014. With **s\* = 0.8** (the engine's own share one size tier apart) the
+  dragon matches the pegasus when k × 543 / 4,425 = 543 / 1,300, so **k = 4,425 / 1,300 = 3.40**: the dragon then
+  0.306 (lane's "per contact" figure 24.5%, against 1.1% today). The same defaults also raise every other flyer
+  against that soldier: pegasus 0.306 → 0.610, manticore 0.063 → 0.541, griffon knights 0.031 → 0.538. That is
+  what "charge resistance counts for more" does when it is one rule for all flyers; the in-game runs measure it
+  and the owner is told before anything ships.
+- **D15's cost:** 3% → **10%** by default (D25), the same share for every body size, an MCT slider 0–25 (%); 0 means
+  no cost.
+- **MCT:** one master switch (default on) and three sliders (k 1.0–10.0, s\* 0.00–1.00, cost 0–25%), in the mod's
+  existing MCT section beside the breath switch. Master off = `dv_brace` gives the vanilla result and the D15 cost
+  is not taken. Without MCT the defaults apply. A multiplayer campaign battle uses the settings MCT hands every
+  machine (the host's, D14). **Maintainer's call:** a multiplayer battle outside a campaign uses the defaults,
+  because each machine there reads its own MCT values and these settings change the battle simulation (the breath
+  switch stays on there for the same reason, D14).
+- **Multiplayer agreement marker:** the dive caves' marker `FLYDIVE4` → `FLYDIVE5`.
+- **Not in this batch:** the flyer-only factor on the Charge Reflection multiplier (site `0x142e600af`). It needs
+  its own cave, its own emulator cases and its own measurement; D25's "Charge Reflection hurts more" is carried by
+  the 10% cost until then.

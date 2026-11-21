@@ -24,6 +24,9 @@ A paying contact turns the mark STAMPED -> SPENT (lock cmpxchg, one winner) and 
 braced contact that fails the attribute or the arc writes an entry of its own kind and leaves the mark stamped
 (a later contact of the same dive may pay). A contact past the window turns the mark EXPIRED.
 
+[D31, brace-solver-1120] Plus ``dv_brace`` (pipelines/dive_brace_asm.py) in the pair solver's velocity block
+0x1431781e9, its setting word and counter after the cost ring (BRACE_AT); MAGIC FLYDIVE5.
+
 ``dv_cost`` sits at 0x14325aa9e (``mov r14,[r12]; test r14,r14; je 0x14325ab6a; cmp byte [rcx+0x3ea9],0;
 je 0x14325ab6a``, 26 bytes; nothing branches into them, site_check5 in the lane's scratch). It is reached by
 types 0 / 5 / 6 with a victim unit (0x14325aa61..0x14325aa98) and is clear of the take-off cave pin_stamp
@@ -58,12 +61,16 @@ import air_dive_rules  # noqa: E402 -- because rolepath above puts lib/ on sys.p
 import cave_site_text  # noqa: E402 -- same reason
 import dive_cave_asm as base  # noqa: E402 -- same reason (pipelines/)
 import dive_mark_asm as mark  # noqa: E402 -- same reason (pipelines/)
+import dive_brace_asm as brace  # noqa: E402 -- same reason (pipelines/)
 
-MAGIC = b"FLYDIVE4"                     # 4: + the mark and dv_cost (D15)
+MAGIC = b"FLYDIVE5"                     # 4: + the mark and dv_cost (D15); 5: + dv_brace (D31)
 COST_AT = mark.BYTES                    # 7296, a multiple of 64
 COST_COUNT_AT, COST_ARC_ON_AT, COST_ARC_COS_AT = COST_AT, COST_AT + 4, COST_AT + 8
 COST_RING_AT, COST_SLOTS, COST_ENTRY = COST_AT + 64, 64, 48
-BYTES = COST_RING_AT + COST_SLOTS * COST_ENTRY
+# [D31] dv_brace (dive_brace_asm.py): the setting word Lua writes (k / s* in hundredths, 0 off) and its counter
+BRACE_AT = COST_RING_AT + COST_SLOTS * COST_ENTRY
+BRACE_WORD_AT, BRACE_COUNT_AT = BRACE_AT, BRACE_AT + 4
+BYTES = BRACE_AT + 64
 K_PAY, K_ARC, K_NOATTR = 1, 2, 3
 NO_DIRECTION = 2.0
 # engine fields (Warhammer3.exe 9.0.5)
@@ -79,7 +86,7 @@ COST_SITE = ("4D 8B 34 24 4D 85 F6 0F 84 BF 00 00 00 80 B9 A9 3E 00 00 00 0F 84 
 COST_STOLEN, COST_RESUME = "4D 8B 34 24 4D 85 F6", 26
 FACING_ANCHOR = "0F 57 DB 0F 2E FB 0F B7 08 48 8D 05 ?? ?? ?? ?? F3 0F 10 64 C8 04 F3 0F 10 0C C8"
 FACING_READ_AT, FACING_READ_AFTER = 12, 16
-EXE_SITES = {"dv_cost": 0x14325AA9E, "dv_facing": 0x14307C5BD}
+EXE_SITES = {"dv_cost": 0x14325AA9E, "dv_facing": 0x14307C5BD, "dv_brace": brace.EXE_SITE}
 DB_PACK = base.EXE.parent / "data" / "db.pack"
 
 
@@ -647,18 +654,24 @@ def run_checks():
     fails += f
     counts["dv_cost"] = n
     survivors += [f"dv_cost: {m}" for m in cost_negative_controls()]
+    codes["dv_brace"] = brace.assemble(BRACE_WORD_AT, BRACE_COUNT_AT)
+    f, n = brace.check(codes["dv_brace"], BRACE_WORD_AT, BRACE_COUNT_AT)
+    fails += f
+    counts["dv_brace"] = n
+    survivors += [f"dv_brace: {m}" for m in brace.negative_controls(BRACE_WORD_AT, BRACE_COUNT_AT)]
     return codes, fails, counts, survivors
 
 
 # --- site table ------------------------------------------------------------------------------------------
-CAVES = tuple(base.CAVES) + ("dv_cost",)
+CAVES = tuple(base.CAVES) + ("dv_cost", "dv_brace")
 
 
 def layout():
     lay = dict(mark.layout())
     lay.update({"bytes": BYTES, "magic": MAGIC.decode(), "cost_count_at": COST_COUNT_AT,
                 "cost_arc_on_at": COST_ARC_ON_AT, "cost_arc_cos_at": COST_ARC_COS_AT,
-                "cost_ring_at": COST_RING_AT, "cost_slots": COST_SLOTS, "cost_entry": COST_ENTRY})
+                "cost_ring_at": COST_RING_AT, "cost_slots": COST_SLOTS, "cost_entry": COST_ENTRY,
+                "brace_word_at": BRACE_WORD_AT, "brace_count_at": BRACE_COUNT_AT})
     return lay
 
 
@@ -671,13 +684,30 @@ def cost_rules(angle):
             "front_arc": air_dive_rules.DIVE_COST_FRONT_ARC, "angle": angle, "arc_cos": arc_cos(angle)}
 
 
+def brace_rules():
+    """[D31] the numbers the battle script and the MCT page need for dv_brace and the cost setting, all from
+    air_dive_rules"""
+    r = air_dive_rules
+    return {"default_on": r.BRACE_LINE_DEFAULT_ON, "k": r.BRACE_MASS_K, "k_min": r.BRACE_MASS_K_RANGE[0],
+            "k_max": r.BRACE_MASS_K_RANGE[1], "k_step": r.BRACE_MASS_K_STEP, "share": r.BRACE_SHARE_MIN,
+            "share_min": r.BRACE_SHARE_MIN_RANGE[0], "share_max": r.BRACE_SHARE_MIN_RANGE[1],
+            "share_step": r.BRACE_SHARE_MIN_STEP, "scale": r.BRACE_WORD_SCALE,
+            "cost": r.DIVE_COST_PERCENT_DEFAULT, "cost_min": r.DIVE_COST_PERCENT_RANGE[0],
+            "cost_max": r.DIVE_COST_PERCENT_RANGE[1], "mct_mod": r.BREATH_SWITCH_MCT_MOD,
+            "mct_on": r.BRACE_MCT_OPTIONS["on"], "mct_k": r.BRACE_MCT_OPTIONS["k"],
+            "mct_share": r.BRACE_MCT_OPTIONS["share"], "mct_cost": r.BRACE_MCT_OPTIONS["cost"],
+            "default_word": r.brace_word(r.BRACE_MASS_K, r.BRACE_SHARE_MIN)}
+
+
 def source_sha(angle):
     norm = lambda s: "\n".join(line.strip() for line in s.splitlines() if line.strip())  # noqa: E731 -- because base.source_sha uses the same one-liner
     with mark._marked():
         marked = {n: norm(mark.cave_source(n)) for n in base.CAVES}
     blob = json.dumps({"base": base.source_sha(), "marked": marked, "dv_cost": norm(cost_source()),
                        "site": [COST_SITE, COST_STOLEN, COST_RESUME, FACING_ANCHOR, FACING_READ_AT,
-                                FACING_READ_AFTER], "layout": layout(), "rules": cost_rules(angle)},
+                                FACING_READ_AFTER], "layout": layout(), "rules": cost_rules(angle),
+                       "dv_brace": norm(brace.source(BRACE_WORD_AT, BRACE_COUNT_AT)),
+                       "brace_site": [brace.SITE, brace.STOLEN, brace.RESUME_OFF], "brace": brace_rules()},
                       sort_keys=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
@@ -728,8 +758,12 @@ def site_lua(codes, angle):
               "            reads = { facing = { from = 'dv_facing' } },",
               f"            bytes = '{template(codes['dv_cost'])}',",
               "        },"]
+    lines += cave_site_text.cave_entry_lines("dv_brace", base.FEATURE, brace.SITE, 0, brace.STOLEN,
+                                             template(codes["dv_brace"]))
     resume = {n: base.CAVES[n][3] for n in base.CAVES if base.CAVES[n][3]}
     resume["dv_cost"] = COST_RESUME
+    resume["dv_brace"] = brace.RESUME_OFF
+    b = brace_rules()
     lines += [
         "    },",
         "    caves = { " + ", ".join(f"'{n}'" for n in CAVES) + " },",
@@ -746,6 +780,17 @@ def site_lua(codes, angle):
         f"arc_cos = {rules['arc_cos']!r},",
         f"        arc_cos_bytes = {_lua_bytes(struct.pack('<f', rules['arc_cos']))},",
         f"        kinds = {{ pay = {K_PAY}, arc = {K_ARC}, no_attribute = {K_NOATTR} }},",
+        "    },",
+        "    -- [D31] dv_brace and the MCT settings of the braced-line work (lib/brace_rule.lua, the MCT page)",
+        "    brace = {",
+        f"        default_on = {'true' if b['default_on'] else 'false'}, k = {b['k']!r}, k_min = {b['k_min']!r}, "
+        f"k_max = {b['k_max']!r}, k_step = {b['k_step']!r},",
+        f"        share = {b['share']!r}, share_min = {b['share_min']!r}, share_max = {b['share_max']!r}, "
+        f"share_step = {b['share_step']!r}, scale = {b['scale']},",
+        f"        cost = {b['cost']}, cost_min = {b['cost_min']}, cost_max = {b['cost_max']}, "
+        f"default_word = {b['default_word']},",
+        f"        mct_mod = '{b['mct_mod']}', mct_on = '{b['mct_on']}', mct_k = '{b['mct_k']}', "
+        f"mct_share = '{b['mct_share']}', mct_cost = '{b['mct_cost']}',",
         "    },",
         f"    format = {agreement_format(angle)},",
         f"    build = '{base.BUILD}',",
@@ -776,7 +821,8 @@ def check_exe(exe_path=base.EXE):
     pe = pefile.PE(str(exe_path), fast_load=True)
     image = pe.OPTIONAL_HEADER.ImageBase
     code = [(image + s.VirtualAddress, s.get_data()) for s in pe.sections if s.Characteristics & 0x20000000]
-    for name, pattern, want in (("dv_cost", COST_SITE, COST_STOLEN), ("dv_facing", FACING_ANCHOR, None)):
+    for name, pattern, want in (("dv_cost", COST_SITE, COST_STOLEN), ("dv_facing", FACING_ANCHOR, None),
+                                ("dv_brace", brace.SITE, brace.STOLEN)):
         rx = re.compile(b"".join(b"." if t == "??" else re.escape(bytes([int(t, 16)])) for t in pattern.split()),
                         re.S)
         hits = [va + m.start() for va, data in code for m in rx.finditer(data)]
@@ -796,10 +842,10 @@ def main(argv):
         raise SystemExit("[dive_cost_asm] emulator check FAILED:\n  " + "\n  ".join(fails[:40]))
     if survivors:
         raise SystemExit(f"[dive_cost_asm] REFUSING: mutants passed every case: {survivors}")
-    n_mut = len(base.MUTANTS) + len(mark.MUTANTS) + len(COST_MUTANTS)
+    n_mut = len(base.MUTANTS) + len(mark.MUTANTS) + len(COST_MUTANTS) + len(brace.MUTANTS)
     print(f"[dive_cost_asm] caves {', '.join(f'{n} {len(codes[n])} B' for n in codes)}; emulator cases {counts}; "
           f"{n_mut} mutants each caught ({len(base.MUTANTS)} dive, {len(mark.MUTANTS)} mark, "
-          f"{len(COST_MUTANTS)} cost)")
+          f"{len(COST_MUTANTS)} cost, {len(brace.MUTANTS)} brace)")
     if "--write-site" in argv:
         angle = arc_angle()
         out = base.MOD_DIR / base.SITE_LUA

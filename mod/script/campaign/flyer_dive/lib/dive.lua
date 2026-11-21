@@ -167,7 +167,16 @@ function M.arm(buf)
         mr_().write(buf, l.cost_arc_cos_at, site.cost.arc_cos_bytes)
         put_u32(buf, l.cost_arc_on_at, site.cost.front_arc and 1 or 0)
     end
+    -- [D31] dv_brace's setting word: the defaults until the battle entry has read MCT (M.set_brace)
+    if site.brace and l.brace_word_at then
+        put_u32(buf, l.brace_word_at, site.brace.default_on and site.brace.default_word or 0)
+    end
     put_u32(buf, l.mode_at, 1)
+end
+
+-- [D31] dv_brace's setting word (lib/brace_rule.lua word(); 0 = the vanilla result). / 写入 dv_brace 的设置字。
+function M.set_brace(buf, word)
+    if site.layout.brace_word_at then put_u32(buf, site.layout.brace_word_at, word) end
 end
 
 -- Mode 0: every call passes through (vanilla). / 回到原版行为。
@@ -191,7 +200,9 @@ function M.counters(buf)
         released = u32(buf, l.released_at), committed = u32(buf, l.committed_at),
         -- [FLYER-FIX-1117] slide windows ended by the first melee engage; contacts with a body already in
         -- melee with another unit, not carried
-        closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at) }
+        closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at),
+        -- [D31] braced masses dv_brace scaled against a landed diving flyer (one per braced body per pair step)
+        braced = l.brace_count_at and u32(buf, l.brace_count_at) or 0 }
 end
 
 -- Off for this session's later battles too (the agreement said no or has not

@@ -179,7 +179,10 @@ dump()
 
 MCT_CASE = r'''
 local CLIENT = arg[3]             -- "en" | "cn" | "none"
-local reg = {}
+if arg[4] == "nosite" then        -- [D31] a site table without the brace block: the breath option still registers
+    package.preload["script/campaign/flyer_dive/data/dive_site"] = function() return { layout = {} } end
+end
+local reg = { opts = {} }
 common = { get_localised_string = function(key)
     if key ~= "unit_ability_types_onscreen_name_wh_type_breath" then return "" end
     return CLIENT == "cn" and "[[img:ui/battle ui/ability_icons/icon_spell_breath.png]][[/img]]吹息"
@@ -194,11 +197,14 @@ if CLIENT ~= "none" then
             function mod:set_author(t) reg.author = t end
             function mod:set_description(t) reg.description = t end
             function mod:add_new_option(k, kind)
-                reg.option, reg.kind = k, kind
-                local o = {}
-                function o:set_text(t) reg.text = t end
-                function o:set_tooltip_text(t) reg.tooltip = t end
-                function o:set_default_value(v) reg.default = v end
+                local o = { key = k, kind = kind }
+                reg.opts[#reg.opts + 1] = o
+                function o:set_text(t) self.text = t end
+                function o:set_tooltip_text(t) self.tooltip = t end
+                function o:set_default_value(v) self.default = v end
+                function o:slider_set_min_max(a, b) self.min, self.max = a, b end
+                function o:slider_set_step_size(st, pr) self.step, self.step_precision = st, pr end
+                function o:slider_set_precision(pr) self.precision = pr end
                 return o
             end
             return mod
@@ -206,8 +212,17 @@ if CLIENT ~= "none" then
     end
 end
 dofile(MOD .. "/script/mct/settings/flyer_dive_takeoff.lua")
+local first = reg.opts[1] or {}       -- the breath option comes first
+reg.option, reg.kind, reg.default, reg.text, reg.tooltip = first.key, first.kind, first.default, first.text, first.tooltip
 for _, k in ipairs({ "mod", "option", "kind", "default", "title", "text", "tooltip", "description" }) do
     print(k .. "=" .. tostring(reg[k]))
+end
+print("count=" .. #reg.opts)
+for i, o in ipairs(reg.opts) do
+    print(("opt%d=%s|%s|%s|%s|%s|%s|%s|%s"):format(i, o.key, o.kind, tostring(o.default), tostring(o.min),
+        tostring(o.max), tostring(o.step), tostring(o.step_precision), tostring(o.precision)))
+    print(("text%d=%s"):format(i, tostring(o.text)))
+    print(("tip%d=%s"):format(i, tostring(o.tooltip)))
 end
 '''
 
@@ -374,6 +389,55 @@ class MctPage(unittest.TestCase):
     def test_without_mct_nothing_happens(self):
         page = self.page("none")
         self.assertEqual(page["mod"], "nil")
+
+
+class BracePage(unittest.TestCase):
+    """[D31] the braced-line settings: four options after the breath switch, in the same mod (one section), keys,
+    defaults and ranges from the generated site table (= air_dive_rules), one language per client."""
+
+    def page(self, client, *extra):
+        return dict(ln.split("=", 1) for ln in run(MCT_CASE, client, *extra))
+
+    def test_four_options_after_the_breath_switch(self):
+        page = self.page("en")
+        r = air_dive_rules
+        self.assertEqual(page["count"], "5")
+        self.assertEqual(page["opt1"].split("|")[:3], [r.BREATH_SWITCH_MCT_OPTION, "checkbox", "true"])
+        self.assertEqual(page["opt2"], f"{r.BRACE_MCT_OPTIONS['on']}|checkbox|true|nil|nil|nil|nil|nil")
+        self.assertEqual(page["opt3"], f"{r.BRACE_MCT_OPTIONS['k']}|slider|{r.BRACE_MASS_K}|{r.BRACE_MASS_K_RANGE[0]:g}|"
+                                       f"{r.BRACE_MASS_K_RANGE[1]:g}|{r.BRACE_MASS_K_STEP}|1|1")
+        self.assertEqual(page["opt4"], f"{r.BRACE_MCT_OPTIONS['share']}|slider|{r.BRACE_SHARE_MIN}|"
+                                       f"{r.BRACE_SHARE_MIN_RANGE[0]:g}|{r.BRACE_SHARE_MIN_RANGE[1]:g}|"
+                                       f"{r.BRACE_SHARE_MIN_STEP}|2|2")
+        self.assertEqual(page["opt5"], f"{r.BRACE_MCT_OPTIONS['cost']}|slider|{r.DIVE_COST_PERCENT_DEFAULT}|"
+                                       f"{r.DIVE_COST_PERCENT_RANGE[0]}|{r.DIVE_COST_PERCENT_RANGE[1]}|1|0|0")
+
+    def test_one_language_per_client(self):
+        en, cn = self.page("en"), self.page("cn")
+        for i in range(2, 6):
+            for key in (f"text{i}", f"tip{i}"):
+                with self.subTest(key=key):
+                    self.assertNotEqual(en[key], "nil")
+                    self.assertFalse(any("一" <= ch <= "鿿" for ch in en[key]), en[key])
+                    self.assertTrue(any("一" <= ch <= "鿿" for ch in cn[key]), cn[key])
+                    self.assertFalse(any("a" <= ch.lower() <= "z" for ch in cn[key]), cn[key])
+        # the client's own words (local_cn.pack): 阵列齐整 bracing, 冲锋反制 Charge Reflection, 质量 mass, 生命值 health
+        self.assertIn("阵列齐整", cn["text2"])
+        self.assertIn("质量", cn["text3"])
+        self.assertIn("冲锋反制", cn["text5"])
+        self.assertIn("生命值", cn["tip5"])
+
+    def test_master_tooltip_states_the_multiplayer_rule(self):
+        en, cn = self.page("en")["tip2"], self.page("cn")["tip2"]
+        self.assertIn("In a multiplayer campaign the host's settings apply to every player", en)
+        self.assertIn("multiplayer battles outside a campaign always use the defaults", en)
+        self.assertIn("多人战役里以主机的设置为准", cn)
+        self.assertIn("战役之外的多人战斗始终用默认值", cn)
+
+    def test_without_the_brace_block_the_breath_switch_stays(self):
+        page = self.page("en", "nosite")
+        self.assertEqual(page["count"], "1")
+        self.assertEqual(page["option"], air_dive_rules.BREATH_SWITCH_MCT_OPTION)
 
 
 if __name__ == "__main__":

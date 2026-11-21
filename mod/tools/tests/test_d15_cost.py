@@ -29,6 +29,12 @@ if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 import rolepath  # noqa: E402,F401 -- because it puts the role dirs on sys.path
 import reflect_probe_report as rrep  # noqa: E402 -- because rolepath above puts pipelines/ on sys.path
+import air_dive_rules  # noqa: E402 -- same reason (lib/)
+
+# [D31] the shipped share of a very_large model (size code 4), the one the harness's entries carry; two paying models
+# of a unit of four starting men -> p = 2 x SHARE / 4
+SHARE = air_dive_rules.DIVE_COST_SHARE["very_large"]
+P2 = 2 * SHARE / 4
 
 COST_LUA = MOD_DIR / "script" / "campaign" / "flyer_dive" / "lib" / "dive_cost.lua"
 DIVE_LUA = MOD_DIR / "script" / "campaign" / "flyer_dive" / "lib" / "dive.lua"
@@ -69,13 +75,15 @@ if case == "arm" then
     dive.arm(buf)
     local dirty = 0
     for off = l.mark_count_at, l.bytes - 1 do
-        if off < l.cost_arc_on_at or off >= l.cost_arc_cos_at + 4 then
+        if (off < l.cost_arc_on_at or off >= l.cost_arc_cos_at + 4)
+                and (off < l.brace_word_at or off >= l.brace_word_at + 4) then
             if (buf.mem[off] or 0) ~= 0 then dirty = dirty + 1 end
         end
     end
-    say(("ARM dirty %d, arc on %s, cos %s, after the buffer %d, mode %d"):format(dirty,
+    say(("ARM dirty %d, arc on %s, cos %s, brace word %s, after the buffer %d, mode %d"):format(dirty,
         tostring(get(l.cost_arc_on_at, 4) == u32(site.cost.front_arc and 1 or 0)),
-        tostring(get(l.cost_arc_cos_at, 4) == site.cost.arc_cos_bytes), buf.mem[l.bytes] or -1,
+        tostring(get(l.cost_arc_cos_at, 4) == site.cost.arc_cos_bytes),
+        tostring(get(l.brace_word_at, 4) == u32(site.brace.default_word)), buf.mem[l.bytes] or -1,
         get(l.mode_at, 4):byte(1)))
     io.stdout:write(table.concat(out, "\n") .. "\n")
     return
@@ -139,7 +147,7 @@ io.stdout:write(table.concat(out, "\n") .. "\n")
 
 CASES = ("on", "noobserver", "arc", "noattr", "big", "low", "missing", "remap", "badsize", "raise", "unwritten",
          "lost", "arm")
-X_ON = "OBS X 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 0.015000 0.015000 0.800000 2 4"
+X_ON = f"OBS X 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 {P2:.6f} {P2:.6f} 0.800000 2 4"
 
 
 def run(cost_text, case, dive_text=None):
@@ -174,19 +182,19 @@ def problems(case, lines):
     counts = next((ln for ln in lines if ln.startswith("COUNTS ")), "")
     out = [f"raised: {ln}" for ln in lines if ln.startswith("TICK ERROR")]
     if case == "arm":
-        if lines != ["ARM dirty 0, arc on true, cos true, after the buffer 238, mode 1"]:
+        if lines != ["ARM dirty 0, arc on true, cos true, brace word true, after the buffer 238, mode 1"]:
             out.append(f"arm {lines}")
         return out
     if case in ("on", "noobserver", "remap"):
-        if calls != ["CALL 0.015000 false"]:
+        if calls != [f"CALL {P2:.6f} false"]:
             out.append(f"calls {calls}")
         if "calls 1, models paid 2," not in counts:
             out.append(f"counts {counts}")
-        if not any(ln.startswith("LOG COST 1000 ms 1005 wh_main_brt_cav_pegasus_knights: 2 models paid, p 0.0150")
+        if not any(ln.startswith(f"LOG COST 1000 ms 1005 wh_main_brt_cav_pegasus_knights: 2 models paid, p {P2:.4f}")
                    for ln in lines):
             out.append("no COST log line")
     if case in ("on", "remap"):
-        want = [X_ON, "OBS XA 1100 1005 1 0.785000 2", "OBS XA 1200 1005 2 0.785000 2"]
+        want = [X_ON, f"OBS XA 1100 1005 1 {0.8 - P2:.6f} 2", f"OBS XA 1200 1005 2 {0.8 - P2:.6f} 2"]
         if [ln for ln in obs if ln.split()[1] in ("X", "XA")] != want:
             out.append(f"observer {obs}")
         if obs.count("OBS XPAY 1000 501 1007 wh_main_emp_inf_spearmen_1 BB00CC03 A1000010 1.0000 6B") != 1:
@@ -206,7 +214,7 @@ def problems(case, lines):
     if case == "big" and "OBS XREF 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 0.750000 0.750000 0.800000 2 4" \
             not in obs:
         out.append(f"big {obs}")
-    if case == "low" and "OBS XREF 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 0.015000 -0.010000 0.020000 2 4" \
+    if case == "low" and f"OBS XREF 1000 501 1005 wh_main_brt_cav_pegasus_knights 2 {P2:.6f} -0.010000 0.020000 2 4" \
             not in obs:
         out.append(f"low {obs}")
     if case == "missing":
@@ -220,7 +228,7 @@ def problems(case, lines):
         out.append(f"badsize {counts}")
     if case == "raise" and ("failed 2," not in counts or not any("the game's call raised" in ln for ln in lines)):
         out.append(f"raise {counts}")
-    if case == "unwritten" and calls != ["CALL 0.007500 false", "CALL 0.007500 false"]:
+    if case == "unwritten" and calls != [f"CALL {SHARE / 4:.6f} false", f"CALL {SHARE / 4:.6f} false"]:
         out.append(f"unwritten {calls}")
     if case == "lost" and ("entries lost 5" not in counts or "braced but behind the arc 64," not in counts):
         out.append(f"lost {counts}")

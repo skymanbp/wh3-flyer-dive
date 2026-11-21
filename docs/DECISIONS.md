@@ -763,3 +763,16 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   a dozen metres into a braced line before it stops, not dead on contact. The maintainer picks the new defaults from
   the formula, measures them in game on the same scene, and reports the numbers before the release (D30). Players can
   still set anything in MCT.
+
+### D33 · The flyer release goes first; the main mod's tests wait (2026-11-20)
+
+> Owner, 2026-11-20 about 22:04, in this repository's session: 「继续，你这边先走，发完新版本收口后再测试主mod」
+
+- The machine goes to this mod's release (D30: braced line + pull-back fix) until it is uploaded and closed out; the
+  main mod's session was told the same minute and asked not to start new heavy jobs until then (its running job is
+  its own to finish or stop; this session does not touch it).
+- Defaults for the braced line: k 2.0, s* 0.5, cost 10% (`docs/HISTORY.md` BRACE-LIGHT-1120; D32's lighter level), as
+  the maintainer proposed with the numbers; the owner did not object.
+- Still owed before the upload: integration of the two branches, a few more fix-on runs for D23, a full-pack smoke in
+  game, the changenote and page lines (owner passes them one by one, D19-D21), the D23 explanation and comparison
+  picture (D23), then the owner's go-ahead for push and upload.

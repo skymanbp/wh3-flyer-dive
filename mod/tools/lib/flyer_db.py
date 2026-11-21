@@ -23,6 +23,7 @@ import json
 import struct
 import uuid
 from collections import OrderedDict
+from contextlib import contextmanager
 from pathlib import Path
 
 from packfile import DBTableReader, PackFile
@@ -400,13 +401,34 @@ def _decode_db_table_bytes(data, table_name, source, capture_raw=False):
 
 
 # ---- from tools/lib/installed_db_table.py
+# [D57] Table bytes laid over the installed ones for one build: {table: bytes}. Empty = the installed game exactly.
+# Only pipelines/build_sfo_submod.py sets it, through overlay(), for the SFO submod's base (SFO's rows over
+# vanilla's). Every table read of the build goes through installed_bytes, so one place answers for all of them.
+_OVERLAY = {}
+
+
+@contextmanager
+def overlay(tables):
+    """Within the block, installed_bytes answers ``tables[name]`` for those tables (whatever the pack)."""
+    if _OVERLAY:
+        raise RuntimeError("flyer_db.overlay is already active; overlays do not nest")
+    _OVERLAY.update(tables)
+    try:
+        yield
+    finally:
+        _OVERLAY.clear()
+
+
 def installed_bytes(db_pack, table, tag):
     """The one `db/<table>/data__` fragment carried by `db_pack`, as bytes.
 
     Exactly one is the contract: zero means the table name is wrong or this
     pack is not the installed game, and more than one means the fragment to
     trust is ambiguous. Both are refusals, never a "pick the first".
+    [D57] An active overlay answers for its tables instead.
     """
+    if table in _OVERLAY:
+        return _OVERLAY[table]
     pack = PackFile.open(str(db_pack))
     try:
         wanted = f"db\\{table}\\data__".lower()

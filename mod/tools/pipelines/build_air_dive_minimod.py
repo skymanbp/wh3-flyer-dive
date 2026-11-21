@@ -165,11 +165,14 @@ def _installed_entities(db_pack):
         db_pack, ENTITY_TABLE, "air_dive_minimod", remedy="before overriding it")
 
 
-def db_entries(db_pack):
+def db_entries(db_pack, keep=()):
+    """``keep``: entity columns left as the base has them ([D56] the SFO submod keeps SFO's mass and
+    flying_charge_speed); the main pack passes none. Dropped after the rule, not passed as ``declared``: the rule
+    cuts a declared mass too (a character spec's), and keep must mean untouched."""
     rows, header, replay = _installed_entities(db_pack)
     ent = _entity_writer(header)
     for row, raw in zip(rows, replay):
-        cells = air_dive_rules.tuned_cells(row)
+        cells = {k: v for k, v in air_dive_rules.tuned_cells(row, declared=keep).items() if k not in keep}
         if not cells:
             continue
         ent.add_row(*_with_cells(row, raw, cells))
@@ -200,17 +203,20 @@ def _guid_writer(db_pack, table):
     return db_writer.DBTableWriter(table, schema=schema)
 
 
-def rename_entries(db_pack, repoint=None):
+def rename_entries(db_pack, repoint=None, skip=()):
     """[AIR-DIVE-W8] The renamed tables' registry, culture, land-unit and
     [AIR-DIVE-W9] mount fragments, and their row counts. [AIR-DIVE-W16]
-    ``repoint`` {land unit: cloned weapon} is merged into the land units."""
+    ``repoint`` {land unit: cloned weapon} is merged into the land units.
+    [D57] ``skip``: land-unit / mount keys left on their own table (the SFO submod's units on a body no renamed
+    copy serves); the main pack passes none."""
     records, renames = air_dive_rules.table_renames()
     # [FLYER-SEAT-1117] the rider table copies whose header s1 names the renamed mount copy
     rider_records, rider_units, rider_renames = air_dive_rules.rider_renames()
     tag = "air_dive_minimod"
     reg_rows, _unregistered = anim_table_rename.registry_rows(records + rider_records, db_pack, tag)
-    land = anim_table_rename.land_unit_rows(renames, db_pack, tag)
-    land = anim_table_rename.rider_land_unit_rows(land, rider_units, db_pack, tag)
+    land = anim_table_rename.land_unit_rows(renames, db_pack, tag, skip)
+    land = anim_table_rename.rider_land_unit_rows(
+        land, {k: v for k, v in rider_units.items() if k not in skip}, db_pack, tag)
     if repoint:
         land = air_dive_rules.weapon_repointed_land_rows(land, repoint, db_pack, tag)
     culture = (anim_table_rename.culture_rows(renames, db_pack, tag)
@@ -221,7 +227,7 @@ def rename_entries(db_pack, repoint=None):
             (anim_table_rename.CULTURE_TABLE, [(r, None) for r in culture]),
             (anim_table_rename.LAND_TABLE, land),
             (anim_table_rename.MOUNTS_TABLE,
-             anim_table_rename.mount_rows(renames, db_pack, tag))):
+             anim_table_rename.mount_rows(renames, db_pack, tag, skip))):
         if not rows:
             raise SystemExit(f"[air_dive_minimod] REFUSING: no {table} rows "
                              "for the renamed tables")

@@ -1,0 +1,17 @@
+[h1]Flying Charge Overhaul - SFO Compatibility[/h1]
+Lets Flying Charge Overhaul run with SFO: Grimhammer III without undoing SFO's flying units.
+
+[h2]What it does[/h2]
+[list]
+[*]Flying units keep SFO's health, stats, weapons, mass and speeds.
+[*]On top of SFO's values they get what the dive needs: the dive animations, a charge collision attack where the unit's SFO weapon has none, and the dive's movement settings.
+[*]A few flying units that only SFO adds keep SFO's own animations: crows, the Dark Elf manticore, the quicksilver pegasus, a zombie dragon and the warhawks. The dive, braced-line and take-off rules still apply to them.
+[/list]
+
+[h2]Requirements[/h2]
+[list]
+[*]Flying Charge Overhaul
+[*]SFO: Grimhammer III
+[*]memreader Plus (win64 / Proton)
+[/list]
+Place this mod above both in the load order.

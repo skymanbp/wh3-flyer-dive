@@ -1071,6 +1071,13 @@ def reflect_word(factor):
     return int(factor * BRACE_WORD_SCALE + 0.5)
 
 
+# [D56 / D57] The SFO submod (pipelines/build_sfo_submod.py) runs the entity rule on SFO's rows with these
+# columns left as SFO has them: SFO's own flyer tuning stays (owner, 2026-11-21: "Keep SFO's numbers").
+SFO_KEEP_ENTITY_COLUMNS = ("mass", "flying_charge_speed")
+# The tables whose SFO rows are laid over the installed ones for that build, and the only ones it ships.
+SFO_TABLES = ("land_units_tables", "battle_entities_tables", "mounts_tables", "melee_weapons_tables")
+
+
 COLLISION_ATTACK_TABLE = "melee_weapons_tables"
 # a flyer weapon CA also gives to a non-flyer is cloned under this suffix
 # and the flyer's land unit repointed (the ground unit keeps CA's weapon)

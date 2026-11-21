@@ -2475,3 +2475,28 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 - READ（读字节或读记录）：位点与锚点的字节；两个处理函数、参数复制、接续点的解码；拉回时队列为空、玩家下令时队列非空（D23-TASK-1120 的 18 对 26）；`rg_task_m1` 的 18 次空中冲锋命令每一次同单位都有一个地上、窗口内挨过打的兵模（按 E / H / Z 行逐时刻重算；O 行是每 100 毫秒采样，不是调用那一刻）；`+0x2f88` 与脚本 is_idle 一致。
 - INFERRED（没验证）：跳过之后兵模就待在原处不再回去，单位整体行为正常；电脑控制的单位把命令放在同一个队列里，所以电脑下的命令也照常通过；两个处理函数之外没有别的路把空闲单位的空中兵模拉回去。这些要等 A/B。
 - 没动 `CLAUDE.md`：它写着「现为起飞 `FLYPINS5`」，并进 `main` 时要改成 `FLYPINS6`（只有主人或主会话改）。
+
+## RELEASE-PREP-1120 2026-11-20 深夜：两个分支合进 `release-1120`，默认值 k 2.0 / s\* 0.5 / 代价 10%，三个包、全套测试、更新说明草稿、实机清单（没开游戏）
+
+分支 `release-1120`，从 `main` `5c2bd82` 开，工作树 `D:/Projects/.worktrees/wh3-flyer-dive/release-1120/wt`；车道输出在它的上一级目录。没开游戏，没推送，没上传。
+
+- **合并**：先合 `brace-solver-1120`（`541f398`，D31），再合 `regroup-1119`（`51da11a`，D23 的修法；它此前已并入 `main` 的文档 `5136520`）。代码没有冲突（`build_air_dive_minimod.py` 两边改的是不同段落）。冲突只在文档：
+  - `docs/DECISIONS.md`：分支的 D31 放在 `main` 的 D32、D33 之前。`main` 是故意空着 31 号的（D32 原文就写「the defaults of D31」），所以没有撞号，**没有改任何编号**。第二次合并时 D23 末尾几条自动合入。
+  - `docs/HISTORY.md`：`main` 的各节原样保留，分支各自的一节按合并顺序加在末尾（BRACE-SOLVER-1120，然后 REGROUP-FIX-1120）。所以本文件末尾几节的时间不是递增的。
+  - `docs/STATUS.md`：两次都留 `main` 的文字（`main` 的 D23 那一行已含 D23-AB-1120，比分支的新），本批再改。
+- **默认值（D33）**：`air_dive_rules.py` 里 `BRACE_MASS_K` 3.4 → 2.0、`BRACE_SHARE_MIN` 0.8 → 0.5，代价 `DIVE_COST_PERCENT_DEFAULT` 本来就是 10。算式注释补了新默认值下每次接触飞兽失去的动量份额（M' = 543 × 2.0 = 1086，份额取 max(s, 0.5)）：星龙 0.128（原版 0.0142）、飞马骑士 0.473（0.306；它自己的 0.8 高于 s\*）、蝎尾狮 0.253（0.063）、狮鹫骑士 0.251（0.031）。俯冲位点表用 `dive_cost_asm.py --check-exe --write-site` 重生成（keystone / unicorn 用 `regroup-1119/scratch/venv` 的 python，那个环境没装 zstandard，`PYTHONPATH` 借系统 Python 3.13.3 的 site-packages，版本相同）：14 个位点在装好的 exe 里各一次；模拟器各洞用例全过（`dv_brace` 28 例）；126 个变异全被抓到；表里只变了 `k = 2.0`、`share = 0.5`、`default_word = 3277000`（= 200 | 50 << 16）、`source_sha` 与协商用的 `format`（793297 → 676994，它由 `source_sha` 算出、含默认值，所以用旧默认值建的测试包与新包联机也不配对）。代码洞字节不变（设置字由战斗脚本写）。
+- **测试跟着改的地方**：`test_brace_solver.py` 里写死的 `"3.4" / "0.8"` 改成新默认值（Lua 把 2.0 打成 `2`）；float32 那一行原本拿 3.4f / 0.8f 去比默认字，默认值变成 2.0 / 0.5 后这两个数是精确的，比了也证明不了什么，改为比 `brace_word(3.4, 0.8)`，保住「MCT 滑条给 float32 也能解成同一个字」这条检查；没有事件、只在 Deployed 读到 MCT 的那一例，MCT 值原为 2.0，与新默认值相同就分不出值是从哪来的，改成 3.0；说明文字那一行改成从规则文件取数。`test_breath_switch.py` 的 MCT 设置页一行用 `:g` 格式（同一行的范围值本来就这么写）。`dive_brace_asm.py` 里一个模拟器用例的名字「share 0.8 = s\*」改成「its own share 0.8」（s\* 不再是 0.8；用例本身不变）。
+- **`CLAUDE.md`**：只改联机协商标记那一行：起飞 `FLYPINS6`、俯冲 `FLYDIVE5`（两个位点表里读到的就是这两个）。
+- **不该发的东西**：读正式包的条目（`packcheck.py`）：174 个条目，`script/` 下 15 个文件，没有记录器、探针、追踪、替身；14 个与树上逐字节相同，`breath_rows.lua` 是建包时生成的。随包脚本里留着的测试钩子（`dive_cost.lua` 的 `_G.flyer_dive_cost_observer`、`takeoff.lua` 的 `regroup_off`）只在测试用的记录器设置时起作用，上一版就带着，没删。
+- **全套测试**（`python -m pytest mod/tools/tests -q`，主管本机一次）：**296 项通过，1,846 个子测试通过，0 失败**。合并后、改默认值之前跑过一次：295 项通过、1 项失败，就是已知的 `test_no_old_names`（旧更新说明第 1、8 行的 `ld_air_dive`）；新的更新说明不再写旧包名，这一项变绿。
+- **反向验证**（`negproof.py`，每处弄坏后跑相应测试再按字节还原）：只改规则文件里的 k 不重生成位点表 → 11 项红；位点表里的默认 k 写回 3.4 → 9 项红；更新说明里写回 `ld_air_dive.pack` → 1 项红。三处还原后字节相同。
+- **包**（`D:/Projects/.worktrees/wh3-flyer-dive/release-1120/build/`）：
+  - 正式包 `flyer_dive_takeoff.pack`：14,113,360 字节，sha256 `8458bf826970aad36026e7a8a7e832ccca29cb569e051ecfec84cec52ec17629`。
+  - 带移动记录器的 `probe/flyer_dive_takeoff.pack`（`--probe`）：14,122,397 字节，sha256 `9d6d83f2cc930805c2bbb62afffa3c09537a2e2a66e351ec5715229f8180de20`。
+  - D23 记录包 `pin_record_rel1.pack`（`build_pin_on_hit_probe.py --base probe --rule --record --regroup-trace`，同上的 venv）：91,539 字节，sha256 `b907e259a51fe279d00be59e1104441527df7f4b5c338ec7d675d4ad96921c28`，与 `regroup-1119/scratch/packs/fix/pin_record_fix1.pack` 逐字节相同（起飞那一套两个分支之后没人改过）。追踪表去掉了正式洞占着的 `rt_task1`、`rt_task2`；特征码、解码、模拟器通过，39 个变异全被抓到。
+  - MCT 替身 `brace_mct_off.pack`（`build_breath_mct_stub.py --value on --brace off`）：1,863 字节，sha256 `aac1513efae04f88b1b663bd1d7dcf0460647305431b6b7729ac3a1d17b49399`。
+  - 读包核对：两个大包的位点表都是 `FLYDIVE5`、带 `dv_brace`、`k = 2.0`、`share = 0.5`、`cost = 10`、`default_word = 3277000`；起飞表都是 `FLYPINS6`、带 `pin_regroup1`。
+- **更新说明草稿** `workshop/flyer_dive/changenote.txt`（Steam 只有一个更新说明栏，照旧英文在前、简体中文在后，`workshop/README.md`）：撞枪阵、10% 代价、MCT 四项与默认值、多人设置怎么定、多兵模不再被拉回、联机不配对。中文词查过 `local_cn.pack`：阵列齐整（Bracing）、冲锋反制、冲锋抗性、抵御冲锋、飞行部队、兵模、最大生命值；MCT 四项的中文名照包里设置页的原文。**没给主人看过。**
+- **页面改动草稿**（没改仓库里的页面）：`D:/Projects/.worktrees/wh3-flyer-dive/release-1120/page_lines_draft.diff`，中英各四处：「撞上架矛不再顿住」一条换成「阵列齐整的部队能挡住俯冲」（这一版的行为正相反）；冲锋反制一条写 10% 与 MCT；起飞一条加一句已在空中的兵模不会被拉回（这句可能算 D21 不要的修 bug 式句子，由主人定）；前置一节的「防架矛」改名。D23 要的单独说明与对比图没做。
+- **实机清单**：`D:/Projects/.worktrees/wh3-flyer-dive/release-1120/jobs_release_1120.txt`，七局，名字都以 `rel_` 开头、`runs/` 下没有重名：D23 修法开三局（`rg_s_m2` 的条件，记录包 + 正式包）；撞枪阵默认值（带记录器的包，不放替身）与 MCT 关（替身）各一局；地面骑兵对照；标准三星龙基线。`flyer_run.parse_job` 逐行解析过，所有 `--deploy` 的源文件都在。
+- **READ**：合并结果、冲突内容；默认值与位点表的差异；全套测试与反向验证的输出；包的字节数与 sha256、包里的条目与标记；`local_cn.pack` 的词条。**INFERRED**：「不放替身 ＝ 默认值」假定游戏里没装真的 MCT，或装了但没存过这几项（装了且存过的话，读的是存的值；`flyer_dive.txt` 的 `BRACE` 行会写出值从哪来）；新默认值的实机表现只有 BRACE-LIGHT-1120 那两局（当时由替身给值，不是包里的默认值）；D23 修法只有 D23-AB-1120 的一局证据。

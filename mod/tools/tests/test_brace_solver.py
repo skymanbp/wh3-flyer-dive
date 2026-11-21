@@ -331,7 +331,7 @@ class BraceRule(unittest.TestCase):
         for label, why in (("mp_outside", "multiplayer battle outside a campaign"), ("no_mct", "MCT not installed")):
             with self.subTest(label=label):
                 on, k, share, cost, word, cshare, w = self.rows[label]
-                self.assertEqual((on, k, share, cost), ("true", "3.4", "0.8", "10"))
+                self.assertEqual((on, k, share, cost), ("true", "2", "0.5", "10"))   # D33 defaults (Lua prints 2.0 as 2)
                 self.assertEqual(word, self.default_word)
                 self.assertEqual(cshare, "0.1")
                 self.assertIn(why, w)
@@ -349,7 +349,7 @@ class BraceRule(unittest.TestCase):
 
     def test_bad_values_fall_back_one_by_one(self):
         on, k, share, cost, word, cshare, why = self.rows["bad"]
-        self.assertEqual((on, k, share, cost, word, cshare), ("true", "3.4", "0.8", "10", self.default_word, "0.1"))
+        self.assertEqual((on, k, share, cost, word, cshare), ("true", "2", "0.5", "10", self.default_word, "0.1"))
         for note in ("on default (MCT holds yes)", "k default (MCT holds 50)", "share default (reading MCT failed: boom)",
                      "cost default (MCT holds -1)"):
             self.assertIn(note, why)
@@ -358,7 +358,7 @@ class BraceRule(unittest.TestCase):
         r = air_dive_rules
         self.assertEqual(self.rows["edges"][4], str(r.brace_word(r.BRACE_MASS_K_RANGE[1], r.BRACE_SHARE_MIN_RANGE[0])))
         self.assertEqual(self.rows["edges"][5], str(r.DIVE_COST_PERCENT_RANGE[1] / 100))
-        self.assertEqual(self.rows["float32"][4], self.default_word)
+        self.assertEqual(self.rows["float32"][4], str(r.brace_word(3.4, 0.8)))   # float32 3.4f / 0.8f decode exactly
         self.assertEqual(self.rows["float32b"][4], str(r.brace_word(1.25, 0.35)))
         self.assertLess(r.brace_word(r.BRACE_MASS_K_RANGE[1], r.BRACE_SHARE_MIN_RANGE[1]), 1 << 24)  # exact in float32
         with self.assertRaises(ValueError):
@@ -368,8 +368,8 @@ class BraceRule(unittest.TestCase):
 
     def test_cost_table_and_text(self):
         self.assertEqual(self.rows["TABLE"], ["TABLE 0.2,0.2,0.2,0.2 0.1,0.1,0.1,0.1 true true"])
-        self.assertEqual(self.rows["DESC"][0], f"DESC on: braced mass x3.40 against a diving flyer, its share of the "
-                                               f"slowing at least 0.80, word {self.default_word}, dive cost 10%")
+        self.assertEqual(self.rows["DESC"][0], f"DESC on: braced mass x{air_dive_rules.BRACE_MASS_K:.2f} against a diving flyer, its share of the "
+                                               f"slowing at least {air_dive_rules.BRACE_SHARE_MIN:.2f}, word {self.default_word}, dive cost 10%")
         self.assertEqual(self.rows["DESC"][1], "DESC off: braced units against a dive as in the base game, no dive cost")
 
 
@@ -423,7 +423,7 @@ core = { add_listener = function(_, name, event, cond, fn) listeners[#listeners 
 local VALUES = {
     mct = { [b.mct_on] = true, [b.mct_k] = 5.0, [b.mct_share] = 0.5, [b.mct_cost] = 20 },
     mct_off = { [b.mct_on] = false }, mp_off = { [b.mct_on] = false }, mpc_off = { [b.mct_on] = false },
-    zero = { [b.mct_on] = true, [b.mct_cost] = 0 }, silent = { [b.mct_k] = 2.0 },
+    zero = { [b.mct_on] = true, [b.mct_cost] = 0 }, silent = { [b.mct_k] = 3.0 },
 }
 if MODE == "stub" then
     local f = assert(real_open(STUB, "rb")); local text = f:read("*a"); f:close()
@@ -503,7 +503,7 @@ class BattleEntry(unittest.TestCase):
         lines = entry("silent")
         self.assertEqual(len(self.brace_lines(lines)), 1)
         self.assertIn("read on Deployed", self.brace_lines(lines)[0])
-        self.assertIn(f"WORD {air_dive_rules.brace_word(2.0, air_dive_rules.BRACE_SHARE_MIN)}", lines)
+        self.assertIn(f"WORD {air_dive_rules.brace_word(3.0, air_dive_rules.BRACE_SHARE_MIN)}", lines)
 
     def test_stand_in_hands_its_values_over(self):
         import build_breath_mct_stub as stub

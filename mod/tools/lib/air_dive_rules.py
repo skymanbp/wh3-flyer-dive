@@ -1018,15 +1018,24 @@ DIVE_COST_FRONT_ARC = True
 #   s* = 0.8, the engine's own share one tier apart; then F_dragon = F_pegasus when k x 543 / 4425 = 543 / 1300,
 #   k = 4425 / 1300 = 3.40 -> dragon 0.8 x 1.3 x 1846 / (4425 + 1846) = 0.306 (x 0.8: 24.5%).
 #   The same defaults, other flyers against that soldier: pegasus 0.306 -> 0.610, manticore (1700, gap 2)
-#   0.063 -> 0.541, griffon knights (1725, gap 3) 0.031 -> 0.538. Measured in game before the owner is asked.
+#   0.063 -> 0.541, griffon knights (1725, gap 3) 0.031 -> 0.538. (That was D31's first default, k 3.4 / s* 0.8.)
+# [D32 / D33, release-1120] Measured in game, k 3.4 / s* 0.8 stopped a manticore in 0.2 s (docs/HISTORY.md
+# BRACE-AB-1120); the owner asked for one step lighter (D32) and the shipped defaults are k 2.0, s* 0.5, cost 10%
+# (D33; measured twice, BRACE-LIGHT-1120: manticore 2-3 m, star dragon 6-13 m into the line before it stops).
+# With M' = 543 x 2.0 = 1086 and the share max(s, 0.5):
+#   dragon          0.5 x 1.3 x 1086 / (4425 + 1086) = 0.128   (today 0.0142)
+#   pegasus         0.8 x 1.3 x 1086 / (1300 + 1086) = 0.473   (today 0.306; its own share 0.8 is above s*)
+#   manticore       0.5 x 1.3 x 1086 / (1700 + 1086) = 0.253   (today 0.063)
+#   griffon knights 0.5 x 1.3 x 1086 / (1725 + 1086) = 0.251   (today 0.031)
+# The dragon no longer matches the pegasus; a big flyer goes a few metres into the line instead of stopping dead.
 # The cave reads both from one u32 the battle script writes (brace_word: k in hundredths in the low 16 bits, s* in
 # hundredths in bits 16-23; 0 = off), so a game Lua number (float32) never carries float bits; every value of
 # the word stays below 2^24, exact in a float32.
 BRACE_LINE_DEFAULT_ON = True
-BRACE_MASS_K = 3.4
+BRACE_MASS_K = 2.0
 BRACE_MASS_K_RANGE = (1.0, 10.0)        # MCT slider; 1.0 = the engine's own braced mass
 BRACE_MASS_K_STEP = 0.1
-BRACE_SHARE_MIN = 0.8
+BRACE_SHARE_MIN = 0.5
 BRACE_SHARE_MIN_RANGE = (0.0, 1.0)      # MCT slider; 0 = the engine's own share
 BRACE_SHARE_MIN_STEP = 0.05
 BRACE_WORD_SCALE = 100                  # hundredths

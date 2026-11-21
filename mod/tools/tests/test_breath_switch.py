@@ -404,9 +404,9 @@ class BracePage(unittest.TestCase):
         self.assertEqual(page["count"], "5")
         self.assertEqual(page["opt1"].split("|")[:3], [r.BREATH_SWITCH_MCT_OPTION, "checkbox", "true"])
         self.assertEqual(page["opt2"], f"{r.BRACE_MCT_OPTIONS['on']}|checkbox|true|nil|nil|nil|nil|nil")
-        self.assertEqual(page["opt3"], f"{r.BRACE_MCT_OPTIONS['k']}|slider|{r.BRACE_MASS_K}|{r.BRACE_MASS_K_RANGE[0]:g}|"
+        self.assertEqual(page["opt3"], f"{r.BRACE_MCT_OPTIONS['k']}|slider|{r.BRACE_MASS_K:g}|{r.BRACE_MASS_K_RANGE[0]:g}|"
                                        f"{r.BRACE_MASS_K_RANGE[1]:g}|{r.BRACE_MASS_K_STEP}|1|1")
-        self.assertEqual(page["opt4"], f"{r.BRACE_MCT_OPTIONS['share']}|slider|{r.BRACE_SHARE_MIN}|"
+        self.assertEqual(page["opt4"], f"{r.BRACE_MCT_OPTIONS['share']}|slider|{r.BRACE_SHARE_MIN:g}|"
                                        f"{r.BRACE_SHARE_MIN_RANGE[0]:g}|{r.BRACE_SHARE_MIN_RANGE[1]:g}|"
                                        f"{r.BRACE_SHARE_MIN_STEP}|2|2")
         self.assertEqual(page["opt5"], f"{r.BRACE_MCT_OPTIONS['cost']}|slider|{r.DIVE_COST_PERCENT_DEFAULT}|"

@@ -116,12 +116,12 @@ return {
     },
     -- [D31] dv_brace and the MCT settings of the braced-line work (lib/brace_rule.lua, the MCT page)
     brace = {
-        default_on = true, k = 3.4, k_min = 1.0, k_max = 10.0, k_step = 0.1,
-        share = 0.8, share_min = 0.0, share_max = 1.0, share_step = 0.05, scale = 100,
-        cost = 10, cost_min = 0, cost_max = 25, default_word = 5243220,
+        default_on = true, k = 2.0, k_min = 1.0, k_max = 10.0, k_step = 0.1,
+        share = 0.5, share_min = 0.0, share_max = 1.0, share_step = 0.05, scale = 100,
+        cost = 10, cost_min = 0, cost_max = 25, default_word = 3277000,
         mct_mod = 'flyer_dive_takeoff', mct_on = 'braced_line_on', mct_k = 'braced_line_mass', mct_share = 'braced_line_share', mct_cost = 'braced_line_cost',
     },
-    format = 793297,
+    format = 676994,
     build = '6ae2a00b',
-    source_sha = 'c1acf1b39c43d1446bf48340327cb1e8ec4911e1bbc50eec720176cf51954d4c',
+    source_sha = 'a548055feb0506d4c523fa89cb09a70892ca62d6f87c2c32ccf196d9ee69442d',
 }

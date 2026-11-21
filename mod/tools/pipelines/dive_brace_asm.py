@@ -306,7 +306,7 @@ def check(code, word_at, count_at):
     # 1. the flyer A against braced B (r13b): B's mass x k, A's share raised; counted once
     case("A flyer, B braced", braced_b_flyer_a(), 0, 1, 0.1, 1.0,
          want={"XMM1": scaled_b, "XMM12": max(f32(0.1), s_cave)})
-    case("A flyer (pegasus, share 0.8 = s*), B braced", braced_b_flyer_a(PEG), 0, 1, 0.8, 1.0,
+    case("A flyer (pegasus, its own share 0.8), B braced", braced_b_flyer_a(PEG), 0, 1, 0.8, 1.0,
          want={"XMM1": scaled_b, "XMM12": f32(0.8)})
     case("A flyer, share 1.0 above s*", braced_b_flyer_a(), 0, 1, 1.0, 1.0,
          want={"XMM1": scaled_b, "XMM12": f32(1.0)})

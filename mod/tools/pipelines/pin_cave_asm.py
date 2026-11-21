@@ -4,8 +4,8 @@ generated site table.
 [D3, user ruling 2026-11-17, docs/DECISIONS.md; implemented D3-1118] RULE:
 a flying MODEL is held on the ground (its take-off countdown re-armed) only
 while it was struck in melee within the last N battle ticks, N by its own
-body size (``air_dive_rules.takeoff_window_table``: small 45, medium 40,
-large 35, very large 30 = 4.5 / 4.0 / 3.5 / 3.0 s). Each model is judged on
+body size (``air_dive_rules.takeoff_window_table``: small 55, medium 50,
+large 45, very large 40 = 5.5 / 5.0 / 4.5 / 4.0 s since D37). Each model is judged on
 its own: in a unit of many, the struck ones stay down and the others may
 lift off. A ridden unit is judged on its mount (the flying entity, the one
 that carries the flight controller). Contact without hits, ranged and
@@ -172,7 +172,8 @@ BUFFER_BYTES = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
 # 2: +40 single-model window (§C8-78); 3: renamed (RENAME-1118); 4: per model by body size (D3)
 # 5: the stamp cave raises a 0 countdown before lift-off (D11, gapfix-1118)
 # 6: the regroup caves skip the engine's charge for an airborne model of an idle unit with held models (D23)
-MAGIC = b"FLYPINS6"
+# 7: every size window one second longer (D37); cave bytes unchanged, the windows the buffer carries changed
+MAGIC = b"FLYPINS7"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -1206,13 +1207,13 @@ def check(mutate=()):
         hold_case(f"{size} struck {w} ticks ago", [size], 0, {0: 1000 - w}, 1000, 0)
         hold_case(f"{size} struck {w + 1} ticks ago", [size], 0, {0: 1000 - (w + 1)}, 1000, 0)
         hold_case(f"{size} never struck", [size], 0, {}, 1000, 0)
-    # the order of the four (smaller waits longer): struck 32 ticks ago
-    for size, want in (("very_large", 0), ("large", 1), ("medium", 1), ("small", 1)):
-        hold_case(f"{size} struck 32 ticks ago", [size], 0, {0: 968}, 1000, want)
-    for size, want in (("very_large", 0), ("large", 0), ("medium", 1), ("small", 1)):
-        hold_case(f"{size} struck 37 ticks ago", [size], 0, {0: 963}, 1000, want)
-    for size, want in (("very_large", 0), ("large", 0), ("medium", 0), ("small", 1)):
-        hold_case(f"{size} struck 42 ticks ago", [size], 0, {0: 958}, 1000, want)
+    # the order of the four (smaller waits longer): struck 2 ticks past the very large, large and
+    # medium windows, every size held exactly while its own window is longer than that age
+    for past in ("very_large", "large", "medium"):
+        age = WINDOW_OF[past] + 2
+        for size, want in (("very_large", 0), ("large", int(age < WINDOW_OF["large"])),
+                           ("medium", int(age < WINDOW_OF["medium"])), ("small", 1)):
+            hold_case(f"{size} struck {age} ticks ago", [size], 0, {0: 1000 - age}, 1000, want)
     # an unknown size code: the unknown-size window (the longest), counted
     for code in (0, 5, 6, -1, 0x7FFFFFFF, -0x80000000):
         hold_case(f"size code {code} struck {UNKNOWN_WINDOW - 1} ticks ago", [code], 0,
@@ -1226,13 +1227,14 @@ def check(mutate=()):
     hold_case("8 models, all but the asker struck", eight, 5,
               {i: 995 for i in range(8) if i != 5}, 1000, 0)
     hold_case("8 models, all struck", eight, 0, {i: 995 for i in range(8)}, 1000, 1)
-    hold_case("8 models, the asker struck 40 ticks ago, the rest now", eight, 3,
-              {**{i: 1000 for i in range(8)}, 3: 960}, 1000, 0)
+    hold_case(f"8 models, the asker struck {WINDOW_OF['medium']} ticks ago, the rest now", eight, 3,
+              {**{i: 1000 for i in range(8)}, 3: 1000 - WINDOW_OF["medium"]}, 1000, 0)
     hold_case("8 models, the asker is last in the list", eight, 7, {7: 999}, 1000, 1)
-    hold_case("mixed sizes: the asker's own size decides (very large, 31 ago)",
-              ["small", "very_large", "small"], 1, {0: 969, 1: 969, 2: 969}, 1000, 0)
-    hold_case("mixed sizes: the asker's own size decides (small, 31 ago)",
-              ["small", "very_large", "small"], 2, {0: 969, 1: 969, 2: 969}, 1000, 1)
+    vl1 = WINDOW_OF["very_large"] + 1
+    hold_case(f"mixed sizes: the asker's own size decides (very large, {vl1} ago)",
+              ["small", "very_large", "small"], 1, {i: 1000 - vl1 for i in range(3)}, 1000, 0)
+    hold_case(f"mixed sizes: the asker's own size decides (small, {vl1} ago)",
+              ["small", "very_large", "small"], 2, {i: 1000 - vl1 for i in range(3)}, 1000, 1)
     # another unit's entries do not hold
     others = _keys(8, base=0x2A1B3C4D0)
     hold_case("eight of another unit struck", eight, 0, {}, 1000, 0,
@@ -1348,8 +1350,8 @@ def check(mutate=()):
     expect("gap: countdown raised", m.countdown(ents[1]), RAISE_TO)
     m.now(5001)
     expect("gap: the next question is held", m.hold(ents, ents[1])["al"], 1)
-    # a ridden unit uses its mount's size, not the rider's (D3): a medium mount (40) under a
-    # small rider (45), struck 42 ticks before the question
+    # a ridden unit uses its mount's size, not the rider's (D3): a medium mount under a small
+    # rider, struck 2 ticks past the medium window (still inside the small one)
     m.reset(); m.now(4000)
     ents, victims = unit_of([1], riders=True, size="medium", rider_size="small")
     m.stamp(MELEE, 30, victims[0])
@@ -1417,12 +1419,15 @@ def check(mutate=()):
         w = WINDOW_OF[size]
         regroup_case(f"{size} mate struck {w - 1} ago", "skip", mates=((size, ON_GROUND, 1000 - (w - 1)),))
         regroup_case(f"{size} mate struck {w} ago", "unheld", mates=((size, ON_GROUND, 1000 - w),))
-    regroup_case("very large asker, small mate struck 44 ago", "skip", model_size="very_large",
-                 mates=(("small", ON_GROUND, 956),))
-    regroup_case("small asker, very large mate struck 31 ago", "unheld", model_size="small",
-                 mates=(("very_large", ON_GROUND, 969),))
-    regroup_case("unknown size mate struck 44 ago", "skip", mates=((9, ON_GROUND, 956),))
-    regroup_case("unknown size mate struck 45 ago", "unheld", mates=((9, ON_GROUND, 955),))
+    ws1, vl1 = WINDOW_OF["small"] - 1, WINDOW_OF["very_large"] + 1
+    regroup_case(f"very large asker, small mate struck {ws1} ago", "skip", model_size="very_large",
+                 mates=(("small", ON_GROUND, 1000 - ws1),))
+    regroup_case(f"small asker, very large mate struck {vl1} ago", "unheld", model_size="small",
+                 mates=(("very_large", ON_GROUND, 1000 - vl1),))
+    regroup_case(f"unknown size mate struck {UNKNOWN_WINDOW - 1} ago", "skip",
+                 mates=((9, ON_GROUND, 1000 - (UNKNOWN_WINDOW - 1)),))
+    regroup_case(f"unknown size mate struck {UNKNOWN_WINDOW} ago", "unheld",
+                 mates=((9, ON_GROUND, 1000 - UNKNOWN_WINDOW),))
     regroup_case("windows from the buffer: medium slot 5, struck 5 ago", "unheld",
                  mates=(("medium", ON_GROUND, 995),), windows=(45, 5, 35, 30, 45))
     regroup_case("tick wrap", "skip", now=3, mates=(("small", ON_GROUND, 0xFFFFFFFE),))

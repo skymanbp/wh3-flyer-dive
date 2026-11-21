@@ -6,7 +6,7 @@
 -- long as its engaged check says the model is busy -- any contact, struck or not.
 -- THE RULE [D3, user ruling 2026-11-17, docs/DECISIONS.md]: a flying model that
 -- was hit by a melee attack within the last N seconds cannot take off; N by its
--- own body size (small 4.5, medium 4.0, large 3.5, very large 3.0 s; a ridden
+-- own body size (small 5.5, medium 5.0, large 4.5, very large 4.0 s [D37]; a ridden
 -- unit: its mount's), decided for each model on its own. Every flying unit,
 -- both sides, AI included. One cave, at the engine's damage applier, records every damaging
 -- melee hit (the engine's own damage type 0: weapon hits, splash attacks,
@@ -15,7 +15,7 @@
 -- in place of the engaged check (source, emulator check and sites:
 -- tools/pipelines/pin_cave_asm.py; the site table and buffer layout
 -- data/takeoff_site.lua are generated from it).
--- / 每个飞行兵模按自己的体型（小 4.5、中 4.0、大 3.5、超大 3.0 秒；骑乘看坐骑），最近 N 秒内近战挨打就不能起飞，
+-- / 每个飞行兵模按自己的体型（小 5.5、中 5.0、大 4.5、超大 4.0 秒，D37；骑乘看坐骑），最近 N 秒内近战挨打就不能起飞，
 --   否则 3 秒后离地（D3）。一个洞在扣血函数入口记全部近战命中（含横扫与对决动作），一个洞代替原版的交战判定
 --   逐个兵模回答起飞计时。
 -- [D23, 2026-11-20] Two more caves, in the engine's per-model charge-task

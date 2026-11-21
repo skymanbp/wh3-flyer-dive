@@ -1,7 +1,7 @@
 """update-1117 (user rulings 2026-11-17, docs/DECISIONS.md D3 / D4): the ruled numbers and the
 test-only probes that decided (D3) or will decide (D4) how they ship.
 
-* D3: one take-off window per body size (very_large 30, large 35, medium 40, small 45 ticks),
+* D3: one take-off window per body size (D37: very_large 40, large 45, medium 50, small 55 ticks),
   every battle_entities size covered, an unknown size refused; the engine's size codes as
   measured in game 2026-11-18 (1..4, small .. very large) and the window table the cave reads,
   whose unknown-code slot is the longest window (a model with an unreadable size is never
@@ -36,9 +36,10 @@ GAME_EXE = Path(os.environ.get(
 
 class RuledNumbers(unittest.TestCase):
     def test_take_off_windows_by_size(self):
-        # D3: "越小等越久" -- smaller waits longer; 10 battle ticks a second
+        # D3: "越小等越久" -- smaller waits longer; 10 battle ticks a second. D37 (owner 2026-11-20): one
+        # second more for every size (was 30 / 35 / 40 / 45). The one place the ruled numbers are pinned.
         self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOWS,
-                         {"very_large": 30, "large": 35, "medium": 40, "small": 45})
+                         {"very_large": 40, "large": 45, "medium": 50, "small": 55})
         self.assertEqual(set(air_dive_rules.TAKEOFF_PIN_WINDOWS), set(air_dive_rules.BODY_SIZES))
         windows = [air_dive_rules.takeoff_pin_window(s) for s in air_dive_rules.BODY_SIZES]
         self.assertEqual(windows, sorted(windows, reverse=True))
@@ -54,7 +55,10 @@ class RuledNumbers(unittest.TestCase):
                          {"small": 1, "medium": 2, "large": 3, "very_large": 4})
 
     def test_window_table_the_cave_reads(self):
-        self.assertEqual(air_dive_rules.takeoff_window_table(), [45, 40, 35, 30, 45])
+        by_code = sorted(air_dive_rules.TAKEOFF_SIZE_CODES, key=air_dive_rules.TAKEOFF_SIZE_CODES.get)
+        self.assertEqual(air_dive_rules.takeoff_window_table(),
+                         [air_dive_rules.TAKEOFF_PIN_WINDOWS[s] for s in by_code]
+                         + [max(air_dive_rules.TAKEOFF_PIN_WINDOWS.values())])
         self.assertEqual(air_dive_rules.TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE,
                          max(air_dive_rules.TAKEOFF_PIN_WINDOWS.values()))
 
@@ -81,7 +85,7 @@ class RuledNumbers(unittest.TestCase):
         import pin_cave_asm
         self.assertEqual(list(pin_cave_asm.WINDOWS), air_dive_rules.takeoff_window_table())
         lay = pin_cave_asm.layout()
-        self.assertEqual(lay["windows"], [45, 40, 35, 30, 45])
+        self.assertEqual(lay["windows"], air_dive_rules.takeoff_window_table())
         self.assertEqual(lay["size_at"], 0x74)
         # the five windows end where the regroup block begins [D23], which ends before the table; no header
         # field overlaps another

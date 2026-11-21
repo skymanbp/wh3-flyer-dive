@@ -2512,3 +2512,22 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 - **拉回修法** `rel_d23_on1..3`：三局都没形成「一半在天上一半被按住」（拦 0、该拦 0），不算证据。`rel_pic_off`（修法关）该拦 12 次，3 个兵模被拉回（例：33.2 → 24.8 米，53.6 秒落地）；`rel_pic_on`（修法开）拦 2 次，0 个被拉回，2 个兵模进的是那条无目标的第 5 阶段，离被按住的兵模反而更远（31.2 → 32.6、36.0 → 37.4 米），其中一个 56.6 秒原地落下。连同 D23-AB-1120，形成那种局面的「修法开」共两局，拉回 0；「修法关」四局拉回 9、3、3 个（另一局 3 个是 off2）。
 - **对比图**：游戏截图镜头是固定远景，兵模只有几个像素，看不出拉回，不能用。改用记录器的逐兵模位置画俯视轨迹（`release-1120/picture/plot_pullback.py`，图 `release-1120/picture/pullback_compare.png`）：左边修法关，3 个在天上的兵模从约 30 米外飞回被按住的兵模；右边修法开，它们留在原处。
 - 更新说明草稿里「一直减速到停下」改成「大幅减速，多数冲进几米到十几米被挡下，多兵模的飞行部队仍可能冲得更深」，与狮鹫骑士的实测相符。
+
+## TAKEOFF-PLUS1-1121 2026-11-20 23:30 前后：每种体型的起飞窗口加一秒（D37），协商标记 `FLYPINS7`
+
+分支 `release-1120`，接在 `4886db2` 之后；车道输出在 `D:/Projects/.worktrees/wh3-flyer-dive/release-1120/`。没开游戏，没推送，没上传。D37 写在 `main` 的 `docs/DECISIONS.md`（`2edf6a1`）；本分支还没并入 `main` 的 D34–D37 文档提交，本批不并。
+
+- **规则**（`mod/tools/lib/air_dive_rules.py`，唯一一处）：`TAKEOFF_PIN_WINDOWS` 按原来的算法（战斗 tick，10 个一秒，D3 那条注释）从 very_large 30 / large 35 / medium 40 / small 45 改成 **40 / 45 / 50 / 55**（4.0 / 4.5 / 5.0 / 5.5 秒）。体型读不出的兵模用最长的窗口，仍由 `max(...)` 算出，现为 55。代码洞按体型码 1..4 加未知体型读的表 `takeoff_window_table()` 现为 `[55, 50, 45, 40, 55]`。
+- **重生成**（`pin_cave_asm.py --write-site`、`takeoff_trace_asm.py --write-site`，用 `regroup-1119/scratch/venv` 的 python，`PYTHONPATH` 借系统 Python 3.13 的 site-packages，与 RELEASE-PREP-1120 相同）：正式表 `takeoff_site.lua` 只变了 `magic`（`FLYPINS6` → `FLYPINS7`）、`windows = { 55, 50, 45, 40, 55 }`、`source_sha` 与由它算出的协商 `format`（921381 → 342601）；**代码洞字节不变**（窗口是 Lua 写进缓冲区的数据）。追踪表 `takeoff_trace_site.lua` 跟着换成 `FLYPINT7`（照 `takeoff_trace_asm.py` 里「追踪标记跟正式标记一起换」的旧例），`format` 748074 → 324400。解码 PASS；模拟器 1,856 项 PASS、55 个坏版本全抓到；追踪模拟器 3,856 项 PASS、17 个坏版本全抓到；三个位点在装好的 exe 里各一次。
+- **第一次重生成被模拟器拒了**（30 项红）：`pin_cave_asm.py` 的模拟器用例里有几处按旧窗口写死的 tick 数（「32 / 37 / 42 tick 前挨打」的体型先后、「8 个兵模、问的那个 40 tick 前挨打」、「混合体型 31 tick 前」、两条 regroup 的「small 伴 44 前」「very large 伴 31 前」「未知体型 44 / 45 前」）。改成从 `WINDOW_OF` / `UNKNOWN_WINDOW` 算（例：体型先后改为在 very large、large、medium 三个窗口各往后 2 tick 处问，原来的 32 / 37 / 42 就是这三处），用例数不变。显式给缓冲区写别的窗口的用例（`windows=(45, 5, 35, 30, 45)` 等）测的是「窗口从缓冲区读」，没改。
+- **协商标记**：起飞 `FLYPINS7`（`CLAUDE.md` 那一行已改；俯冲仍 `FLYDIVE5`）。`test_takeoff_gap_raise.py` 的「旧标记不许留」名单加上 `FLYPINS6`、`FLYPINT6`；为此 `takeoff_trace_asm.py` 一条旧注释里的 `FLYPINS6` 改写成「marker 6」。
+- **测试**：写死窗口的地方改成读规则文件——`test_flyer_takeoff_site.py` 的 `windows = {...}` 行、`test_next_rules_and_probes.py` 的窗口表与 `layout()["windows"]`、`test_pin_probe_entities.py` 与 `test_takeoff_trace.py` 里 Lua 替身布局的 `windows`（`@WINDOWS@` 占位，写临时文件时由 `takeoff_window_table()` 填）。**只留一处**按数字钉主人的裁定：`RuledNumbers.test_take_off_windows_by_size` 钉 D37 的 40 / 45 / 50 / 55（改数要过主人，这条红是有意的）。标记 `FLYPINS7` / `FLYPINT7` 在三个测试里照旧按字面钉。
+- **随包注释与 README**：`takeoff.lua` 头注释的中英两处秒数、`pin_cave_asm.py` 文档串、`README.md` 中英两处改成 5.5 / 5.0 / 4.5 / 4.0 秒。工坊英文页 `workshop/flyer_dive/en/description.txt` 不写秒数（只写「按体型、逐兵模、看上次近战挨打后的时间」），**没改**；中文页没碰；更新说明草稿里没有窗口数字，第 5 行「与上一版联机不配对」照样成立，没改。
+- **全套测试**（`python -m pytest mod/tools/tests -q`）：**296 项通过，1,846 个子测试通过，0 失败**（`release-1120/suite_plus1.out`）。
+- **反向验证**（`release-1120/negproof_plus1.py`，输出 `negproof_plus1.out`）：规则文件里 medium 50 → 51、不重生成位点表，跑六个起飞相关测试文件：7 项失败、7 个错误（基线 80 项全过）。红的除了钉裁定的那条，还有 `test_generated_from_the_current_cave_source`、`test_owner_feature_hold_and_window`、追踪表的两条建包测试、`test_marker_changed_with_the_rule`、`test_the_traced_stamp_carries_the_same_raise`（都是表与源对不上）。按字节还原后 80 项全过。
+- **包**（`D:/Projects/.worktrees/wh3-flyer-dive/release-1120/build2/`，命令与 RELEASE-PREP-1120 相同）：
+  - 正式包 `flyer_dive_takeoff.pack`：14,113,372 字节，sha256 `aea4c5fb72739bacb4b2b111ba2e8e316ad06b0e451f2f6045a24712753cccc8`。
+  - 带移动记录器的 `probe/flyer_dive_takeoff.pack`（`--probe`）：14,122,409 字节，sha256 `047018e4854f6218cb8e3485bd4e197cafa6f8d7ce5a74f233e619053510343c`。
+  - D23 记录包 `pin_record_plus1.pack`（`build_pin_on_hit_probe.py --base probe --rule --record --regroup-trace`，同上的 venv）：91,551 字节，sha256 `914f8022e2fbbeb5a2880d92afaff8931bf07702c01521b86a28a679aba09d07`；追踪表照旧去掉 `rt_task1`、`rt_task2`，解码与模拟器通过，39 个变异全被抓到。
+  - 读包核对（`release-1120/packcheck_plus1.py`）：三个包与 `build/` 里对应的旧包条目数相同、没有增删，变了的条目只有 `takeoff_site.lua`（`FLYPINS7`、`windows = { 55, 50, 45, 40, 55 }`）与 `takeoff.lua`（注释，每个包多 12 字节就是它）；`script/` 下的文件与树上逐字节相同；正式包里没有测试用的名字。MCT 替身与起飞无关，没重建。
+- **READ**：规则文件与 tick 的算法（10 tick 一秒、未知体型取最长）；两张位点表重生成前后的差异；模拟器、全套测试、反向验证的输出；三个包的字节数、sha256、条目差异与表里的标记和窗口；英文页与更新说明的原文。**INFERRED**：游戏里窗口真的长了一秒（只在离线读到包里的表；Lua 把表里的窗口写进缓冲区、代码洞从缓冲区读，这条链路上一版实机读到过 `45/40/35/30/45`，这次没进游戏）；加一秒后各体型离地的实际快慢与「龙马比狮鹫好起飞」的原因（D37 第二条）都还没量。

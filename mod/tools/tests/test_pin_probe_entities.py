@@ -16,11 +16,20 @@ luajit missing is a failure, not a skip: a recorder nobody ran is not a recorder
 """
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-PROBE = Path(__file__).resolve().parents[1] / "pipelines" / "pin_on_hit_probe.lua"
+TOOLS_DIR = Path(__file__).resolve().parents[1]
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+import rolepath  # noqa: E402,F401 -- because it puts the role dirs on sys.path
+import air_dive_rules  # noqa: E402 -- because rolepath above puts lib/ on sys.path
+
+PROBE = TOOLS_DIR / "pipelines" / "pin_on_hit_probe.lua"
+# the stand-in layout's windows: the ones the shipped table carries (air_dive_rules, D37)
+WINDOWS_LUA = "{ " + ", ".join(str(w) for w in air_dive_rules.takeoff_window_table()) + " }"
 
 HARNESS = r'''
 local probe_path, cfg_text, ring_hex = arg[1], arg[2], arg[3] or ""
@@ -75,7 +84,7 @@ _G.memreader_plus_calls = calls_buf
 package.preload["script/campaign/flyer_dive/lib/takeoff"] = function()
     return {
         find = function() return ptr(), true end,
-        layout = function() return { table_slots = 32, entry_bytes = 16, table_at = 0, windows = { 45, 40, 35, 30, 45 } } end,
+        layout = function() return { table_slots = 32, entry_bytes = 16, table_at = 0, windows = @WINDOWS@ } end,
         arm = function() end,
         counters = function() return { stamps = 0, dropped = 0, held = 0, free = 0, unsized = 0, unmatched = 0 } end,
         state = function() return {} end,
@@ -140,7 +149,7 @@ def run(cfg_text, ring_hex=""):
         raise AssertionError("luajit is required to run the recorder (no fallback)")
     with tempfile.TemporaryDirectory() as td:
         harness = Path(td) / "harness.lua"
-        harness.write_text(HARNESS, encoding="utf-8")
+        harness.write_text(HARNESS.replace("@WINDOWS@", WINDOWS_LUA), encoding="utf-8")
         proc = subprocess.run([luajit, str(harness), str(PROBE), cfg_text, ring_hex], capture_output=True, text=True,
                               cwd=td)
     if proc.returncode != 0:

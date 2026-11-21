@@ -1572,7 +1572,8 @@ TAKEOFF_SITE_LUA_PATH = "script/campaign/flyer_dive/data/takeoff_site.lua"
 # model of each body size stays down after a melee hit; smaller waits longer ("越小等越久").
 # A ridden unit uses its mount's size: the entity that carries the flight controller is the
 # mount (measured, TAKEOFF_SIZE_CODES). After the window the 3.0 s timer still has to run out.
-TAKEOFF_PIN_WINDOWS = {"very_large": 30, "large": 35, "medium": 40, "small": 45}
+# [D37] one second (10 ticks) more for every size (owner 2026-11-20): was 30 / 35 / 40 / 45.
+TAKEOFF_PIN_WINDOWS = {"very_large": 40, "large": 45, "medium": 50, "small": 55}
 # [D3-1118] What the engine keeps at flying entity +0x74 for each battle_entities size.
 # Measured 2026-11-18 (ingame_1118 item2_1, flyer_size_probe_report HOLDS; again in item6_1 and
 # item6_2): harpies 1, pegasus knights 2, feral manticore 3, star dragon 4, every model, both

@@ -8,7 +8,7 @@ lift, asks the rule, and a "held" answer re-arms it.
 
 What is pinned here (no keystone needed):
 * the value and the phases live in air_dive_rules and the cave builder takes them from there;
-* the multiplayer marker changed with the rule (FLYPINS5, traced FLYPINT5; since D23 FLYPINS6 / FLYPINT6), in the
+* the multiplayer marker changed with the rule (FLYPINS5, traced FLYPINT5; D23 marker 6; since D37 FLYPINS7 / FLYPINT7), in the
   tools and in both site tables;
 * the shipped stamp cave's bytes carry exactly one ``lock cmpxchg dword [r8+0x44], edx`` fed by
   ``mov edx, TAKEOFF_GAP_RAISE_TO`` and no plain store to the countdown;
@@ -78,10 +78,10 @@ def _sha_with(value):
 
 class Marker(unittest.TestCase):
     def test_marker_changed_with_the_rule(self):
-        self.assertEqual(pin_cave_asm.MAGIC, b"FLYPINS6")
-        self.assertEqual(tt.MAGIC, b"FLYPINT6")
-        self.assertIn("magic = 'FLYPINS6'", SITE_FILE.read_text(encoding="utf-8"))
-        self.assertIn("magic = 'FLYPINT6'", tt.check_site_file())
+        self.assertEqual(pin_cave_asm.MAGIC, b"FLYPINS7")
+        self.assertEqual(tt.MAGIC, b"FLYPINT7")
+        self.assertIn("magic = 'FLYPINS7'", SITE_FILE.read_text(encoding="utf-8"))
+        self.assertIn("magic = 'FLYPINT7'", tt.check_site_file())
 
     def test_no_old_marker_left_in_the_mod(self):
         for path in list((MOD_DIR / "script").rglob("*.lua")) + list((TOOLS_DIR / "pipelines").glob("*.*")):
@@ -89,7 +89,7 @@ class Marker(unittest.TestCase):
                 continue
             text = path.read_text(encoding="utf-8", errors="replace")
             with self.subTest(path=path.name):
-                for old in ("FLYPINS4", "FLYPINT4", "FLYPINS5", "FLYPINT5"):
+                for old in ("FLYPINS4", "FLYPINT4", "FLYPINS5", "FLYPINT5", "FLYPINS6", "FLYPINT6"):
                     self.assertNotIn(old, text)
 
 

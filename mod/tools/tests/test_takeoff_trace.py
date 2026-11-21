@@ -85,7 +85,7 @@ class TraceSiteTable(unittest.TestCase):
                       self.text)
         self.assertIn(f"bytes = {tt.BYTES},", self.text)
         self.assertEqual(tt.TRACE_AT, pin_cave_asm.BUFFER_BYTES)        # after the shipped table, not over it
-        self.assertIn("magic = 'FLYPINT6'", self.text)
+        self.assertIn("magic = 'FLYPINT7'", self.text)
         self.assertNotEqual(tt.MAGIC, pin_cave_asm.MAGIC)
         for win in air_dive_rules.takeoff_window_table():
             self.assertIn(str(win), self.text)
@@ -113,6 +113,8 @@ class TraceSiteTable(unittest.TestCase):
 
 
 # ---- the recorder, run for real ------------------------------------------------------------------------
+# the stand-in layout's windows: the ones the shipped table carries (air_dive_rules, D37)
+WINDOWS_LUA = "{ " + ", ".join(str(w) for w in air_dive_rules.takeoff_window_table()) + " }"
 HARNESS = r'''
 local probe_path, cfg_text, with_trace = arg[1], arg[2], arg[3] == "1"
 local NULL = { null = true, fields = {} }
@@ -158,7 +160,7 @@ _G.memreader_plus = {
     write = function(p, off, s) if p.mem then mem_write(off, s) end end,
     uint32 = u32,
 }
-local L = { table_slots = 32, entry_bytes = 16, table_at = 0, windows = { 45, 40, 35, 30, 45 } }
+local L = { table_slots = 32, entry_bytes = 16, table_at = 0, windows = @WINDOWS@ }
 if with_trace then
     L.trace_on_at, L.trace_count_at, L.trace_ring_at, L.trace_entry, L.trace_slots = 1024, 1028, 1088, 32, 8
 end
@@ -254,7 +256,7 @@ def run(cfg_text, with_trace=True):
         raise AssertionError("luajit is required to run the recorder (no fallback)")
     with tempfile.TemporaryDirectory() as td:
         harness = Path(td) / "harness.lua"
-        harness.write_text(HARNESS, encoding="utf-8")
+        harness.write_text(HARNESS.replace("@WINDOWS@", WINDOWS_LUA), encoding="utf-8")
         proc = subprocess.run([luajit, str(harness), str(PROBE), cfg_text, "1" if with_trace else "0"],
                               capture_output=True, text=True, cwd=td)
     if proc.returncode != 0:

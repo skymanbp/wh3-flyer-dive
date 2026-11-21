@@ -2,7 +2,7 @@
 
 The rule [D3, user ruling 2026-11-17; D3-1118] -- a flying model struck in
 melee within the last N battle ticks cannot take off, N by its own body size
-(small 45, medium 40, large 35, very large 30) -- is two code caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
+(air_dive_rules.TAKEOFF_PIN_WINDOWS; D37: small 55, medium 50, large 45, very large 40) -- is two code caves (FLYER-TAKEOFF-HITS 2026-11-16: one stamp at the damage applier
 replaced the two inside the hit processor). Their source, emulator check, sites and field anchors live in
 ``pipelines/pin_cave_asm.py``; what ships is the generated data module
 ``data/takeoff_site.lua``. These checks pin the join between the two:
@@ -72,10 +72,11 @@ class SiteTable(unittest.TestCase):
                 self.assertEqual(lines.count(line), 1)
         # [D3] the windows by the engine's size code 1..4 (small .. very large), then the
         # unknown-size window = the longest; 10 battle ticks a second
-        self.assertEqual(lines.count("        windows = { 45, 40, 35, 30, 45 },"), 1)
+        windows = ", ".join(str(w) for w in air_dive_rules.takeoff_window_table())
+        self.assertEqual(lines.count(f"        windows = {{ {windows} }},"), 1)
         self.assertEqual(lines.count(
             "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
-        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS6',"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS7',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
         self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
 

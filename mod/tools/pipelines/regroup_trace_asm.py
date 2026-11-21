@@ -131,12 +131,14 @@ FLYQ_VTS = (0x143926520, 0x143AEF2A0)
 # [D45] rt_pursue at 0x14328cb3b, the common exit of the attack behaviour's "pursue?" test 0x14328ca54 (class
 # 0x143aef2a0; CHASE -> PURSUE when true, PURSUE -> START when false; in PURSUE the executor zeroes the flight
 # controller's stay flag through 0x1430e5bc0). al = the answer, rbx = the behaviour, rdi = the contact record
-# 0x1430e16c8([beh+8]+0xcf0, [beh+0x68]) or 0, xmm6 = the record branch's threshold. Logged only when true:
+# 0x1430e16c8([beh+8]+0xcf0, [beh+0x68]) or 0, xmm6 = the record branch's threshold. Every call is logged
+# (about six a battle), its answer al at ext +84:
 # +0 behaviour, +8 its unit [beh+8], +16 the test's caller, +32 record, +40 record +8, +44 record +0xc,
 # +48 xmm6 bits, +52 the target's main-controller model count [[beh+0x68]+0x32f8]+0x24, +56 [beh+0xa0];
-# ext +64 the state [beh+0x38], +72 the target unit [beh+0x68], +80 the own main-controller model count.
+# ext +64 the state [beh+0x38], +72 the target unit [beh+0x68], +80 the own main-controller model count, +84 al.
 PURSUE_KIND = 14
 B_TARGET, B_STATE, B_A0, C_MEN, R_N8, R_NC = 0x68, 0x38, 0xA0, 0x24, 8, 0xC
+PUSH_RAX = 40                          # pushfq, rax, rcx, rdx, r9, r10, r11 -> the saved rax at [rsp + 40]
 PURSUE_UP = 0x38                      # push rdi; sub rsp, 0x30 -> the test's return address at [rsp + 0x38]
 
 # name: (pattern, at, stolen bytes (whole instructions, no relative operand), exe address of the site)
@@ -251,7 +253,10 @@ flyq_yes:"""
 
 def _pursue_aux():
     """[D45] rt_pursue's fields (rbx = the behaviour, checked non-null; rdi = the record, may be null)."""
-    return f"""mov rdx, qword ptr [rbx + {B_UNIT:#x}]
+    return f"""mov rax, qword ptr [rsp + {PUSH_RAX}]
+    movzx eax, al
+    mov dword ptr [r11 + 84], eax
+    mov rdx, qword ptr [rbx + {B_UNIT:#x}]
     mov qword ptr [r11 + 8], rdx
     test rdx, rdx
     jz pu_nown
@@ -391,8 +396,7 @@ def source(name, mutate=None):
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
-    pre = _flyq_pre() if kind == FLYQ_KIND else "test al, al\n    jz done\n    test rbx, rbx\n    jz done" if (
-        kind == PURSUE_KIND) else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
+    pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind == PURSUE_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
         "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
     me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
@@ -731,8 +735,8 @@ def _check_flyq(code):
 
 
 def _check_pursue(code):
-    """[D45] rt_pursue: logged only when al is 1 (with a record, without one, without a target), not when al
-    is 0 (the high bytes of rax set), with a null behaviour or in mode 0; registers, flags and xmm6 back; the
+    """[D45] rt_pursue: every call logged with its answer al (1 with a record, without one, without a target;
+    0 with the high bytes of rax set), none with a null behaviour or in mode 0; registers, flags and xmm6 back; the
     whole entry checked (the return address read from [rsp + 0x38] of the site)."""
     from unicorn import x86_const as X
     fails = []
@@ -740,7 +744,7 @@ def _check_pursue(code):
     state, xmm6 = 0x143D2BC58, 0x41C80000
     cases = [("true, record", 1, 0x01, True, True, True, True), ("true, no record", 1, 0x01, True, False, True, True),
              ("true, no target", 1, 0x01, True, True, False, True),
-             ("false", 1, 0xABCD00, True, True, True, False), ("null behaviour", 1, 0x01, False, True, True, False),
+             ("false", 1, 0xABCD00, True, True, True, True), ("null behaviour", 1, 0x01, False, True, True, False),
              ("off", 0, 0x01, True, True, True, False)]
     for label, mode, rax, has_beh, has_rec, has_tgt, want in cases:
         for flags in (0x202, 0x8D7):
@@ -781,7 +785,7 @@ def _check_pursue(code):
                 continue
             exp = struct.pack("<QQQIIQIIIII", beh, unit, RET, 0, PURSUE_KIND, rec if has_rec else 0,
                               5 if has_rec else 0, 900 if has_rec else 0, xmm6, 77 if has_tgt else NONE32, 2)
-            exp += struct.pack("<IQQI", 8, state, tgt if has_tgt else 0, 13)
+            exp += struct.pack("<IQQII", 8, state, tgt if has_tgt else 0, 13, rax & 0xFF)
             exp += bytes(ENTRY - len(exp))
             if written != 1 or entry != exp:
                 fails.append(f"rt_pursue {label}: written {written} entry {entry.hex()} want {exp.hex()}")
@@ -960,7 +964,8 @@ MUTANTS = (
     ("rt_flyq", "mov eax, dword ptr [rbx + 8]", "mov eax, dword ptr [rbx + 0xc]"),
     ("rt_flyq", "dec eax\n    shl rax, 4", "shl rax, 4"),
     ("rt_flyq", "mov qword ptr [r11 + 8], rdi", "mov qword ptr [r11 + 8], rbx"),
-    ("rt_pursue", "test al, al\n    jz done", "test eax, eax\n    jz done"),
+    ("rt_pursue", "movzx eax, al\n    mov dword ptr [r11 + 84]", "mov eax, eax\n    mov dword ptr [r11 + 84]"),
+    ("rt_pursue", "mov rax, qword ptr [rsp + 40]", "mov rax, qword ptr [rsp + 48]"),
     ("rt_pursue", "mov qword ptr [r11 + 32], rdi", "mov qword ptr [r11 + 32], rsi"),
     ("rt_pursue", "mov eax, dword ptr [rdi + 0xc]", "mov eax, dword ptr [rdi + 0x10]"),
     ("rt_pursue", "movd eax, xmm6", "movd eax, xmm7"),

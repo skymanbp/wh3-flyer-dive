@@ -128,6 +128,16 @@ B_UNIT, U_MAIN, U_NCTRL, C_A08, C_928, C_N = 8, 0x32F8, 0x3294, 0xA08, 0x928, 0x
 FLYQ_KIND = 13
 G_STACK, G_COUNT, CTL_FLY = 0x848, 0x8C8, 8
 FLYQ_VTS = (0x143926520, 0x143AEF2A0)
+# [D45] rt_pursue at 0x14328cb3b, the common exit of the attack behaviour's "pursue?" test 0x14328ca54 (class
+# 0x143aef2a0; CHASE -> PURSUE when true, PURSUE -> START when false; in PURSUE the executor zeroes the flight
+# controller's stay flag through 0x1430e5bc0). al = the answer, rbx = the behaviour, rdi = the contact record
+# 0x1430e16c8([beh+8]+0xcf0, [beh+0x68]) or 0, xmm6 = the record branch's threshold. Logged only when true:
+# +0 behaviour, +8 its unit [beh+8], +16 the test's caller, +32 record, +40 record +8, +44 record +0xc,
+# +48 xmm6 bits, +52 the target's main-controller model count [[beh+0x68]+0x32f8]+0x24, +56 [beh+0xa0];
+# ext +64 the state [beh+0x38], +72 the target unit [beh+0x68], +80 the own main-controller model count.
+PURSUE_KIND = 14
+B_TARGET, B_STATE, B_A0, C_MEN, R_N8, R_NC = 0x68, 0x38, 0xA0, 0x24, 8, 0xC
+PURSUE_UP = 0x38                      # push rdi; sub rsp, 0x30 -> the test's return address at [rsp + 0x38]
 
 # name: (pattern, at, stolen bytes (whole instructions, no relative operand), exe address of the site)
 SITES = {
@@ -161,10 +171,12 @@ SITES = {
                 "48 89 5C 24 20 55 56 57 41 54", 0x14302A11C),
     "rt_flyq": ("48 8B 8F F8 32 00 00 E8 4F 5A 09 00 84 C0 74 04 44 89 73 08", 0,
                 "48 8B 8F F8 32 00 00", 0x143050165),
+    "rt_pursue": ("F3 48 0F 2A C9 0F 2F D1 76 6A 32 C0 48 8B 5C 24 40 48 8B 74 24 48 0F 28 74 24 20", 12,
+                  "48 8B 5C 24 40 48 8B 74 24 48", 0x14328CB3B),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
         "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
-        "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND}
+        "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND, "rt_pursue": PURSUE_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -235,6 +247,44 @@ def _flyq_pre():
     cmp rdx, rax
     jne done
 flyq_yes:"""
+
+
+def _pursue_aux():
+    """[D45] rt_pursue's fields (rbx = the behaviour, checked non-null; rdi = the record, may be null)."""
+    return f"""mov rdx, qword ptr [rbx + {B_UNIT:#x}]
+    mov qword ptr [r11 + 8], rdx
+    test rdx, rdx
+    jz pu_nown
+    mov rdx, qword ptr [rdx + {U_MAIN:#x}]
+    test rdx, rdx
+    jz pu_nown
+    mov eax, dword ptr [rdx + {C_MEN:#x}]
+    mov dword ptr [r11 + 80], eax
+pu_nown:
+    mov qword ptr [r11 + 32], rdi
+    movd eax, xmm6
+    mov dword ptr [r11 + 48], eax
+    mov eax, dword ptr [rbx + {B_A0:#x}]
+    mov dword ptr [r11 + 56], eax
+    mov rax, qword ptr [rbx + {B_STATE:#x}]
+    mov qword ptr [r11 + 64], rax
+    mov rdx, qword ptr [rbx + {B_TARGET:#x}]
+    mov qword ptr [r11 + 72], rdx
+    test rdx, rdx
+    jz pu_ntgt
+    mov rdx, qword ptr [rdx + {U_MAIN:#x}]
+    test rdx, rdx
+    jz pu_ntgt
+    mov eax, dword ptr [rdx + {C_MEN:#x}]
+    mov dword ptr [r11 + 52], eax
+pu_ntgt:
+    test rdi, rdi
+    jz pu_nrec
+    mov eax, dword ptr [rdi + {R_N8}]
+    mov dword ptr [r11 + 40], eax
+    mov eax, dword ptr [rdi + {R_NC:#x}]
+    mov dword ptr [r11 + 44], eax
+pu_nrec:"""
 
 
 def _done_aux():
@@ -315,10 +365,10 @@ def source(name, mutate=None):
     ent = {1: "mov rax, qword ptr [rcx]", 2: "mov rax, qword ptr [rcx]",
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
            6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
-           PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax"}.get(kind) or (
+           PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax", PURSUE_KIND: "xor eax, eax"}.get(kind) or (
         f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
         f"    mov rax, qword ptr [rax + {SLOT_ENT}]")
-    guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND) else
+    guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else
              "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else (
         "test rbx, rbx\n    jz noent" if task else "nop"))
     aux = {1: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
@@ -329,7 +379,8 @@ def source(name, mutate=None):
               f"    mov rax, qword ptr [rsp + {PUSHES * 8 + 16}]\n    mov qword ptr [r11 + 40], rax",
            6: f"mov rax, qword ptr [rsp + {PUSHES * 8 + 8}]\n    mov qword ptr [r11 + 40], rax",
            7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux(),
-           DONE_KIND: _done_aux(), PICK_KIND: _pick_aux(), FLYQ_KIND: _flyq_aux()}[kind]
+           DONE_KIND: _done_aux(), PICK_KIND: _pick_aux(), FLYQ_KIND: _flyq_aux(),
+           PURSUE_KIND: _pursue_aux()}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
@@ -340,11 +391,12 @@ def source(name, mutate=None):
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
-    pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
+    pre = _flyq_pre() if kind == FLYQ_KIND else "test al, al\n    jz done\n    test rbx, rbx\n    jz done" if (
+        kind == PURSUE_KIND) else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
         "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
-    me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
-    ret = PUSHES * 8 + (HANDLER_RET if task else 0)                   # mid-function: the handler's return address
+    me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
+    ret = PUSHES * 8 + (HANDLER_RET if task else PURSUE_UP if kind == PURSUE_KIND else 0)                   # mid-function: the handler's return address
     s = f"""
     pushfq
     push rax
@@ -678,6 +730,64 @@ def _check_flyq(code):
     return fails
 
 
+def _check_pursue(code):
+    """[D45] rt_pursue: logged only when al is 1 (with a record, without one, without a target), not when al
+    is 0 (the high bytes of rax set), with a null behaviour or in mode 0; registers, flags and xmm6 back; the
+    whole entry checked (the return address read from [rsp + 0x38] of the site)."""
+    from unicorn import x86_const as X
+    fails = []
+    beh, unit, tgt, rec, own_c, tgt_c = (OBJ + 0x10000 * i for i in range(1, 7))
+    state, xmm6 = 0x143D2BC58, 0x41C80000
+    cases = [("true, record", 1, 0x01, True, True, True, True), ("true, no record", 1, 0x01, True, False, True, True),
+             ("true, no target", 1, 0x01, True, True, False, True),
+             ("false", 1, 0xABCD00, True, True, True, False), ("null behaviour", 1, 0x01, False, True, True, False),
+             ("off", 0, 0x01, True, True, True, False)]
+    for label, mode, rax, has_beh, has_rec, has_tgt, want in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            _put(mu, beh + B_UNIT, "<Q", unit)
+            _put(mu, beh + B_TARGET, "<Q", tgt if has_tgt else 0)
+            _put(mu, beh + B_STATE, "<Q", state)
+            _put(mu, beh + B_A0, "<I", 2)
+            _put(mu, unit + U_MAIN, "<Q", own_c)
+            _put(mu, tgt + U_MAIN, "<Q", tgt_c)
+            _put(mu, own_c + C_MEN, "<I", 13)
+            _put(mu, tgt_c + C_MEN, "<I", 77)
+            _put(mu, rec + R_N8, "<I", 5)
+            _put(mu, rec + R_NC, "<I", 900)
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp + PURSUE_UP, struct.pack("<Q", RET))
+            mu.reg_write(X.UC_X86_REG_XMM6, xmm6)
+            try:
+                changed = _run(mu, code, {"rax": rax, "rbx": beh if has_beh else 0, "rdi": rec if has_rec else 0,
+                                          "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"rt_pursue {label}: faulted {err}")
+                continue
+            if mu.reg_read(X.UC_X86_REG_XMM6) != xmm6:
+                changed.append("xmm6")
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            calls = _u32(mu, B + CALLS_AT + 4 * (PURSUE_KIND - 1))
+            if changed:
+                fails.append(f"rt_pursue {label}: registers changed {changed}")
+            if calls != (1 if mode else 0):
+                fails.append(f"rt_pursue {label}: calls {calls}")
+            if not want:
+                if written or any(entry):
+                    fails.append(f"rt_pursue {label}: written {written}")
+                continue
+            exp = struct.pack("<QQQIIQIIIII", beh, unit, RET, 0, PURSUE_KIND, rec if has_rec else 0,
+                              5 if has_rec else 0, 900 if has_rec else 0, xmm6, 77 if has_tgt else NONE32, 2)
+            exp += struct.pack("<IQQI", 8, state, tgt if has_tgt else 0, 13)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or entry != exp:
+                fails.append(f"rt_pursue {label}: written {written} entry {entry.hex()} want {exp.hex()}")
+    return fails
+
+
 def _check_ctrl(name, code):
     """[D42] rt_done / rt_pick on a synthetic unit with a main controller (and without one, and with a null
     behaviour unit for rt_done); mode 0; every register and the flags back; the whole entry checked."""
@@ -820,7 +930,8 @@ def check(mutate=None, which=None):
             code = assemble(name, mutate if which == name else None)
             fails += (_check_pop(code) if name == "rt_pop" else
                       _check_ctrl(name, code) if name in ("rt_done", "rt_pick") else
-                      _check_flyq(code) if name == "rt_flyq" else _check_one(name, code))
+                      _check_flyq(code) if name == "rt_flyq" else
+                      _check_pursue(code) if name == "rt_pursue" else _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -849,6 +960,13 @@ MUTANTS = (
     ("rt_flyq", "mov eax, dword ptr [rbx + 8]", "mov eax, dword ptr [rbx + 0xc]"),
     ("rt_flyq", "dec eax\n    shl rax, 4", "shl rax, 4"),
     ("rt_flyq", "mov qword ptr [r11 + 8], rdi", "mov qword ptr [r11 + 8], rbx"),
+    ("rt_pursue", "test al, al\n    jz done", "test eax, eax\n    jz done"),
+    ("rt_pursue", "mov qword ptr [r11 + 32], rdi", "mov qword ptr [r11 + 32], rsi"),
+    ("rt_pursue", "mov eax, dword ptr [rdi + 0xc]", "mov eax, dword ptr [rdi + 0x10]"),
+    ("rt_pursue", "movd eax, xmm6", "movd eax, xmm7"),
+    ("rt_pursue", "mov eax, dword ptr [rbx + 0xa0]", "mov eax, dword ptr [rbx + 0xa4]"),
+    ("rt_pursue", "jz pu_ntgt\n    mov rdx", "jz pu_nrec\n    mov rdx"),
+    ("rt_pursue", "test rdi, rdi\n    jz pu_nrec", "nop\n    nop"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),
     ("rt_land", "mov rax, qword ptr [rsp + 56]", "mov rax, qword ptr [rsp + 48]"),

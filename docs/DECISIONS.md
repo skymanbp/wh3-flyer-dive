@@ -923,3 +923,16 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   AI units keep the game's own handling (infantry can still pin them by making their orders drop).
 - The owner wants a more principled fix than a condition patch if one exists: the maintainer first finds why the
   engine drops the order (probe-backed), then proposes the fix that follows from that cause, condition patch as fallback.
+
+### D44 · One rule for player and AI: the order stays, held models keep trying to take off (2026-11-21, replaces D43)
+
+> Owner, 2026-11-21, on D43: treating AI and player apart feels odd; AI flyers must still be pinnable by the player's
+> infantry. Asked: one rule for both sides — the order is no longer dropped because the whole unit cannot leave melee;
+> airborne models follow the order, models held by hits stay by the take-off rule; interception comes from "hit means
+> you cannot fly off", not from the game dropping orders: 「1。那因为被攻击而无法起飞的空中部队，应该依旧继续尝试起飞并执行新命令，只不过因为被攻击，所以无法正常起飞，是这样吧？然后新命令不会被打断。」
+
+- Yes, that is the rule: the new order is not interrupted; a held model keeps trying to take off and carry it out, and
+  lifts as soon as the take-off rule lets it (its size window after the last hit, then the 3 s timer); then it follows
+  the order. Player and AI alike.
+- Next: find the engine code that drops the order (probe-backed), make it keep the order for flying units, check in
+  game that both the player's order sticks and that infantry still pins an AI flyer's hit models.

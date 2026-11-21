@@ -1043,3 +1043,10 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Yes: before D40 the line ended at "Take-off is judged by body size, per model, and by the time since the last melee
   hit. Models that have taken off fly on with their unit's orders." The nested bullet is removed from the English and
   Chinese pages; the changenote line stays as released.
+
+### D49 · Notes gain a time-zone line and a promise to answer comments (2026-11-21)
+
+> Owner, 2026-11-21: 「notes那里加一条时区说明，然后说我会尽量及时回复评论。」
+
+- Time zone taken from the owner's machine (Windows `Eastern Standard Time`): US Eastern Time. Added after the log-file
+  line on both pages; the English page goes live with a description-only update, the Chinese slot is pasted by the owner.

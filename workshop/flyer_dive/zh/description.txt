@@ -35,6 +35,7 @@
 
 [h2]说明[/h2]
 每场战斗会在游戏目录写三个小日志（flyer_dive.txt、flyer_takeoff.txt、flyer_breath.txt），报告问题时请附上。
+时区：美国东部时间。我会尽量及时回复评论。
 
 [h2]鸣谢[/h2]
 [list]

@@ -341,11 +341,14 @@ local function drain_calls(ms, uid_of)
             local ent8 = string.upper(hex_bytes(chunk, at + 8, 4))
             local kind = u32le(chunk, at + 28)
             local extra = ""
-            if kind == 7 or kind == 8 or kind == 15 or kind == 16 then   -- the task's fields (extension +64;
+            if kind == 7 or kind == 8 or kind == 15 or kind == 16 or kind == 17 then   -- the task's fields (+64;
                                                     -- 15 / 16 [D46]: the task's start / update entries)
                 extra = fmt(" t18=%s t58=%s t68=%s f74=%s f80=%s t84=%s sn=%s", hex_bytes(chunk, at + 64, 8),
                     hex_bytes(chunk, at + 72, 8), hex_bytes(chunk, at + 80, 8), hex_bytes(chunk, at + 88, 4),
                     hex_bytes(chunk, at + 92, 4), hex_bytes(chunk, at + 96, 4), hex_bytes(chunk, at + 100, 4))
+                if kind == 17 then                  -- [D46] rt_tdone: the move's +0x30, the model's +0x710
+                    extra = extra .. fmt(" m30=%s m710=%s", hex_bytes(chunk, at + 104, 4), hex_bytes(chunk, at + 108, 4))
+                end
             elseif kind == 10 then                  -- [D42] rt_pop: the clear-queue loop's caller (0 = not from it)
                 extra = " c2=" .. hex_bytes(chunk, at + 64, 8)
             elseif kind == 14 then                  -- [D45] rt_pursue: state, target unit, own model count, answer
@@ -364,10 +367,10 @@ local function drain_calls(ms, uid_of)
         end
         if stop then break end
     end
-    local raw = mr.read(c.buf, l.calls_at, 64)
-    local line = fmt("land=%d cancel=%d target=%d stay=%d order=%d stub=%d task1=%d task2=%d mktask=%d pop=%d done=%d pick=%d flyq=%d pursue=%d tstart=%d tupd=%d lost=%d",
+    local raw = mr.read(c.buf, l.calls_at, 68)
+    local line = fmt("land=%d cancel=%d target=%d stay=%d order=%d stub=%d task1=%d task2=%d mktask=%d pop=%d done=%d pick=%d flyq=%d pursue=%d tstart=%d tupd=%d tdone=%d lost=%d",
         u32le(raw, 1), u32le(raw, 5), u32le(raw, 9), u32le(raw, 13), u32le(raw, 17), u32le(raw, 21), u32le(raw, 25),
-        u32le(raw, 29), u32le(raw, 33), u32le(raw, 37), u32le(raw, 41), u32le(raw, 45), u32le(raw, 49), u32le(raw, 53), u32le(raw, 57), u32le(raw, 61), c.lost)
+        u32le(raw, 29), u32le(raw, 33), u32le(raw, 37), u32le(raw, 41), u32le(raw, 45), u32le(raw, 49), u32le(raw, 53), u32le(raw, 57), u32le(raw, 61), u32le(raw, 65), c.lost)
     if line ~= c.last then
         c.last = line
         emit(fmt("GC %d %s", ms, line))

@@ -144,6 +144,12 @@ PURSUE_KIND = 14
 TSTART_KIND, TUPD_KIND = 15, 16
 TASKE_KINDS = (TSTART_KIND, TUPD_KIND)
 T_CHARGED = 0x80
+# [D46] rt_tdone at 0x142f8fff6 (rbx = the task, the handler frame as at the task sites): the charge task's update
+# about to tail-jump into the base update 0x14325eefc(task, [task+0x18]+8 = the model's move object), which ends the
+# task when the move reports finished (+0x10 == 1). Logged only for an uncharged task (+0x80 == 0) whose move has
+# finished: the task entry plus ext +104 the move's +0x30, +108 the model's +0x710.
+TDONE_KIND = 17
+T_HOLDER, H_MOVE, M_DONE, M_KIND, E_MOVESTATE = 0x18, 8, 0x10, 0x30, 0x710
 B_TARGET, B_STATE, B_A0, C_MEN, R_N8, R_NC = 0x68, 0x38, 0xA0, 0x24, 8, 0xC
 PUSH_RAX = 40                          # pushfq, rax, rcx, rdx, r9, r10, r11 -> the saved rax at [rsp + 40]
 PURSUE_UP = 0x38                      # push rdi; sub rsp, 0x30 -> the test's return address at [rsp + 0x38]
@@ -186,11 +192,13 @@ SITES = {
                   "40 53 48 83 EC 60", 0x142F7F600),
     "rt_tupd": ("40 53 48 83 EC 60 80 B9 80 00 00 00 00 48 8B D9 75 7B 48 8B 41 30", 0,
                 "40 53 48 83 EC 60", 0x142F8FF54),
+    "rt_tdone": ("48 89 43 58 48 8B 53 18 48 8B CB 48 83 C2 08 48 83 C4 60 5B E9", 4,
+                 "48 8B 53 18 48 8B CB 48 83 C2 08", 0x142F8FFF6),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
         "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
         "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND, "rt_pursue": PURSUE_KIND,
-        "rt_tstart": TSTART_KIND, "rt_tupd": TUPD_KIND}
+        "rt_tstart": TSTART_KIND, "rt_tupd": TUPD_KIND, "rt_tdone": TDONE_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -206,6 +214,23 @@ def _task_aux():
     for i, off in enumerate(T_D + (T_SERIAL,)):
         s += [f"mov eax, dword ptr [rbx + {off:#x}]", f"mov dword ptr [r11 + {EXT + 24 + 4 * i}], eax"]
     return "\n    ".join(s)
+
+
+def _tdone_aux():
+    """[D46] rt_tdone: the task's fields (rbx = the task), the move's +0x30 and the model's +0x710."""
+    return _task_aux() + f"""
+    mov rax, qword ptr [rbx + {T_HOLDER:#x}]
+    mov eax, dword ptr [rax + {H_MOVE + M_KIND:#x}]
+    mov dword ptr [r11 + {EXT + 40}], eax
+    mov rax, qword ptr [rbx + {T_SLOT:#x}]
+    test rax, rax
+    jz td_nomodel
+    mov rax, qword ptr [rax + {SLOT_ENT}]
+    test rax, rax
+    jz td_nomodel
+    mov eax, dword ptr [rax + {E_MOVESTATE:#x}]
+    mov dword ptr [r11 + {EXT + 44}], eax
+td_nomodel:"""
 
 
 def _mktask_aux():
@@ -380,7 +405,7 @@ pop_noclear:"""
 
 def source(name, mutate=None):
     kind = KIND[name]
-    task = kind in TASK_KINDS
+    task = kind in TASK_KINDS or kind == TDONE_KIND
     ent = {1: "mov rax, qword ptr [rcx]", 2: "mov rax, qword ptr [rcx]",
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
            6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
@@ -400,13 +425,21 @@ def source(name, mutate=None):
            7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux(),
            DONE_KIND: _done_aux(), PICK_KIND: _pick_aux(), FLYQ_KIND: _flyq_aux(),
            PURSUE_KIND: _pursue_aux(), TSTART_KIND: _task_aux().replace("[rbx", "[rcx"),
-           TUPD_KIND: _task_aux().replace("[rbx", "[rcx")}[kind]
+           TUPD_KIND: _task_aux().replace("[rbx", "[rcx"), TDONE_KIND: _tdone_aux()}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
     sub eax, 4
     cmp eax, 1
     ja done"""
+    elif kind == TDONE_KIND:    # only an uncharged task whose move has finished
+        filt = f"""cmp byte ptr [rbx + {T_CHARGED:#x}], 0
+    jne done
+    mov rax, qword ptr [rbx + {T_HOLDER:#x}]
+    test rax, rax
+    jz done
+    cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1
+    jne done"""
     elif kind == TUPD_KIND:     # only while the task has not charged yet
         filt = f"""cmp byte ptr [rcx + {T_CHARGED:#x}], 0
     jne done"""
@@ -857,6 +890,52 @@ def _check_task_entry(name, code):
     return fails
 
 
+def _check_tdone(code):
+    """[D46] rt_tdone: logged for an uncharged task whose move has finished (the whole entry, the return address
+    from the handler frame); not when charged, not when the move runs, not with a null holder, not in mode 0."""
+    fails = []
+    for label, mode, charged, done, holder, want in (("ends uncharged", 1, 0, 1, True, True),
+                                                     ("charged", 1, 1, 1, True, False),
+                                                     ("move running", 1, 0, 0, True, False),
+                                                     ("no holder", 1, 0, 1, False, False),
+                                                     ("off", 0, 0, 1, True, False)):
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            o = _world(mu)
+            hold = OBJ + 0xA0000
+            mu.mem_write(o["task"] + T_CHARGED, struct.pack("<I", charged))
+            mu.mem_write(o["task"] + T_HOLDER, struct.pack("<Q", hold if holder else 0))
+            mu.mem_write(hold + H_MOVE + M_DONE, struct.pack("<I", done))
+            mu.mem_write(hold + H_MOVE + M_KIND, struct.pack("<I", 3))
+            mu.mem_write(o["ent"] + E_MOVESTATE, struct.pack("<I", 7))
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp + HANDLER_RET, struct.pack("<Q", RET_H))
+            try:
+                changed = _run(mu, code, {"rbx": o["task"], "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"rt_tdone {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            if changed:
+                fails.append(f"rt_tdone {label}: registers changed {changed}")
+            if not want:
+                if written or any(entry):
+                    fails.append(f"rt_tdone {label}: written {written}")
+                continue
+            head = struct.pack("<QQQIIQQIIII", o["task"], o["ent"], RET_H, TICK, TDONE_KIND, o["slot"], TASK_VT,
+                               2, 5, 1, 8)
+            q = [hold if i == 0 else (o["tgt"] if v is None else v) for i, v in enumerate(T_VALS)]
+            d = (D_VALS[0], charged, D_VALS[2], D_VALS[3])
+            exp = head + struct.pack("<QQQIIIIII", *q, *d, 3, 7)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or entry != exp:
+                fails.append(f"rt_tdone {label}: written {written} entry {entry.hex()} want {exp.hex()}")
+    return fails
+
+
 def _check_ctrl(name, code):
     """[D42] rt_done / rt_pick on a synthetic unit with a main controller (and without one, and with a null
     behaviour unit for rt_done); mode 0; every register and the flags back; the whole entry checked."""
@@ -1001,7 +1080,8 @@ def check(mutate=None, which=None):
                       _check_ctrl(name, code) if name in ("rt_done", "rt_pick") else
                       _check_flyq(code) if name == "rt_flyq" else
                       _check_pursue(code) if name == "rt_pursue" else
-                      _check_task_entry(name, code) if name in ("rt_tstart", "rt_tupd") else _check_one(name, code))
+                      _check_task_entry(name, code) if name in ("rt_tstart", "rt_tupd") else
+                      _check_tdone(code) if name == "rt_tdone" else _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -1042,6 +1122,10 @@ MUTANTS = (
     ("rt_tstart", "mov rax, qword ptr [rcx + 0x58]", "mov rax, qword ptr [rcx + 0x50]"),
     ("rt_tstart", "mov eax, dword ptr [rcx + 0x84]", "mov eax, dword ptr [rcx + 0x88]"),
     ("rt_tupd", "test rcx, rcx\n    jz done", "nop\n    nop"),
+    ("rt_tdone", "cmp byte ptr [rax + 0x18], 1\n    jne done", "cmp byte ptr [rax + 0x18], 1\n    nop"),
+    ("rt_tdone", "cmp byte ptr [rbx + 0x80], 0\n    jne done", "cmp byte ptr [rbx + 0x80], 0\n    nop"),
+    ("rt_tdone", "mov eax, dword ptr [rax + 0x710]", "mov eax, dword ptr [rax + 0x714]"),
+    ("rt_tdone", "mov eax, dword ptr [rax + 0x38]", "mov eax, dword ptr [rax + 0x3c]"),
     ("rt_pursue", "cmp dword ptr [r11 + 84], 0\n    je pu_nrec", "nop\n    nop"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),

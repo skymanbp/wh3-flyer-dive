@@ -1035,3 +1035,11 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - The changenote and page text stay as already agreed (`workshop/flyer_dive/changenote.txt`, `en/description.txt`).
   This is the owner's go-ahead for this release: merge `release-1120` into `main`, push, upload with steamcmd
   (the owner logs in), post-upload checks per `docs/WORKSHOP.md`.
+
+### D48 · The page's take-off line goes back to the general wording, no numbers (2026-11-21)
+
+> Owner, 2026-11-21, on the nested take-off bullet (5.5 / 5.0 / 4.5 / 4.0 s, at least 3 s): 「这个改回只说根据体型和兵模决定起飞难度之类的吧。之前好像就是这么说的？」
+
+- Yes: before D40 the line ended at "Take-off is judged by body size, per model, and by the time since the last melee
+  hit. Models that have taken off fly on with their unit's orders." The nested bullet is removed from the English and
+  Chinese pages; the changenote line stays as released.

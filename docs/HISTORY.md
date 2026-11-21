@@ -2655,3 +2655,27 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 - 核对（公开接口，`details_desc_before.json` / `details_desc_after.json`）：线上说明与仓库英文页逐字相同、子条目已不在；`hcontent_file` 3595725939344922217、`file_size` 14,247,908、`time_updated` 1795274310 都没变（文件没动）；可见性 0；标签仍 `mod`、`battle`。
 - 同日稍后（D49）：两页的 Notes 加一行时区与回复说明（英文「Time zone: US Eastern Time (ET). I'll try to reply to comments as soon as I can.」，中文「时区：美国东部时间。我会尽量及时回复评论。」；时区取主人这台机器的 Windows 设置 `Eastern Standard Time`）。英文页同样只改说明上线（`item_desc_1121b.vdf`，`Committing update...Success`），核对：线上说明与仓库英文页逐字相同，`hcontent_file` 3595725939344922217、`file_size` 14,247,908 没变，可见性 0，标签 `mod`、`battle`。中文一栏由主人粘贴（桌面 `飞兽模组_中文说明.txt` 已换成含这一行的版本）。
 - 同日再改（主人令）：英文页时区写法 `(ET)` 改为 `(EST)`，只改说明上线（`item_desc_1121c.vdf`，`Committing update...Success`）；核对：线上说明与仓库英文页逐字相同，`hcontent_file` 不变，标签不变。中文页没有缩写，不改。ccm 计划：D30 那份（停在 5/10，是第 6–9 步的状态一直没更新）已按实际状态补成 9/10 后结掉归档，第 10 步「以后由主人决定」的几件记成待办 `later-items-after-d30`（等主人）。
+
+## REFLECT-1121 2026-11-21 晚：冲锋反制改在引擎里只对飞行部队加倍（D51），不做实机直接发布（D53）
+
+- **做法**（D51）：D15 的「每次俯冲扣最大生命值 10%」删掉（代码洞 `dv_cost`、锚点 `dv_facing`、`lib/dive_cost.lua`、MCT 代价滑条）。
+  新代码洞 `dv_reflect`（`mod/tools/pipelines/dive_reflect_asm.py`）在伤害计算函数 `0x142e5fcb0` 的 `0x142e600af`
+  （`mulss xmm8, xmm7`，xmm7 ＝ kv `charge_reflect_damage_multiplier` 2.0）：先做原指令，被打的冲锋者（用它自己的 vfunc `+8` 取实体，
+  引擎在这里也这样取）或它骑的实体（最多 4 层）带飞行控制器（`+0x128` 非 0）时，再乘倍数字 / 100。倍数 MCT 可调 1–4、步长 0.25、默认 2，
+  总开关关 ＝ 原版。缓冲区里原来扣血用的 3136 字节保留不用，`dv_brace` 的偏移不变；俯冲记号留着（删它要改十一个俯冲洞的字节）。
+  俯冲协商标记 `FLYDIVE5` → `FLYDIVE6`。
+- **离线核对**：模拟器对照被替换的原字节 30 例（飞兽、骑手链、地面、取实体返回 0、开关、各倍数、会弄乱全部易失寄存器并在栈不对齐时崩的取实体函数、
+  入口标志位），19 个故意改坏的版本全部被抓；安装的游戏主程序里位点恰好一处、原字节相符；续跑偏移一度写成 19（从特征码起算），查加载器
+  （`api.address` 返回的是位点本身）后改成 5，测试钉住；全套测试 293 项通过；包里有 `dv_reflect`、没有 `dv_cost` 与 `dive_cost.lua`；
+  MCT 中文用词在 `local_cn.pack` 里查到（飞行部队 22、冲锋反制 8、阵列齐整 5 处）。
+- **没验证**：没进过游戏（D53，主人令不再测）；剑士这类不带抵御冲锋属性的部队对 `dv_brace` 的效果也没测过
+  （按引擎的算法它们的阵列齐整倍数是 1，`dv_brace` 对它们弱得多或不起作用，未实测）。以前量到俯冲落地那一下引擎常不算冲锋反制（D15-ANALYSIS-1118），
+  加倍主要落在落地后的近战里，量没量过：没有。
+- **页面**（D52、D53）：开头一段加「整队一起落地、已起飞的兵模不被拽回」一句；起飞那条结尾补上不被拽回；冲锋反制那条改成「飞行部队受原版两倍的冲锋反制伤害，
+  在游戏自己的伤害计算里加倍」。英文页随上传上线；中文一栏由主人贴（桌面 `飞兽模组_中文说明.txt`）。
+- **上传**：包建在 `2b531be`，`flyer_dive_takeoff.pack` 14,103,811 字节，sha256 `d898c50ae0cde29ded1b1e5341161265aea26c70925b9ec55c17fdf214e4be30`
+  （与车道建的包相同）；暂存与备份在 `D:/Projects/.worktrees/wh3-flyer-dive/upload-1121b/`（线上原包 14,118,876 字节备份为
+  `flyer_dive_takeoff.live_1121.pack`；本机工坊目录里那份 14,090,541 字节是更早的旧版，另存并注明）。steamcmd `Committing update...Success`，
+  日志里没打印 ManifestID。核对（公开接口，`details_before.json` / `details_after.json`）：`time_updated` 1795274310 → 1795288056；
+  `file_size` 14,232,843 ＝ 包 ＋ 封面 129,032；`hcontent_file` 3595725939344922217 → 1119697623193034384；`visibility` 0；标签 `mod`、`battle`；
+  线上英文说明与仓库逐字相同。

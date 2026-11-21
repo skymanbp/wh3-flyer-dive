@@ -776,3 +776,17 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 - Still owed before the upload: integration of the two branches, a few more fix-on runs for D23, a full-pack smoke in
   game, the changenote and page lines (owner passes them one by one, D19-D21), the D23 explanation and comparison
   picture (D23), then the owner's go-ahead for push and upload.
+
+### D34 · Release texts: the owner writes the text requirements; no upload yet (2026-11-20)
+
+> Owner, 2026-11-20 about 23:00, answering the release questions after the regression (`docs/HISTORY.md`
+> RELEASE-INGAME-1120 on branch `release-1120`):
+> - The D23 comparison picture (top-down paths from the recorder): 「只放更新说明里提一句」
+> - Upload and push now: 「先不更新，我给你文本要求」
+> - The changenote draft and the four page-line changes: not answered.
+
+- No upload, no push, no page change until the owner's text requirements arrive; then the changenote and page lines
+  are rewritten to them and shown again. The picture is not put on the page; the changenote gets one sentence about
+  the pull-back fix instead.
+- Maintainer's assumption for the unanswered items, until the owner's text says otherwise: the changenote draft and the
+  four page-line changes stay drafts, nothing is applied.

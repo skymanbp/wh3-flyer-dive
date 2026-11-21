@@ -2721,3 +2721,19 @@ D27 路线的第 1 步。只读、离线、没开游戏。原文在 `docs/resear
 
 - 同日 17:15 主人的客户端重新上线后补上（`ugc.py`）：三个前置条目 `AddDependency` 都回 1，读回 children
   `[3840651516, 2792731173, 3811098873]`；标签 `SetItemTags` 回 1，公开接口查到 `['mod', 'battle']`，文件大小未变（426,597）。
+
+## LAUNCHER-1121 2026-11-21 晚：官方启动器列不出本模组——缺 CA 的两个键值标签，已补
+
+- **复现**：主人打开官方启动器的模组页，本模组不在（主人确认）。启动器日志 `launcher.log` 记下了它自带的 greenworks（CA 改版）
+  `getModInformation` 返回的原始数据（`[MOD MANAGER] - STEAM DATA RAW`）：237 条，**本模组不在其中**；订阅的 240 个文件夹里
+  被它丢掉 5 个：本模组、`ratling_independent_burst_fix`、`caravan_BJ_dagger`、`dynamic_disasters`，外加一个已删除的条目。
+  （此前以为缺的 Topple、Tenzin FPS 等都在原始数据里，只是启动器的本地表 `moddata.dat` 很久没刷新——主人平时用别的管理器。）
+- **排除的**：Steam 侧正常（客户端订阅列表与「已订阅、按订阅时间倒序」的分页查询都返回本模组，状态 0x5 已订阅已安装；
+  三种匹配类型结果相同）；包头与别人相同（PFH5、类型 3）；游戏 `data/` 里没有同名包；启动器的类别表里有 Battle；不是分页边界。
+- **根因**：经游戏 steam_api64 读条目的键值标签（`ugc.py meta`）：被启动器收录的条目都带 `PACK_NAME`（包名）与
+  `game_version` 589824（memreader Plus、Libra、Altius、Archaon 等 6 个查了都有）；被丢掉的本模组、鼠特林修复、匕首模组一个都没有，
+  Dynamic Disasters 有但版本是 196609。CA 自己的上传器写这两个，steamcmd 不写。
+- **修法**（主人同意）：两个条目经 `ISteamUGC::AddItemKeyValueTag` 补上——主模组 `PACK_NAME=flyer_dive_takeoff.pack`、
+  SFO 子模组 `PACK_NAME=!flyer_dive_takeoff_sfo.pack`，都 `game_version=589824`；`SubmitItemUpdate` 回 1，读回两条都在。
+  公开接口：两条的文件、大小、标签、可见性都没变（主模组 `hcontent_file` 仍是 1119697623193034384）。
+- **没验证**：主人重新打开启动器模组页后两个模组是否出现（待主人看）。`docs/WORKSHOP.md` 第 6 步加了这项核对。

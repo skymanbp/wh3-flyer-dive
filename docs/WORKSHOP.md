@@ -45,6 +45,10 @@ steamcmd 一次成功，此后都用它。
    - `hcontent_file` 与上传时打印的 ManifestID 一致；
    - `visibility` 为 0（公开）；
    - **`tags` 仍有 `mod` 与 `battle`**——steamcmd 不写标签，有一次上传后标签是空的，要补。
+   - **键值标签 `PACK_NAME`（包名，小写）与 `game_version`（`589824`）都在**——官方启动器只列带这两个的条目
+     （LAUNCHER-1121）；steamcmd 不写，新条目一定要补。用 `ugc.py meta` 读、`ugc.py kv` 写。
+   - 需要客户端接口的事（标签、键值标签、前置条目）要在 steamcmd 登录之前做，或等主人的客户端重新上线后做：
+     steamcmd 用同一账号登录会把桌面客户端顶下线（`Session Replaced`）。
 7. **补标签**（只在第 6 步发现标签不对时）：经游戏自带的 `steam_api64.dll` 调 `ISteamUGC::SetItemTags`，只改标签，
    不动文件和说明。回调可能迟迟不回，以第 6 步的公开接口查到为准。
 8. **本地**：把新包放进游戏的 `data/` 和桌面，两份的 sha256 要与第 1 步一致。

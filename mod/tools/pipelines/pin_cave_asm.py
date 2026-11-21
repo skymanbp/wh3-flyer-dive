@@ -187,6 +187,11 @@ PROBES = 64
 UNIT_WINDOW_AT, UNIT_HELD_AT, UNIT_STAMPS_AT, UNIT_DROPPED_AT = 88, 92, 96, 100
 # [D44] pin_repick: restarts counted at +104 (the order re-given to the new main controller)
 REPICK_AT = 104
+# [D46] pin_chargewait: uncharged flyer charge tasks kept from ending on the previous move's finish, counted at +108
+CHARGEWAIT_AT = 108
+T_CHARGED, T_SLOT, SLOT_ENT, T_HOLDER, H_MOVE, M_DONE = 0x80, 0x10, 8, 0x18, 8, 0x10
+E_FLIGHT = 0x128                    # the model's flight controller: non-null only for a flyer
+CW_FRAME = 0x60                     # the update's sub rsp,0x60 (then pop rbx; the caller's return address)
 U_MAIN_CTRL, U_CTRL_N, U_CTRL_LIST, U_QUEUE_MGR = 0x32F8, 0x3294, 0x3298, 0x278
 CTRL_LIST_MAX = 64
 # [D44, REPICK-EXIT-1121] the site is the picker 0x14302a11c's single exit 0x14302a74a (every one of its twelve
@@ -214,7 +219,8 @@ GROUND_PHASE = air_dive_rules.TAKEOFF_UNIT_HOLD_PHASE
 # 8: a unit hit within 3 s keeps every model on the ground at a full countdown (D39); new unit table
 # 9: the order is restarted when the main controller changes because the old one emptied (D44, pin_repick)
 # 10: the restart moved to the picker's exit, so every re-pick restarts (REPICK-EXIT-1121)
-MAGIC = b"FLYPIN10"
+# 11: an uncharged flyer charge task no longer ends on the previous move's finish (D46, pin_chargewait)
+MAGIC = b"FLYPIN11"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -264,13 +270,19 @@ CAVES = {
     # [rsp+0x98]; add rsp,0x40; pop r15
     "pin_repick": ("44 39 BE 88 2F 00 00 75 08 49 8B CD E8 ?? ?? ?? ?? 48 8B 9C 24 98 00 00 00 48 83 C4 40 41 5F",
                    17, "48 8B 9C 24 98 00 00 00", "repick"),
+    # [D46] 0x142f8fff6 in the charge task's update 0x142f8ff54 (task vtable 0x143ad9690 slot 2; rbx = the task):
+    # mov [rbx+0x58],rax; (site) mov rdx,[rbx+0x18]; mov rcx,rbx; add rdx,8; add rsp,0x60; pop rbx;
+    # jmp 0x14325eefc (the base update: ends the task when the model's move object +0x10 == 1). Only the wait
+    # branch 0x142f8ffa0 lands here besides the fall-through, at the site's first byte.
+    "pin_chargewait": ("48 89 43 58 48 8B 53 18 48 8B CB 48 83 C2 08 48 83 C4 60 5B E9", 4,
+                       "48 8B 53 18 48 8B CB 48 83 C2 08", "chargewait"),
 }
 HOLD_NAME, HOLD_RESUME_AT = "pin_hold", 8      # resume at `test al,al`
 # where a cave resumes when it does not fall through to its stolen bytes: site + offset. The regroup caves skip
 # the stolen bytes (13), mov rax,[rcx] (3) and call [rax+0x4f8] (6): 0x142f7f71c / 0x142f8ffda
 REGROUP_SKIP = 13 + 3 + 6
 RESUME_AT = {HOLD_NAME: HOLD_RESUME_AT, "pin_regroup1": REGROUP_SKIP, "pin_regroup2": REGROUP_SKIP,
-             "pin_repick": REPICK_RESUME_AT}
+             "pin_repick": REPICK_RESUME_AT, "pin_chargewait": 11}
 MELEE = 0                                      # the applier's damage type of a melee hit
 TYPE_ARG = 0x30                                # entry rsp offset of the damage type
 # name -> (pattern, what it pins)
@@ -791,8 +803,48 @@ def repick_source(mutate=()):
     """, "repick", mutate)
 
 
+def chargewait_source(mutate=()):
+    """[D46] rbx = the charge task, about to tail-jump into the base update. An uncharged task (+0x80 == 0) of a
+    flyer (the model [[task+0x10]+8] has a flight controller +0x128) whose model's move object
+    [task+0x18]+8 reports finished (+0x10 == 1) returns instead: that finish is the previous move's, the task
+    charges at its due time like its siblings. Everything else runs the stolen bytes and goes on to the base
+    update. Volatile registers only (rax is dead here, rdx / rcx are set by the stolen bytes)."""
+    return _mutated(f"""
+        mov r9, {BUFFER_PLACEHOLDER:#x}
+        mov r10, {RESUME_PLACEHOLDER:#x}
+        cmp dword ptr [r9 + {MODE_AT}], 1
+        jne pass
+        cmp byte ptr [rbx + {T_CHARGED:#x}], 0
+        jne pass
+        mov rax, qword ptr [rbx + {T_SLOT:#x}]
+        test rax, rax
+        jz pass
+        mov rax, qword ptr [rax + {SLOT_ENT}]
+        test rax, rax
+        jz pass
+        cmp qword ptr [rax + {E_FLIGHT:#x}], 0
+        je pass
+        mov rax, qword ptr [rbx + {T_HOLDER:#x}]
+        test rax, rax
+        jz pass
+        cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1
+        jne pass
+        lock inc dword ptr [r9 + {CHARGEWAIT_AT}]
+        add rsp, {CW_FRAME:#x}
+        pop rbx
+        ret
+    pass:
+        mov rdx, qword ptr [rbx + {T_HOLDER:#x}]
+        mov rcx, rbx
+        add rdx, {H_MOVE}
+        jmp r10
+    """, "chargewait", mutate)
+
+
 def cave_source(name, mutate=()):
     role = CAVES[name][3]
+    if role == "chargewait":
+        return chargewait_source(mutate)
     if role == "repick":
         return repick_source(mutate)
     if role == "regroup":
@@ -813,7 +865,8 @@ def layout():
             "regroup_unheld_at": RG_UNHELD_AT,
             "unit_ticks_at": UNIT_WINDOW_AT, "unit_ticks": UNIT_WINDOW, "unit_held_at": UNIT_HELD_AT,
             "unit_stamps_at": UNIT_STAMPS_AT, "unit_dropped_at": UNIT_DROPPED_AT,
-            "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS, "repick_at": REPICK_AT}
+            "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS, "repick_at": REPICK_AT,
+            "chargewait_at": CHARGEWAIT_AT}
 
 
 def source_sha():
@@ -1901,12 +1954,83 @@ def check(mutate=()):
     repick("mode 2", mode=2, want_restart=False)
     repick("the caller that restarts by itself", caller=RESUME + SELF_FROM_RESUME, want_restart=False)
     repick("a caller one byte off the self-restarter", caller=RESUME + SELF_FROM_RESUME + 1)
+    # [D46] pin_chargewait: an uncharged flyer task whose model's move reports finished returns; all else goes on
+    cbegin, csize = m.code["pin_chargewait"]
+    task, holder, model, fc = UNIT + 0x8000, UNIT + 0x9000, UNIT + 0xA000, UNIT + 0xB000
+    slot = UNIT + 0xC000
+    caller_ret = RESUME + 0x800
+
+    def chargewait(label, mode=1, charged=0, flyer=True, done=1, has_slot=True, has_holder=True, want_return=True):
+        from unicorn import UC_HOOK_CODE, UcError
+        x, uc = m.x, m.uc
+        m.reset(mode=mode)
+        uc.mem_write(task + T_CHARGED, struct.pack("<I", charged))
+        uc.mem_write(task + T_SLOT, struct.pack("<Q", slot if has_slot else 0))
+        uc.mem_write(slot + SLOT_ENT, struct.pack("<Q", model))
+        uc.mem_write(model + E_FLIGHT, struct.pack("<Q", fc if flyer else 0))
+        uc.mem_write(task + T_HOLDER, struct.pack("<Q", holder if has_holder else 0))
+        uc.mem_write(holder + H_MOVE + M_DONE, struct.pack("<I", done))
+        m._registers()
+        uc.reg_write(x.UC_X86_REG_RBX, task)
+        sp = STACK + 0x8000
+        uc.mem_write(sp + CW_FRAME, struct.pack("<QQ", 0xB0B0B0B0B0, caller_ret))
+        before = {r: uc.reg_read(r) for r in m.callee_saved if r != x.UC_X86_REG_RBX}
+        seen = []
+
+        def at_resume(mu, _a, _s, _d):
+            seen.append(("resume", mu.reg_read(x.UC_X86_REG_RCX), mu.reg_read(x.UC_X86_REG_RDX),
+                         mu.reg_read(x.UC_X86_REG_RBX), mu.reg_read(x.UC_X86_REG_RSP)))
+            mu.emu_stop()
+
+        def at_caller(mu, _a, _s, _d):
+            seen.append(("returned", mu.reg_read(x.UC_X86_REG_RBX), mu.reg_read(x.UC_X86_REG_RSP)))
+            mu.emu_stop()
+        h1 = uc.hook_add(UC_HOOK_CODE, at_resume, begin=RESUME, end=RESUME)
+        h2 = uc.hook_add(UC_HOOK_CODE, at_caller, begin=caller_ret, end=caller_ret)
+        uc.ctl_flush_tb()          # because hooks added after earlier runs need fresh translation (see stamp())
+        try:
+            uc.emu_start(cbegin, cbegin + csize, count=100_000)
+        except UcError:
+            seen.append("crash")
+        uc.hook_del(h1)
+        uc.hook_del(h2)
+        want = ([("returned", 0xB0B0B0B0B0, sp + CW_FRAME + 16)] if want_return else
+                [("resume", task, (holder if has_holder else 0) + H_MOVE, task, sp)])
+        expect(f"chargewait {label}: where it went", seen, want)
+        expect(f"chargewait {label}: callee-saved registers",
+               all(uc.reg_read(r) == v for r, v in before.items()), True)
+        expect(f"chargewait {label}: counted", m.head(CHARGEWAIT_AT), 1 if want_return else 0)
+
+    chargewait("uncharged flyer, previous move finished")
+    chargewait("already charged", charged=1, want_return=False)
+    chargewait("not a flyer", flyer=False, want_return=False)
+    chargewait("move still running", done=0, want_return=False)
+    chargewait("no task slot", has_slot=False, want_return=False)
+    chargewait("no holder", has_holder=False, want_return=False)
+    chargewait("mode 0", mode=0, want_return=False)
+    chargewait("mode 2", mode=2, want_return=False)
     return failures, count[0]
 
 
 # Source edits that break the rule: the cases above must catch each one.
 MUTANTS = (
     ("repick: restarts when unchanged", "repick", "cmp rax, r13\n        je out", "cmp rax, r13\n        nop"),
+    ("chargewait: charged tasks kept too", "chargewait", f"cmp byte ptr [rbx + {T_CHARGED:#x}], 0\n        jne pass",
+     f"cmp byte ptr [rbx + {T_CHARGED:#x}], 0\n        nop"),
+    ("chargewait: ground units too", "chargewait", f"cmp qword ptr [rax + {E_FLIGHT:#x}], 0\n        je pass",
+     f"cmp qword ptr [rax + {E_FLIGHT:#x}], 0\n        nop"),
+    ("chargewait: a running move kept too", "chargewait",
+     f"cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1\n        jne pass",
+     f"cmp byte ptr [rax + {H_MOVE + M_DONE:#x}], 1\n        nop"),
+    ("chargewait: mode not checked", "chargewait", f"cmp dword ptr [r9 + {MODE_AT}], 1\n        jne pass",
+     f"cmp dword ptr [r9 + {MODE_AT}], 1\n        nop"),
+    ("chargewait: rbx not restored", "chargewait", "pop rbx\n        ret", "pop rax\n        ret"),
+    ("chargewait: frame not dropped", "chargewait", f"add rsp, {CW_FRAME:#x}\n        pop rbx", "nop\n        pop rbx"),
+    ("chargewait: stolen add lost", "chargewait", f"add rdx, {H_MOVE}\n        jmp r10", "nop\n        jmp r10"),
+    ("chargewait: not counted", "chargewait", f"lock inc dword ptr [r9 + {CHARGEWAIT_AT}]", "nop"),
+    ("chargewait: null slot followed", "chargewait",
+     f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n        test rax, rax\n        jz pass",
+     f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n        nop\n        nop"),
     ("repick: the self-restarter restarted twice", "repick",
      f"cmp qword ptr [rsp + {PICK_CALLER_UP + 8:#x}], rdx\n        je out",
      f"cmp qword ptr [rsp + {PICK_CALLER_UP + 8:#x}], rdx\n        nop"),
@@ -2135,7 +2259,7 @@ def site_lua(codes):
         f"        unit_held_at = {lay['unit_held_at']}, unit_stamps_at = {lay['unit_stamps_at']},",
         f"        unit_dropped_at = {lay['unit_dropped_at']},",
         f"        unit_table_at = {lay['unit_table_at']}, unit_slots = {lay['unit_slots']},",
-        f"        repick_at = {lay['repick_at']},",
+        f"        repick_at = {lay['repick_at']}, chargewait_at = {lay['chargewait_at']},",
         "    },",
         "    -- [D44] pin_repick calls the engine's restart and skips the caller that restarts by itself: the found",
         "    -- addresses must be these distances apart",

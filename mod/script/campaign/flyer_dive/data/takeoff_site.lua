@@ -51,6 +51,12 @@ return {
             at = 17, expect = '48 8B 9C 24 98 00 00 00',
             bytes = '49 B9 {buf:8} 49 BA {resume:8} 50 41 83 79 04 01 75 7E 48 8B 86 F8 32 00 00 48 85 C0 74 72 4C 39 E8 74 6D 49 8D 92 AC BB 01 00 48 39 94 24 80 00 00 00 74 5C 83 BE 84 01 00 00 00 74 53 83 BE 88 2F 00 00 00 74 4A 8B 8E 94 32 00 00 83 F9 40 77 3F 48 8B 96 98 32 00 00 48 85 D2 74 33 85 C9 74 2F 48 39 02 74 08 48 83 C2 08 FF C9 EB EF F0 41 FF 41 68 41 52 48 83 EC 20 48 8D 8E 78 02 00 00 4D 8D 9A DE 38 02 00 41 FF D3 48 83 C4 20 41 5A 58 48 8B 9C 24 98 00 00 00 41 FF E2',
         },
+        {
+            name = 'pin_chargewait', feature = 'takeoff', kind = 'cave',
+            pattern = '48 89 43 58 48 8B 53 18 48 8B CB 48 83 C2 08 48 83 C4 60 5B E9',
+            at = 4, expect = '48 8B 53 18 48 8B CB 48 83 C2 08',
+            bytes = '49 B9 {buf:8} 49 BA {resume:8} 41 83 79 04 01 75 3F 80 BB 80 00 00 00 00 75 36 48 8B 43 10 48 85 C0 74 2D 48 8B 40 08 48 85 C0 74 24 48 83 B8 28 01 00 00 00 74 1A 48 8B 43 18 48 85 C0 74 11 80 78 18 01 75 0B F0 41 FF 41 6C 48 83 C4 60 5B C3 48 8B 53 18 48 89 D9 48 83 C2 08 41 FF E2',
+        },
         -- unit +0x184/+0x188 flight entities, entity +0x128 FC
         { name = 'pin_layout_list', feature = 'takeoff', kind = 'anchor',
           pattern = '44 39 B2 84 01 00 00 0F 86 ?? ?? ?? ?? 48 8B 82 88 01 00 00 8B CD 4C 8B 04 C8 49 8B B8 28 01 00 00 48 85 FF' },
@@ -88,12 +94,12 @@ return {
         { name = 'pin_self_restarter', feature = 'takeoff', kind = 'anchor',
           pattern = '48 8B 93 F8 32 00 00 48 85 D2 74 09 80 BA 18 0A 00 00 00 75 05' },
     },
-    caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick' },
-    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8 },
+    caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick', 'pin_chargewait' },
+    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8, pin_chargewait = 11 },
     layout = {
         bytes = 147584, mode_at = 4,
         stamps_at = 8, allowed_at = 12,
-        magic_at = 16, magic = 'FLYPIN10',
+        magic_at = 16, magic = 'FLYPIN11',
         dropped_at = 24, unmatched_at = 28,
         held_at = 32, free_at = 36, unsized_at = 40,
         table_at = 128, table_slots = 8192,
@@ -108,13 +114,13 @@ return {
         unit_held_at = 92, unit_stamps_at = 96,
         unit_dropped_at = 100,
         unit_table_at = 131200, unit_slots = 1024,
-        repick_at = 104,
+        repick_at = 104, chargewait_at = 108,
     },
     -- [D44] pin_repick calls the engine's restart and skips the caller that restarts by itself: the found
     -- addresses must be these distances apart
     distances = { { from = 'pin_repick', to = 'pin_call_restart', bytes = 145638 },
         { from = 'pin_repick', to = 'pin_self_restarter', bytes = 113588 } },
-    format = 326087,
+    format = 181105,
     build = '6ae2a00b',
-    source_sha = '4f9c51e25312a9afede74efdc7f16e4ea4b2bd545969d3a54083cb450fc015b5',
+    source_sha = '2c36f69feea6ec7235616ef391aacbc240e4311fc53b1a6871106e40adeb5e86',
 }

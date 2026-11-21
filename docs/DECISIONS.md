@@ -1151,3 +1151,14 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Shipped: only rows whose key SFO defines in that table, plus the `_dive` weapon clones whose source weapon SFO
   defines. Animation tables, scripts and every other row stay in the main pack; the submod needs both SFO and the
   main pack.
+
+### D58 · Publish the SFO submod; the two pages link each other; look into the official launcher (2026-11-21)
+
+> Owner, 2026-11-21, after reading the drafts: 「1.SFO子模组前置记得加上原先的模组。2.飞行模组本mod和SFO子模组的介绍里都要互相给链接。其他没问题，发吧。另外原版启动器的问题还是查一下吧，毕竟不止一个人说了，尽量看看能不能找到问题」
+
+- The SFO submod's requirements name Flying Charge Overhaul with a link, and the Workshop item lists it (with SFO
+  and memreader Plus) as a required item. The main page gets a line linking the SFO submod; the submod page links
+  the main mod. Both languages.
+- Publish: new Workshop item from the lane's build, cover = the main mod's cover, tags `mod` and `battle` (steamcmd
+  writes none; set afterwards as in FLYER-TAG-1116). The lane merges into `main` and is pushed.
+- The official launcher not listing the mod (several comments): investigate with probes, report the cause.

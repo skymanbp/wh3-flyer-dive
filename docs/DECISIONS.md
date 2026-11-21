@@ -1050,3 +1050,15 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 
 - Time zone taken from the owner's machine (Windows `Eastern Standard Time`): US Eastern Time. Added after the log-file
   line on both pages; the English page goes live with a description-only update, the Chinese slot is pasted by the owner.
+
+### D50 · Later items after D30: licence added, real multiplayer done, slide already solved (2026-11-21)
+
+> Owner, 2026-11-21, on the items left after the release: 「1我们现在是怎么做的？冲锋反制现在怎么对飞行部队造伤的？2我们后来不是解决了吗？我记不清了。5做掉，然后推送。6已经完成，没有问题。」
+
+- Charge Reflection on flyers (answered): D15's dive cost, 10% of each paying model's maximum health once per dive
+  at the front contact with a bracing Charge Reflection soldier (D31/D33, MCT 0-25%), on top of the game's own
+  doubling; the flyer-only factor at `0x142e600af` (D31) is still not built. No ruling on it yet.
+- Slide after a landed charge: already solved on 2026-11-14 (round 3, the 20 m window) and refined on 2026-11-17;
+  `docs/STATUS.md` had it as "not started" by mistake, corrected.
+- Licence: MIT for this repository's own code and documentation (`LICENSE`); game data and third-party parts excluded.
+- Real two-player multiplayer: the owner tested it, no problems.

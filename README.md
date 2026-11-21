@@ -185,3 +185,7 @@ separate main-mod adapter pack.
 * memreader Plus：Druwski（GitHub 名 PKozdra），创意工坊 3811098873，MIT 许可。
 * memreader：Cpecific，MIT 许可；随附的第三方许可见 `third_party_licenses.txt`。
 * 飞行动作与数据属于 Creative Assembly，本模组只改名与重新接线。
+
+## 许可
+
+本仓库自己写的代码与文档按 MIT 许可（`LICENSE`）；游戏数据与资源不在其内，第三方组件保留各自的许可。

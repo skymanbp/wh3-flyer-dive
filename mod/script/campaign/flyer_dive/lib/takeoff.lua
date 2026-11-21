@@ -186,13 +186,19 @@ function M.arm(buf, windows, mode, regroup_off)
     local mr, layout = mr_(), site.layout
     put_u32(buf, layout.mode_at, 0)
     local zeros = string.rep("\0", 1024)
-    local span = layout.table_slots * layout.entry_bytes
-    for off = 0, span - 1, 1024 do
-        mr.write(buf, layout.table_at + off, sub(zeros, 1, math.min(1024, span - off)))
+    -- the model table, then [D39] the unit table (both hold this battle's pointers)
+    for _, t in ipairs({ { layout.table_at, layout.table_slots }, { layout.unit_table_at, layout.unit_slots } }) do
+        if t[1] then
+            local span = t[2] * layout.entry_bytes
+            for off = 0, span - 1, 1024 do
+                mr.write(buf, t[1] + off, sub(zeros, 1, math.min(1024, span - off)))
+            end
+        end
     end
     for _, at in ipairs({ layout.stamps_at, layout.dropped_at, layout.unmatched_at, layout.held_at,
             layout.free_at, layout.unsized_at, layout.regroup_calls_at, layout.regroup_skipped_at,
-            layout.regroup_would_at, layout.regroup_queued_at, layout.regroup_unheld_at }) do
+            layout.regroup_would_at, layout.regroup_queued_at, layout.regroup_unheld_at,
+            layout.unit_held_at, layout.unit_stamps_at, layout.unit_dropped_at }) do
         if at then put_u32(buf, at, 0) end
     end
     if layout.regroup_off_at then put_u32(buf, layout.regroup_off_at, regroup_off and 1 or 0) end
@@ -200,6 +206,7 @@ function M.arm(buf, windows, mode, regroup_off)
     for i = 1, #layout.windows do
         put_u32(buf, layout.windows_at + 4 * (i - 1), use[i] or layout.windows[i])
     end
+    if layout.unit_ticks_at then put_u32(buf, layout.unit_ticks_at, layout.unit_ticks) end
     put_u32(buf, layout.mode_at, mode or 1)
 end
 
@@ -212,7 +219,7 @@ function M.set_allowed(buf, on) put_u32(buf, site.layout.allowed_at, on and 1 or
 function M.allowed(buf) return mr_().read(buf, site.layout.allowed_at, 4) == "\1\0\0\0" end
 
 -- {windows, mode, stamps, dropped, unmatched, held, free, unsized, regroup = {off, calls, skipped, would,
--- queued, unheld} or nil}: the header as it stands.
+-- queued, unheld} or nil, unit = {ticks, held, stamps, dropped} or nil (D39)}: the header as it stands.
 function M.counters(buf)
     local l = site.layout
     local windows = {}
@@ -223,10 +230,15 @@ function M.counters(buf)
             skipped = u32(buf, l.regroup_skipped_at), would = u32(buf, l.regroup_would_at),
             queued = u32(buf, l.regroup_queued_at), unheld = u32(buf, l.regroup_unheld_at) }
     end
+    local unit = nil
+    if l.unit_ticks_at then
+        unit = { ticks = u32(buf, l.unit_ticks_at), held = u32(buf, l.unit_held_at),
+            stamps = u32(buf, l.unit_stamps_at), dropped = u32(buf, l.unit_dropped_at) }
+    end
     return { windows = windows, mode = u32(buf, l.mode_at),
         stamps = u32(buf, l.stamps_at), dropped = u32(buf, l.dropped_at),
         unmatched = u32(buf, l.unmatched_at), held = u32(buf, l.held_at),
-        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup }
+        free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup, unit = unit }
 end
 
 function M.layout() return site and site.layout end

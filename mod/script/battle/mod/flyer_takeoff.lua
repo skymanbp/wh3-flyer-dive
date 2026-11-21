@@ -95,6 +95,8 @@ bm:register_phase_change_callback("Complete", function()
         record(("END melee hits on flyers %d (%d not recorded), answers hold %d / free %d, unknown size %d, unmatched %d"):format(
             c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched)
             .. (rg and (", regroup (D23) skipped %d of %d (would %d, queued %d, no held model %d)"):format(
-                rg.skipped, rg.calls, rg.would, rg.queued, rg.unheld) or ""))
+                rg.skipped, rg.calls, rg.would, rg.queued, rg.unheld) or "")
+            .. (c.unit and (", unit rule (D39) held %d, unit hits %d (%d not recorded), %d ticks"):format(
+                c.unit.held, c.unit.stamps, c.unit.dropped, c.unit.ticks) or ""))
     end)
 end)

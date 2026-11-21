@@ -1598,6 +1598,15 @@ TAKEOFF_PIN_WINDOW_UNKNOWN_SIZE = max(TAKEOFF_PIN_WINDOWS.values())
 # so a 1 still reaches the gate as 1. Only a 0 is ever written over (lock cmpxchg 0 -> 1).
 TAKEOFF_GAP_RAISE_TO = 1
 TAKEOFF_GAP_RAISE_PHASES = (1, 2)       # FC+0x90: 1 on the ground, 2 take-off requested (0x14304cea0)
+# [D39, owner 2026-11-21] Every model of a fighting flying unit waits at least the game's own 3.0 s after the
+# away order, touching an enemy or not; a model hit within its size window still waits that out first.
+# "Fighting" is judged by hits, like D3: a melee hit on any model of the unit within the last
+# TAKEOFF_UNIT_WINDOW ticks. The stamp cave also stamps the unit; while a model is on the ground (flight
+# phase TAKEOFF_UNIT_HOLD_PHASE) the hold cave answers "held" for a unit stamp younger than the window, so the
+# engine keeps the countdown at 30 and the away order starts from a full 3.0 s. After the order (phase 2) only
+# the model's own window holds. / 部队在挨打：地面兵模的倒计时保持满 3 秒，撤离令后每个兵模至少等 3 秒。
+TAKEOFF_UNIT_WINDOW = 30                # ticks; the game's take-off timer (FC+0x44 re-armed to 30)
+TAKEOFF_UNIT_HOLD_PHASE = 1             # FC+0x90 == 1: on the ground, no take-off requested yet
 
 
 def takeoff_pin_window(size):

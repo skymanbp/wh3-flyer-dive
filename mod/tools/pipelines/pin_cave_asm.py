@@ -101,6 +101,16 @@ call runs. Skipping is safe by the bytes: the call's argument [rsp+0x20] is a pl
 counts the would-be skips and lets the call run (the one-pack A/B). Every register and the flags come back
 unchanged on both paths (the skip jumps with push / xchg / ret).
 
+UNIT RULE [D39, owner 2026-11-21, docs/DECISIONS.md D39]: every model of a fighting flying unit waits at least
+the game's 3.0 s after the away order. After its raise the stamp cave re-reads the tick and stamps the unit
+([[entity+0x128]] = the FC's model, its +0x2e8 = the unit: the same path the hold cave takes) into the unit
+table. When the hold cave would answer "free" after looking up the model's own entry (no entry, or older than
+the size window) and the FC's phase (+0x90) is GROUND_PHASE (1: on the ground, no take-off asked), it looks up
+the unit: an entry younger than the header's unit ticks (UNIT_WINDOW = 30) answers "held" (counted twice: the
+hold answers and the unit-rule answers), so the engine keeps re-arming the countdown to 30 while the unit is
+being hit and the away order starts from a full 3.0 s. In phase 2 only the model's own window holds. An FC that
+no living entity carries, or a null link, is not judged by the unit rule (free, as before).
+
 Buffer (game_alloc, little endian), 128-byte header then the table:
   +0  u32 unused (0)             +4  u32 mode: 0 off, 1 the rule, 2 record
   +8  u32 stamps (hits recorded)     only (stamps kept, stock hold; tests)
@@ -115,10 +125,14 @@ Buffer (game_alloc, little endian), 128-byte header then the table:
   +76 u32 would have skipped (regroup_off set)
   +80 u32 airborne, order queue not empty (passed)
   +84 u32 airborne, queue empty, no held model on the ground found (passed)
+  +88 u32 unit ticks (D39, written by Lua)   +92 u32 answers held by the unit rule
+  +96 u32 unit stamps               +100 u32 unit stamps dropped (no free entry in reach)
   +128 TABLE_SLOTS x 16 bytes: u64 flying entity, u32 tick, u32 hits
+  then UNIT_SLOTS x 16 bytes (D39): u64 unit, u32 tick of its last melee hit, u32 hits
 Entry of pointer p: slot ((p>>4) ^ (p>>17) ^ (p>>30)) & (TABLE_SLOTS-1), then
-linear probing, at most PROBES entries. Entries are never freed inside a
-battle; the Lua side clears the table when a battle loads. A hit that finds
+linear probing, at most PROBES entries (a unit: the same slot & (UNIT_SLOTS-1),
+at most UNIT_PROBES). Entries are never freed inside a
+battle; the Lua side clears both tables when a battle loads. A hit that finds
 no entry in reach is dropped (counted), so a full table errs towards "free".
 
 The site table also carries ANCHORS: pieces of the engine's own code that use
@@ -168,12 +182,21 @@ RG_OFF_AT, RG_CALLS_AT, RG_SKIPPED_AT, RG_WOULD_AT, RG_QUEUED_AT, RG_UNHELD_AT =
 TABLE_AT, ENTRY_BYTES = 128, 16
 TABLE_SLOTS = 8192                  # power of two
 PROBES = 64
-BUFFER_BYTES = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
+# [D39] the unit rule: its window (written by Lua), then three counters (ends at 104); the unit table follows
+# the model table (same entry shape: u64 unit, u32 tick of its last melee hit, u32 hits; same hash)
+UNIT_WINDOW_AT, UNIT_HELD_AT, UNIT_STAMPS_AT, UNIT_DROPPED_AT = 88, 92, 96, 100
+UNIT_TABLE_AT = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
+UNIT_SLOTS = 1024                   # power of two; flying units in one battle
+UNIT_PROBES = 64
+BUFFER_BYTES = UNIT_TABLE_AT + UNIT_SLOTS * ENTRY_BYTES
+UNIT_WINDOW = air_dive_rules.TAKEOFF_UNIT_WINDOW
+GROUND_PHASE = air_dive_rules.TAKEOFF_UNIT_HOLD_PHASE
 # 2: +40 single-model window (§C8-78); 3: renamed (RENAME-1118); 4: per model by body size (D3)
 # 5: the stamp cave raises a 0 countdown before lift-off (D11, gapfix-1118)
 # 6: the regroup caves skip the engine's charge for an airborne model of an idle unit with held models (D23)
 # 7: every size window one second longer (D37); cave bytes unchanged, the windows the buffer carries changed
-MAGIC = b"FLYPINS7"
+# 8: a unit hit within 3 s keeps every model on the ground at a full countdown (D39); new unit table
+MAGIC = b"FLYPINS8"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -272,6 +295,11 @@ ANCHORS = {
 def slot_of(pointer):
     """The caves' home slot of an entity pointer."""
     return ((pointer >> 4) ^ (pointer >> 17) ^ (pointer >> 30)) & (TABLE_SLOTS - 1)
+
+
+def unit_slot_of(pointer):
+    """[D39] The caves' home slot of a unit pointer in the unit table."""
+    return slot_of(pointer) & (UNIT_SLOTS - 1)
 
 
 def _mutated(text, kind, mutate):
@@ -421,6 +449,44 @@ def stamp_source(mutate=()):
         mov edx, {RAISE_TO}
         lock cmpxchg dword ptr [r8 + {COUNT_OFF:#x}], edx
     raise_done:
+    unit_stamp:
+        {_tick("rcx", "r8d", "done")}
+        mov rax, qword ptr [rcx + {FC_OFF:#x}]
+        mov rax, qword ptr [rax]
+        test rax, rax
+        jz unit_done
+        mov r9, qword ptr [rax + {UNIT_OFF:#x}]
+        test r9, r9
+        jz unit_done
+        lock inc dword ptr [r10 + {UNIT_STAMPS_AT}]
+        {_hash("r9", "rax", "rdx")}
+        and eax, {UNIT_SLOTS - 1}
+        mov r11d, eax
+        mov ecx, {UNIT_PROBES}
+    uprobe:
+        mov edx, r11d
+        shl rdx, 4
+        lea rdx, [r10 + rdx + {UNIT_TABLE_AT}]
+        mov rax, [rdx]
+        cmp rax, r9
+        je uwrite
+        test rax, rax
+        jnz unext
+        lock cmpxchg [rdx], r9
+        je uwrite
+        cmp rax, r9
+        je uwrite
+    unext:
+        inc r11d
+        and r11d, {UNIT_SLOTS - 1}
+        dec ecx
+        jnz uprobe
+        lock inc dword ptr [r10 + {UNIT_DROPPED_AT}]
+        jmp unit_done
+    uwrite:
+        mov dword ptr [rdx + 8], r8d
+        lock inc dword ptr [rdx + 12]
+    unit_done:
     done:
         pop r11
         pop r10
@@ -483,17 +549,51 @@ def hold_source(mutate=()):
         cmp [rdx], rcx
         je hit
         cmp qword ptr [rdx], 0
-        je free
+        je own_free
         inc eax
         and eax, {TABLE_SLOTS - 1}
         dec r11d
         jnz look
-        jmp free
+        jmp own_free
     hit:
         mov eax, r8d
         sub eax, dword ptr [rdx + 8]
         cmp eax, r10d
+        jae own_free
+        lock inc dword ptr [r9 + {HELD_AT}]
+        mov eax, 1
+        jmp resume
+    own_free:
+        cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}
+        jne free
+        mov rcx, [rbx]
+        test rcx, rcx
+        jz free
+        mov rcx, [rcx + {UNIT_OFF:#x}]
+        test rcx, rcx
+        jz free
+        {_hash("rcx", "rax", "r11")}
+        and eax, {UNIT_SLOTS - 1}
+        mov r11d, {UNIT_PROBES}
+    ulook:
+        mov edx, eax
+        shl rdx, 4
+        lea rdx, [r9 + rdx + {UNIT_TABLE_AT}]
+        cmp [rdx], rcx
+        je uhit
+        cmp qword ptr [rdx], 0
+        je free
+        inc eax
+        and eax, {UNIT_SLOTS - 1}
+        dec r11d
+        jnz ulook
+        jmp free
+    uhit:
+        mov eax, r8d
+        sub eax, dword ptr [rdx + 8]
+        cmp eax, dword ptr [r9 + {UNIT_WINDOW_AT}]
         jae free
+        lock inc dword ptr [r9 + {UNIT_HELD_AT}]
         lock inc dword ptr [r9 + {HELD_AT}]
         mov eax, 1
         jmp resume
@@ -622,7 +722,10 @@ def layout():
             "size_codes": dict(sorted(SIZE_CODES.items())), "size_at": SIZE_OFF,
             "regroup_off_at": RG_OFF_AT, "regroup_calls_at": RG_CALLS_AT, "regroup_skipped_at": RG_SKIPPED_AT,
             "regroup_would_at": RG_WOULD_AT, "regroup_queued_at": RG_QUEUED_AT,
-            "regroup_unheld_at": RG_UNHELD_AT}
+            "regroup_unheld_at": RG_UNHELD_AT,
+            "unit_ticks_at": UNIT_WINDOW_AT, "unit_ticks": UNIT_WINDOW, "unit_held_at": UNIT_HELD_AT,
+            "unit_stamps_at": UNIT_STAMPS_AT, "unit_dropped_at": UNIT_DROPPED_AT,
+            "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS}
 
 
 def source_sha():
@@ -717,10 +820,11 @@ class Machine:
         self.reset()
 
     # -- the battle's memory
-    def reset(self, windows=WINDOWS, mode=1):
+    def reset(self, windows=WINDOWS, mode=1, unit_window=UNIT_WINDOW):
         self.uc.mem_write(BUF, bytes(BUFFER_BYTES))
         self.uc.mem_write(BUF + MODE_AT, struct.pack("<I", mode))
         self.uc.mem_write(BUF + WINDOWS_AT, struct.pack("<5I", *windows))
+        self.uc.mem_write(BUF + UNIT_WINDOW_AT, struct.pack("<I", unit_window))
         self.uc.mem_write(BUF + MAGIC_AT, MAGIC)
         self.uc.mem_write(OBJ, bytes(0x40000))
         self.uc.mem_write(FCS, bytes(FCS_BYTES))
@@ -820,6 +924,24 @@ class Machine:
         table = bytes(self.uc.mem_read(BUF + TABLE_AT, TABLE_SLOTS * ENTRY_BYTES))
         return sum(1 for key, _tick, _hits in struct.iter_unpack("<QII", table) if key)
 
+    # -- [D39] the unit table
+    def put_unit(self, unit, tick, hits=0, slot=None):
+        if slot is None:
+            slot = unit_slot_of(unit)
+            while self.unit_raw(slot)[0] not in (0, unit):
+                slot = (slot + 1) % UNIT_SLOTS
+        self.uc.mem_write(BUF + UNIT_TABLE_AT + ENTRY_BYTES * slot,
+                          struct.pack("<QII", unit, tick & 0xFFFFFFFF, hits))
+        return slot
+
+    def unit_raw(self, slot):
+        return struct.unpack("<QII", self.uc.mem_read(BUF + UNIT_TABLE_AT + ENTRY_BYTES * slot, ENTRY_BYTES))
+
+    def units(self):
+        """{slot: (unit, tick, hits)} of every used unit entry (a scan, independent of the hash)."""
+        table = bytes(self.uc.mem_read(BUF + UNIT_TABLE_AT, UNIT_SLOTS * ENTRY_BYTES))
+        return {i: e for i, e in enumerate(struct.iter_unpack("<QII", table)) if e[0]}
+
     def head(self, at):
         return struct.unpack("<I", self.uc.mem_read(BUF + at, 4))[0]
 
@@ -861,6 +983,10 @@ class Machine:
                     state["done"] = True
             hooks = [uc.hook_add(UC_HOOK_MEM_READ, on_read), uc.hook_add(UC_HOOK_CODE, on_code,
                                                                           begin=begin, end=begin + size)]
+            # code translated by earlier runs carries no instrumentation for a code hook added now, so the
+            # rewrite could be skipped and a cave that overwrites the engine's value would pass (measured
+            # 2026-11-21 after the D39 unit stamp changed the cave's blocks): flush the translation cache
+            uc.ctl_flush_tb()
         try:
             uc.emu_start(begin, begin + size, count=100_000)
         except UcError:                       # a fault is a failed case, not a crashed check
@@ -873,12 +999,13 @@ class Machine:
                 "flags": (uc.reg_read(x.UC_X86_REG_EFLAGS) & 0xFFF) == FLAGS,
                 "rearmed": state["done"]}
 
-    def hold(self, living, asker, count=None, fc_model=True, unit=True, array=True, fc=None):
+    def hold(self, living, asker, count=None, fc_model=True, unit=True, array=True, fc=None, phase=None):
         """The hold cave for the flight controller of ``asker`` (an entity
         made by ``model``; ``fc`` = another FC address instead), in a unit
         whose living flight entities are ``living`` (addresses; ``count``
         overrides the list length). ``fc_model=False``: the FC's model field
-        is null; ``unit=False``: the model's unit is null."""
+        is null; ``unit=False``: the model's unit is null. ``phase``: the FC's
+        flight phase (+0x90) to write first (None: leave it; a fresh FC reads 0)."""
         from unicorn import UC_HOOK_CODE, UcError
         x, uc = self.x, self.uc
         begin, size = self.code[HOLD_NAME]
@@ -886,10 +1013,13 @@ class Machine:
         fc_at = self.fc_of[asker] if fc is None else fc
         uc.mem_write(fc_at, struct.pack("<Q", asker if fc_model else 0))
         uc.mem_write(asker + UNIT_OFF, struct.pack("<Q", UNIT if unit else 0))
+        if phase is not None:
+            uc.mem_write(fc_at + PHASE_OFF - 4, b"\x5a" * 12)    # neighbours non-zero: a wrong offset shows
+            uc.mem_write(fc_at + PHASE_OFF, struct.pack("<I", phase & 0xFFFFFFFF))
         self.living(living, count, array)
         uc.reg_write(x.UC_X86_REG_RBX, fc_at)
         before = {r: uc.reg_read(r) for r in self.callee_saved}
-        heads = (STAMPS_AT, DROPPED_AT, HELD_AT, FREE_AT, UNMATCHED_AT, UNSIZED_AT)
+        heads = (STAMPS_AT, DROPPED_AT, HELD_AT, FREE_AT, UNMATCHED_AT, UNSIZED_AT, UNIT_HELD_AT)
         counters = tuple(self.head(h) for h in heads)
         landed = []
 
@@ -1169,15 +1299,67 @@ def check(mutate=()):
         m.stamp(MELEE, 40, flyer, site)
         expect(tag + "raise twice: countdown", m.countdown(flyer), RAISE_TO)
 
+        # [D39] the unit stamp: every recorded melee hit also stamps the flyer's unit
+        for kind, dmg, want in ((MELEE, 40, True), (1, 40, False), (6, 40, False), (MELEE, 0, False)):
+            m.reset(); m.now(1200)
+            flyer = m.model(1)
+            clean(f"{tag}unit stamp kind={kind} dmg={dmg}", m.stamp(kind, dmg, flyer, site))
+            expect(f"{tag}unit stamp kind={kind} dmg={dmg}: entry", m.units(),
+                   {unit_slot_of(UNIT): (UNIT, 1200, 1)} if want else {})
+            expect(f"{tag}unit stamp kind={kind} dmg={dmg}: counted", m.head(UNIT_STAMPS_AT), int(want))
+        m.reset(); m.now(1200)
+        mount = m.model(2)
+        rider = m.model(1, fc=False, parent=2, unit=0)
+        clean(tag + "unit stamp through a rider", m.stamp(MELEE, 40, rider, site))
+        expect(tag + "unit stamp through a rider: the mount's unit", m.units(), {unit_slot_of(UNIT): (UNIT, 1200, 1)})
+        m.reset(); m.now(1200)
+        flyer = m.model(1)
+        m.stamp(MELEE, 40, flyer, site)
+        m.stamp(MELEE, 40, m.model(2), site)
+        m.now(1210)
+        clean(tag + "unit stamp repeat", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp repeat: one entry, newest tick, three hits", m.units(),
+               {unit_slot_of(UNIT): (UNIT, 1210, 3)})
+        m.reset(); m.now(1200)
+        flyer = m.model(1, unit=0)
+        clean(tag + "unit stamp: null unit", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp: null unit: model stamped, no unit", (m.find(flyer), m.units()),
+               ([(slot_of(flyer), 1200, 1)], {}))
+        m.reset(); m.now(1200)
+        flyer = m.model(1)
+        m.uc.mem_write(m.fc_of[flyer], struct.pack("<Q", 0))            # the FC's model field null
+        clean(tag + "unit stamp: null FC model", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp: null FC model: no unit", m.units(), {})
+        m.reset(); m.now(1200)
+        flyer = m.model(1)
+        other_unit = 0x4C5D6E7F00
+        m.put_unit(other_unit, 7)
+        clean(tag + "unit stamp beside another unit", m.stamp(MELEE, 40, flyer, site))
+        expect(tag + "unit stamp beside another unit: both kept", sorted(m.units().values()),
+               sorted([(UNIT, 1200, 1), (other_unit, 7, 0)]))
+        for far, landed in ((3, True), (UNIT_PROBES - 1, True), (UNIT_PROBES, False)):
+            m.reset(); m.now(1200)
+            flyer = m.model(1)
+            home = unit_slot_of(UNIT)
+            for k in range(far):
+                m.put_unit(0x7100000000 + k, 5, slot=(home + k) % UNIT_SLOTS)
+            clean(f"{tag}unit stamp {far} past home", m.stamp(MELEE, 40, flyer, site))
+            expect(f"{tag}unit stamp {far} past home: entry",
+                   m.unit_raw((home + far) % UNIT_SLOTS) if landed else (m.head(UNIT_DROPPED_AT), len(m.units())),
+                   (UNIT, 1200, 1) if landed else (1, UNIT_PROBES))
+
     # ---- hold cave ----------------------------------------------------------
     def hold_case(name, sizes, ask, struck, now, want, windows=WINDOWS, mode=1, extra=(),
-                  unmatched=0, unsized=0, **kw):
+                  unmatched=0, unsized=0, unit_struck=None, unit_extra=(), unit_window=UNIT_WINDOW,
+                  unit_held=0, **kw):
         """A unit of len(``sizes``) flying entities (body sizes or raw codes), the
         one at index ``ask`` asking; ``struck`` = {index: tick}; ``extra`` =
         [(pointer, tick)] entries of other entities; ``want`` = 1 hold / 0 free /
-        None pass-through. kw: list = the living list as indices (None = a null
-        entry), asker_in_list, big, and the hold() / now() knobs."""
-        m.reset(windows=windows, mode=mode)
+        None pass-through. [D39] ``unit_struck`` = the tick of this unit's entry (None: none),
+        ``unit_extra`` = [(unit pointer, tick)] of other units, ``unit_held`` = the expected
+        unit-rule count. kw: list = the living list as indices (None = a null
+        entry), asker_in_list, big, and the hold() / now() knobs (phase among them)."""
+        m.reset(windows=windows, mode=mode, unit_window=unit_window)
         m.now(now, battle=kw.pop("battle", True), ticks=kw.pop("ticks", True))
         big = kw.pop("big", False)
         ents = [m.model(None, at=(BIG + BIG_STRIDE * i) if big else model_at(1 + i), size=s)
@@ -1188,16 +1370,74 @@ def check(mutate=()):
             m.put(ents[i], tick)
         for entity, tick in extra:
             m.put(entity, tick)
+        if unit_struck is not None:
+            m.put_unit(UNIT, unit_struck)
+        for unit, tick in unit_extra:
+            m.put_unit(unit, tick)
         r = m.hold(living, ents[ask], **kw)
         expect(f"hold {name}: where", r["where"], "through" if want is None else "resume")
         expect(f"hold {name}: callee-saved registers", r["callee-saved"], True)
         expect(f"hold {name}: rsp", r["rsp"], True)
         if want is None:
-            expect(f"hold {name}: counters", r["counters"], (0, 0, 0, 0, 0, 0))
+            expect(f"hold {name}: counters", r["counters"], (0, 0, 0, 0, 0, 0, 0))
         else:
             expect(f"hold {name}: al", r["al"], want)
             expect(f"hold {name}: counters", r["counters"],
-                   (0, 0, want, 1 - want, unmatched, unsized))
+                   (0, 0, want, 1 - want, unmatched, unsized, unit_held))
+
+    # [D39] the unit rule: a unit hit within UNIT_WINDOW ticks holds its models on the ground (phase 1)
+    uw = UNIT_WINDOW
+    for phase in range(0, 5):
+        on_ground = phase == GROUND_PHASE
+        hold_case(f"unit struck this tick, phase {phase}", ["medium"] * 4, 1, {}, 1000, int(on_ground),
+                  unit_struck=1000, phase=phase, unit_held=int(on_ground))
+        hold_case(f"unit struck {uw - 1} ago, phase {phase}", ["medium"] * 4, 1, {}, 1000, int(on_ground),
+                  unit_struck=1000 - (uw - 1), phase=phase, unit_held=int(on_ground))
+        hold_case(f"unit struck {uw} ago, phase {phase}", ["medium"] * 4, 1, {}, 1000, 0,
+                  unit_struck=1000 - uw, phase=phase)
+        hold_case(f"unit never struck, phase {phase}", ["medium"] * 4, 1, {}, 1000, 0, phase=phase)
+    for size in BODY_SIZES_IN_ORDER:
+        hold_case(f"unit rule for a {size} model", [size], 0, {}, 1000, 1, unit_struck=999, phase=GROUND_PHASE,
+                  unit_held=1)
+    hold_case("own window holds first (not counted as the unit rule)", ["medium"] * 4, 1, {1: 999}, 1000, 1,
+              unit_struck=999, phase=GROUND_PHASE)
+    hold_case("own window holds in phase 2 without the unit rule", ["medium"] * 4, 1, {1: 999}, 1000, 1,
+              unit_struck=999, phase=2)
+    hold_case("own window expired, unit struck: held by the unit", ["medium"] * 4, 1,
+              {1: 1000 - WINDOW_OF["medium"]}, 1000, 1, unit_struck=995, phase=GROUND_PHASE, unit_held=1)
+    others_u = _keys(6, base=0x3B2C1D0E0)
+    hold_case("other units struck, this one not", ["medium"] * 4, 1, {}, 1000, 0, phase=GROUND_PHASE,
+              unit_extra=[(u, 999) for u in others_u])
+    hold_case("this unit struck among other units", ["medium"] * 4, 1, {}, 1000, 1, phase=GROUND_PHASE,
+              unit_struck=999, unit_extra=[(u, 999) for u in others_u], unit_held=1)
+    hold_case("unit window 0 from the buffer: never", ["medium"], 0, {}, 1000, 0, phase=GROUND_PHASE,
+              unit_struck=1000, unit_window=0)
+    hold_case("unit window 50 from the buffer: 49 ago", ["medium"], 0, {}, 1000, 1, phase=GROUND_PHASE,
+              unit_struck=951, unit_window=50, unit_held=1)
+    hold_case("unit stamp ahead of now", ["medium"], 0, {}, 1000, 0, phase=GROUND_PHASE, unit_struck=1001)
+    hold_case("unit rule: tick wrap", ["medium"], 0, {}, 3, 1, phase=GROUND_PHASE, unit_struck=0xFFFFFFFE,
+              unit_held=1)
+    hold_case("unit rule: null unit", ["medium"], 0, {}, 1000, 0, phase=GROUND_PHASE, unit_struck=999,
+              unit=False)
+    hold_case("unit rule: unmatched FC is not judged", ["medium"] * 4, 0, {}, 1000, 0, phase=GROUND_PHASE,
+              unit_struck=999, list=[1, 2, 3], unmatched=1)
+    hold_case("unit rule: mode 2 passes through", ["medium"], 0, {}, 1000, None, phase=GROUND_PHASE,
+              unit_struck=999, mode=2)
+    # unit entries away from home, wrap-around, the probe budget, an empty home
+    for far, want in ((3, 1), (UNIT_PROBES - 1, 1), (UNIT_PROBES, 0)):
+        m.reset(); m.now(1000)
+        ent = m.model(1)
+        home = unit_slot_of(UNIT)
+        for k in range(far):
+            m.put_unit(0x7100000000 + k, 5, slot=(home + k) % UNIT_SLOTS)
+        m.put_unit(UNIT, 995, slot=(home + far) % UNIT_SLOTS)
+        r = m.hold([ent], ent, phase=GROUND_PHASE)
+        expect(f"hold unit entry {far} past home: al", (r["where"], r["al"]), ("resume", want))
+    m.reset(); m.now(1000)
+    ent = m.model(1)
+    m.put_unit(UNIT, 995, slot=(unit_slot_of(UNIT) + 1) % UNIT_SLOTS)
+    r = m.hold([ent], ent, phase=GROUND_PHASE)
+    expect("hold unit entry behind an empty home is not found: al", (r["where"], r["al"]), ("resume", 0))
 
     # the four windows, at the edge, one model of each size alone
     for size in BODY_SIZES_IN_ORDER:
@@ -1350,6 +1590,22 @@ def check(mutate=()):
     expect("gap: countdown raised", m.countdown(ents[1]), RAISE_TO)
     m.now(5001)
     expect("gap: the next question is held", m.hold(ents, ents[1])["al"], 1)
+    # [D39] stamp -> hold through the unit table: one rider hit, every model of the unit on the ground held
+    m.reset(); m.now(6000)
+    ents, victims = unit_of(range(1, 9), riders=True)
+    m.stamp(MELEE, 30, victims[0])
+    for i in (3, 7):
+        expect(f"unit round trip: unstruck model {i} on the ground held",
+               m.hold(ents, ents[i], phase=GROUND_PHASE)["al"], 1)
+        expect(f"unit round trip: unstruck model {i} after the order free", m.hold(ents, ents[i], phase=2)["al"], 0)
+    m.now(6000 + UNIT_WINDOW - 1)
+    expect("unit round trip: last tick of the unit window", m.hold(ents, ents[5], phase=GROUND_PHASE)["al"], 1)
+    m.now(6000 + UNIT_WINDOW)
+    expect("unit round trip: the unit window over", m.hold(ents, ents[5], phase=GROUND_PHASE)["al"], 0)
+    m.stamp(6, 30, victims[2])                              # a charge's collision attack does not stamp the unit
+    m.stamp(1, 30, victims[2])                              # nor a ranged hit
+    expect("unit round trip: non-melee hits do not hold the unit", m.hold(ents, ents[5], phase=GROUND_PHASE)["al"], 0)
+    expect("unit round trip: unit stamps", m.head(UNIT_STAMPS_AT), 1)
     # a ridden unit uses its mount's size, not the rider's (D3): a medium mount under a small
     # rider, struck 2 ticks past the medium window (still inside the small one)
     m.reset(); m.now(4000)
@@ -1494,8 +1750,8 @@ def check(mutate=()):
 
 # Source edits that break the rule: the cases above must catch each one.
 MUTANTS = (
-    ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae free",
-     "cmp eax, r10d\n        ja free"),
+    ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae own_free",
+     "cmp eax, r10d\n        ja own_free"),
     ("the size code used as the index without -1", "hold", "dec eax\n", "nop\n"),
     ("no bound on the size code", "hold", "jbe sized", "jmp sized"),
     ("an unknown size frees", "hold", "mov eax, 4\n", "jmp free\n"),
@@ -1510,10 +1766,42 @@ MUTANTS = (
     ("null list entries followed", "hold", "jz own_next", "nop"),
     ("unmatched FCs not counted", "hold", f"lock inc dword ptr [r9 + {UNMATCHED_AT}]", "nop"),
     ("mode 2 answers", "hold", "jne passthrough", "je passthrough"),
-    ("no probe limit on the lookup", "hold", "jnz look\n        jmp free",
-     "jmp look\n        jmp free"),
-    ("the lookup does not stop at an empty entry", "hold", "je free\n        inc eax",
+    ("no probe limit on the lookup", "hold", "jnz look\n        jmp own_free",
+     "jmp look\n        jmp own_free"),
+    ("the lookup does not stop at an empty entry", "hold", "je own_free\n        inc eax",
      "nop\n        inc eax"),
+    # [D39] the unit rule
+    ("unit rule in every phase", "hold", f"cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}\n        jne free",
+     f"cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}\n        nop"),
+    ("unit rule in phase 2 instead", "hold", f"cmp dword ptr [rbx + {PHASE_OFF:#x}], {GROUND_PHASE}\n",
+     f"cmp dword ptr [rbx + {PHASE_OFF:#x}], 2\n"),
+    ("phase read from the countdown", "hold", f"cmp dword ptr [rbx + {PHASE_OFF:#x}]",
+     f"cmp dword ptr [rbx + {COUNT_OFF:#x}]"),
+    ("unit rule dropped", "hold", "    own_free:\n", "    own_free:\n        jmp free\n"),
+    ("unit window's last tick counts", "hold", f"cmp eax, dword ptr [r9 + {UNIT_WINDOW_AT}]\n        jae free",
+     f"cmp eax, dword ptr [r9 + {UNIT_WINDOW_AT}]\n        ja free"),
+    ("unit window read from the wrong field", "hold", f"[r9 + {UNIT_WINDOW_AT}]", f"[r9 + {WINDOWS_AT}]"),
+    ("unit looked up in the model table", "hold", f"lea rdx, [r9 + rdx + {UNIT_TABLE_AT}]",
+     f"lea rdx, [r9 + rdx + {TABLE_AT}]"),
+    ("unit lookup does not stop at an empty entry", "hold", "je free\n        inc eax", "nop\n        inc eax"),
+    ("unit lookup without a probe limit", "hold", "jnz ulook\n        jmp free", "jmp ulook\n        jmp free"),
+    ("unit rule not counted", "hold", f"lock inc dword ptr [r9 + {UNIT_HELD_AT}]", "nop"),
+    ("unit rule answers free", "hold", f"lock inc dword ptr [r9 + {UNIT_HELD_AT}]\n        lock inc dword ptr "
+     f"[r9 + {HELD_AT}]\n        mov eax, 1", f"lock inc dword ptr [r9 + {UNIT_HELD_AT}]\n        lock inc dword ptr "
+     f"[r9 + {HELD_AT}]\n        mov eax, 0"),
+    ("unit key read from the model, not its unit", "hold", f"mov rcx, [rcx + {UNIT_OFF:#x}]\n        test rcx, rcx\n"
+     f"        jz free\n", "nop\n"),
+    ("unit stamp skipped", "stamp", "    unit_stamp:\n", "    unit_stamp:\n        jmp unit_done\n"),
+    ("unit stamp written to the model table", "stamp", f"lea rdx, [r10 + rdx + {UNIT_TABLE_AT}]",
+     f"lea rdx, [r10 + rdx + {TABLE_AT}]"),
+    ("unit stamp keyed by the model", "stamp", f"mov r9, qword ptr [rax + {UNIT_OFF:#x}]", "mov r9, rax"),
+    ("unit stamp keeps the first tick", "stamp", "    uwrite:\n        mov dword ptr [rdx + 8], r8d\n",
+     "    uwrite:\n        nop\n"),
+    ("unit stamp without a probe limit", "stamp", "jnz uprobe", "jmp uprobe"),
+    ("unit stamp drops not counted", "stamp", f"lock inc dword ptr [r10 + {UNIT_DROPPED_AT}]", "nop"),
+    ("unit stamps not counted", "stamp", f"lock inc dword ptr [r10 + {UNIT_STAMPS_AT}]", "nop"),
+    ("unit hashed differently by the two caves", "stamp", "and eax, " + str(UNIT_SLOTS - 1) + "\n        mov r11d, eax",
+     "xor eax, 1\n        and eax, " + str(UNIT_SLOTS - 1) + "\n        mov r11d, eax"),
     ("the two caves hash differently", "hold", "shr rdx, 17", "shr rdx, 16"),
     ("zero-damage hits recorded", "stamp", "jle done", "jl done"),
     ("non-melee damage recorded", "stamp", "jne done\n        cmp r8d, 0",
@@ -1621,6 +1909,9 @@ def site_lua(codes):
         "-- [D23, 2026-11-20] Two more caves in the engine's charge-task handlers: an",
         "-- airborne model of a unit with no order in its queue is not sent back to",
         "-- charge beside a model of its unit held on the ground by the rule above.",
+        "-- [D39, 2026-11-21] The stamp cave also stamps the unit; a model on the ground",
+        "-- of a unit hit in melee within `layout.unit_ticks` ticks is held, so every",
+        "-- model waits at least the game's 3 s after the away order.",
         "-- / 每个飞行兵模按自己的体型，最近 N 秒内近战挨打才被按在地上：两个代码洞与",
         "--   锚点的位点表、缓冲区布局（生成物）。另两个洞：部队没有命令时，已起飞的兵模",
         "--   不再被引擎拉回被按住的兵模身边冲锋（D23）。",
@@ -1658,6 +1949,10 @@ def site_lua(codes):
         f"        regroup_off_at = {lay['regroup_off_at']}, regroup_calls_at = {lay['regroup_calls_at']},",
         f"        regroup_skipped_at = {lay['regroup_skipped_at']}, regroup_would_at = {lay['regroup_would_at']},",
         f"        regroup_queued_at = {lay['regroup_queued_at']}, regroup_unheld_at = {lay['regroup_unheld_at']},",
+        f"        unit_ticks_at = {lay['unit_ticks_at']}, unit_ticks = {lay['unit_ticks']},",
+        f"        unit_held_at = {lay['unit_held_at']}, unit_stamps_at = {lay['unit_stamps_at']},",
+        f"        unit_dropped_at = {lay['unit_dropped_at']},",
+        f"        unit_table_at = {lay['unit_table_at']}, unit_slots = {lay['unit_slots']},",
         "    },",
         f"    format = {agreement_format()},",
         f"    build = '{BUILD}',",

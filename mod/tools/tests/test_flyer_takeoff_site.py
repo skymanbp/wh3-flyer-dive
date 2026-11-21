@@ -76,7 +76,7 @@ class SiteTable(unittest.TestCase):
         self.assertEqual(lines.count(f"        windows = {{ {windows} }},"), 1)
         self.assertEqual(lines.count(
             "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
-        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS7',"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS8',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
         self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
 

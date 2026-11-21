@@ -163,6 +163,18 @@ mr.write(buf, l.regroup_skipped_at, mr.uint32(3))
 takeoff.arm(buf)
 c = takeoff.counters(buf)
 print(string.format("ARM_ON mode=%d off=%d skipped=%d", c.mode, c.regroup.off, c.regroup.skipped))
+-- [D39] the unit rule: arm writes its ticks, clears its counters and its whole table
+local last = l.unit_table_at + (l.unit_slots - 1) * l.entry_bytes
+mr.write(buf, l.unit_table_at, mr.uint32(0x5a5a5a5a))
+mr.write(buf, last + 8, mr.uint32(1234))
+mr.write(buf, l.unit_held_at, mr.uint32(5))
+mr.write(buf, l.unit_stamps_at, mr.uint32(6))
+mr.write(buf, l.unit_dropped_at, mr.uint32(7))
+mr.write(buf, l.unit_ticks_at, mr.uint32(0))
+takeoff.arm(buf)
+c = takeoff.counters(buf)
+print(string.format("UNIT ticks=%d held=%d stamps=%d dropped=%d first=%d last=%d", c.unit.ticks, c.unit.held,
+    c.unit.stamps, c.unit.dropped, mem[buf + l.unit_table_at] or 0, mem[buf + last + 8] or 0))
 """
 
 
@@ -195,6 +207,11 @@ class LuaInstall(unittest.TestCase):
         out = self.run_lua("new")
         self.assertIn("ARM_OFF mode=1 off=1 calls=0 skipped=0", out)
         self.assertIn("ARM_ON mode=1 off=0 skipped=0", out)
+
+    def test_arm_writes_the_unit_ticks_and_clears_the_unit_table(self):
+        """[D39] Without the ticks the unit rule never holds; a stale table would hold a new battle's unit."""
+        out = self.run_lua("new")
+        self.assertIn(f"UNIT ticks={air_dive_rules.TAKEOFF_UNIT_WINDOW} held=0 stamps=0 dropped=0 first=0 last=0", out)
 
 
 if __name__ == "__main__":

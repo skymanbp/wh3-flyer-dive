@@ -35,7 +35,7 @@ Multiplayer campaign/battle supported.
 
 [h2]Notes[/h2]
 Each battle writes three small log files to the game folder (flyer_dive.txt, flyer_takeoff.txt, flyer_breath.txt). Include them when you report a problem.
-Time zone: US Eastern Time (ET). I'll try to reply to comments as soon as I can.
+Time zone: US Eastern Time (EST). I'll try to reply to comments as soon as I can.
 
 [h2]Credits[/h2]
 [list]

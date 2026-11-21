@@ -83,7 +83,7 @@ class SiteTable(unittest.TestCase):
 
     def test_caves_resume_and_layout(self):
         self.assertIn("caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick' },", self.text)
-        self.assertIn("resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 7 },", self.text)
+        self.assertIn("resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8 },", self.text)
         self.assertIn("regroup_off_at = 64, regroup_calls_at = 68,", self.text)
         self.assertIn("regroup_skipped_at = 72, regroup_would_at = 76,", self.text)
         self.assertIn("regroup_queued_at = 80, regroup_unheld_at = 84,", self.text)
@@ -106,8 +106,8 @@ local MOD, FORM = arg[1], arg[2]
 package.path = MOD .. "/?.lua;" .. package.path
 local mem, next_alloc = {}, 0x10000000
 local addresses = { pin_stamp = 0x14325a9c4, pin_hold = 0x143053cfb, pin_regroup1 = 0x142f7f706,
-                    pin_regroup2 = 0x142f8ffc4, pin_repick = 0x143049400,
-                    pin_call_restart = 0x14304e030 }   -- [D44]
+                    pin_regroup2 = 0x142f8ffc4, pin_repick = 0x14302a74a,
+                    pin_call_restart = 0x14304e030, pin_self_restarter = 0x1430462fe }   -- [D44]
 local installed, given_seen = {}, nil
 local mr = {}
 function mr.game_alloc(n) local a = next_alloc; next_alloc = next_alloc + 0x100000; return a end
@@ -210,7 +210,7 @@ class LuaInstall(unittest.TestCase):
 
     def test_each_cave_gets_its_own_resume(self):
         out = self.run_lua("new")
-        self.assertIn(f"GIVEN pin_repick buf=yes resume={0x143049407:X}", out)     # [D44]
+        self.assertIn(f"GIVEN pin_repick buf=yes resume={0x14302a752:X}", out)     # [D44, REPICK-EXIT-1121]
         self.assertIn("GIVEN pin_stamp buf=yes resume=none", out)
         self.assertIn(f"GIVEN pin_hold buf=yes resume={0x143053cfb + 8:X}", out)
         self.assertIn(f"GIVEN pin_regroup1 buf=yes resume={0x142f7f71c:X}", out)

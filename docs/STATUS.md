@@ -154,7 +154,7 @@ D15 做进去之后的包（主管 2026-11-18 夜从工作树重建）：`D:/Pro
 - 包在 `D:/Projects/.worktrees/wh3-flyer-dive/regroup-1119/scratch/packs/fix/`：正式包 sha256 `3bd3c288…e95d`，测试包 `pin_record_fix1.pack` `b907e259…1c28`。
 - 欠的实机 A/B：`owed_runs.txt` 末尾四局 `rg_fix_on1 rg_fix_off1 rg_fix_on2 rg_fix_off2`（同一对包，关＝记录器 `regroup 0`；判据在 HISTORY 同名一节）。
 - 怪步拦截 4 局：只有长戟兵那局（`rg_o_m2b`）拉回 3 个；巨魔、铁腹的 3 局严格口径都是 0。
-- 并进 `main` 时 `CLAUDE.md` 里的「现为起飞 `FLYPINS5`」要改成 `FLYPINS9`（`release-1120` 上已改；D23 时是 `FLYPINS6`，D37 `FLYPINS7`，D39 `FLYPINS8`，D44 `FLYPINS9`）。
+- 并进 `main` 时 `CLAUDE.md` 里的「现为起飞 `FLYPINS5`」要改成 `FLYPIN10`（`release-1120` 上已改；D23 时是 `FLYPINS6`，D37 `FLYPINS7`，D39 `FLYPINS8`，D44 `FLYPINS9`，补发挪到出口后 `FLYPIN10`）。
 
 以下是 2026-11-19 的记录：
 

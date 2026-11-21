@@ -56,13 +56,16 @@ return {
         -- the order restart 0x14304e030 pin_repick calls
         { name = 'pin_call_restart', feature = 'takeoff', kind = 'anchor',
           pattern = '48 83 EC 28 83 B9 10 2D 00 00 00 74 1A 8B 81 14 2D 00 00' },
+        -- the one picker caller that restarts the order itself (pin_repick skips it)
+        { name = 'pin_self_restarter', feature = 'takeoff', kind = 'anchor',
+          pattern = '48 8B 93 F8 32 00 00 48 85 D2 74 09 80 BA 18 0A 00 00 00 75 05' },
     },
     caves = { 'pin_stamp', 'pin_hold', 'pin_tick' },
     hold = 'pin_hold', resume_at = 8,
     layout = {
         bytes = 1196224, mode_at = 4,
         stamps_at = 8, allowed_at = 12,
-        magic_at = 16, magic = 'FLYPINT9',
+        magic_at = 16, magic = 'FLYPIT10',
         dropped_at = 24, unmatched_at = 28,
         held_at = 32, free_at = 36, unsized_at = 40,
         table_at = 128, table_slots = 8192,
@@ -77,8 +80,8 @@ return {
         trace_on_at = 147584, trace_count_at = 147588,
         trace_ring_at = 147648, trace_entry = 32, trace_slots = 32768,
     },
-    format = 257293,
+    format = 1033397,
     build = '6ae2a00b',
-    source_sha = '3ed0b7ebcf83b52367a8c192237b11b1bad2f7271e942106ce3e91a276bc5e12',
+    source_sha = 'fc4b3ec1fb44cd49d793d14e4596bbc8c41b7b621245bd3b79b4f8bbf8c887e8',
     trace = true,
 }

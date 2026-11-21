@@ -59,14 +59,14 @@ class SiteTable(unittest.TestCase):
         want = ([(n, pin_cave_asm.FEATURE, "cave") for n in pin_cave_asm.CAVES]
                 + [(n, pin_cave_asm.FEATURE, "anchor") for n in pin_cave_asm.ANCHORS])
         self.assertEqual(named, want)
-        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (5, 11))   # [D44] + pin_repick, + pin_call_restart
+        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (5, 12))   # [D44] + pin_repick, + pin_call_restart
 
     def test_owner_feature_hold_and_window(self):
         # whole lines of the table's top level (an entry repeats the feature inline)
         lines = self.text.splitlines()
         for line in (f"    owner = '{air_dive_rules.TAKEOFF_OWNER}',",
                      f"    feature = '{air_dive_rules.TAKEOFF_FEATURE}',",
-                     "    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 7 },",
+                     "    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8 },",
                      f"    build = '{air_dive_rules.TAKEOFF_BUILD}',"):
             with self.subTest(line=line):
                 self.assertEqual(lines.count(line), 1)
@@ -76,7 +76,7 @@ class SiteTable(unittest.TestCase):
         self.assertEqual(lines.count(f"        windows = {{ {windows} }},"), 1)
         self.assertEqual(lines.count(
             "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
-        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPINS9',"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPIN10',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
         self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
 

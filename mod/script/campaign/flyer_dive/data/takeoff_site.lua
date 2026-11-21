@@ -47,9 +47,9 @@ return {
         },
         {
             name = 'pin_repick', feature = 'takeoff', kind = 'cave',
-            pattern = '83 7B 24 00 75 4F 48 8B 87 F8 32 00 00 48 3B D8 75 14 48 8B CF E8 ?? ?? ?? ?? 48 8B 87 F8 32 00 00 48 3B D8 74 2F',
-            at = 26, expect = '48 8B 87 F8 32 00 00',
-            bytes = '48 8B 87 F8 32 00 00 49 B9 {buf:8} 49 BA {resume:8} 41 83 79 04 01 75 68 48 85 C0 74 63 48 39 D8 74 5E 83 BF 84 01 00 00 00 74 55 83 BF 88 2F 00 00 00 74 4C 8B 8F 94 32 00 00 83 F9 40 77 41 48 8B 97 98 32 00 00 48 85 D2 74 35 85 C9 74 31 48 39 02 74 08 48 83 C2 08 FF C9 EB EF F0 41 FF 41 68 50 41 52 48 83 EC 20 48 8D 8F 78 02 00 00 4D 8D 9A 29 4C 00 00 41 FF D3 48 83 C4 20 41 5A 58 41 FF E2',
+            pattern = '44 39 BE 88 2F 00 00 75 08 49 8B CD E8 ?? ?? ?? ?? 48 8B 9C 24 98 00 00 00 48 83 C4 40 41 5F',
+            at = 17, expect = '48 8B 9C 24 98 00 00 00',
+            bytes = '49 B9 {buf:8} 49 BA {resume:8} 50 41 83 79 04 01 75 7E 48 8B 86 F8 32 00 00 48 85 C0 74 72 4C 39 E8 74 6D 49 8D 92 AC BB 01 00 48 39 94 24 80 00 00 00 74 5C 83 BE 84 01 00 00 00 74 53 83 BE 88 2F 00 00 00 74 4A 8B 8E 94 32 00 00 83 F9 40 77 3F 48 8B 96 98 32 00 00 48 85 D2 74 33 85 C9 74 2F 48 39 02 74 08 48 83 C2 08 FF C9 EB EF F0 41 FF 41 68 41 52 48 83 EC 20 48 8D 8E 78 02 00 00 4D 8D 9A DE 38 02 00 41 FF D3 48 83 C4 20 41 5A 58 48 8B 9C 24 98 00 00 00 41 FF E2',
         },
         -- unit +0x184/+0x188 flight entities, entity +0x128 FC
         { name = 'pin_layout_list', feature = 'takeoff', kind = 'anchor',
@@ -84,13 +84,16 @@ return {
         -- the order restart 0x14304e030 pin_repick calls
         { name = 'pin_call_restart', feature = 'takeoff', kind = 'anchor',
           pattern = '48 83 EC 28 83 B9 10 2D 00 00 00 74 1A 8B 81 14 2D 00 00' },
+        -- the one picker caller that restarts the order itself (pin_repick skips it)
+        { name = 'pin_self_restarter', feature = 'takeoff', kind = 'anchor',
+          pattern = '48 8B 93 F8 32 00 00 48 85 D2 74 09 80 BA 18 0A 00 00 00 75 05' },
     },
     caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick' },
-    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 7 },
+    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8 },
     layout = {
         bytes = 147584, mode_at = 4,
         stamps_at = 8, allowed_at = 12,
-        magic_at = 16, magic = 'FLYPINS9',
+        magic_at = 16, magic = 'FLYPIN10',
         dropped_at = 24, unmatched_at = 28,
         held_at = 32, free_at = 36, unsized_at = 40,
         table_at = 128, table_slots = 8192,
@@ -107,9 +110,11 @@ return {
         unit_table_at = 131200, unit_slots = 1024,
         repick_at = 104,
     },
-    -- [D44] pin_repick calls the engine's restart: the two found addresses must be this far apart
-    distances = { { from = 'pin_repick', to = 'pin_call_restart', bytes = 19504 } },
-    format = 1027110,
+    -- [D44] pin_repick calls the engine's restart and skips the caller that restarts by itself: the found
+    -- addresses must be these distances apart
+    distances = { { from = 'pin_repick', to = 'pin_call_restart', bytes = 145638 },
+        { from = 'pin_repick', to = 'pin_self_restarter', bytes = 113588 } },
+    format = 326087,
     build = '6ae2a00b',
-    source_sha = 'fac24267c703bd740514bacd27a247623efc56de9d7dca7e117d73888b8e978a',
+    source_sha = '4f9c51e25312a9afede74efdc7f16e4ea4b2bd545969d3a54083cb450fc015b5',
 }

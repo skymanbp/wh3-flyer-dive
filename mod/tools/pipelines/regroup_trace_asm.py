@@ -83,7 +83,8 @@ OWNER, FEATURE = "regroup_trace", "regroup_trace"
 SITE_REQUIRE = "script/regroup_trace/regroup_trace_site"
 MAGIC = b"RGTRACE1"
 MODE_AT, MAGIC_AT, COUNT_AT, CALLS_AT = 0, 8, 16, 24
-RING_AT, SLOTS, ENTRY = 64, 16384, 128
+# [D42] the ring starts at 128: twelve per-kind call counters from CALLS_AT (24) end at 72, past the old 64
+RING_AT, SLOTS, ENTRY = 128, 16384, 128
 BYTES = RING_AT + SLOTS * ENTRY
 BUF = 0x1122334455667788
 FC_ENTITY, FC_STAGE = 0, 0x90
@@ -113,6 +114,13 @@ POP_KIND = 10
 # the clear-queue loop 0x142f4641c (push rbx; sub rsp, 0x20) pops through call -> return 0x142f46436; its own
 # caller's return address then sits 0x30 above the pop's entry rsp: logged at ext +64 (0 for any other caller)
 POP_CLEAR_RET, POP_CLEAR_UP = 0x142F46436, 0x30
+# [D42] rt_done: rbx = the top-level attack behaviour (vtable 0x143acd1b0, update 0x142f62344), [rbx+8] = its unit,
+# [unit+0x32f8] = the main controller; ctrl +0xa08 / +0x928 (0x142d6e9bc: busy when a08 == 1 and 928 == 0), +0x24 its
+# entity count; unit +0x3294 the number of controllers. rt_pick: rcx = the unit at the picker 0x14302a11c's entry.
+# Entry (both): +0 rbx / rcx, +8 unit, +16 the behaviour's vtable (rt_done) / the caller (rt_pick), +32 main
+# controller, +40 controller count, +48 / +52 / +56 ctrl a08 / 928 / 24 (rt_done; NONE32 without a controller).
+DONE_KIND, PICK_KIND = 11, 12
+B_UNIT, U_MAIN, U_NCTRL, C_A08, C_928, C_N = 8, 0x32F8, 0x3294, 0xA08, 0x928, 0x24
 
 # name: (pattern, at, stolen bytes (whole instructions, no relative operand), exe address of the site)
 SITES = {
@@ -140,9 +148,14 @@ SITES = {
                   "48 89 5C 24 08 48 89 74 24 10", 0x143077C68),
     "rt_pop": ("40 53 48 83 EC 20 8B 81 04 2D 00 00 48 8B D9", 0,
                "40 53 48 83 EC 20 8B 81 04 2D 00 00", 0x142F5C180),
+    "rt_done": ("48 8B 4B 08 48 8B 89 F8 32 00 00 E8 49 C4 E0 FF 34 01 88 43 18", 0,
+                "48 8B 4B 08 48 8B 89 F8 32 00 00", 0x142F62563),
+    "rt_pick": ("48 89 5C 24 20 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 4C 8B A9 F8 32 00 00 45 33 FF", 0,
+                "48 89 5C 24 20 55 56 57 41 54", 0x14302A11C),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
-        "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND}
+        "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
+        "rt_done": DONE_KIND, "rt_pick": PICK_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -166,6 +179,39 @@ def _mktask_aux():
     for i in range(P_QWORDS):
         s += [f"mov rax, qword ptr [rdx + {8 * i:#x}]", f"mov qword ptr [r11 + {EXT + 8 * i}], rax"]
     return "\n    ".join(s) + "\nnoparams:"
+
+
+def _done_aux():
+    """[D42] rt_done's fields (rbx = the behaviour); rax rcx rdx only."""
+    return f"""mov qword ptr [r11 + 32], 0
+    mov rax, qword ptr [rbx]
+    mov qword ptr [r11 + 16], rax
+    mov rdx, qword ptr [rbx + {B_UNIT}]
+    mov qword ptr [r11 + 8], rdx
+    test rdx, rdx
+    jz done_end
+    mov eax, dword ptr [rdx + {U_NCTRL:#x}]
+    mov qword ptr [r11 + 40], rax
+    mov rcx, qword ptr [rdx + {U_MAIN:#x}]
+    mov qword ptr [r11 + 32], rcx
+    test rcx, rcx
+    jz done_end
+    mov eax, dword ptr [rcx + {C_A08:#x}]
+    mov dword ptr [r11 + 48], eax
+    mov eax, dword ptr [rcx + {C_928:#x}]
+    mov dword ptr [r11 + 52], eax
+    mov eax, dword ptr [rcx + {C_N:#x}]
+    mov dword ptr [r11 + 56], eax
+done_end:"""
+
+
+def _pick_aux():
+    """[D42] rt_pick's fields (rcx = the unit)."""
+    return f"""mov qword ptr [r11 + 8], rcx
+    mov eax, dword ptr [rcx + {U_NCTRL:#x}]
+    mov qword ptr [r11 + 40], rax
+    mov rax, qword ptr [rcx + {U_MAIN:#x}]
+    mov qword ptr [r11 + 32], rax"""
 
 
 def _pop_aux():
@@ -212,11 +258,13 @@ def source(name, mutate=None):
     task = kind in TASK_KINDS
     ent = {1: "mov rax, qword ptr [rcx]", 2: "mov rax, qword ptr [rcx]",
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
-           6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax"}.get(kind) or (
+           6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
+           PICK_KIND: "xor eax, eax"}.get(kind) or (
         f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
         f"    mov rax, qword ptr [rax + {SLOT_ENT}]")
-    guard = "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND) else (
-        "test rbx, rbx\n    jz noent" if task else "nop")
+    guard = ("test rbx, rbx\n    jz noent" if kind == DONE_KIND else
+             "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else (
+        "test rbx, rbx\n    jz noent" if task else "nop"))
     aux = {1: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
            2: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
            3: f"mov rax, qword ptr [rcx + {CMD_TARGET:#x}]\n    mov qword ptr [r11 + 40], rax",
@@ -224,7 +272,8 @@ def source(name, mutate=None):
            5: f"mov rax, qword ptr [rsp + {PUSHES * 8 + 8}]\n    mov qword ptr [r11 + 32], rax\n"
               f"    mov rax, qword ptr [rsp + {PUSHES * 8 + 16}]\n    mov qword ptr [r11 + 40], rax",
            6: f"mov rax, qword ptr [rsp + {PUSHES * 8 + 8}]\n    mov qword ptr [r11 + 40], rax",
-           7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux()}[kind]
+           7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux(),
+           DONE_KIND: _done_aux(), PICK_KIND: _pick_aux()}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
@@ -235,9 +284,10 @@ def source(name, mutate=None):
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
-    pre = "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND) else ("test rbx, rbx\n    jz done" if task else "nop")
+    pre = "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
+        "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
-    me = "rbx" if task else "rcx"                                     # +0: the task itself at the task sites
+    me = "rbx" if task or kind == DONE_KIND else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
     ret = PUSHES * 8 + (HANDLER_RET if task else 0)                   # mid-function: the handler's return address
     s = f"""
     pushfq
@@ -526,6 +576,59 @@ def _check_one(name, code):
     return fails
 
 
+def _check_ctrl(name, code):
+    """[D42] rt_done / rt_pick on a synthetic unit with a main controller (and without one, and with a null
+    behaviour unit for rt_done); mode 0; every register and the flags back; the whole entry checked."""
+    fails = []
+    beh, unit, ctrl = OBJ + 0x10000, OBJ + 0x20000, OBJ + 0x40000
+    beh_vt = 0x143ACD1B0
+    kind = KIND[name]
+    for label, mode, has_ctrl, has_unit in (("normal", 1, True, True), ("no controller", 1, False, True),
+                                            ("no unit", 1, True, False), ("off", 0, True, True)):
+        if name == "rt_pick" and not has_unit:
+            continue
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            _put(mu, beh, "<Q", beh_vt)
+            _put(mu, beh + B_UNIT, "<Q", unit if has_unit else 0)
+            _put(mu, unit + U_MAIN, "<Q", ctrl if has_ctrl else 0)
+            _put(mu, unit + U_NCTRL, "<I", 2)
+            _put(mu, ctrl + C_A08, "<I", 1)
+            _put(mu, ctrl + C_928, "<I", 5)         # non-zero: a read one field off shows
+            _put(mu, ctrl + C_N, "<I", 13)
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", RET))
+            regs = {"rbx": beh, "rcx": 0x6161, "rsp": rsp} if name == "rt_done" else {"rcx": unit, "rsp": rsp}
+            try:
+                changed = _run(mu, code, regs, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"{name} {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            if changed:
+                fails.append(f"{name} {label}: registers changed {changed}")
+            if mode == 0:
+                if written or any(entry):
+                    fails.append(f"{name} {label}: logged in mode 0")
+                continue
+            if name == "rt_done":
+                me, u, third = beh, (unit if has_unit else 0), beh_vt
+                main = ctrl if (has_unit and has_ctrl) else 0
+                n = 2 if has_unit else 0
+                a, b, c = (1, 5, 13) if (has_unit and has_ctrl) else (NONE32, NONE32, NONE32)
+            else:
+                me, u, third = unit, unit, RET
+                main, n, (a, b, c) = (ctrl if has_ctrl else 0), 2, (NONE32, NONE32, NONE32)
+            exp = struct.pack("<QQQIIQQIIII", me, u, third, 0, kind, main, n, a, b, c, 8)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or entry != exp:
+                fails.append(f"{name} {label}: written {written} entry {entry.hex()} want {exp.hex()}")
+    return fails
+
+
 def _check_pop(code, mutated=False):
     """[D42] rt_pop on a synthetic unit: ring at unit+0x288 (unit at [ring-0x10]), head, the popped order (vtable,
     flag), the override stack; plus head out of range, no override, override count out of range, a null unit,
@@ -613,7 +716,8 @@ def check(mutate=None, which=None):
             continue
         try:
             code = assemble(name, mutate if which == name else None)
-            fails += _check_pop(code) if name == "rt_pop" else _check_one(name, code)
+            fails += (_check_pop(code) if name == "rt_pop" else
+                      _check_ctrl(name, code) if name in ("rt_done", "rt_pick") else _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -630,6 +734,13 @@ MUTANTS = (
     ("rt_pop", "mov dword ptr [r11 + 28], 10", "mov dword ptr [r11 + 28], 9"),
     ("rt_pop", "mov rax, qword ptr [rsp + 104]", "mov rax, qword ptr [rsp + 96]"),
     ("rt_pop", "cmp rax, rdx\n    jne pop_noclear", "cmp rax, rdx\n    nop"),
+    ("rt_done", "mov rcx, qword ptr [rdx + 0x32f8]", "mov rcx, qword ptr [rdx + 0x32f0]"),
+    ("rt_done", "mov eax, dword ptr [rcx + 0xa08]", "mov eax, dword ptr [rcx + 0xa0c]"),
+    ("rt_done", "mov eax, dword ptr [rcx + 0x928]", "mov eax, dword ptr [rcx + 0x92c]"),
+    ("rt_done", "mov rdx, qword ptr [rbx + 8]", "mov rdx, qword ptr [rbx + 0x10]"),
+    ("rt_done", "test rcx, rcx\n    jz done_end", "nop\n    nop"),
+    ("rt_pick", "mov rax, qword ptr [rcx + 0x32f8]", "mov rax, qword ptr [rcx + 0x3300]"),
+    ("rt_pick", "mov eax, dword ptr [rcx + 0x3294]", "mov eax, dword ptr [rcx + 0x3290]"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),
     ("rt_land", "mov rax, qword ptr [rsp + 56]", "mov rax, qword ptr [rsp + 48]"),

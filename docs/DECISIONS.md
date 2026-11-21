@@ -790,3 +790,22 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   the pull-back fix instead.
 - Maintainer's assumption for the unanswered items, until the owner's text says otherwise: the changenote draft and the
   four page-line changes stay drafts, nothing is applied.
+
+### D35 · Release text and the recorded comparison (2026-11-20)
+
+> Owner, 2026-11-20 about 23:10, in this repository's session:
+>
+> 「1.新的“不被拉回”对比图需要实机录制，用奸奇神选长戟做地面目标，巨龙马做飞行单位。
+> 2.mod文本描述不要此地无银三百两。跟原先保持一致，只说“显著增加了冲锋反制伤害”、“不那么likely冲穿高冲锋抗性部队”，等等。其余改动同理，只说正向事实，不要打补丁式叙述。
+> 3.只更新英文，中文页面分开的，需要我手动去黏贴。
+> 4.我们更新完成后，就允许主mod实机测试。
+> 5.更新文本改好之后给我看。包括跟现有文本的对比。」
+
+- The pull-back comparison (D23) is recorded in game: Tzeentch Chosen with halberds as the ground target, the "巨龙马"
+  flyer as the flying unit (unit keys to be read from the game data, not guessed), fix off vs on, same scene.
+- Page and changenote text: same style as the live page; positive facts only (e.g. "significantly more Charge
+  Reflection damage", "less likely to plough through units with high charge resistance"); no fix-style or
+  defensive sentences. Only the English text is written for upload; the Chinese page is pasted by the owner.
+- The new text is shown to the owner with a comparison against the live text before anything is uploaded.
+- Once this version is uploaded and closed out, the main mod's session may run its in-game tests (supersedes the
+  hold in D33 at that point).

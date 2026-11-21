@@ -20,6 +20,9 @@
 --                    who flips its unit's stay-down flag. Needs the pack built with build_pin_on_hit_probe.py
 --                    --regroup-trace (the site table script/regroup_trace/regroup_trace_site); without it a FAIL
 --                    line is written and the record goes on without the G lines.
+--   regroup <0|1>    default 1 [D23, REGROUP-FIX-1120]; 0 = the take-off caves' regroup part only counts what it
+--                    would skip and lets the engine's charge run (the one-pack A/B; the shipped scripts never
+--                    turn it off). Its counters go into the S lines (rg_*).
 --   trace <0|1>      default 0; 1 = also write the T lines [d10-1118]. Needs the traced caves
 --                    (a pack built with build_pin_on_hit_probe.py --trace-from); with the shipped
 --                    caves it writes a FAIL line and records without the trace.
@@ -116,7 +119,10 @@
 --                                 id when no living flight entity carries it; uid "?"
 --                                 then); a tick that cannot be read is -1
 --   S <ms> <tick> stamps=<n> dropped=<n> held=<n> free=<n> unsized=<n> unmatched=<n>
---     used=<entries> stray=<n>[ trace=<entries> trace_lost=<n>]
+--     used=<entries> stray=<n>[ rg_off=<0|1> rg_calls=<n> rg_skipped=<n> rg_would=<n> rg_queued=<n>
+--     rg_unheld=<n>][ trace=<entries> trace_lost=<n>]
+--                                 rg_*: [D23] the regroup caves' counters (pin_cave_asm.py), when the
+--                                 take-off caves carry them
 --                                 every 2 s; stray = entries that never were
 --                                 in a flyer's list
 --   END | FAIL <why>
@@ -156,7 +162,8 @@ local function id_of(p)
 end
 
 local function read_cfg(defaults)
-    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0, track = 0, calls = 0 }
+    local cfg = { window = 0, mode = 1, sample = SAMPLE_MS, entities = 0, trace = 0, track = 0, calls = 0,
+        regroup = 1 }
     local f = io.open(CFG_FILE, "r")
     if not f then return cfg end
     for line in f:lines() do
@@ -543,6 +550,9 @@ local function sample()
         local c = takeoff.counters(buffer)
         emit(fmt("S %d %d stamps=%d dropped=%d held=%d free=%d unsized=%d unmatched=%d used=%d stray=%d",
             ms, now, c.stamps, c.dropped, c.held, c.free, c.unsized, c.unmatched, used, stray)
+            .. (c.regroup and fmt(" rg_off=%d rg_calls=%d rg_skipped=%d rg_would=%d rg_queued=%d rg_unheld=%d",
+                c.regroup.off, c.regroup.calls, c.regroup.skipped, c.regroup.would, c.regroup.queued,
+                c.regroup.unheld) or "")
             .. (trace and fmt(" trace=%d trace_lost=%d", trace.seen, trace.lost) or ""))
     end
     flush()
@@ -574,7 +584,7 @@ local function start()
     else
         for _, w in ipairs(layout.windows) do window = math.max(window, w) end
     end
-    takeoff.arm(buffer, windows, cfg.mode)
+    takeoff.arm(buffer, windows, cfg.mode, cfg.regroup == 0)
     with_entities = cfg.entities == 1
     with_tracks = cfg.track == 1
     if cfg.calls == 1 then
@@ -588,7 +598,8 @@ local function start()
     end
     emit(fmt("BATTLE %s window=%d mode=%d table=%d sample=%d entities=%d", stamp, cfg.window, cfg.mode,
         layout.table_slots, cfg.sample, cfg.entities) .. (cfg.trace == 1 and " trace=1" or "")
-        .. (cfg.track == 1 and " track=1" or "") .. (cfg.calls == 1 and " calls=1" or ""))
+        .. (cfg.track == 1 and " track=1" or "") .. (cfg.calls == 1 and " calls=1" or "")
+        .. (cfg.regroup == 0 and " regroup=0" or ""))
     if cfg.trace == 1 then
         if not layout.trace_ring_at then
             emit("FAIL trace 1 asked, but the take-off caves in the game carry no trace "

@@ -571,6 +571,24 @@ The answer below was given to the owner on 2026-11-17; he raised no objection.
   side that is attacked must not have guard mode switched on. The harness now sets guard mode off explicitly for
   every flyer and every target and writes each unit's behaviour state at the start and at every re-attack
   (`mod/tools/pipelines/air_dive_autotest.lua`, `guard_on=<0|1>`); no earlier run of today recorded it.
+- **2026-11-20 evening, the fix (maintainer's technical route under D23 and D30; not an owner ruling).** Measured
+  (`docs/HISTORY.md` D23-TASK-1120 and REGROUP-FIX-1120): the pull-back is the engine's per-model charge task
+  (handlers `0x142f7f600` / `0x142f8ff54`) handing an airborne model the charge command while its unit's order queue
+  is empty (`unit +0x2f88` = 0); every player order seen had one order in the queue. Route:
+  - Where: in the two task handlers, just before their call into the charge command (`0x142f7f706` / `0x142f8ffc4`;
+    the call `[vtable + 0x4f8]` returns to `0x142f7f71c` / `0x142f8ffda`). Not the landing request: skipping only the
+    landing would leave the charge command in place and the model would still fly to its target. Skipping the call
+    is safe by the bytes: what it is given is a plain copy on the handler's stack (`0x142da511c` copies fields, no
+    reference count), nothing after the call reads its result, and the handler then marks the task done
+    (`mov byte [rbx+0x80],1`) as it does after the call, so the engine makes its next task as before.
+  - When (all must hold, else the original call runs unchanged): the take-off rule is on (mode 1); the model is
+    airborne (`+0x104` = 2); its unit's order queue is empty; another living flight model of the same unit is on the
+    ground (`+0x104` = 0) and held by D3 (struck in melee within its own size window). So a player's order (queue not
+    empty), a model on the ground, and a unit with no held model are untouched.
+  - On whenever the take-off rule is on (there is no take-off switch in MCT); counted in the take-off caves' buffer
+    and written to `flyer_takeoff.txt` at battle end. A test-only word in the same buffer turns only this part off,
+    for an A/B with one pack (the recorder's `regroup 0`); the shipped scripts never write it.
+  - Multiplayer: the take-off agreement marker becomes `FLYPINS6`.
 
 ### D24 · The two local docs commits are pushed (2026-11-19)
 

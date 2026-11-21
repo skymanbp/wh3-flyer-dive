@@ -65,8 +65,9 @@ load order; that is stated, not solved.
 
 * [AIR-DIVE-TAKEOFF-W1 2026-11-12] the take-off-from-melee rule scripts
   (``takeoff_entries``: [D3] a flying model struck in melee within the last
-  N seconds, N by its body size, cannot take off; memreader Plus is a declared
-  prerequisite).
+  N seconds, N by its body size, cannot take off; [D23] an airborne model of a unit
+  with no order is not pulled back to a model of its unit held on the ground;
+  memreader Plus is a declared prerequisite).
 * [AIR-DIVE-MP-DIVE-W1 2026-11-12] the physics dive scripts
   (``dive_rule_entries``: the ground handoff -- slot 104 and, where the table
   has a 484, slot 489 removed, jump_attack_chance 0, no plough clip -- plus
@@ -286,11 +287,16 @@ DIVE_SCRIPTS = (
 
 def takeoff_entries(mod_dir=MOD_DIR, game_dir=GAME_DIR):
     """The take-off scripts (with the shared lib/cave_common); refuses a site table that was not generated
-    from the current cave sources, and an installed game that does not hold
-    every cave site and field anchor exactly once."""
+    from the current cave sources, an installed game that does not hold
+    every cave site and field anchor exactly once, and [D23] one whose charge-task
+    handlers do not decode the way the regroup caves rely on (capstone)."""
     import pin_cave_asm
     pin_cave_asm.check_site_file(mod_dir)
-    pin_cave_asm.check_exe(Path(game_dir).parent / "Warhammer3.exe")
+    exe = Path(game_dir).parent / "Warhammer3.exe"
+    pin_cave_asm.check_exe(exe)
+    decoded = pin_cave_asm.decode_check(exe)
+    if decoded:
+        raise SystemExit("[air_dive_minimod] REFUSING: " + "; ".join(decoded))
     out = []
     for rel in TAKEOFF_SCRIPTS:
         disk = mod_dir / rel

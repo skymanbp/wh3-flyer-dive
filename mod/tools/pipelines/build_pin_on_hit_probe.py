@@ -123,7 +123,12 @@ def main(argv=None):
         if not args.record:
             raise SystemExit("[pin_probe] REFUSING: --regroup-trace is read by the recorder, it needs --record")
         import regroup_trace_asm
-        site_text, report = regroup_trace_asm.build_site()
+        exclude = ()
+        if args.rule:       # [REGROUP-FIX-1120] a tracer site the shipped take-off caves hold is left out
+            import pin_cave_asm
+            taken = set(pin_cave_asm.check_exe(Path(mini.GAME_DIR).parent / "Warhammer3.exe").values())
+            exclude = tuple(n for n, v in regroup_trace_asm.SITES.items() if v[3] in taken)
+        site_text, report = regroup_trace_asm.build_site(exclude=exclude)
         print("[pin_probe] regroup trace:", report)
         entries.append((regroup_trace_asm.SITE_REQUIRE + ".lua", site_text.encode("utf-8")))
     size = write_pack_file(args.out, entries, PACK_TYPE_MOD)

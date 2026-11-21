@@ -1107,3 +1107,11 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   the exe site check, full pytest, the built pack probed). HISTORY says so as "not run in game".
 - The page's Charge Reflection bullet now says flyers take twice the base game's reflection damage, inside the
   game's own damage calculation; the update note names the change, the new MCT slider and the multiplayer split.
+
+### D54 · "Whole units land together" and "no bounce after landing" are two bullets (2026-11-21)
+
+> Owner, 2026-11-21: 「整队一起落地 和 多兵模飞兽不会在领头落地后又被拉回空中 不是一个改动」
+
+- Two bullets on both pages: whole units land together (D46: no single model lands alone at its starting spot and
+  splits the unit) and no bounce after landing (multi-entity flyers are not pulled back up when the leader lands).
+  English page goes live with a description-only update; the owner pastes the Chinese slot.

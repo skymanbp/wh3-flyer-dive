@@ -1098,3 +1098,12 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Owner, same day: 「还有下面正文，为什么没有起飞后不被拽回那点？」 The take-off bullet's last sentence now says it
   too: models that have taken off fly on with the unit's orders and are no longer pulled back down by models held on
   the ground (Chinese 「指令」 for "orders", the owner's word).
+
+### D53 · D51 ships without an in-game run; the page and the update note say what changed (2026-11-21)
+
+> Owner, 2026-11-21, after the question whether swordsmen were measured: 「不用再测了，直接做完剩余任务，发布更新，然后把中文版文字给我」
+
+- No in-game A/B for D51 and no swordsmen run: the release goes out on the offline evidence (emulator cases and mutants,
+  the exe site check, full pytest, the built pack probed). HISTORY says so as "not run in game".
+- The page's Charge Reflection bullet now says flyers take twice the base game's reflection damage, inside the
+  game's own damage calculation; the update note names the change, the new MCT slider and the multiplayer split.

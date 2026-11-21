@@ -121,6 +121,13 @@ POP_CLEAR_RET, POP_CLEAR_UP = 0x142F46436, 0x30
 # controller, +40 controller count, +48 / +52 / +56 ctrl a08 / 928 / 24 (rt_done; NONE32 without a controller).
 DONE_KIND, PICK_KIND = 11, 12
 B_UNIT, U_MAIN, U_NCTRL, C_A08, C_928, C_N = 8, 0x32F8, 0x3294, 0xA08, 0x928, 0x24
+# [D45] rt_flyq at 0x143050165: rdi = the unit, rbx = its flight controller (unit+0x3e30), [unit+0x32f8] = the group;
+# the group's behaviour stack: count +0x8c8, 16-byte entries at +0x848 (entry [0] = the bottom one, the one
+# 0x1430e5bc0 asks through vt+0x90). Logged only for FLYQ_VTS at the bottom: +0 controller, +8 unit, +16 bottom
+# vtable, +32 group, +40 count, +48 controller +8 before the decision, +52 top entry's vtable (low 32 bits).
+FLYQ_KIND = 13
+G_STACK, G_COUNT, CTL_FLY = 0x848, 0x8C8, 8
+FLYQ_VTS = (0x143926520, 0x143AEF2A0)
 
 # name: (pattern, at, stolen bytes (whole instructions, no relative operand), exe address of the site)
 SITES = {
@@ -152,10 +159,12 @@ SITES = {
                 "48 8B 4B 08 48 8B 89 F8 32 00 00", 0x142F62563),
     "rt_pick": ("48 89 5C 24 20 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 4C 8B A9 F8 32 00 00 45 33 FF", 0,
                 "48 89 5C 24 20 55 56 57 41 54", 0x14302A11C),
+    "rt_flyq": ("48 8B 8F F8 32 00 00 E8 4F 5A 09 00 84 C0 74 04 44 89 73 08", 0,
+                "48 8B 8F F8 32 00 00", 0x143050165),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
         "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
-        "rt_done": DONE_KIND, "rt_pick": PICK_KIND}
+        "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -179,6 +188,53 @@ def _mktask_aux():
     for i in range(P_QWORDS):
         s += [f"mov rax, qword ptr [rdx + {8 * i:#x}]", f"mov qword ptr [r11 + {EXT + 8 * i}], rax"]
     return "\n    ".join(s) + "\nnoparams:"
+
+
+def _flyq_aux():
+    """[D45] rt_flyq's fields (rdi = the unit, rbx = the controller); the filter ran in ``pre``."""
+    return f"""mov qword ptr [r11 + 8], rdi
+    mov rdx, qword ptr [rdi + {U_MAIN:#x}]
+    mov qword ptr [r11 + 32], rdx
+    mov eax, dword ptr [rdx + {G_COUNT:#x}]
+    mov qword ptr [r11 + 40], rax
+    mov rcx, qword ptr [rdx + {G_STACK:#x}]
+    mov rcx, qword ptr [rcx]
+    mov qword ptr [r11 + 16], rcx
+    dec eax
+    shl rax, 4
+    mov rcx, qword ptr [rdx + rax + {G_STACK:#x}]
+    mov rcx, qword ptr [rcx]
+    mov dword ptr [r11 + 52], ecx
+    mov eax, dword ptr [rbx + {CTL_FLY}]
+    mov dword ptr [r11 + 48], eax"""
+
+
+def _flyq_pre():
+    """[D45] go on only when rdi / rbx / the group are set, the stack count is 1..32 and the bottom entry's
+    object has one of FLYQ_VTS (rax rdx only; anything else jumps to done, uncounted in the ring)."""
+    a, b = FLYQ_VTS
+    return f"""test rdi, rdi
+    jz done
+    test rbx, rbx
+    jz done
+    mov rdx, qword ptr [rdi + {U_MAIN:#x}]
+    test rdx, rdx
+    jz done
+    mov eax, dword ptr [rdx + {G_COUNT:#x}]
+    dec eax
+    cmp eax, 31
+    ja done
+    mov rdx, qword ptr [rdx + {G_STACK:#x}]
+    test rdx, rdx
+    jz done
+    mov rdx, qword ptr [rdx]
+    mov rax, {a:#x}
+    cmp rdx, rax
+    je flyq_yes
+    mov rax, {b:#x}
+    cmp rdx, rax
+    jne done
+flyq_yes:"""
 
 
 def _done_aux():
@@ -259,10 +315,10 @@ def source(name, mutate=None):
     ent = {1: "mov rax, qword ptr [rcx]", 2: "mov rax, qword ptr [rcx]",
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
            6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
-           PICK_KIND: "xor eax, eax"}.get(kind) or (
+           PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax"}.get(kind) or (
         f"mov rax, qword ptr [rbx + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
         f"    mov rax, qword ptr [rax + {SLOT_ENT}]")
-    guard = ("test rbx, rbx\n    jz noent" if kind == DONE_KIND else
+    guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND) else
              "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else (
         "test rbx, rbx\n    jz noent" if task else "nop"))
     aux = {1: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
@@ -273,7 +329,7 @@ def source(name, mutate=None):
               f"    mov rax, qword ptr [rsp + {PUSHES * 8 + 16}]\n    mov qword ptr [r11 + 40], rax",
            6: f"mov rax, qword ptr [rsp + {PUSHES * 8 + 8}]\n    mov qword ptr [r11 + 40], rax",
            7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux(),
-           DONE_KIND: _done_aux(), PICK_KIND: _pick_aux()}[kind]
+           DONE_KIND: _done_aux(), PICK_KIND: _pick_aux(), FLYQ_KIND: _flyq_aux()}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
@@ -284,10 +340,10 @@ def source(name, mutate=None):
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
-    pre = "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
+    pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
         "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
-    me = "rbx" if task or kind == DONE_KIND else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
+    me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
     ret = PUSHES * 8 + (HANDLER_RET if task else 0)                   # mid-function: the handler's return address
     s = f"""
     pushfq
@@ -576,6 +632,52 @@ def _check_one(name, code):
     return fails
 
 
+def _check_flyq(code):
+    """[D45] rt_flyq: logged for each of the two classes at the bottom (with another class on top), not for an
+    other class, an empty or oversize stack, a null group; mode 0; registers and flags back; the entry checked."""
+    fails = []
+    unit, ctl, grp, arena = OBJ + 0x20000, OBJ + 0x30000, OBJ + 0x40000, OBJ + 0x50000
+    bottom_o, top_o = OBJ + 0x60000, OBJ + 0x61000
+    other_vt = 0x143ACD1B0
+    cases = [(f"bottom {vt:#x}", 1, vt, 2, True, True) for vt in FLYQ_VTS]
+    cases += [("other class", 1, other_vt, 2, True, False), ("empty stack", 1, FLYQ_VTS[0], 0, True, False),
+              ("count 33", 1, FLYQ_VTS[0], 33, True, False), ("null group", 1, FLYQ_VTS[0], 2, False, False),
+              ("off", 0, FLYQ_VTS[0], 2, True, False)]
+    for label, mode, vt, count, has_grp, want in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            _put(mu, unit + U_MAIN, "<Q", grp if has_grp else 0)
+            _put(mu, grp + G_COUNT, "<I", count)
+            _put(mu, grp + G_STACK, "<Q", bottom_o)
+            _put(mu, grp + G_STACK + 16 * max(count - 1, 1), "<Q", top_o)
+            _put(mu, bottom_o, "<Q", vt)
+            _put(mu, top_o, "<Q", other_vt)
+            _put(mu, ctl + CTL_FLY, "<I", 1)
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", RET))
+            try:
+                changed = _run(mu, code, {"rdi": unit, "rbx": ctl, "rcx": 0x6161, "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"rt_flyq {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            if changed:
+                fails.append(f"rt_flyq {label}: registers changed {changed}")
+            if not want:
+                if written or any(entry):
+                    fails.append(f"rt_flyq {label}: written {written}")
+                continue
+            top_vt = (vt if count == 1 else other_vt) & 0xFFFFFFFF
+            exp = struct.pack("<QQQIIQQIIII", ctl, unit, vt, 0, FLYQ_KIND, grp, count, 1, top_vt, NONE32, 8)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or entry != exp:
+                fails.append(f"rt_flyq {label}: written {written} entry {entry.hex()} want {exp.hex()}")
+    return fails
+
+
 def _check_ctrl(name, code):
     """[D42] rt_done / rt_pick on a synthetic unit with a main controller (and without one, and with a null
     behaviour unit for rt_done); mode 0; every register and the flags back; the whole entry checked."""
@@ -717,7 +819,8 @@ def check(mutate=None, which=None):
         try:
             code = assemble(name, mutate if which == name else None)
             fails += (_check_pop(code) if name == "rt_pop" else
-                      _check_ctrl(name, code) if name in ("rt_done", "rt_pick") else _check_one(name, code))
+                      _check_ctrl(name, code) if name in ("rt_done", "rt_pick") else
+                      _check_flyq(code) if name == "rt_flyq" else _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -741,6 +844,11 @@ MUTANTS = (
     ("rt_done", "test rcx, rcx\n    jz done_end", "nop\n    nop"),
     ("rt_pick", "mov rax, qword ptr [rcx + 0x32f8]", "mov rax, qword ptr [rcx + 0x3300]"),
     ("rt_pick", "mov eax, dword ptr [rcx + 0x3294]", "mov eax, dword ptr [rcx + 0x3290]"),
+    ("rt_flyq", "je flyq_yes", "jne flyq_yes"),
+    ("rt_flyq", "cmp eax, 31\n    ja done", "cmp eax, 40\n    ja done"),
+    ("rt_flyq", "mov eax, dword ptr [rbx + 8]", "mov eax, dword ptr [rbx + 0xc]"),
+    ("rt_flyq", "dec eax\n    shl rax, 4", "shl rax, 4"),
+    ("rt_flyq", "mov qword ptr [r11 + 8], rdi", "mov qword ptr [r11 + 8], rbx"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),
     ("rt_land", "mov rax, qword ptr [rsp + 56]", "mov rax, qword ptr [rsp + 48]"),

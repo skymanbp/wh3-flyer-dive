@@ -891,3 +891,12 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
   as the flyer, fix off / fix on, on the D39 packs.
 - The English page: under "Fairer take-off", a nested bullet that states the take-off rule briefly; shown to the owner
   before upload (D35: positive facts only).
+
+### D41 · The comparison moves to the Empire halberdiers; no pull-back, no clip (2026-11-21)
+
+- Measured (`runs/recg_off`, `runs/recg_on`, D39 packs): griffon knights against the Tzeentch Chosen halberds pulled
+  back 0 times with the fix off or on (`rg_would = 0`, `rg_skipped = 0`): after D39 the unit leaves together.
+
+> Owner, 2026-11-21, asked whether to try the one scene that pulled back before (griffons vs Empire halberdiers,
+> 9 / 3 / 3 with the fix off) or release without a clip: 「Try Empire halberdiers」 (if it still does not happen,
+> release without a clip).

@@ -1,5 +1,5 @@
 [h1]Flying Charge Overhaul[/h1]
-Flyers now charge like flyers. Dragons, griffons, pegasi, manticores and every other flying unit dive in at an angle, land carrying their speed, and plough into the enemy line until the bodies they hit slow them down.
+Flyers now charge like flyers. Dragons, griffons, pegasi, manticores and every other flying unit dive in at an angle, land carrying their speed, and plough into the enemy line until the bodies they hit slow them down. Multi-entity flyers land together, and models that have taken off keep following orders instead of being pulled back down by models still held on the ground.
 
 [h2]What changes[/h2]
 [list]

@@ -1062,3 +1062,11 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   `docs/STATUS.md` had it as "not started" by mistake, corrected.
 - Licence: MIT for this repository's own code and documentation (`LICENSE`); game data and third-party parts excluded.
 - Real two-player multiplayer: the owner tested it, no problems.
+
+### D52 · The opening paragraph names the two unit-cohesion fixes (2026-11-21)
+
+> Owner, 2026-11-21: 「还有说明文字里，为什么没有"多模组部队部分模组起飞后不会被拦在地面的兵模拽回/不听指令"？这一点和整队一起降落那个，一起在最上面flying charge overhaul那个段落结尾处一起简短的提一下。这两个改动很关键。」
+
+- One sentence added at the end of the opening paragraph on both pages: whole units land together (D45/D46), and
+  models that have taken off keep following orders instead of being pulled back by models held on the ground
+  (D44). The bullets below stay as they are.

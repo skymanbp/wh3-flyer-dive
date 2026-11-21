@@ -948,3 +948,13 @@ D26 (「为什么到飞行部队身上抵御冲锋的效果就变差了」) and 
 > or later: 「这次一起查清根除」
 
 - Release waits for both: the dropped order (D42/D44) and the leftover bobbing. Probe first, root cause, then the fix.
+
+### D46 · The straggler bob (vanilla too) is found and fixed before release (2026-11-21)
+
+- Found (release-1120 `docs/HISTORY.md` STRAGGLER-1121): the remaining landing bob starts at one model whose start
+  charge task never runs; it lands at its deploy spot, the unit splits into two controllers and the airborne models
+  abort their landing. Vanilla does it too (1 of 28 units without the mod, 3 of 28 with it).
+
+> Owner, 2026-11-21, asked whether to fix it now or after release: chose 「继续查到底再发」.
+
+- Release waits for it: probe why that model's task is not run, fix the cause, check in game.

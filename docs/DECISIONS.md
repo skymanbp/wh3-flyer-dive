@@ -1115,3 +1115,12 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Two bullets on both pages: whole units land together (D46: no single model lands alone at its starting spot and
   splits the unit) and no bounce after landing (multi-entity flyers are not pulled back up when the leader lands).
   English page goes live with a description-only update; the owner pastes the Chinese slot.
+
+### D55 · Common knowledge is not spelled out to players (2026-11-21)
+
+> Owner, 2026-11-21: 「新旧版本联机时互不配对、联机按主机设置走、需要更新...等等等等，这些都是常识，没必要一一说明。」
+
+- From now on the update note, the page and comment replies leave out such things (old and new versions do not pair,
+  multiplayer follows the host's settings, players must update). The marker bump itself stays (code).
+- `docs/WORKSHOP.md` rule changed accordingly; the repo's update note drops its multiplayer line. The note already
+  uploaded with this release stays as Steam holds it.

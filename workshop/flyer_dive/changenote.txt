@@ -1,3 +1,2 @@
 - Charge Reflection now hits flying units twice as hard as in the base game, inside the game's own damage calculation. This replaces the flat 10% health loss per dive.
 - New Mod Configuration Tool setting: Charge Reflection damage to flying units (1 to 4, default 2). The old dive cost setting is gone.
-- This version does not pair with the previous one in multiplayer.

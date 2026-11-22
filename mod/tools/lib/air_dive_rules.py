@@ -1036,7 +1036,7 @@ DIVE_COST_FRONT_ARC = True
 # hundredths in bits 16-23; 0 = off), so a game Lua number (float32) never carries float bits; every value of
 # the word stays below 2^24, exact in a float32.
 BRACE_LINE_DEFAULT_ON = True
-BRACE_MASS_K = 2.0
+BRACE_MASS_K = 4.0                      # [D62 2026-11-22] 2.0 under the 2.0 m/s hand-off; 4.0 holds braced lines at 0.5
 BRACE_MASS_K_RANGE = (1.0, 10.0)        # MCT slider; 1.0 = the engine's own braced mass
 BRACE_MASS_K_STEP = 0.1
 BRACE_SHARE_MIN = 0.5

@@ -196,7 +196,9 @@ POS_OFF = 0x88                                 # entity position x (+0x88), z (+
 SLIDE_RELEASE_M = 20.0
 BUFFER_BYTES = 64 + 256 * 16                  # [AIR-DIVE-BRACE-W1 round 3] + the slide table
 MAGIC = b"FLYDIVE3"                           # [FLYER-FIX-1117] two counters more: v2; 3: renamed (RENAME-1118)
-SKIP_SPEED = 2.0                      # m/s: below it a landed flyer attacks / stops as vanilla
+SKIP_SPEED = 0.5                      # m/s: below it a landed flyer attacks / stops as vanilla
+# [D62 2026-11-22] 0.5, as vanilla cavalry: pushed to about 0.5 m/s by the bodies in front, then engaged (was 2.0,
+# from the td_skip test cave, never checked against vanilla; HISTORY AIR-DIVE-CONTINUOUS-W1 / PLOUGH-1121)
 FC_OFF, PARENT_OFF, LAYER_OFF, FLAGS_OFF = 0x128, 0x2E0, 0x104, 0xC4
 STATE_OFF, VEL_OFF = 0x26C, 0xE0
 FLYMODE_OFF = 0x710                   # [AIR-DIVE-RELEASE-W1] 0 = a ground mover
@@ -855,7 +857,7 @@ def _fill(code, buf, resume=0, orig=0):
             .replace(struct.pack("<Q", ORIG_PLACEHOLDER), struct.pack("<Q", orig)))
 
 
-FAST, SLOW = (0.9, -14.97), (1.0, -1.0)
+FAST, SLOW = (0.9, -14.97), (0.3, -0.3)   # [D62] SLOW |v| 0.42 m/s, below SKIP_SPEED 0.5 (was (1.0, -1.0), 1.41 under 2.0)
 # [d15-1118] every rig's instruction budget is multiplied by this (1 here; the test-only marked caves of
 # dive_mark_asm.py run more instructions per call and raise it while the shipped cases run on them)
 STEP_FACTOR = 1
@@ -976,7 +978,7 @@ SKIP_EXTRA = (((1, True, 30, FAST, None), 484, 15.0, False),     # genuinely mov
               ((1, True, 30, FAST, None), 489, 15.0, True),      # a jump attack is not a moving attack
               ((1, True, 30, FAST, None), 457, 15.0, True),      # a standing attack still waits
               ((1, True, 30, FAST, None), 484, 0.0, True),       # the landing tick (scalar 0)
-              ((1, True, 30, FAST, None), 484, 1.5, True),
+              ((1, True, 30, FAST, None), 484, 0.3, True),       # [D62] under SKIP_SPEED 0.5 (was 1.5 under 2.0)
               ((1, True, 33, FAST, None), 484, 11.0, False),     # state 33 too (run Q1_mant)
               ((1, True, 55, FAST, None), 484, 11.0, False),     # an action: dv_skip passes it as before
               ((1, True, 30, FAST, None), 483, 15.0, True),

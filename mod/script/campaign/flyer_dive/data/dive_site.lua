@@ -98,19 +98,19 @@ return {
     caves = { 'dv_through', 'dv_skip', 'dv_keep', 'dv_engage', 'dv_reorder', 'dv_reorder_move', 'dv_attack_move', 'dv_tick_move', 'dv_contact', 'dv_settle', 'dv_commit', 'dv_brace', 'dv_reflect' },
     resume_at = { dv_through = 29, dv_engage = 11, dv_reorder = 8, dv_reorder_move = 10, dv_attack_move = 17, dv_tick_move = 11, dv_settle = 14, dv_commit = 12, dv_brace = 26, dv_reflect = 5 },
     layout = {
-        bytes = 10496, mode_at = 0, allowed_at = 4, magic_at = 8, magic = 'FLYDIVE6', skip_speed_at = 16, skipped_at = 20, throughs_at = 24, kept_at = 28, engaged_at = 32, reordered_at = 36, contact_at = 40, settled_at = 44, released_at = 48, slide_at = 64, slide_slots = 256, committed_at = 52, closed_at = 56, engaged_body_at = 60, mark_count_at = 4160, mark_full_at = 4164, mark_table_at = 4224, mark_slots = 128, mark_ring_at = 6272, mark_ring = 32, mark_entry = 32, brace_word_at = 10432, brace_count_at = 10436, reflect_word_at = 10440, reflect_count_at = 10444,
+        bytes = 10496, mode_at = 0, allowed_at = 4, magic_at = 8, magic = 'FLYDIVE7', skip_speed_at = 16, skipped_at = 20, throughs_at = 24, kept_at = 28, engaged_at = 32, reordered_at = 36, contact_at = 40, settled_at = 44, released_at = 48, slide_at = 64, slide_slots = 256, committed_at = 52, closed_at = 56, engaged_body_at = 60, mark_count_at = 4160, mark_full_at = 4164, mark_table_at = 4224, mark_slots = 128, mark_ring_at = 6272, mark_ring = 32, mark_entry = 32, brace_word_at = 10432, brace_count_at = 10436, reflect_word_at = 10440, reflect_count_at = 10444,
     },
-    skip_speed = 2.0, skip_speed_bits = 1073741824,
+    skip_speed = 0.5, skip_speed_bits = 1056964608,
     -- [D31 / D51] dv_brace, dv_reflect and the MCT settings of the braced-line work (lib/brace_rule.lua,
     -- the MCT page)
     brace = {
-        default_on = true, k = 2.0, k_min = 1.0, k_max = 10.0, k_step = 0.1,
+        default_on = true, k = 4.0, k_min = 1.0, k_max = 10.0, k_step = 0.1,
         share = 0.5, share_min = 0.0, share_max = 1.0, share_step = 0.05, scale = 100,
         reflect = 2.0, reflect_min = 1.0, reflect_max = 4.0, reflect_step = 0.25,
-        default_word = 3277000, default_reflect_word = 200,
+        default_word = 3277200, default_reflect_word = 200,
         mct_mod = 'flyer_dive_takeoff', mct_on = 'braced_line_on', mct_k = 'braced_line_mass', mct_share = 'braced_line_share', mct_reflect = 'braced_line_reflect',
     },
-    format = 914894,
+    format = 502276,
     build = '6ae2a00b',
-    source_sha = 'df5ccfa9a244e45fecf5184fe507c7380f5e332e09a71158ecddace34cc2c628',
+    source_sha = '7aa02ebdaeb7ec4eab40697dc2cbdc0094b48755daa87dbab11dcbd599db8aad',
 }

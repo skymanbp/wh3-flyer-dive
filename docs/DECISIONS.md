@@ -1205,3 +1205,16 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   vanilla (5.2% vs 9.2% in 3 s); without it 7.1%.
 - `MASS_FACTOR` becomes empty: no flyer's mass is changed. The braced-line rule (D31, `BRACE_MASS_K`) is what holds
   a braced line.
+
+### D62 · The landed flyer is handed to melee when it has stopped, as vanilla cavalry; re-set the braced line (2026-11-21)
+
+> Owner, 2026-11-21: 「马鹫、塔尔盖沃骑士这种质量级别的单位，应该要能够冲穿剑士（质量较低、低/无冲锋抗性的步兵）这种部队才合理。」
+> Asked whether lowering the hand-off is principled: 「改这个符合我们的设计理念吗？是从原理出发改的吗？」 Then chose: hand-off as vanilla
+> cavalry (about 0.5 m/s), and re-set the braced-line multiplier under it.
+
+- The dive caves hand a landed flyer back to the engine's engage / stop below `SKIP_SPEED` (2.0 m/s, `dive_cave_asm.py`), a value
+  taken from the td_skip test cave, never checked against vanilla. Vanilla cavalry (`docs/HISTORY.md` AIR-DIVE-CONTINUOUS-W1, 12 runs)
+  is pushed to about 0.5 m/s by the bodies in front and only then engages (0.4-0.8 s later). At 2.0 the 2000-2300 mass flyers were
+  handed over while still moving (PLOUGH-1121).
+- `SKIP_SPEED` becomes 0.5. The braced-line multiplier k (D31 / D33, 2.0, tuned under 2.0) is measured again under 0.5 and set so a
+  braced line holds the large flyers as it did; the multiplayer tag changes with the shipped caves' behaviour.

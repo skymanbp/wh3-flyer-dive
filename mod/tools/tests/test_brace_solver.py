@@ -148,8 +148,8 @@ class SiteTable(unittest.TestCase):
 
     def test_current_and_the_marker(self):
         self.assertTrue(dive_cost_asm.check_site_file(MOD_DIR))
-        self.assertIn("magic = 'FLYDIVE6'", self.text)
-        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE6")
+        self.assertIn("magic = 'FLYDIVE7'", self.text)
+        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE7")
         self.assertIn("dv_brace = 26, dv_reflect = 5 }", self.text)
         self.assertIn(f"            pattern = '{brace.SITE}',", self.text.splitlines())
         self.assertIn(f"            at = 0, expect = '{brace.STOLEN}',", self.text.splitlines())
@@ -333,7 +333,7 @@ class BraceRule(unittest.TestCase):
         for label, why in (("mp_outside", "multiplayer battle outside a campaign"), ("no_mct", "MCT not installed")):
             with self.subTest(label=label):
                 on, k, share, reflect, word, rword, w = self.rows[label]
-                self.assertEqual((on, k, share, reflect), ("true", "2", "0.5", "2"))  # D33 / D51 (Lua prints 2.0 as 2)
+                self.assertEqual((on, k, share, reflect), ("true", "4", "0.5", "2"))  # D62 k 4 / D51 (Lua prints 4.0 as 4)
                 self.assertEqual(word, self.default_word)
                 self.assertEqual(rword, self.default_reflect)
                 self.assertEqual(rword, "200")
@@ -352,7 +352,7 @@ class BraceRule(unittest.TestCase):
 
     def test_bad_values_fall_back_one_by_one(self):
         on, k, share, reflect, word, rword, why = self.rows["bad"]
-        self.assertEqual((on, k, share, reflect, word, rword), ("true", "2", "0.5", "2", self.default_word,
+        self.assertEqual((on, k, share, reflect, word, rword), ("true", "4", "0.5", "2", self.default_word,
                                                                 self.default_reflect))
         for note in ("on default (MCT holds yes)", "k default (MCT holds 50)", "share default (reading MCT failed: boom)",
                      "reflect default (MCT holds 0.5)"):

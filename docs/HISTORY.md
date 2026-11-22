@@ -2911,3 +2911,17 @@ max(0.8, s\*)（文档写的就是这个）；`test_brace_solver` 的默认值�
 - **核对**（公开接口，`details_before.json` / `details_after.json`）：`time_updated` 1795326459 → 1795363056，`file_size` 14,206,509 ＝ 包 ＋ 封面 129,032，
   `hcontent_file` 8445303428960527594 → 4056409980076465593；公开、标签 `mod`、`battle`，标题与说明和上传前相同。
 - **没做的**：键值标签没读回（steamcmd 登录把桌面客户端顶下线了）；本机 `data/` 没放新包（主人订阅着）。
+
+## CLEANUP-1122（2026-11-22 午后）：仓库外的临时目录清理
+
+主人令：「清理干净点，以后用不到的全都清掉」。
+
+- **留下的**，搬进 `D:/Projects/.worktrees/wh3-flyer-dive/tools/`（2.4 GB，其中 steamcmd 2.2 GB）：steamcmd；keystone / unicorn 的 Python 环境（原 `regroup-1119/scratch/venv`）；
+  最近两份 vdf；回滚用的三个包（线上主包 sha256 `6a0a22e3…8051`、上一版主包、线上 SFO 子模组）；工坊封面、展示图与 2 MB 以下的动图；
+  `local_cn` 抽出的中文文本；评论区查看脚本；实机探针与报告脚本八个。清单在 `docs/STATUS.md`「东西在哪」。
+- **搬完核对**：搬过去的 Python 跑 `dive_cost_asm.py --check-exe`，13 个位点各一次、模拟器用例全过、140 个坏版本全抓到；
+  搬过去的 steamcmd 不登录跑 `+quit` 能起来。
+- **删掉的**：11 个工作树和它们的车道目录、其余草稿目录、`from_lore_disaster/`（主模组搬来的旧数据，27 GB）、各次上传的暂存与备份目录、
+  `runs/` 里 335 局实机输出（11 GB；数字都在本文件各节）。目录总量约 45 GB → 2.4 GB。
+- **分支**：已并进 `main` 的 10 个本地分支删掉；没并进的 `brace-mark-probe-1120`、`record-1120` 只留提交。
+- 之前各节与 `docs/STATUS.md` 旧行里写的车道路径就此失效，旧节不改。

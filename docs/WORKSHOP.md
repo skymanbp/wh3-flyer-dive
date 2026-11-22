@@ -56,10 +56,7 @@ steamcmd 一次成功，此后都用它。
 9. **记账**：在 `docs/HISTORY.md` 末尾加一节（发了什么、包的字节数与 sha256、ManifestID、核对结果、
    没验证的事），更新 `docs/STATUS.md` 的「已发布」一行；`main` 分支指到发布的那个提交。
 
-以前用过的文件在草稿区，路径是搬家后的：
-`D:/Projects/.worktrees/wh3-flyer-dive/from_lore_disaster/flyer-publish_scratch/`
-（`steamcmd/`、`upload_stage/` 里的几份 vdf、`backup/`、封面与动图的原件）。旧 vdf 里的 `contentfolder`、
-`previewfile` 还写着搬家前的路径，再用之前要改。
+上传要用的东西在 `D:/Projects/.worktrees/wh3-flyer-dive/tools/`（`steamcmd/`、最近一次的 vdf、`rollback/` 里的线上包、`workshop_media/` 里的封面与动图），清单见 `docs/STATUS.md`「东西在哪」。vdf 里的 `contentfolder` 指向那一次的暂存目录，再用之前要改。
 
 ## 页面上的图
 

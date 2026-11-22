@@ -2833,3 +2833,24 @@ max(0.8, s\*)（文档写的就是这个）；`test_brace_solver` 的默认值�
 测试 299 项全过。
 
 **五、没做的。** 每种单位对每个目标一到三条道；高级与重甲戟兵、带冲锋反制属性（倍数再乘 2）的部队没进这局；SFO 子模组没重建。
+
+## UPLOAD-1122（2026-11-22 凌晨）：D59–D63 发布，主模组与 SFO 子模组都上传
+
+主人令：「提交并推送，发布新版本，更新主mod和sfo子mod，中文文本给我」。
+
+- **合并与推送**：`smallflyer-1121` 快进并入 `main`（`0fee619`），推送；之后两个提交也推送了：更新说明的英文引号改单引号（vdf 里不能有双引号）、
+  SFO 子模组建包检查的修正（`d3141e1`）。
+- **主包**：建在 `0fee619`，`flyer_dive_takeoff.pack` 14,075,292 字节，sha256 `daf58c77…3e1e`；包里位点表读回：`FLYDIVE7`、交接 0.5、k 1.0、s\* 1.0。
+  这个正式包本身没进过游戏；进过游戏的是同样设置的测试包（BRACE-MASS-1122，D62 包改位点表两个默认值）。
+- **SFO 子模组**：主人重新订阅 SFO（2,110,166,586 字节，与 SFO-SUBMOD-1121 那版同大小）。第一次建包被拒：`melee_weapons_tables: no fragment`。
+  根因：D59 以后主包不发武器行，子模组没有武器表本来就对，检查却要求四张表都有。改为只有主包也发的表才必须有；反向验证：拿还发武器的旧线上主包
+  去查新子模组，报 `no fragment, the main pack ships one`。`test_sfo_submod` 6 项通过（本机没 SFO 时它们不读 SFO，没抓到这个）。
+  结果 264,971 字节，sha256 `d1e8cc30…2a1d`；陆军单位 330 行、实体 158、坐骑 4、武器 0。
+- **上传**：暂存与备份在 `D:/Projects/.worktrees/wh3-flyer-dive/upload-1122/`（线上原主包 `backup/flyer_dive_takeoff.live_1121b.pack`，
+  SFO 子模组原包与原 vdf 在 `backup/sfo/`）。steamcmd 一次登录传两个条目，两次 `Committing update...Success`，日志没打印 ManifestID。
+  vdf 写默认栏（英文）的标题、说明与更新说明（`workshop/flyer_dive/changenote.txt`；子模组的更新说明一句）。
+- **核对**（公开接口，`details_before.json` / `details_after.json`）：主模组 `time_updated` 1795288056 → 1795326459，`file_size` 14,204,324 ＝ 包 ＋ 封面 129,032，
+  `hcontent_file` 1119697623193034384 → 8445303428960527594；子模组 1795293112 → 1795326472，394,003 ＝ 包 ＋ 封面，980293720329857813 → 496378722562102760；
+  两个都公开、标签 `mod`、`battle`，英文说明与仓库逐字相同（只差换行符）。
+- **没做的**：键值标签 `PACK_NAME` / `game_version` 没读回（要桌面客户端，steamcmd 登录把它顶下线了）；简体中文一栏由主人贴
+  （桌面 `飞兽模组_中文说明.txt`、`SFO子模组_中文说明.txt`）；本机 `data/` 没放新包（主人订阅着，Steam 会送到工坊目录）。

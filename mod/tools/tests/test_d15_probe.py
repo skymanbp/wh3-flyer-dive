@@ -30,7 +30,7 @@ import reflect_probe_report as rrep  # noqa: E402 -- same reason (pipelines/)
 
 class MarkedCaves(unittest.TestCase):
     def test_buffer_fits_the_shipped_rigs_and_is_not_adopted(self):
-        self.assertLessEqual(dive_mark_asm.BYTES, 0x2000)
+        self.assertLessEqual(dive_mark_asm.BYTES, dive_cave_asm.RIG_BUF)          # [D66] the rigs map RIG_BUF (16 KiB)
         self.assertEqual(dive_mark_asm.MARK_AT, dive_cave_asm.BUFFER_BYTES)
         self.assertNotEqual(dive_mark_asm.MAGIC, dive_cave_asm.MAGIC)
         self.assertEqual(len(dive_mark_asm.MAGIC), len(dive_cave_asm.MAGIC))

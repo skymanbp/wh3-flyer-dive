@@ -78,10 +78,10 @@ def _sha_with(value):
 
 class Marker(unittest.TestCase):
     def test_marker_changed_with_the_rule(self):
-        self.assertEqual(pin_cave_asm.MAGIC, b"FLYPIN11")
-        self.assertEqual(tt.MAGIC, b"FLYPIT11")
-        self.assertIn("magic = 'FLYPIN11'", SITE_FILE.read_text(encoding="utf-8"))
-        self.assertIn("magic = 'FLYPIT11'", tt.check_site_file())
+        self.assertEqual(pin_cave_asm.MAGIC, b"FLYPIN12")      # [D67] pin_resume
+        self.assertEqual(tt.MAGIC, b"FLYPIT12")
+        self.assertIn("magic = 'FLYPIN12'", SITE_FILE.read_text(encoding="utf-8"))
+        self.assertIn("magic = 'FLYPIT12'", tt.check_site_file())
 
     def test_no_old_marker_left_in_the_mod(self):
         for path in list((MOD_DIR / "script").rglob("*.lua")) + list((TOOLS_DIR / "pipelines").glob("*.*")):

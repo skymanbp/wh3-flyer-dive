@@ -194,7 +194,15 @@ POS_OFF = 0x88                                 # entity position x (+0x88), z (+
 # A/B batch, mp_crossroads_flat, 2026-11-14), so 20 m carries every flyer through the line and a body length
 # out the far side; past it the engine's engage / stop / re-path take over and its own deceleration brakes.
 SLIDE_RELEASE_M = 20.0
-BUFFER_BYTES = 64 + 256 * 16                  # [AIR-DIVE-BRACE-W1 round 3] + the slide table
+# [D66 2026-11-22] after the slide table: the lowest planar speed (F32) of each slot's flyer since its first hold, and
+# the slides ended because the flyer sped up again by more than SLIDE_GAIN above it (u32). 0.5 m/s: in battle crawl1
+# a landed dragon's speed jittered +-0.5 m/s while the bodies held it and rose 0.4 m/s per 100 ms tick under the
+# engine's drive (HISTORY CRAWL-1122)
+SLIDE_V_AT = 64 + 256 * 16
+SPED_AT = SLIDE_V_AT + 256 * 4
+SLIDE_GAIN = 0.5
+RIG_BUF = 0x4000                              # the emulator rigs' buffer map: the marked layout (dive_mark_asm) must fit [D66]
+BUFFER_BYTES = SPED_AT + 64                   # [AIR-DIVE-BRACE-W1 round 3] + the slide table; [D66] + speeds, counter
 MAGIC = b"FLYDIVE3"                           # [FLYER-FIX-1117] two counters more: v2; 3: renamed (RENAME-1118)
 SKIP_SPEED = 0.5                      # m/s: below it a landed flyer attacks / stops as vanilla
 # [D62 2026-11-22] 0.5, as vanilla cavalry: pushed to about 0.5 m/s by the bodies in front, then engaged (was 2.0,
@@ -332,6 +340,17 @@ walkdone:
 """
 
 
+def _planar_speed():
+    """[D66] xmm0 = the planar speed of r9 (sqrt of +0xe0^2 + +0xe8^2); xmm1 is overwritten (the callers save both)"""
+    return f"""    movss xmm0, dword ptr [r9 + {VEL_OFF:#x}]
+    mulss xmm0, xmm0
+    movss xmm1, dword ptr [r9 + {VEL_OFF + 8:#x}]
+    mulss xmm1, xmm1
+    addss xmm0, xmm1
+    sqrtss xmm0, xmm0
+"""
+
+
 def _window_test(ent):
     """[AIR-DIVE-BRACE-W1 round 3] After a passed _fast_test: hold only within SLIDE_RELEASE_M of where this
     mover was first held since it last charged in the air. Table at SLIDE_AT, SLIDE_SLOTS x 16 bytes
@@ -342,8 +361,13 @@ def _window_test(ent):
     hold. Every register and xmm0 / xmm1 come back unchanged. A hold IN THE AIR (+0x104 not 0: dv_keep and
     dv_skip also hold a state-30 flyer on its way down) holds without touching the table, so the window
     starts where the flyer was first held on the ground (an airborne first hold would start it up to a
-    dive-length before touchdown). Flags are not kept (every caller sets them again)."""
+    dive-length before touchdown). Flags are not kept (every caller sets them again).
+    [D66] Inside the radius the hold also needs the flyer to be still slowing down: its planar speed (+0xe0 / +0xe8)
+    is kept per slot at SLIDE_V_AT as the lowest since the first hold (written on the claim, lowered on every later
+    hold); a speed more than SLIDE_GAIN above that lowest ends the slide for good (key | 1, counted at SPED_AT) --
+    bodies only slow a flyer, so a landed flyer speeding up is the engine's drive and the dive's momentum is spent."""
     d2 = struct.unpack("<I", struct.pack("<f", SLIDE_RELEASE_M * SLIDE_RELEASE_M))[0]
+    gain = struct.unpack("<I", struct.pack("<f", SLIDE_GAIN))[0]
     return f"""
     cmp dword ptr [{ent} + {LAYER_OFF:#x}], 0
     jne wair
@@ -403,6 +427,11 @@ winsert:
     or rcx, rbx
     mov rbx, r9
     lock cmpxchg16b xmmword ptr [r8]
+    mov rax, r8
+    sub rax, r10
+    sub rax, {SLIDE_AT}
+    shr rax, 4
+{_planar_speed()}    movss dword ptr [r10 + rax*4 + {SLIDE_V_AT}], xmm0
     jmp whold
 wfound:
     movss xmm0, dword ptr [r9 + {POS_OFF:#x}]
@@ -415,9 +444,28 @@ wfound:
     mov eax, {d2:#x}
     movd xmm1, eax
     comiss xmm0, xmm1
-    jb whold
+    jb wspeed
     lock or qword ptr [rbx], 1
     lock inc dword ptr [r10 + {RELEASED_AT}]
+    jmp wpass_out
+wspeed:
+    mov rax, rbx
+    sub rax, r10
+    sub rax, {SLIDE_AT}
+    shr rax, 4
+{_planar_speed()}    movss xmm1, dword ptr [r10 + rax*4 + {SLIDE_V_AT}]
+    comiss xmm0, xmm1
+    jae wnot_lower
+    movss dword ptr [r10 + rax*4 + {SLIDE_V_AT}], xmm0
+    jmp whold
+wnot_lower:
+    subss xmm0, xmm1
+    mov eax, {gain:#x}
+    movd xmm1, eax
+    comiss xmm0, xmm1
+    jbe whold
+    lock or qword ptr [rbx], 1
+    lock inc dword ptr [r10 + {SPED_AT}]
 wpass_out:
     movdqu xmm0, xmmword ptr [rsp]
     movdqu xmm1, xmmword ptr [rsp + 16]
@@ -894,7 +942,7 @@ def check_through(code):
                 for flags in (0x0A, 0x04, 0x02, 0x00):
                     n += 1
                     mu = _uc()
-                    for base, size in ((CODE, 0x1000), (RESUME, 0x1000), (BUF, 0x2000), (STACK, 0x10000),
+                    for base, size in ((CODE, 0x1000), (RESUME, 0x1000), (BUF, RIG_BUF), (STACK, 0x10000),
                                        (OBJ, 0x10000)):
                         mu.mem_map(base, size)
                     mu.mem_write(CODE, _fill(code, BUF, RESUME))
@@ -931,7 +979,7 @@ def _ret_or_pass(name, code, build, want_ret):
     from unicorn import UcError, x86_const as X
     CODE, BUF, STACK, OBJ, RET = 0x100000, 0x200000, 0x400000, 0x500000, 0x130000
     mu = _uc()
-    for base, size in ((CODE, 0x1000), (BUF, 0x2000), (STACK, 0x10000), (OBJ, 0x10000), (RET, 0x1000)):
+    for base, size in ((CODE, 0x1000), (BUF, RIG_BUF), (STACK, 0x10000), (OBJ, 0x10000), (RET, 0x1000)):
         mu.mem_map(base, size)
     mu.mem_write(CODE, _fill(code, BUF) + b"\x90")
     mu.mem_write(RET, b"\x90")
@@ -1116,7 +1164,7 @@ def check_call_skip(name, code):
         for (mode, flyer, state, vel, want_skip), layer, flymode in cases:
             n += 1
             mu = _uc()
-            for base, size in ((CODE, 0x1000), (RESUME, 0x1000), (ORIG, 0x1000), (BUF, 0x2000),
+            for base, size in ((CODE, 0x1000), (RESUME, 0x1000), (ORIG, 0x1000), (BUF, RIG_BUF),
                                (STACK, 0x10000), (OBJ, 0x10000)):
                 mu.mem_map(base, size)
             mu.mem_write(CODE, _fill(code, BUF, RESUME, ORIG))
@@ -1189,7 +1237,7 @@ def _window_rig(hold_code, through_code):
     from unicorn import x86_const as X
     HOLD, THR, RESUME, BUF, STACK, OBJ, RET = 0x100000, 0x110000, 0x120000, 0x200000, 0x400000, 0x500000, 0x130000
     mu = _uc()
-    for base, size in ((HOLD, 0x1000), (THR, 0x1000), (RESUME, 0x1000), (BUF, 0x2000), (STACK, 0x10000),
+    for base, size in ((HOLD, 0x1000), (THR, 0x1000), (RESUME, 0x1000), (BUF, RIG_BUF), (STACK, 0x10000),
                        (OBJ, 0x10000), (RET, 0x1000)):
         mu.mem_map(base, size)
     mu.mem_write(HOLD, _fill(hold_code, BUF) + b"\x90")
@@ -1323,6 +1371,64 @@ def check_window(hold_code, through_code):
     got = hold2(a, 0.0, 0.0)
     if got != "passed" or _released(mu2, buf2) != 0:
         fails.append(f"window full table: {got} released {_released(mu2, buf2)} (want passed, 0)")
+    return fails, n
+
+
+def check_slide_speed(hold_code, through_code):
+    """[D66] Inside the window the hold needs the flyer still slowing down: the lowest planar speed since the first
+    hold is kept per slot; a speed more than SLIDE_GAIN above it ends the slide for good (counted at SPED_AT, not
+    at RELEASED_AT); a fresh window after an airborne charge starts a fresh lowest speed; flyers are independent."""
+    fails, n = [], 0
+    mu, hold, through, buf = _window_rig(hold_code, through_code)
+    a, b = 0x501000, 0x503000
+
+    def at(ent, speed, x=3.0, z=4.0):
+        mu.mem_write(ent + VEL_OFF, struct.pack("<f", 0.0))
+        mu.mem_write(ent + VEL_OFF + 8, struct.pack("<f", -speed))
+        return hold(ent, x, z)
+    for ent in (a, b):
+        _mover(mu, ent, True, 30, FAST)
+    g = SLIDE_GAIN
+    steps = [("a first hold at 14 m/s", a, 14.0, "held", 0),
+             ("a slowed to 7", a, 7.0, "held", 0),
+             ("b first hold at 9 (another flyer)", b, 9.0, "held", 0),
+             ("a jitters up by less than the gain", a, 7.0 + g * 0.9, "held", 0),
+             ("a slows further to 5", a, 5.0, "held", 0),
+             ("a back to its old low 7: more than the gain above 5", a, 7.0, "passed", 1),
+             ("a slow again (4, above TEST_WALK): released for good", a, 4.0, "passed", 1),
+             ("b just under its gain", b, 9.0 + g * 0.95, "held", 1),
+             ("b just over its gain", b, 9.0 + g * 1.05, "passed", 2)]
+    for label, ent, v, want, sped in steps:
+        n += 1
+        got = at(ent, v)
+        if got != want or _counter(mu, buf, SPED_AT) != sped or _released(mu, buf) != 0:
+            fails.append(f"slide speed {label}: {got} sped {_counter(mu, buf, SPED_AT)} released "
+                         f"{_released(mu, buf)} (want {want}, {sped}, 0)")
+    n += 1
+    if not through(a, 2):
+        fails.append("slide speed: the airborne charge did not run")
+    for label, v, want, sped in (("a new window: first hold at 12", 12.0, "held", 2),
+                                 ("a slowed to 8 in the new window", 8.0, "held", 2),
+                                 ("a up to 8.4 (under the gain)", 8.0 + g * 0.8, "held", 2),
+                                 ("a up to 9 (over the gain above 8)", 9.0, "passed", 3)):
+        n += 1
+        got = at(a, v, 100.0, 100.0)
+        if got != want or _counter(mu, buf, SPED_AT) != sped:
+            fails.append(f"slide speed {label}: {got} sped {_counter(mu, buf, SPED_AT)} (want {want}, {sped})")
+    # the speed is the planar one: x and z both count
+    c = 0x505000
+    _mover(mu, c, True, 30, FAST)
+    mu.mem_write(c + VEL_OFF, struct.pack("<f", 6.0))
+    mu.mem_write(c + VEL_OFF + 8, struct.pack("<f", -8.0))
+    n += 1
+    first = hold(c, 500.0, 500.0)                       # |v| = 10
+    mu.mem_write(c + VEL_OFF, struct.pack("<f", 10.0))
+    mu.mem_write(c + VEL_OFF + 8, struct.pack("<f", -3.0))
+    second = hold(c, 500.0, 500.0)                      # |v| = 10.44: under the gain above 10
+    mu.mem_write(c + VEL_OFF + 8, struct.pack("<f", -5.0))
+    third = hold(c, 500.0, 500.0)                       # |v| = 11.18: over it
+    if (first, second, third) != ("held", "held", "passed"):
+        fails.append(f"slide speed planar: {first} {second} {third} (want held held passed)")
     return fails, n
 
 
@@ -1533,7 +1639,7 @@ def check_commit(code):
         for answer in (0, 1):
             n += 1
             mu = _uc()
-            for base, size in ((CODE, 0x1000), (RESUME, 0x1000), (ORIG, 0x1000), (BUF, 0x2000),
+            for base, size in ((CODE, 0x1000), (RESUME, 0x1000), (ORIG, 0x1000), (BUF, RIG_BUF),
                                (STACK, 0x10000), (OBJ, 0x10000)):
                 mu.mem_map(base, size)
             mu.mem_write(CODE, _fill(code, BUF, RESUME, ORIG))
@@ -1589,7 +1695,8 @@ def check_commit(code):
 def _keep_and_window(code):
     f1, n1 = check_keep(code)
     f2, n2 = check_window(code, assemble("dv_through"))
-    return f1 + f2, n1 + n2
+    f3, n3 = check_slide_speed(code, assemble("dv_through"))           # [D66]
+    return f1 + f2 + f3, n1 + n2 + n3
 
 
 def _through_and_window(code):
@@ -1685,7 +1792,7 @@ MUTANTS = (
     ("contact on the shared counter", "dv_contact", "    lock inc dword ptr [r10 + 40]\n",
      "    lock inc dword ptr [r10 + 32]\n"),
     # [AIR-DIVE-BRACE-W1 round 3] the slide window
-    ("window never releases", "dv_keep", "    jb whold\n", "    jmp whold\n"),
+    ("window never releases", "dv_keep", "    jb wspeed\n", "    jmp wspeed\n"),
     ("window starts in the air", "dv_keep", "    jne wair\n", "    nop\n"),
     # [AIR-DIVE-BRACE-W1 round 4] the landing commit
     ("commit at any height", "dv_commit", "    ja pass\n    movss xmm0, dword ptr [rcx + 0x10]",
@@ -1702,7 +1809,17 @@ MUTANTS = (
     ("commit leaves a point under the model", "dv_commit", "    jbe ahead\n", "    jbe inband\n"),
     ("commit on the settle counter", "dv_commit", "    lock inc dword ptr [r10 + 52]\n",
      "    lock inc dword ptr [r10 + 44]\n"),
-    ("window releases at once", "dv_keep", "    jb whold\n", "    nop\n"),
+    ("window releases at once", "dv_keep", "    jb wspeed\n", "    nop\n"),
+    # [D66] the hold ends when the flyer stops slowing down
+    ("slide speed never ends", "dv_keep", "    jbe whold\n    lock or", "    jmp whold\n    lock or"),
+    ("slide speed ends on any rise", "dv_keep", "    subss xmm0, xmm1\n    mov eax, 0x3f000000", "    subss xmm0, xmm1\n    mov eax, 0"),
+    ("slide speed ignores rises", "dv_keep", "    subss xmm0, xmm1\n    mov eax", "    subss xmm0, xmm1\n    xorps xmm0, xmm0\n    mov eax"),
+    ("slide speed lowest never lowered", "dv_keep", "    jae wnot_lower\n    movss dword ptr", "    jmp wnot_lower\n    movss dword ptr"),
+    ("slide speed first hold not written", "dv_keep", "    movss dword ptr [r10 + rax*4 + 4160], xmm0\n    jmp whold\nwfound:", "    jmp whold\nwfound:"),
+    ("slide speed on the window counter", "dv_keep", "    lock inc dword ptr [r10 + 5184]\n", "    lock inc dword ptr [r10 + 48]\n"),
+    ("slide speed not sticky", "dv_keep", "    jbe whold\n    lock or qword ptr [rbx], 1\n", "    jbe whold\n"),
+    ("slide speed on x only", "dv_keep", "    addss xmm0, xmm1\n    sqrtss", "    sqrtss"),
+    ("slide speed squared", "dv_keep", "    sqrtss xmm0, xmm0\n", ""),
     ("window not sticky", "dv_keep", "    lock or qword ptr [rbx], 1\n", ""),
     ("window release uncounted", "dv_keep", "    lock inc dword ptr [r10 + 48]\n", ""),
     ("window on x only", "dv_keep", "    addss xmm0, xmm1\n    mov eax", "    mov eax"),
@@ -1763,7 +1880,8 @@ def layout():
             "throughs_at": THROUGHS_AT, "kept_at": KEPT_AT, "engaged_at": ENGAGED_AT,
             "reordered_at": REORDERED_AT, "contact_at": CONTACT_AT, "settled_at": SETTLED_AT,
             "released_at": RELEASED_AT, "slide_at": SLIDE_AT, "slide_slots": SLIDE_SLOTS,
-            "committed_at": COMMITTED_AT, "closed_at": CLOSED_AT, "engaged_body_at": ENGAGED_BODY_AT}
+            "committed_at": COMMITTED_AT, "closed_at": CLOSED_AT, "engaged_body_at": ENGAGED_BODY_AT,
+            "slide_v_at": SLIDE_V_AT, "sped_at": SPED_AT}
 
 
 def source_sha():

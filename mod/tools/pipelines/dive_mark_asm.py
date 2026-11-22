@@ -43,7 +43,7 @@ import rolepath  # noqa: F401,E402 -- imported because it puts the role director
 import dive_cave_asm as base  # noqa: E402 -- because rolepath above puts pipelines/ on sys.path
 
 MAGIC = b"FLYDIVM3"                          # this layout alone; the shipped table uses dive_cost_asm.MAGIC
-MARK_AT = base.BUFFER_BYTES                  # 4160, a multiple of 64
+MARK_AT = base.BUFFER_BYTES                  # 5248 since D66 (4160 before), a multiple of 64
 MARK_COUNT_AT, MARK_FULL_AT = MARK_AT, MARK_AT + 4
 MARK_TABLE_AT, MARK_SLOTS = MARK_AT + 64, 128
 MARK_RING_AT, MARK_RING, MARK_ENTRY = MARK_TABLE_AT + MARK_SLOTS * 16, 32, 32
@@ -52,7 +52,7 @@ ARMED, STAMPED, SPENT, EXPIRED = 1, 2, 3, 4
 EV_ARM, EV_STAMP, EV_SPENT, EV_EXPIRED = 1, 2, 3, 4
 BATTLE_OFF, TICKS_OFF, TICK_OFF = 0x58, 0x440, 0x98
 SITE_PATH = "script/campaign/flyer_dive/data/dive_site.lua"
-assert BYTES <= 0x2000, BYTES                # dive_cave_asm's rigs map 8 KiB buffers
+assert BYTES <= base.RIG_BUF, BYTES           # dive_cave_asm's rigs map RIG_BUF bytes (16 KiB since D66)
 
 
 def tick(ent, out32, scratch, tag):

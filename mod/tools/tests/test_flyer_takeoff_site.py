@@ -59,14 +59,14 @@ class SiteTable(unittest.TestCase):
         want = ([(n, pin_cave_asm.FEATURE, "cave") for n in pin_cave_asm.CAVES]
                 + [(n, pin_cave_asm.FEATURE, "anchor") for n in pin_cave_asm.ANCHORS])
         self.assertEqual(named, want)
-        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (6, 12))   # [D44] + pin_repick, + pin_call_restart
+        self.assertEqual((len(pin_cave_asm.CAVES), len(pin_cave_asm.ANCHORS)), (7, 12))   # [D44] + pin_repick, + pin_call_restart; [D67] + pin_resume
 
     def test_owner_feature_hold_and_window(self):
         # whole lines of the table's top level (an entry repeats the feature inline)
         lines = self.text.splitlines()
         for line in (f"    owner = '{air_dive_rules.TAKEOFF_OWNER}',",
                      f"    feature = '{air_dive_rules.TAKEOFF_FEATURE}',",
-                     "    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8, pin_chargewait = 11 },",
+                     "    resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8, pin_chargewait = 11, pin_resume = 6 },",
                      f"    build = '{air_dive_rules.TAKEOFF_BUILD}',"):
             with self.subTest(line=line):
                 self.assertEqual(lines.count(line), 1)
@@ -76,7 +76,7 @@ class SiteTable(unittest.TestCase):
         self.assertEqual(lines.count(f"        windows = {{ {windows} }},"), 1)
         self.assertEqual(lines.count(
             "        size_codes = { small = 1, medium = 2, large = 3, very_large = 4 },"), 1)
-        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPIN11',"), 1)
+        self.assertEqual(lines.count(f"        magic_at = 16, magic = 'FLYPIN12',"), 1)
         self.assertIn(pin_cave_asm.HOLD_NAME, pin_cave_asm.CAVES)
         self.assertIn("pin_layout_size", pin_cave_asm.ANCHORS)
 
@@ -97,7 +97,7 @@ class SiteTable(unittest.TestCase):
             holders = re.findall(r"\{([a-z]+):8\}", m.group(1))
             with self.subTest(cave=name):
                 self.assertEqual(holders, ["buf", "resume"] if name in pin_cave_asm.RESUME_AT else ["buf"])
-        self.assertEqual(sorted(pin_cave_asm.RESUME_AT), ["pin_chargewait", "pin_hold", "pin_regroup1", "pin_regroup2", "pin_repick"])
+        self.assertEqual(sorted(pin_cave_asm.RESUME_AT), ["pin_chargewait", "pin_hold", "pin_regroup1", "pin_regroup2", "pin_repick", "pin_resume"])
 
     def test_patterns_are_ones_the_loader_accepts(self):
         limit = loader_pattern_limit()

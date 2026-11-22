@@ -114,6 +114,9 @@ POP_KIND = 10
 # the clear-queue loop 0x142f4641c (push rbx; sub rsp, 0x20) pops through call -> return 0x142f46436; its own
 # caller's return address then sits 0x30 above the pop's entry rsp: logged at ext +64 (0 for any other caller)
 POP_CLEAR_RET, POP_CLEAR_UP = 0x142F46436, 0x30
+# [CRAWL-1122] and one level more: the clear loop's caller 0x143025d14 (push rdi; sub rsp, 0x20) returns to ITS
+# caller from 0x60 above the pop's entry rsp (0x30 + 0x30): logged at ext +72 (0 for any other caller)
+POP_CLEAR_UP2 = 0x60
 # [D42] rt_done: rbx = the top-level attack behaviour (vtable 0x143acd1b0, update 0x142f62344), [rbx+8] = its unit,
 # [unit+0x32f8] = the main controller; ctrl +0xa08 / +0x928 (0x142d6e9bc: busy when a08 == 1 and 928 == 0), +0x24 its
 # entity count; unit +0x3294 the number of controllers. rt_pick: rcx = the unit at the picker 0x14302a11c's entry.
@@ -400,6 +403,8 @@ pop_end:
     jne pop_noclear
     mov rax, qword ptr [rsp + {PUSHES * 8 + POP_CLEAR_UP}]
     mov qword ptr [r11 + {EXT}], rax
+    mov rax, qword ptr [rsp + {PUSHES * 8 + POP_CLEAR_UP2}]
+    mov qword ptr [r11 + {EXT + 8}], rax
 pop_noclear:"""
 
 
@@ -1023,7 +1028,7 @@ def _check_pop(code, mutated=False):
              ("null unit", 1, {"null_unit": True}, dict(flag=1, vt=order_vt, unit=0, n=NONE32, ovvt=NONE32,
                                                          st=NONE32)),
              ("from the clear loop", 1, {"clear": True}, dict(flag=1, vt=order_vt, unit=unit, n=1, ovvt=ov_vt,
-                                                              st=state, c2=0x143025D19)),
+                                                              st=state, c2=0x143025D19, c3=0x14305357C)),
              ("off", 0, {}, None)]
     for label, mode, wk, want in cases:
         clear = wk.pop("clear", False) if want is not None else False
@@ -1035,6 +1040,7 @@ def _check_pop(code, mutated=False):
             rsp = STACK + 0x4000
             mu.mem_write(rsp, struct.pack("<Q", POP_CLEAR_RET if clear else RET))
             mu.mem_write(rsp + POP_CLEAR_UP, struct.pack("<Q", 0x143025D19))
+            mu.mem_write(rsp + POP_CLEAR_UP2, struct.pack("<Q", 0x14305357C))
             try:
                 changed = _run(mu, code, {"rcx": ring, "rdx": 0x4242, "rsp": rsp}, flags)
             except Exception as err:      # a fault is a failed case
@@ -1052,7 +1058,7 @@ def _check_pop(code, mutated=False):
             exp = struct.pack("<QQQIIQQIIII", ring, want["flag"], POP_CLEAR_RET if clear else RET, 0, POP_KIND,
                               want["vt"], want["unit"],
                               want["n"], want["ovvt"] & 0xFFFFFFFF, want["st"], 8)   # the cave keeps the low 32 bits
-            exp += struct.pack("<Q", want.get("c2", 0))
+            exp += struct.pack("<QQ", want.get("c2", 0), want.get("c3", 0))
             exp += bytes(ENTRY - len(exp))
             if written != 1 or calls != 1 or entry != exp:
                 fails.append(f"rt_pop {label}: written {written} calls {calls} entry {entry.hex()} want {exp.hex()}")
@@ -1098,6 +1104,7 @@ MUTANTS = (
     ("rt_pop", "mov dword ptr [r11 + 28], 10", "mov dword ptr [r11 + 28], 9"),
     ("rt_pop", "mov rax, qword ptr [rsp + 104]", "mov rax, qword ptr [rsp + 96]"),
     ("rt_pop", "cmp rax, rdx\n    jne pop_noclear", "cmp rax, rdx\n    nop"),
+    ("rt_pop", "mov rax, qword ptr [rsp + 152]", "mov rax, qword ptr [rsp + 144]"),   # [CRAWL-1122] c3 one slot off
     ("rt_done", "mov rcx, qword ptr [rdx + 0x32f8]", "mov rcx, qword ptr [rdx + 0x32f0]"),
     ("rt_done", "mov eax, dword ptr [rcx + 0xa08]", "mov eax, dword ptr [rcx + 0xa0c]"),
     ("rt_done", "mov eax, dword ptr [rcx + 0x928]", "mov eax, dword ptr [rcx + 0x92c]"),

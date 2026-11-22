@@ -207,7 +207,7 @@ function M.arm(buf, windows, mode, regroup_off)
             layout.free_at, layout.unsized_at, layout.regroup_calls_at, layout.regroup_skipped_at,
             layout.regroup_would_at, layout.regroup_queued_at, layout.regroup_unheld_at,
             layout.unit_held_at, layout.unit_stamps_at, layout.unit_dropped_at, layout.repick_at,
-            layout.chargewait_at }) do
+            layout.chargewait_at, layout.keep_at }) do
         if at then put_u32(buf, at, 0) end
     end
     if layout.regroup_off_at then put_u32(buf, layout.regroup_off_at, regroup_off and 1 or 0) end
@@ -249,7 +249,9 @@ function M.counters(buf)
         unmatched = u32(buf, l.unmatched_at), held = u32(buf, l.held_at),
         free = u32(buf, l.free_at), unsized = u32(buf, l.unsized_at), regroup = regroup, unit = unit,
         repick = l.repick_at and u32(buf, l.repick_at) or nil,
-        chargewait = l.chargewait_at and u32(buf, l.chargewait_at) or nil }
+        chargewait = l.chargewait_at and u32(buf, l.chargewait_at) or nil,
+        -- [D67] orders restarted instead of cleared when a flying unit's melee interrupt ended
+        keep = l.keep_at and u32(buf, l.keep_at) or nil }
 end
 
 function M.layout() return site and site.layout end

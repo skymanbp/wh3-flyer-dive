@@ -63,13 +63,14 @@ import cave_site_text  # noqa: E402 -- because rolepath above puts lib/ on sys.p
 import pin_cave_asm as base  # noqa: E402 -- same reason (pipelines/)
 
 TRACE_SITE = HERE / "takeoff_trace_site.lua"
-MAGIC = b"FLYPIT11"                 # a shipped table never adopts a traced buffer (cave_common.installed); 5: D11 raise
+MAGIC = b"FLYPIT12"                 # a shipped table never adopts a traced buffer (cave_common.installed); 5: D11 raise
 # 6: followed the shipped marker 6 (D23); the traced table carries the stamp and hold caves only, not the regroup ones
 # 7: follows the shipped FLYPINS7 (D37, windows one second longer)
 # 8: follows the shipped FLYPINS8 (D39, the unit table and the unit rule)
 # 9: follows the shipped FLYPINS9 (D44, pin_repick)
 # 10: follows the shipped FLYPIN10 (REPICK-EXIT-1121, pin_repick at the picker's exit)
 # 11: follows the shipped FLYPIN11 (D46, pin_chargewait)
+# 12: follows the shipped FLYPIN12 (D67, pin_resume)
 TRACE_AT = base.BUFFER_BYTES        # 147584 since D39, a multiple of 64
 TRACE_ON_AT, TRACE_COUNT_AT = TRACE_AT, TRACE_AT + 4
 TRACE_RING_AT, TRACE_ENTRY, TRACE_SLOTS = TRACE_AT + 64, 32, 32768

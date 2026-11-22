@@ -189,6 +189,8 @@ UNIT_WINDOW_AT, UNIT_HELD_AT, UNIT_STAMPS_AT, UNIT_DROPPED_AT = 88, 92, 96, 100
 REPICK_AT = 104
 # [D46] pin_chargewait: uncharged flyer charge tasks kept from ending on the previous move's finish, counted at +108
 CHARGEWAIT_AT = 108
+# [D67] pin_resume: orders restarted instead of cleared when a flying unit's melee interrupt ended, counted at +112
+KEEP_AT = 112
 T_CHARGED, T_SLOT, SLOT_ENT, T_HOLDER, H_MOVE, M_DONE = 0x80, 0x10, 8, 0x18, 8, 0x10
 E_FLIGHT = 0x128                    # the model's flight controller: non-null only for a flyer
 CW_FRAME = 0x60                     # the update's sub rsp,0x60 (then pop rbx; the caller's return address)
@@ -206,6 +208,12 @@ SELF_FROM_RESUME = SELF_RESTARTER - (REPICK_SITE + REPICK_RESUME_AT)
 SELF_FROM_SITE = SELF_RESTARTER - REPICK_SITE
 PICK_CALLER_UP = 0x78                     # 7 pushes + sub rsp,0x40 -> the caller's return address
 PICK_RBX_UP = 0x98                        # the stolen mov rbx, [rsp+0x98] (rbx saved in the home space)
+# [D67, CRAWL-1122] pin_resume at 0x14302f445 in 0x14302f300, the exit of MELEE_INTERRUPT_STATE (handler table row
+# 0x14394f868, thunk 0x14302ecc8; its only reference): rbx = the state object, [rbx+0x28] = the unit; the stolen
+# ``mov rcx, [rbx+0x28]; xor edx, edx`` (6 bytes), then ``call 0x143025d14`` (clear every order, 5 bytes) at the resume
+RESUME_SITE, RESUME_STOLEN_LEN, CLEAR_CALL_LEN, RS_UNIT = 0x14302F445, 6, 5, 0x28
+RESUME_RESTART_FROM_RESUME = RESTART_FN - (RESUME_SITE + RESUME_STOLEN_LEN)       # checked in Lua at install
+RESUME_RESTART_FROM_SITE = RESTART_FN - RESUME_SITE
 UNIT_TABLE_AT = TABLE_AT + TABLE_SLOTS * ENTRY_BYTES
 UNIT_SLOTS = 1024                   # power of two; flying units in one battle
 UNIT_PROBES = 64
@@ -220,7 +228,8 @@ GROUND_PHASE = air_dive_rules.TAKEOFF_UNIT_HOLD_PHASE
 # 9: the order is restarted when the main controller changes because the old one emptied (D44, pin_repick)
 # 10: the restart moved to the picker's exit, so every re-pick restarts (REPICK-EXIT-1121)
 # 11: an uncharged flyer charge task no longer ends on the previous move's finish (D46, pin_chargewait)
-MAGIC = b"FLYPIN11"
+# 12: a flying unit's order is restarted, not cleared, when its melee interrupt ends (D67, pin_resume)
+MAGIC = b"FLYPIN12"
 MAX_MODELS = 1024                   # a larger flight list is not judged (free)
 CHAIN_MAX = 4                       # victim + three ancestors
 BUFFER_PLACEHOLDER = 0x1122334455667788
@@ -276,13 +285,17 @@ CAVES = {
     # branch 0x142f8ffa0 lands here besides the fall-through, at the site's first byte.
     "pin_chargewait": ("48 89 43 58 48 8B 53 18 48 8B CB 48 83 C2 08 48 83 C4 60 5B E9", 4,
                        "48 8B 53 18 48 8B CB 48 83 C2 08", "chargewait"),
+    # [D67] 0x14302f445 in 0x14302f300: movdqu [rax+0x48],xmm6; jmp 0x14302f4d0; (site, two je land here)
+    # mov rcx,[rbx+0x28]; xor edx,edx; call 0x143025d14; mov r8,[rbx+0x28]; cmp dword [r8+0x3b70],7
+    "pin_resume": ("F3 0F 7F 70 48 E9 ?? ?? ?? ?? 48 8B 4B 28 33 D2 E8 ?? ?? ?? ?? 4C 8B 43 28 41 83 B8 70 3B 00 00 07",
+                   10, "48 8B 4B 28 33 D2", "resume"),
 }
 HOLD_NAME, HOLD_RESUME_AT = "pin_hold", 8      # resume at `test al,al`
 # where a cave resumes when it does not fall through to its stolen bytes: site + offset. The regroup caves skip
 # the stolen bytes (13), mov rax,[rcx] (3) and call [rax+0x4f8] (6): 0x142f7f71c / 0x142f8ffda
 REGROUP_SKIP = 13 + 3 + 6
 RESUME_AT = {HOLD_NAME: HOLD_RESUME_AT, "pin_regroup1": REGROUP_SKIP, "pin_regroup2": REGROUP_SKIP,
-             "pin_repick": REPICK_RESUME_AT, "pin_chargewait": 11}
+             "pin_repick": REPICK_RESUME_AT, "pin_chargewait": 11, "pin_resume": RESUME_STOLEN_LEN}
 MELEE = 0                                      # the applier's damage type of a melee hit
 TYPE_ARG = 0x30                                # entry rsp offset of the damage type
 # name -> (pattern, what it pins)
@@ -841,8 +854,49 @@ def chargewait_source(mutate=()):
     """, "chargewait", mutate)
 
 
+def resume_source(mutate=()):
+    """[D67] At 0x14302f445 in the melee interrupt's exit 0x14302f300 (rbx = the unit's state object, [rbx+0x28] = the
+    unit), where the engine is about to clear every order of a unit whose current order is not resumable (or whose
+    queue is empty): ``mov rcx, [rbx+0x28]; xor edx, edx`` (the stolen bytes), then ``call 0x143025d14`` at the
+    resume point. In mode 1, for a unit with living flight entities (+0x184) and an order in its queue (+0x2f88),
+    the queue's head order is restarted instead (0x14304e030 on the queue manager unit+0x278, D44's call) and the
+    clear is skipped (resume + 5, after the call). Anything else runs the stolen bytes and the clear. Volatile
+    registers only: the clear (or the restart) is a call, and after it the code reads only rbx and r8 it sets itself;
+    rsp is 16-byte aligned at the site (0x14302f300 stores xmm6 with movaps [rsp+0x20] after its push rdi; sub rsp,
+    0x30), so push r10 and 0x28 more leave it aligned for the call."""
+    return _mutated(f"""
+        mov r9, {BUFFER_PLACEHOLDER:#x}
+        mov r10, {RESUME_PLACEHOLDER:#x}
+        cmp dword ptr [r9 + {MODE_AT}], 1
+        jne clear
+        mov rcx, qword ptr [rbx + {RS_UNIT:#x}]
+        test rcx, rcx
+        jz clear
+        cmp dword ptr [rcx + {LIST_COUNT_OFF:#x}], 0
+        je clear
+        cmp dword ptr [rcx + {QUEUE_COUNT_OFF:#x}], 0
+        je clear
+        lock inc dword ptr [r9 + {KEEP_AT}]
+        push r10
+        sub rsp, 0x28
+        lea rcx, [rcx + {U_QUEUE_MGR:#x}]
+        lea r11, [r10 + {RESUME_RESTART_FROM_RESUME:#x}]
+        call r11
+        add rsp, 0x28
+        pop r10
+        add r10, {CLEAR_CALL_LEN}
+        jmp r10
+    clear:
+        mov rcx, qword ptr [rbx + {RS_UNIT:#x}]
+        xor edx, edx
+        jmp r10
+    """, "resume", mutate)
+
+
 def cave_source(name, mutate=()):
     role = CAVES[name][3]
+    if role == "resume":
+        return resume_source(mutate)
     if role == "chargewait":
         return chargewait_source(mutate)
     if role == "repick":
@@ -866,7 +920,7 @@ def layout():
             "unit_ticks_at": UNIT_WINDOW_AT, "unit_ticks": UNIT_WINDOW, "unit_held_at": UNIT_HELD_AT,
             "unit_stamps_at": UNIT_STAMPS_AT, "unit_dropped_at": UNIT_DROPPED_AT,
             "unit_table_at": UNIT_TABLE_AT, "unit_slots": UNIT_SLOTS, "repick_at": REPICK_AT,
-            "chargewait_at": CHARGEWAIT_AT}
+            "chargewait_at": CHARGEWAIT_AT, "keep_at": KEEP_AT}
 
 
 def source_sha():
@@ -2009,6 +2063,61 @@ def check(mutate=()):
     chargewait("no holder", has_holder=False, want_return=False)
     chargewait("mode 0", mode=0, want_return=False)
     chargewait("mode 2", mode=2, want_return=False)
+    # [D67] pin_resume: a flying unit with an order queued gets its head order restarted and skips the clear; every
+    # other case runs the stolen bytes and lands on the clear call
+    rbegin, rsize = m.code["pin_resume"]
+    r_restart = RESUME + RESUME_RESTART_FROM_RESUME
+    m.uc.mem_write(r_restart, b"\xc3")
+    m.uc.mem_write(RESUME + CLEAR_CALL_LEN, b"\xf4")
+    state = UNIT + 0xD000
+
+    def resume(label, mode=1, flyers=3, queue=1, unit=UNIT, want_restart=True):
+        from unicorn import UC_HOOK_CODE, UcError
+        x, uc = m.x, m.uc
+        m.reset(mode=mode)
+        uc.mem_write(UNIT + LIST_COUNT_OFF, struct.pack("<I", flyers))
+        uc.mem_write(UNIT + QUEUE_COUNT_OFF, struct.pack("<I", queue))
+        uc.mem_write(state + RS_UNIT, struct.pack("<Q", unit))
+        m._registers()
+        uc.reg_write(x.UC_X86_REG_RBX, state)
+        sp = STACK + 0x8000
+        before = {r: uc.reg_read(r) for r in m.callee_saved}
+        seen, landed = [], []
+
+        def at_restart(mu, _a, _s, _d):
+            seen.append((mu.reg_read(x.UC_X86_REG_RCX), mu.reg_read(x.UC_X86_REG_RSP) % 16))
+
+        def at_land(mu, a, _s, _d):
+            landed.append((a - RESUME, mu.reg_read(x.UC_X86_REG_RCX), mu.reg_read(x.UC_X86_REG_RDX) & 0xFFFFFFFF,
+                           mu.reg_read(x.UC_X86_REG_RSP)))
+            mu.emu_stop()
+        h1 = uc.hook_add(UC_HOOK_CODE, at_restart, begin=r_restart, end=r_restart)
+        h2 = uc.hook_add(UC_HOOK_CODE, at_land, begin=RESUME, end=RESUME + CLEAR_CALL_LEN)
+        uc.ctl_flush_tb()          # because hooks added after earlier runs need fresh translation (see stamp())
+        try:
+            uc.emu_start(rbegin, rbegin + rsize, count=100_000)
+        except UcError:
+            landed.append("crash")
+        uc.hook_del(h1)
+        uc.hook_del(h2)
+        if want_restart:
+            # where it landed (offset past the resume point), the restart having been made; "crash" kept as is
+            expect(f"resume {label}: skipped the clear", [hit if hit == "crash" else hit[0] for hit in landed],
+                   [CLEAR_CALL_LEN])
+        else:
+            expect(f"resume {label}: the stolen bytes then the clear", landed, [(0, unit, 0, sp)])
+        expect(f"resume {label}: rsp", uc.reg_read(x.UC_X86_REG_RSP), sp)
+        expect(f"resume {label}: callee-saved registers", all(uc.reg_read(r) == v for r, v in before.items()), True)
+        expect(f"resume {label}: restart calls", seen, [(UNIT + U_QUEUE_MGR, 8)] if want_restart else [])
+        expect(f"resume {label}: counted", m.head(KEEP_AT), 1 if want_restart else 0)
+
+    resume("a flying unit with an order queued")
+    resume("a flying unit with five orders", queue=5)
+    resume("no order queued", queue=0, want_restart=False)
+    resume("a ground unit", flyers=0, want_restart=False)
+    resume("no unit", unit=0, want_restart=False)
+    resume("mode 0", mode=0, want_restart=False)
+    resume("mode 2", mode=2, want_restart=False)
     return failures, count[0]
 
 
@@ -2056,6 +2165,23 @@ MUTANTS = (
     ("repick: no bound on the list", "repick", f"cmp ecx, {CTRL_LIST_MAX}\n        ja out",
      f"cmp ecx, {CTRL_LIST_MAX}\n        nop"),
     ("repick: not counted", "repick", f"lock inc dword ptr [r9 + {REPICK_AT}]", "nop"),
+    # [D67] pin_resume
+    ("resume: ground units too", "resume", f"cmp dword ptr [rcx + {LIST_COUNT_OFF:#x}], 0\n        je clear",
+     f"cmp dword ptr [rcx + {LIST_COUNT_OFF:#x}], 0\n        nop"),
+    ("resume: an empty queue restarted", "resume", f"cmp dword ptr [rcx + {QUEUE_COUNT_OFF:#x}], 0\n        je clear",
+     f"cmp dword ptr [rcx + {QUEUE_COUNT_OFF:#x}], 0\n        nop"),
+    ("resume: mode 2 restarts", "resume", f"cmp dword ptr [r9 + {MODE_AT}], 1\n        jne clear",
+     f"cmp dword ptr [r9 + {MODE_AT}], 0\n        je clear"),
+    ("resume: null unit followed", "resume", "test rcx, rcx\n        jz clear", "test rcx, rcx\n        nop"),
+    ("resume: clears after the restart too", "resume", f"add r10, {CLEAR_CALL_LEN}\n        jmp r10", "jmp r10"),
+    ("resume: wrong queue manager", "resume", f"lea rcx, [rcx + {U_QUEUE_MGR:#x}]", "lea rcx, [rcx + 0x288]"),
+    ("resume: wrong restart address", "resume", f"lea r11, [r10 + {RESUME_RESTART_FROM_RESUME:#x}]",
+     f"lea r11, [r10 + {RESUME_RESTART_FROM_RESUME + 1:#x}]"),
+    ("resume: misaligned call", "resume", "sub rsp, 0x28\n        lea rcx, [rcx", "sub rsp, 0x20\n        lea rcx, [rcx"),
+    ("resume: not counted", "resume", f"lock inc dword ptr [r9 + {KEEP_AT}]", "nop"),
+    ("resume: stolen xor lost", "resume", "xor edx, edx\n        jmp r10", "jmp r10"),
+    ("resume: stolen unit load lost", "resume", f"    clear:\n        mov rcx, qword ptr [rbx + {RS_UNIT:#x}]",
+     "    clear:\n        nop"),
     ("the window's last tick counts", "hold", "cmp eax, r10d\n        jae own_free",
      "cmp eax, r10d\n        ja own_free"),
     ("the size code used as the index without -1", "hold", "dec eax\n", "nop\n"),
@@ -2259,12 +2385,13 @@ def site_lua(codes):
         f"        unit_held_at = {lay['unit_held_at']}, unit_stamps_at = {lay['unit_stamps_at']},",
         f"        unit_dropped_at = {lay['unit_dropped_at']},",
         f"        unit_table_at = {lay['unit_table_at']}, unit_slots = {lay['unit_slots']},",
-        f"        repick_at = {lay['repick_at']}, chargewait_at = {lay['chargewait_at']},",
+        f"        repick_at = {lay['repick_at']}, chargewait_at = {lay['chargewait_at']}, keep_at = {lay['keep_at']},",
         "    },",
         "    -- [D44] pin_repick calls the engine's restart and skips the caller that restarts by itself: the found",
         "    -- addresses must be these distances apart",
         f"    distances = {{ {{ from = 'pin_repick', to = 'pin_call_restart', bytes = {RESTART_FROM_SITE} }},",
-        f"        {{ from = 'pin_repick', to = 'pin_self_restarter', bytes = {SELF_FROM_SITE} }} }},",
+        f"        {{ from = 'pin_repick', to = 'pin_self_restarter', bytes = {SELF_FROM_SITE} }},",
+        f"        {{ from = 'pin_resume', to = 'pin_call_restart', bytes = {RESUME_RESTART_FROM_SITE} }} }},",
         f"    format = {agreement_format()},",
         f"    build = '{BUILD}',",
         f"    source_sha = '{source_sha()}',",
@@ -2314,6 +2441,9 @@ def check_exe(exe_path):
     if got != (REPICK_SITE, RESTART_FN, SELF_RESTARTER):
         raise RuntimeError(f"[pin_cave_asm] REFUSING: pin_repick / pin_call_restart / pin_self_restarter at "
                            f"{got}, want {REPICK_SITE:#x} / {RESTART_FN:#x} / {SELF_RESTARTER:#x}")
+    # [D67] pin_resume calls the same restart through its own distance
+    if found.get("pin_resume") != RESUME_SITE:
+        raise RuntimeError(f"[pin_cave_asm] REFUSING: pin_resume at {found.get('pin_resume')}, want {RESUME_SITE:#x}")
     return found
 
 

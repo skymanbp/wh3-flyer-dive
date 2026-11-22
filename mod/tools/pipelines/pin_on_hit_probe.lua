@@ -350,7 +350,7 @@ local function drain_calls(ms, uid_of)
                     extra = extra .. fmt(" m30=%s m710=%s", hex_bytes(chunk, at + 104, 4), hex_bytes(chunk, at + 108, 4))
                 end
             elseif kind == 10 then                  -- [D42] rt_pop: the clear-queue loop's caller (0 = not from it)
-                extra = " c2=" .. hex_bytes(chunk, at + 64, 8)
+                extra = " c2=" .. hex_bytes(chunk, at + 64, 8) .. " c3=" .. hex_bytes(chunk, at + 72, 8)   -- [CRAWL-1122] one level up
             elseif kind == 14 then                  -- [D45] rt_pursue: state, target unit, own model count, answer
                 extra = fmt(" st=%s tgt=%s own=%d yes=%d", hex_bytes(chunk, at + 64, 8), hex_bytes(chunk, at + 72, 8),
                     u32le(chunk, at + 80), u32le(chunk, at + 84))
@@ -565,6 +565,7 @@ local function sample()
             .. (c.unit and fmt(" u_held=%d u_stamps=%d u_dropped=%d u_ticks=%d", c.unit.held, c.unit.stamps,
                 c.unit.dropped, c.unit.ticks) or "")
             .. (c.repick and fmt(" repick=%d", c.repick) or "")
+            .. (c.keep and fmt(" keep=%d", c.keep) or "")   -- [D67]
             .. (c.chargewait and fmt(" chargewait=%d", c.chargewait) or "")
             .. (trace and fmt(" trace=%d trace_lost=%d", trace.seen, trace.lost) or ""))
     end

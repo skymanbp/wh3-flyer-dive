@@ -165,11 +165,11 @@ class BattleEntry(unittest.TestCase):
         text = (TOOLS_DIR.parent / "script" / "battle" / "mod" / "flyer_dive.lua").read_text("utf-8")
         for needle in ("dive.set_brace(buffer, brace_rule.word(site.brace, s), brace_rule.reflect_word(site.brace, s))",
                        'bm:register_phase_change_callback("Deployed", function() read_brace("Deployed") end)',
-                       "c.released, c.committed, c.closed, c.engaged_body, c.braced, c.brace_repeat, c.brace_noslot, "
-                       "c.reflected)"):
+                       "c.released, c.committed, c.closed, c.sped, c.engaged_body, c.braced, c.brace_repeat, "
+                       "c.brace_noslot,\n        c.reflected)"):
             self.assertIn(needle, text)
         # [D64] one formatter (counts) for NOW and END
-        self.assertEqual(text.count("c.brace_noslot, c.reflected)"), 1)
+        self.assertEqual(text.count("c.brace_noslot,\n        c.reflected)"), 1)
         self.assertEqual(text.count("record(\"NOW \" .. line)"), 1)
         self.assertEqual(text.count("record(\"END \" .. counts(c))"), 1)
         self.assertNotIn("dive_cost", text)

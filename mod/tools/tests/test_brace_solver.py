@@ -154,8 +154,8 @@ class SiteTable(unittest.TestCase):
 
     def test_current_and_the_marker(self):
         self.assertTrue(dive_cost_asm.check_site_file(MOD_DIR))
-        self.assertIn("magic = 'FLYDIVE8'", self.text)
-        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE8")
+        self.assertIn("magic = 'FLYDIVE9'", self.text)
+        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE9")
         self.assertIn("dv_brace = 26, dv_reflect = 5 }", self.text)
         self.assertIn(f"            pattern = '{brace.SITE}',", self.text.splitlines())
         self.assertIn(f"            at = 0, expect = '{brace.STOLEN}',", self.text.splitlines())
@@ -166,7 +166,10 @@ class SiteTable(unittest.TestCase):
         # [D51] the 3136 bytes D15's cost used stay reserved, so dv_brace's offsets are those it shipped with
         lay = dive_cost_asm.layout()
         self.assertEqual(lay["brace_word_at"], dive_cost_asm.RESERVED_AT + 64 + 64 * 48)
-        self.assertEqual(lay["brace_word_at"], 10432)
+        self.assertEqual(lay["brace_word_at"], 11520)       # [D66] 10432 + the slide speeds (1024) and counter (64)
+        # [D66] the lowest slide speeds right after the slide table, one F32 per slot, then their counter
+        self.assertEqual((lay["slide_v_at"], lay["sped_at"]),
+                         (lay["slide_at"] + lay["slide_slots"] * 16, lay["slide_at"] + lay["slide_slots"] * 20))
         self.assertEqual(lay["brace_count_at"], lay["brace_word_at"] + 4)
         self.assertEqual((lay["reflect_word_at"], lay["reflect_count_at"]),
                          (lay["brace_word_at"] + 8, lay["brace_word_at"] + 12))
@@ -412,7 +415,7 @@ package.preload["script/campaign/flyer_dive/lib/dive"] = function()
         arm = function() ev("ARM") end,
         set_brace = function(_, w, r) ev("WORD " .. tostring(w) .. " " .. tostring(r)) end,
         counters = function() return { throughs = 0, skipped = 0, kept = 0, engaged = 0, reordered = 0, contact = 0,
-            settled = 0, released = 0, committed = 0, closed = 0, engaged_body = 0, braced = 7, brace_repeat = 5, brace_noslot = 1, reflected = 3 } end,
+            settled = 0, released = 0, committed = 0, closed = 0, sped = 2, engaged_body = 0, braced = 7, brace_repeat = 5, brace_noslot = 1, reflected = 3 } end,
     }
 end
 _G.memreader_plus = {}

@@ -65,7 +65,7 @@ return {
     layout = {
         bytes = 1196224, mode_at = 4,
         stamps_at = 8, allowed_at = 12,
-        magic_at = 16, magic = 'FLYPIT11',
+        magic_at = 16, magic = 'FLYPIT12',
         dropped_at = 24, unmatched_at = 28,
         held_at = 32, free_at = 36, unsized_at = 40,
         table_at = 128, table_slots = 8192,
@@ -80,8 +80,8 @@ return {
         trace_on_at = 147584, trace_count_at = 147588,
         trace_ring_at = 147648, trace_entry = 32, trace_slots = 32768,
     },
-    format = 654380,
+    format = 649838,
     build = '6ae2a00b',
-    source_sha = '9fc2a0930a6263069e0bba47b54df4b207e6b34a3ff3a523f3eb71405306f78c',
+    source_sha = '9ea6cbb19faf1808eaebf2706936ea956d8966f76b5835aded158635404a0653',
     trace = true,
 }

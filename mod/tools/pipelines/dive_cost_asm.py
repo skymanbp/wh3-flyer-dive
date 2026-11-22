@@ -1,7 +1,7 @@
 """The shipped physics-dive site table: the eleven dive caves of dive_cave_asm.py with the dive mark of
 dive_mark_asm.py, plus ``dv_brace`` (D31, pipelines/dive_brace_asm.py) and ``dv_reflect`` (D51,
 pipelines/dive_reflect_asm.py). This file writes ``script/campaign/flyer_dive/data/dive_site.lua`` (dive_cave_asm.py
-does not: its table would drop them). MAGIC FLYDIVE8.
+does not: its table would drop them). MAGIC FLYDIVE9.
 
 [D51] D15's dive cost (the cave ``dv_cost`` with its anchor ``dv_facing``, and lib/dive_cost.lua, which took a share
 of maximum health) is removed; Charge Reflection on flyers is now the engine's own reflection multiply, doubled for
@@ -39,7 +39,7 @@ import dive_mark_asm as mark  # noqa: E402 -- same reason (pipelines/)
 import dive_brace_asm as brace  # noqa: E402 -- same reason (pipelines/)
 import dive_reflect_asm as reflect  # noqa: E402 -- same reason (pipelines/)
 
-MAGIC = b"FLYDIVE8"     # 4: + the mark and dv_cost (D15); 5: + dv_brace (D31); 6: dv_cost -> dv_reflect (D51); 7: hand-off 0.5, k 4 (D62); 8: once per soldier, hand-off at walk speed (D64)
+MAGIC = b"FLYDIVE9"     # 4: + the mark and dv_cost (D15); 5: + dv_brace (D31); 6: dv_cost -> dv_reflect (D51); 7: hand-off 0.5, k 4 (D62); 8: once per soldier, hand-off at walk speed (D64); 9: the slide ends when the flyer stops slowing (D66)
 RESERVED_AT = mark.BYTES                # 7296, a multiple of 64
 BRACE_AT = RESERVED_AT + 64 + 64 * 48   # where D15's cost ring ended, so dv_brace's offsets are unchanged
 BRACE_WORD_AT, BRACE_COUNT_AT = BRACE_AT, BRACE_AT + 4

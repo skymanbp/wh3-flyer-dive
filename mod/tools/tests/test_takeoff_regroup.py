@@ -82,8 +82,9 @@ class SiteTable(unittest.TestCase):
         cls.text = SITE_FILE.read_text(encoding="utf-8")
 
     def test_caves_resume_and_layout(self):
-        self.assertIn("caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick', 'pin_chargewait' },", self.text)
-        self.assertIn("resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8, pin_chargewait = 11 },", self.text)
+        self.assertIn("caves = { 'pin_stamp', 'pin_hold', 'pin_regroup1', 'pin_regroup2', 'pin_repick', 'pin_chargewait', "
+                      "'pin_resume' },", self.text)
+        self.assertIn("resume_at = { pin_hold = 8, pin_regroup1 = 22, pin_regroup2 = 22, pin_repick = 8, pin_chargewait = 11, pin_resume = 6 },", self.text)
         self.assertIn("regroup_off_at = 64, regroup_calls_at = 68,", self.text)
         self.assertIn("regroup_skipped_at = 72, regroup_would_at = 76,", self.text)
         self.assertIn("regroup_queued_at = 80, regroup_unheld_at = 84,", self.text)
@@ -107,6 +108,7 @@ package.path = MOD .. "/?.lua;" .. package.path
 local mem, next_alloc = {}, 0x10000000
 local addresses = { pin_stamp = 0x14325a9c4, pin_hold = 0x143053cfb, pin_regroup1 = 0x142f7f706,
                     pin_regroup2 = 0x142f8ffc4, pin_repick = 0x14302a74a, pin_chargewait = 0x142f8fff6,
+                    pin_resume = 0x14302f445,   -- [D67]
                     pin_call_restart = 0x14304e030, pin_self_restarter = 0x1430462fe }   -- [D44]
 local installed, given_seen = {}, nil
 local mr = {}
@@ -212,6 +214,7 @@ class LuaInstall(unittest.TestCase):
         out = self.run_lua("new")
         self.assertIn(f"GIVEN pin_repick buf=yes resume={0x14302a752:X}", out)     # [D44, REPICK-EXIT-1121]
         self.assertIn(f"GIVEN pin_chargewait buf=yes resume={0x142f90001:X}", out)     # [D46]
+        self.assertIn(f"GIVEN pin_resume buf=yes resume={0x14302f44b:X}", out)     # [D67] before the clear call
         self.assertIn("GIVEN pin_stamp buf=yes resume=none", out)
         self.assertIn(f"GIVEN pin_hold buf=yes resume={0x143053cfb + 8:X}", out)
         self.assertIn(f"GIVEN pin_regroup1 buf=yes resume={0x142f7f71c:X}", out)

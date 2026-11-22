@@ -80,14 +80,16 @@ record(("BATTLE mp=%s campaign=%s %s, caves format %s built for %s"):format(tost
 local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, flight stops held off %d, "
     .. "engage re-paths held off %d, charge-order re-paths held off %d, melee engages held off %d, "
     .. "blocked stops held off %d, slides ended %d, landings kept %d, "
-    .. "slides ended by melee %d, bodies already in melee not carried %d, braced masses scaled %d, "
+    .. "slides ended by melee %d, slides ended by speeding up again %d, "
+    .. "bodies already in melee not carried %d, braced masses scaled %d, "
     .. "braced steps left to the engine %d, braced masses scaled with no slide entry %d, "
     .. "Charge Reflection hits on flyers raised %d"
 -- [D64] braced masses are scaled once per soldier met (first meetings); the later steps of the same pair are the
 -- engine's own; a flyer with no slide entry yet is scaled but not remembered
 local function counts(c)
     return COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-        c.released, c.committed, c.closed, c.engaged_body, c.braced, c.brace_repeat, c.brace_noslot, c.reflected)
+        c.released, c.committed, c.closed, c.sped, c.engaged_body, c.braced, c.brace_repeat, c.brace_noslot,
+        c.reflected)
 end
 local TICK_NAME, TICK_MS = "flyer_dive_counts", 10000
 

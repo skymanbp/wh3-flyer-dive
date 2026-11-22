@@ -155,6 +155,8 @@ function M.arm(buf)
             l.contact_at, l.settled_at, l.released_at, l.committed_at, l.closed_at, l.engaged_body_at }) do
         put_u32(buf, at, 0)
     end
+    -- [D66] slides ended because the flyer sped up again (the lowest speeds need no clearing: written on each claim)
+    if l.sped_at then put_u32(buf, l.sped_at, 0) end
     -- [AIR-DIVE-BRACE-W1 round 3] the slide table holds entity pointers of the last battle: cleared
     local zeros = string.rep("\0", l.slide_slots * 16)
     mr_().write(buf, l.slide_at, zeros)
@@ -202,6 +204,8 @@ function M.counters(buf)
         -- [FLYER-FIX-1117] slide windows ended by the first melee engage; contacts with a body already in
         -- melee with another unit, not carried
         closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at),
+        -- [D66] slides ended because the landed flyer sped up again (the engine's drive, the dive's momentum spent)
+        sped = l.sped_at and u32(buf, l.sped_at) or 0,
         -- [D31 / D64] braced masses dv_brace scaled against a landed diving flyer (one per braced body met in a dive)
         braced = l.brace_count_at and u32(buf, l.brace_count_at) or 0,
         -- [D64] braced steps left to the engine (the pair met before in this dive); scaled with no slide entry yet

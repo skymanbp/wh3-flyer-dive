@@ -1274,3 +1274,43 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Pushing `main` to GitHub no longer needs a go-ahead each time: push whenever a task is done, so GitHub matches this machine.
   This replaces D6's per-push go-ahead for GitHub only. Workshop uploads, Workshop page changes, new items or repositories and
   comment replies are still asked each time (D6).
+
+### D66 · A landed flyer's charge ends when it stops slowing down (2026-11-22)
+
+> Owner, 2026-11-22, after playing D64 with a zombie dragon: 「龙（我刚刚用的僵尸龙）还是粘脚，而且打剑士都粘脚，那种想冲穿但是一直在向前蠕动的感觉。
+> 而且还是没冲穿长戟兵。它好像一直在尝试往前走走出去，也不是我们以前的那种“冲阵”的效果。」
+
+- His own battle (`flyer_dive.txt`, 14:19-14:22): the caves held off the engine's melee engage 615 times.
+- Measured (battle `crawl1`, position recorder every 100 ms, `docs/HISTORY.md` CRAWL-1122): after touchdown the engine keeps
+  driving the flyer on its charge order toward the through-goal (`dv_through`) at up to its flying charge speed. Against
+  halberdiers the zombie dragon (walk 3.0 m/s) crawls at 4.4-5.3 m/s for 2-3 s, then runs out the far side 20-30 m deep;
+  against swordsmen it slows to 7 m/s, speeds up again to 13-14 m/s, runs through the unit and back, engage 0 throughout.
+  D64's hand-off (below the flyer's walk speed) is never reached while the engine drives it, so the hold never ends.
+- Cause: the hold tests the flyer's speed, and that speed is the dive's momentum plus the engine's drive. Bodies can only
+  slow a flyer; a landed flyer that is not slowing (or is speeding up) is being driven, and the dive's momentum is spent.
+  The engine has no coasting: without its drive it brakes the flyer within 0.1-0.3 s (the `dv_keep` reading), so the
+  drive cannot simply be switched off.
+- The rule (maintainer's route under the owner's first-principles directive, not a new owner ruling): from its first hold
+  on the ground a landed flyer keeps the hold only while it is still slowing down. The lowest planar speed since the first
+  hold is kept per slide entry; once the speed is more than `SLIDE_GAIN` above it, the slide ends for good (as past
+  `SLIDE_RELEASE_M`) and the engine's own engage / stop take over. D64's walk-speed floor and the 20 m window stay.
+- The multiplayer tag changes: FLYDIVE8 -> FLYDIVE9 (FLYDIVE8 is released).
+
+### D67 · A flying unit's order survives the end of its melee interrupt (2026-11-22)
+
+> Owner, 2026-11-22: 「多模组飞行部队，有兵模在地面上时，已经起飞的部分兵模还是会被拉回（我观察了一下，好像是在“状态变化”的时候最明显，
+> 比如有新的兵模阵亡、起飞、攻击、受攻击等等）并中断指令。」
+
+- Measured (battles `pull1`, `pull2`; recorder with the call tracer, `docs/HISTORY.md` CRAWL-1122): under a move order, with most of
+  the unit still held on the ground, the order left the queue early twice in each battle (harpies against ogres and against
+  halberdiers). Each time the queue was emptied by the engine's clear-all-orders 0x143025d14 called at 0x14302f44b.
+- Static read: 0x14302f44b lies in 0x14302f300, reached only through the handler table row of `MELEE_INTERRUPT_STATE`
+  (0x14394f868; thunk 0x14302ecc8). On leaving that state the engine looks at the unit's current order: one that answers its
+  vtable +0x100 (attack orders do) is put back; any other (a move order), or an empty queue, makes it clear every order. A
+  flying unit with models held in melee enters the state; when a model dies, lifts off or is struck the state changes, the
+  move order is wiped, the unit has no order, and its airborne models go back into formation around the ones on the ground
+  -- the pull-back and the lost order the owner sees. D23's cave (the per-model charge command) never sees this path.
+- The rule (maintainer's route under the owner's report): with the take-off rule on, for a unit that has living flight
+  entities (unit +0x184 > 0) and an order in its queue, that clear is replaced by the engine's own restart of the queue's
+  head order 0x14304e030 (the call D44's `pin_repick` makes). Ground units, an empty queue and mode 0 are untouched.
+- The multiplayer tag changes: FLYPIN11 -> FLYPIN12.

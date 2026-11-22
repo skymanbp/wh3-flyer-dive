@@ -1162,3 +1162,18 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
 - Publish: new Workshop item from the lane's build, cover = the main mod's cover, tags `mod` and `battle` (steamcmd
   writes none; set afterwards as in FLYER-TAG-1116). The lane merges into `main` and is pushed.
 - The official launcher not listing the mod (several comments): investigate with probes, report the cause.
+
+### D59 · No flyer carries a collision attack; flyer damage is impact only (2026-11-21)
+
+> Owner, 2026-11-21 (relayed from the main-mod session): 「飞行mod那边有反馈说蝙蝠怒妖一类的小型飞行单位过强，可是我们的mod的冲锋效果不应该是根据质量和速度来决定的吗？……你看下什么情况」
+> Then: 「冲击和碰撞是两种不同类型的伤害，原版中，碰撞是只有战车和大型反步巨兽才有的，我们这些飞行单位就不应该有任何碰撞攻击。而冲击攻击则是原版陆地骑兵就有的，我们这里要的就是冲击伤害，这个东西只看质量和速度。」
+
+- Impact (pushing men over, knock-downs and the damage they bring) is the engine's own mass x speed calculation; it
+  is what E6 asked for and what the dive relies on. The collision attack (`melee_weapons.collision_attack_max_targets`:
+  a free melee strike on every enemy a moving model runs into, at the weapon's damage, mass ignored) is what CA gives
+  chariots and large anti-infantry monsters. W16 (2026-11-12) gave it to every flyer; that is withdrawn.
+- `IMPACT_STAGE` becomes "A": no flyer weapon gets a collision attack, none is cloned, no land unit is repointed.
+  CA's own flyer weapons that already carry one (skycutters, dread abyssal terrors, the burning chariot) stay as CA
+  ships them; the SFO submod keeps SFO's weapons as SFO ships them (D56).
+- Measured before the ruling (`docs/HISTORY.md` SMALLFLYER-1121): the collision attack made bats, furies and harpies
+  2.7-4x vanilla's damage; at the engine's smallest setting (1 target, recovery 1 per second) they stayed 2-3x.

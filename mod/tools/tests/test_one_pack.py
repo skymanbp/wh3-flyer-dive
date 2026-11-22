@@ -105,6 +105,19 @@ class OnePack(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(air_dive_rules.uncut_mass(row), self.installed[key]["mass"])
 
+    def test_no_flyer_collision_attack(self):
+        """[D59] flyers carry no collision attack: no weapon row ships, every shipped land unit keeps CA's weapon."""
+        self.assertEqual(air_dive_rules.IMPACT_STAGE, "A")
+        weapon_paths = [p for p, _d in self.entries if p.startswith(f"db\\{air_dive_rules.COLLISION_ATTACK_TABLE}\\")]
+        self.assertEqual(weapon_paths, [])
+        land_path = f"db\\land_units_tables\\{mini.FRAGMENT}"
+        shipped = _decode(self.entries, land_path)
+        installed = {r["key"]: r for r in flyer_db.decode_round_trip(DB_PACK, "land_units_tables", "test_one_pack")[0]}
+        self.assertTrue(shipped)
+        for key, row in shipped.items():
+            with self.subTest(key=key):
+                self.assertEqual(row["primary_melee_weapon"], installed[key]["primary_melee_weapon"])
+
     def test_breath_table_ships_once(self):
         usage = [d for p, d in self.entries if p.startswith(USAGE_PATH.rsplit("\\", 1)[0] + "\\")]
         writer, removed, _breath = air_dive_rules.breath_usage_writer(DB_PACK, DB_PACK.parent / "local_en.pack")

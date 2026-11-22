@@ -15,6 +15,17 @@
 - 上一版的已知问题（天马类坐骑俯冲时骑手和坐骑分离）在这一版里修掉了。
 - 真人联机从来没跑过（主人 2026-11-13 定为可选、不挡发布）。
 
+## 在做：分支 `smallflyer-1121`（D59，飞兽不带冲撞攻击；没合进 `main`、没上传）
+
+工作树 `D:/Projects/.worktrees/wh3-flyer-dive/smallflyer-1121/wt`，从 `main` `5203fd1` 开。经过与数字见 `docs/HISTORY.md` SMALLFLYER-1121。
+
+- 改动：`IMPACT_STAGE` 由 B 改 A，所有飞兽武器不再加冲撞攻击、不复制武器、不改指陆军单位；新测试 `test_no_flyer_collision_attack`。
+- 实机：带记录器的正式包与已测的「去掉冲撞」包逐字节相同（sha256 `546a0e03…`），那三局即它的实机核对：怒妖 / 蝙蝠 / 鹰身女妖
+  对剑士 5 秒掉血 11.6 / 5.6 / 5.6%（原版 6.7 / 2.9 / 8.1%，现行 24.0 / 11.7 / 18.4%）。
+- 正式包 `D:/Projects/.worktrees/wh3-flyer-dive/smallflyer-1121/packs/ruled/flyer_dive_takeoff.pack`。
+- 待主人：合进 `main`、上传、推送；工坊中文页与 SFO 子模组两页的说明已在仓库里改（不再提冲撞攻击），上传时随包更新。
+- 还没看：去掉冲撞后怒妖仍比原版高（11.6% 对 6.7%），剩下的差距可能来自冲锋速度，没单独量。
+
 ## 下一版：分支 `release-1120`（还没发布；D30、D33）
 
 工作树 `D:/Projects/.worktrees/wh3-flyer-dive/release-1120/wt`，从 `main` `5c2bd82` 开，合进了 `brace-solver-1120`（`541f398`，D31）与

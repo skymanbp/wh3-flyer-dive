@@ -19,9 +19,9 @@ Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=38406515
 * **Flight animation tables.** The vanilla flight tables are shipped under new
   names (`<name>_dive`) with the landing hand-off changed, registered and
   repointed through DB rows, plus flyer entity rows (charge speed per flyer,
-  charge distances, deceleration, turning), two locomotion rows and the
-  collision attack (`mod/tools/lib/air_dive_rules.py` is the single source of
-  these rules).
+  charge distances, deceleration, turning), and two locomotion rows
+  (`mod/tools/lib/air_dive_rules.py` is the single source of these rules). No
+  flyer gets a collision attack: its damage is the engine's mass x speed impact (D59).
 * Works in single player, in multiplayer campaign battles when every player
   runs the same version (memreader Plus agreement), and in multiplayer custom /
   quick battles (the game's own mod checksum keeps both sides on one version).
@@ -52,7 +52,7 @@ optional balance submod of 2026-11-17 was withdrawn before it was published):
   war machine and chariot bodies (thunderbarges, sky-junk, sky lantern,
   skycutters, burning chariot, gyrocopter, gyrobomber) keep their mass
   (`MASS_CUT_MACHINES` also names two Lore Disasters bodies this pack never ships).
-  Not a setting. The collision attack is still sized on the uncut mass.
+  Not a setting.
 
 Another mod that ships the same flyer rows or its own copy of the usage-flag
 table wins or loses against this pack by load order. Measured in game on
@@ -140,8 +140,8 @@ separate main-mod adapter pack.
   不能起飞，其余的可以。N 按兵模的体型，越小等越久：小型 5.5 秒、中型 5.0 秒、大型 4.5 秒、
   超大型 4.0 秒；骑乘部队按坐骑（位点表由 `pin_cave_asm.py` 生成）。
 * **飞行动作表**：原版飞行动作表改名（`<名>_dive`）发货、改落地交接，经数据表登记
-  并改指；另有飞兽实体（逐个飞兽的冲锋速度、冲锋距离、减速、转向）、两行移动常数与冲撞攻击
-  （规则唯一源 `mod/tools/lib/air_dive_rules.py`）。
+  并改指；另有飞兽实体（逐个飞兽的冲锋速度、冲锋距离、减速、转向）、两行移动常数
+  （规则唯一源 `mod/tools/lib/air_dive_rules.py`）。飞兽不带冲撞攻击，伤害只有引擎按质量与速度算的冲击（D59）。
 * 单机可用；多人战役各端版本一致时可用（memreader Plus 协商）；多人自定义 / 快速战斗
   可用（游戏自己的模组校验保证两端同一版本）。
 
@@ -160,7 +160,6 @@ separate main-mod adapter pack.
   `Warhammer3.exe` 旁写 `flyer_breath.txt`。没装 MCT 时保持开。多人战役里以主机的设置为准（MCT 会把它发给每个玩家）；战役之外的多人战斗始终为开，因为那里 MCT 不同步设置。
 * **质量下调**：大型飞兽质量 ×0.85，超大型 ×0.75。昊天狮与「智者」按大型算；游戏里九种飞行战争机器
   与战车的实体（雷霆空艇、天舟、天灯、斩天者、浴焰战车、矮人直升机、矮人轰炸机）质量不变。不是设置。
-  冲撞攻击仍按下调前的质量计算。
 
 别的模组若发同样的飞兽行、或自带一份技能可用条件表，与本包谁生效取决于加载顺序。2026-11-18 用本模组的两个包
 实机量过：模组列表里的先后不决定结果，三局都与「表片段名排前者赢」相符（反过来的顺序没测）。

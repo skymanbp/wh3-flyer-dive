@@ -959,7 +959,9 @@ IMPACT_STAGES = ("A", "B", "C", "D")
 # and losses within run-to-run noise). D roughly doubled the pegasus knights
 # again (5 s 13.6%) through a stat the player cannot see, at an unchanged
 # price -- left for a user ruling, not shipped.
-IMPACT_STAGE = "B"
+# [D59 2026-11-21] owner: flyers carry NO collision attack (that is the chariot / anti-infantry monster
+# damage); their damage is the engine's mass x speed impact only. B is withdrawn; A ships.
+IMPACT_STAGE = "A"
 # [D15, d15-1118] Braced-spear cost of a dive. D4's "twice the game's own reflection damage" (the
 # removed REFLECTION_FLYER_DAMAGE_FACTOR) is replaced by D15: once per model per dive, at the dive's
 # contact with a bracing charge_reflection soldier, a share of the model's own maximum health.

@@ -2854,3 +2854,6 @@ max(0.8, s\*)（文档写的就是这个）；`test_brace_solver` 的默认值�
   两个都公开、标签 `mod`、`battle`，英文说明与仓库逐字相同（只差换行符）。
 - **没做的**：键值标签 `PACK_NAME` / `game_version` 没读回（要桌面客户端，steamcmd 登录把它顶下线了）；简体中文一栏由主人贴
   （桌面 `飞兽模组_中文说明.txt`、`SFO子模组_中文说明.txt`）；本机 `data/` 没放新包（主人订阅着，Steam 会送到工坊目录）。
+- **同日页面再改一次**（主人：「这句直接去掉。不要此地无银三百两。」）：英文、中文页「逐个调整」那条删掉「质量保持原版」半句。
+  英文页经 steamcmd 只改说明（`item_desc_1122.vdf`，只含 `appid`、`publishedfileid`、`title`、`description`），`Committing update...Success`；
+  公开接口读回说明与仓库相同，`file_size` 14,204,324、`hcontent_file` 8445303428960527594 未变。中文页由主人贴（桌面文件已更新）。

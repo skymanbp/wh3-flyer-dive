@@ -95,7 +95,7 @@ def decode_mismatches(code, src):
 
 
 ALLOWED_LEFT = {"xmm1", "xmm2", "xmm6", "xmm12"}
-SAVED = {"rax", "eax", "rcx", "ecx", "rdx", "edx", "xmm0"}
+SAVED = {"rax", "eax", "rcx", "ecx", "rdx", "edx", "xmm0", "r8", "r9", "r9d"}   # [D64] r8 / r9: pushed in _once
 
 
 def inspection_problems(code):
@@ -132,10 +132,16 @@ def inspection_problems(code):
             reg = i.reg_name(op.mem.base) if op.mem.base else None
             if reg == "rip":
                 probs.append(f"rip-relative {t}")
-            if op.access & capstone.CS_AC_WRITE and reg not in ("rsp", "rdx"):
+            # [D64] r8 only ever holds a hit slot (the buffer + HIT + slot x HIT_BYTES, checked below)
+            if op.access & capstone.CS_AC_WRITE and reg not in ("rsp", "rdx", "r8"):
                 probs.append(f"memory write outside the stack and the buffer: {t}")
             if op.access & capstone.CS_AC_WRITE and reg == "rdx" and i.mnemonic != "lock inc":
                 probs.append(f"buffer write other than the counter: {t}")
+    # [D64] every r8 the cave writes through is set from the buffer: lea r8, [rdx + rax + HIT], or the flyer key
+    for i, t in zip(ins, text):
+        if i.mnemonic in ("mov", "lea") and t.startswith(("mov r8,", "lea r8,")) and t not in (
+                "mov r8, rcx", f"lea r8, [rdx + rax + {dive_cost_asm.BRACE_HIT_AT:#x}]"):
+            probs.append(f"r8 set from elsewhere: {t}")
     return probs
 
 
@@ -148,8 +154,8 @@ class SiteTable(unittest.TestCase):
 
     def test_current_and_the_marker(self):
         self.assertTrue(dive_cost_asm.check_site_file(MOD_DIR))
-        self.assertIn("magic = 'FLYDIVE7'", self.text)
-        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE7")
+        self.assertIn("magic = 'FLYDIVE8'", self.text)
+        self.assertEqual(dive_cost_asm.MAGIC, b"FLYDIVE8")
         self.assertIn("dv_brace = 26, dv_reflect = 5 }", self.text)
         self.assertIn(f"            pattern = '{brace.SITE}',", self.text.splitlines())
         self.assertIn(f"            at = 0, expect = '{brace.STOLEN}',", self.text.splitlines())
@@ -164,7 +170,12 @@ class SiteTable(unittest.TestCase):
         self.assertEqual(lay["brace_count_at"], lay["brace_word_at"] + 4)
         self.assertEqual((lay["reflect_word_at"], lay["reflect_count_at"]),
                          (lay["brace_word_at"] + 8, lay["brace_word_at"] + 12))
-        self.assertEqual(lay["bytes"], lay["brace_word_at"] + 64)
+        # [D64] two counters at +16 / +20, then one hit slot per slide slot from +64
+        self.assertEqual((lay["brace_repeat_at"], lay["brace_noslot_at"]),
+                         (lay["brace_word_at"] + 16, lay["brace_word_at"] + 20))
+        self.assertEqual(dive_cost_asm.BRACE_HIT_AT, lay["brace_word_at"] + 64)
+        self.assertEqual(lay["bytes"], dive_cost_asm.BRACE_HIT_AT + lay["slide_slots"] * brace.HIT_BYTES)
+        self.assertEqual(brace.HIT_BYTES, 16 + 8 * brace.HIT_RING)
         self.assertEqual(lay["brace_word_at"] % 64, 0)
 
     def test_bytes_decode_to_the_source(self):
@@ -401,7 +412,7 @@ package.preload["script/campaign/flyer_dive/lib/dive"] = function()
         arm = function() ev("ARM") end,
         set_brace = function(_, w, r) ev("WORD " .. tostring(w) .. " " .. tostring(r)) end,
         counters = function() return { throughs = 0, skipped = 0, kept = 0, engaged = 0, reordered = 0, contact = 0,
-            settled = 0, released = 0, committed = 0, closed = 0, engaged_body = 0, braced = 7, reflected = 3 } end,
+            settled = 0, released = 0, committed = 0, closed = 0, engaged_body = 0, braced = 7, brace_repeat = 5, brace_noslot = 1, reflected = 3 } end,
     }
 end
 _G.memreader_plus = {}
@@ -475,8 +486,9 @@ class BattleEntry(unittest.TestCase):
         self.assertEqual(self.words(lines), [f"WORD {self.default_word} {self.default_reflect}"])
         self.assertEqual(len(self.brace_lines(lines)), 1)
         self.assertIn("(default (MCT not installed); read on load (no MCT))", self.brace_lines(lines)[0])
-        self.assertTrue([ln for ln in lines if ln.endswith("braced masses scaled 7, Charge Reflection hits on flyers "
-                                                           "raised 3")], lines)
+        self.assertTrue([ln for ln in lines if ln.endswith(
+            "braced masses scaled 7, braced steps left to the engine 5, braced masses scaled with no slide entry 1, "
+            "Charge Reflection hits on flyers raised 3")], lines)
         self.assertFalse([ln for ln in lines if "COST" in ln], lines)
 
     def test_mct_values_once_both_events_fired(self):

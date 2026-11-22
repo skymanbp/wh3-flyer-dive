@@ -81,7 +81,14 @@ local COUNTS = "flyer charges aimed through %d, contact attacks held off %d, fli
     .. "engage re-paths held off %d, charge-order re-paths held off %d, melee engages held off %d, "
     .. "blocked stops held off %d, slides ended %d, landings kept %d, "
     .. "slides ended by melee %d, bodies already in melee not carried %d, braced masses scaled %d, "
+    .. "braced steps left to the engine %d, braced masses scaled with no slide entry %d, "
     .. "Charge Reflection hits on flyers raised %d"
+-- [D64] braced masses are scaled once per soldier met (first meetings); the later steps of the same pair are the
+-- engine's own; a flyer with no slide entry yet is scaled but not remembered
+local function counts(c)
+    return COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
+        c.released, c.committed, c.closed, c.engaged_body, c.braced, c.brace_repeat, c.brace_noslot, c.reflected)
+end
 local TICK_NAME, TICK_MS = "flyer_dive_counts", 10000
 
 -- [D31 / D51] The braced-line settings (lib/brace_rule.lua): master switch, k, s*, the reflection factor. MCT is optional; it
@@ -149,8 +156,7 @@ if buffer then
                 pcall(function() bm:remove_callback(TICK_NAME) end)
                 return
             end
-            local line = COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-                c.released, c.committed, c.closed, c.engaged_body, c.braced, c.reflected)
+            local line = counts(c)
             if line ~= last then
                 last = line
                 record("NOW " .. line)
@@ -166,7 +172,6 @@ bm:register_phase_change_callback("Complete", function()
     pcall(function()
         local c = dive.counters(buffer)
         dive.pass_through(buffer)
-        record("END " .. COUNTS:format(c.throughs, c.skipped, c.kept, c.engaged, c.reordered, c.contact, c.settled,
-            c.released, c.committed, c.closed, c.engaged_body, c.braced, c.reflected))
+        record("END " .. counts(c))
     end)
 end)

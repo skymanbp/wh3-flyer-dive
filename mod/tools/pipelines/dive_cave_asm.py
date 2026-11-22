@@ -199,6 +199,11 @@ MAGIC = b"FLYDIVE3"                           # [FLYER-FIX-1117] two counters mo
 SKIP_SPEED = 0.5                      # m/s: below it a landed flyer attacks / stops as vanilla
 # [D62 2026-11-22] 0.5, as vanilla cavalry: pushed to about 0.5 m/s by the bodies in front, then engaged (was 2.0,
 # from the td_skip test cave, never checked against vanilla; HISTORY AIR-DIVE-CONTINUOUS-W1 / PLOUGH-1121)
+# [D64 2026-11-22] the hand-off speed is the flight entity's own walk speed (a flyer held below it by the bodies in
+# front is held, and fights), at least SKIP_SPEED (kept as the floor when the record cannot be read: a null
+# pointer). The entity's battle_entities record: +0x2d8, its walk_speed at +0x1c (run_speed at +0x20), read in game
+# for 18 units of 12 types with six different walk speeds (probe walk2, HISTORY BRACE-ONCE-1122)
+ENT_RECORD_OFF, REC_WALK_OFF = 0x2D8, 0x1C
 FC_OFF, PARENT_OFF, LAYER_OFF, FLAGS_OFF = 0x128, 0x2E0, 0x104, 0xC4
 STATE_OFF, VEL_OFF = 0x26C, 0xE0
 FLYMODE_OFF = 0x710                   # [AIR-DIVE-RELEASE-W1] 0 = a ground mover
@@ -287,7 +292,11 @@ def _fast_test(ent):
     """Flags after: 'jbe pass' skips unless ent is in a moving state and its
     planar velocity is above the skip speed (r10 = buffer; xmm0/1 saved).
     [AIR-DIVE-BRACE-W1] A moving state is 30, 33, or LANDED_IDLE_STATE (0)
-    on the ground (+0x104 0) -- the storm dragon's touchdown tick."""
+    on the ground (+0x104 0) -- the storm dragon's touchdown tick.
+    [D64] The skip speed is max(SKIP_SPEED, the entity's walk speed): its record (+0x2d8) +0x1c; a null record
+    leaves SKIP_SPEED. rax is saved around the read."""
+    if ent == "rax":
+        raise SystemExit("[dive_cave_asm] REFUSING: _fast_test uses rax for the record")
     return f"""
     cmp dword ptr [{ent} + {STATE_OFF:#x}], {MOVING_STATES[0]}
     je moving
@@ -307,6 +316,13 @@ moving:
     mulss xmm1, xmm1
     addss xmm0, xmm1
     movss xmm1, dword ptr [r10 + {SKIP_SPEED_AT}]
+    push rax
+    mov rax, qword ptr [{ent} + {ENT_RECORD_OFF:#x}]
+    test rax, rax
+    je walkdone
+    maxss xmm1, dword ptr [rax + {REC_WALK_OFF:#x}]
+walkdone:
+    pop rax
     mulss xmm1, xmm1
     comiss xmm0, xmm1
     movdqu xmm0, xmmword ptr [rsp]
@@ -950,8 +966,16 @@ def _ret_or_pass(name, code, build, want_ret):
     return ok and not bad and not fault, f"rip {rip:#x} rsp {rsp_after - rsp:+d} count {cnt} changed {bad} {fault or ''}"
 
 
-def _mover(mu, ent, flyer, state, vel, layer=0):
+# [D64] every test mover has a battle_entities record (+0x2d8) at TEST_RECORD_REL past it, walk speed TEST_WALK
+# (above SKIP_SPEED and below every fast case); walk=None leaves the record pointer null
+TEST_WALK, TEST_RECORD_REL = 2.5, 0xC00
+
+
+def _mover(mu, ent, flyer, state, vel, layer=0, walk=TEST_WALK):
     mu.mem_write(ent + FC_OFF, struct.pack("<Q", 0x77 if flyer else 0))
+    mu.mem_write(ent + ENT_RECORD_OFF, struct.pack("<Q", 0 if walk is None else ent + TEST_RECORD_REL))
+    if walk is not None:
+        mu.mem_write(ent + TEST_RECORD_REL + REC_WALK_OFF, struct.pack("<f", walk))
     mu.mem_write(ent + STATE_OFF, struct.pack("<i", state))
     mu.mem_write(ent + VEL_OFF, struct.pack("<fff", vel[0], 0.0, vel[1]))
     mu.mem_write(ent + LAYER_OFF, struct.pack("<i", layer))
@@ -1011,19 +1035,29 @@ def check_skip(code):
     return fails, n
 
 
+# [D64] (state, velocity, the record's walk speed or None for a null record, want the early return): held only
+# above max(SKIP_SPEED, walk)
+KEEP_WALK_CASES = ((30, (0.0, -2.0), 2.5, False), (30, (0.0, -2.6), 2.5, True), (33, (0.0, -2.4), 2.5, False),
+                   (30, (1.2, -1.6), 2.5, False), (30, (0.0, -2.0), None, True), (30, (0.0, -0.4), None, False),
+                   (30, (0.0, -3.1), 3.2, False), (30, (0.0, -3.3), 3.2, True), (30, (0.0, -0.45), 0.2, False),
+                   (30, (0.0, -0.6), 0.2, True))
+
+
 def check_keep(code):
     fails, n = [], 0
-    for (mode, flyer, state, vel, want), layer in [(c, 0) for c in FAST_CASES] + list(KEEP_LAYER_CASES):
+    cases = ([(c, 0, TEST_WALK) for c in FAST_CASES] + [(c, layer, TEST_WALK) for c, layer in KEEP_LAYER_CASES]
+             + [((1, True, state, vel, want), 0, walk) for state, vel, walk, want in KEEP_WALK_CASES])
+    for (mode, flyer, state, vel, want), layer, walk in cases:
         n += 1
 
         def build(mu, obj, buf):
             ent = obj + 0x1000
             mu.mem_write(buf + MODE_AT, struct.pack("<I", mode))
-            _mover(mu, ent, flyer, state, vel, layer)
+            _mover(mu, ent, flyer, state, vel, layer, walk)
             return ent, mode
         ok, why = _ret_or_pass("dv_keep", code, build, want)
         if not ok:
-            fails.append(f"keep mode {mode} flyer {flyer} state {state} vel {vel} layer {layer}: {why}")
+            fails.append(f"keep mode {mode} flyer {flyer} state {state} vel {vel} layer {layer} walk {walk}: {why}")
     return fails, n
 
 
@@ -1599,6 +1633,14 @@ MUTANTS = (
     ("skip lets every attack of a moving flyer through", "dv_skip", "    cmp eax, 4\n    jbe pass\n",
      "    jmp pass\n"),
     ("skip lets the landing tick through", "dv_skip", "    jl strict\n", "    nop\n"),
+    # [D64] the walk-speed hand-off
+    ("keep ignores the walk speed", "dv_keep", "    maxss xmm1, dword ptr [rax + 0x1c]\n", "    nop\n"),
+    ("keep reads the null record", "dv_keep", "    test rax, rax\n    je walkdone\n", "    nop\n"),
+    ("keep takes the lower of the two", "dv_keep", "    maxss xmm1, dword ptr [rax + 0x1c]\n",
+     "    minss xmm1, dword ptr [rax + 0x1c]\n"),
+    ("keep reads run speed", "dv_keep", "    maxss xmm1, dword ptr [rax + 0x1c]\n",
+     "    maxss xmm1, dword ptr [rax + 0x20]\n"),
+    ("keep loses rax", "dv_keep", "walkdone:\n    pop rax\n", "walkdone:\n    pop r9\n"),
     ("keep for ground units too", "dv_keep", "    test rax, rax\n    je pass\n", "    test rax, rax\n    nop\n"),
     ("keep forgets xmm0", "dv_keep", "    movdqu xmm0, xmmword ptr [rsp]\n", ""),
     ("keep forgets the landed state 0", "dv_keep", "    cmp dword ptr [rcx + 0x26c], 0\n    jne pass\n",

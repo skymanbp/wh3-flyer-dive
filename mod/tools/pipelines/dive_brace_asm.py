@@ -121,7 +121,7 @@ def _once(tag, braced):
     mov rcx, qword ptr [rdx + rcx + {base.SLIDE_AT}]
     test rcx, rcx
     je {tag}_none
-    and rcx, -2
+    and rcx, 0xfffffffffffffffe
     cmp rcx, r8
     je {tag}_found
     inc eax
@@ -635,14 +635,14 @@ MUTANTS = (
     # [D64] once per soldier
     ("never remembers (every step scaled)", "    jne fa_scan\n", "    jmp fa_scan\n"),
     ("an old dive's bodies kept", "    je fa_same\n", "    jmp fa_same\n"),
-    ("a released entry not matched", "    and rcx, -2\n", "    nop\n"),
+    ("a released entry not matched", "    and rcx, 0xfffffffffffffffe\n", "    nop\n"),
     ("ring index not wrapped", f"    and eax, {HIT_RING - 1}\n", f"    and eax, {2 * HIT_RING - 1}\n"),
     ("body not written to the ring", "    mov qword ptr [r8 + rax*8 + 16], rbx\n", "    nop\n"),
     ("unremembered not counted", "fa_none:\n    lock inc", "fa_none:\n    jmp fa_go\n    lock inc"),
     ("repeat not counted", "    jne fa_scan\n    lock inc dword ptr [rdx + ", "    jne fa_scan\n    inc dword ptr [rdx + 0x100 + "),
     ("mirrored path never remembers", "    jne fb_scan\n", "    jmp fb_scan\n"),
-    ("probe stops at a tombstone", "    test rcx, rcx\n    je fa_none\n    and rcx, -2\n",
-     "    cmp rcx, 2\n    je fa_none\n    test rcx, rcx\n    je fa_none\n    and rcx, -2\n"),
+    ("probe stops at a tombstone", "    test rcx, rcx\n    je fa_none\n    and rcx, 0xfffffffffffffffe\n",
+     "    cmp rcx, 2\n    je fa_none\n    test rcx, rcx\n    je fa_none\n    and rcx, 0xfffffffffffffffe\n"),
 )
 
 

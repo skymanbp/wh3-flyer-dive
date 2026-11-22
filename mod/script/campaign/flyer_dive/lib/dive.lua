@@ -202,8 +202,11 @@ function M.counters(buf)
         -- [FLYER-FIX-1117] slide windows ended by the first melee engage; contacts with a body already in
         -- melee with another unit, not carried
         closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at),
-        -- [D31] braced masses dv_brace scaled against a landed diving flyer (one per braced body per pair step)
+        -- [D31 / D64] braced masses dv_brace scaled against a landed diving flyer (one per braced body met in a dive)
         braced = l.brace_count_at and u32(buf, l.brace_count_at) or 0,
+        -- [D64] braced steps left to the engine (the pair met before in this dive); scaled with no slide entry yet
+        brace_repeat = l.brace_repeat_at and u32(buf, l.brace_repeat_at) or 0,
+        brace_noslot = l.brace_noslot_at and u32(buf, l.brace_noslot_at) or 0,
         -- [D51] Charge Reflection hits on a flyer that dv_reflect multiplied
         reflected = l.reflect_count_at and u32(buf, l.reflect_count_at) or 0 }
 end

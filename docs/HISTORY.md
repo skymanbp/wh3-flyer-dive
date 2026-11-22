@@ -2897,3 +2897,17 @@ max(0.8, s\*)（文档写的就是这个）；`test_brace_solver` 的默认值�
 
 **六、没做的。** 每种组合一到三道；高级与重甲戟兵、带「对大型冲锋反制」的部队只测了神选长戟；狮鹫骑士冲穿长矛兵只一道；SFO 子模组没重建；
 包没进 `main`、没推送、没上传。
+
+## UPLOAD-1122b（2026-11-22 上午）：D64 发布，主模组只换文件
+
+主人令：「更新创意工坊。文字不用更新，只更新文件就行」。
+
+- **合并**：`brace-once-1122` 快进并入 `main`（`c510311`），没推送。
+- **主包**：建在 `c510311`，`flyer_dive_takeoff.pack` 14,077,477 字节，sha256 `6a0a22e3cf1d0fdc00613ff39fe6c4c52ebc6afe951b472b492f2078d8968051`，与实机前建的发布包逐字节相同。
+  测试 299 项、2200 子项通过。
+- **SFO 子模组**：用新主包和本机 SFO 重建，264,971 字节，sha256 `d1e8cc30…2a1d`，与线上那版相同（D64 只改代码洞与脚本，不动子模组带的四张表），没传。
+- **上传**：暂存与备份在 `D:/Projects/.worktrees/wh3-flyer-dive/upload-1122b/`（线上原包 `backup/flyer_dive_takeoff.live_1122.pack`）。
+  vdf 只含 `appid`、`publishedfileid`、`contentfolder`：标题、说明、更新说明都没写。steamcmd `Committing update...Success`，日志没打印 ManifestID。
+- **核对**（公开接口，`details_before.json` / `details_after.json`）：`time_updated` 1795326459 → 1795363056，`file_size` 14,206,509 ＝ 包 ＋ 封面 129,032，
+  `hcontent_file` 8445303428960527594 → 4056409980076465593；公开、标签 `mod`、`battle`，标题与说明和上传前相同。
+- **没做的**：键值标签没读回（steamcmd 登录把桌面客户端顶下线了）；`main` 没推送；本机 `data/` 没放新包（主人订阅着）。

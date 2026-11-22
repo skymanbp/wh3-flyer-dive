@@ -3,7 +3,7 @@
 - Flying units keep the base game's mass (the 15% / 25% cut is gone).
 - A landed flyer keeps pushing until the bodies in front of it stop it, as base-game cavalry does.
 - Braced units resist a dive by mass and their own charge resistance only. Heavy flyers now break through infantry with low charge resistance, such as swordsmen; braced spears and halberds hold mid-weight flyers; dragons can still break through.
-- MCT: the defaults of "Braced mass against a dive" and "Dive slowing against braced units" are now 1. If you changed them before, set them back to 1.
+- MCT: the defaults of 'Braced mass against a dive' and 'Dive slowing against braced units' are now 1. If you changed them before, set them back to 1.
 
 - 飞行部队不再带冲撞攻击，冲锋伤害只有游戏自己按质量和速度算的冲击。蝙蝠、怒妖这类轻型飞行部队的冲锋伤害大幅降低。
 - 怒妖的冲锋速度回到原版。

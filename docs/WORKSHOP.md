@@ -56,7 +56,7 @@ steamcmd 一次成功，此后都用它。
 9. **记账**：在 `docs/HISTORY.md` 末尾加一节（发了什么、包的字节数与 sha256、ManifestID、核对结果、
    没验证的事），更新 `docs/STATUS.md` 的「已发布」一行；`main` 分支指到发布的那个提交。
 
-上传要用的东西在 `D:/Projects/.worktrees/wh3-flyer-dive/tools/`（`steamcmd/`、最近一次的 vdf、`rollback/` 里的线上包、`workshop_media/` 里的封面与动图），清单见 `docs/STATUS.md`「东西在哪」。vdf 里的 `contentfolder` 指向那一次的暂存目录，再用之前要改。
+上传要用的东西在仓库里（D65）：steamcmd 在 `.local/steamcmd/`，线上包的备份在 `.local/rollback/`，封面与动图在 `.local/workshop_media/`（三处都不进 git）；vdf 模板在 `workshop/vdf/`，`contentfolder` 填那一次的暂存目录。暂存与备份放 `D:/Projects/.worktrees/wh3-flyer-dive/<车道名>/`，上传核对完连同目录删掉。
 
 ## 页面上的图
 

@@ -1261,3 +1261,16 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   (braced mass 543) to stop and meets about 12 crossing the block, so it ploughs them; Chosen halberds hold it within a few
   ranks; swordsmen are ploughed; nothing crawls.
 - The multiplayer tag changes: FLYDIVE7 → FLYDIVE8 (FLYDIVE7 is released).
+
+### D65 · Nothing stays in the temporary folder; a finished task is merged, pushed and its lane deleted (2026-11-22)
+
+> Owner, 2026-11-22, after CLEANUP-1122: 「临时目录不要留东西。所有东西并进主目录后临时目录直接清掉。以后一直这样，我在nccl那个会话也说了，
+> 以后本机所有仓库，任务做完就完全合并并清掉worktree临时目录。你这里做完任务随时推送GitHub，保持同步。」
+
+- When a task is done: its work is merged into `main`, the worktree and its whole folder under `D:/Projects/.worktrees/wh3-flyer-dive/`
+  are deleted, and the merged branch is deleted. `.worktrees/wh3-flyer-dive/` is empty between tasks.
+- What later work needs (the upload tool, the emulator's Python, rollback packs, Workshop media, probe scripts) lives in the repo folder:
+  scripts are committed, binaries and private data sit in the git-ignored `.local/`.
+- Pushing `main` to GitHub no longer needs a go-ahead each time: push whenever a task is done, so GitHub matches this machine.
+  This replaces D6's per-push go-ahead for GitHub only. Workshop uploads, Workshop page changes, new items or repositories and
+  comment replies are still asked each time (D6).

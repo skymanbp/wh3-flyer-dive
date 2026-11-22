@@ -25,7 +25,13 @@ severity = "must"
 
 [[edicts]]
 id = "FOUT1"
-text = "对外的事先问：推送到 GitHub、上传或更新创意工坊都要模组主人在本次对话里明确同意，同意只管那一次。得到同意后，在那条命令末尾加注释 # owner-ok <日期> 才放行"
+text = "对外的事先问：上传或更新创意工坊要模组主人在本次对话里明确同意，同意只管那一次；得到同意后，在那条命令末尾加注释 # owner-ok <日期> 才放行。推送 main 到 GitHub 不用问，任务做完就推（D65）"
 severity = "must"
-deny_bash = ['''git\s+push\b(?![^\n]*owner-ok)''', '''workshop_build_item(?![^\n]*owner-ok)''']
-note = "docs/DECISIONS.md D6；步骤与上传后的核对见 docs/WORKSHOP.md。改工坊页面、建新条目、回复评论同样要先问（评论只起草，由主人自己发）。"
+deny_bash = ['''workshop_build_item(?![^\n]*owner-ok)''']
+note = "docs/DECISIONS.md D6、D65；步骤与上传后的核对见 docs/WORKSHOP.md。改工坊页面、建新条目、回复评论同样要先问（评论只起草，由主人自己发）。"
+
+[[edicts]]
+id = "WT02"
+text = "任务做完：并进 main、推送，删掉工作树、它在 D:\\Projects\\.worktrees\\wh3-flyer-dive\\ 下的整个目录和已并入的分支；任务之间那个目录是空的。以后还要用的东西放仓库：脚本提交，二进制与私人数据放 .local/（不进 git）"
+severity = "must"
+note = "主人令 2026-11-22（D65），本机所有仓库通用。"

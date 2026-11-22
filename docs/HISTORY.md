@@ -2925,3 +2925,16 @@ max(0.8, s\*)（文档写的就是这个）；`test_brace_solver` 的默认值�
   `runs/` 里 335 局实机输出（11 GB；数字都在本文件各节）。目录总量约 45 GB → 2.4 GB。
 - **分支**：已并进 `main` 的 10 个本地分支删掉；没并进的 `brace-mark-probe-1120`、`record-1120` 只留提交。
 - 之前各节与 `docs/STATUS.md` 旧行里写的车道路径就此失效，旧节不改。
+
+## CLEANUP-1122b（2026-11-22 傍晚）：D65，临时目录不留东西
+
+主人令（D65）：临时目录不要留东西，并进主目录后直接清掉；以后任务做完就合并、清掉工作树与临时目录；做完随时推送 GitHub。
+
+- **并进仓库、提交的**：`mod/tools/probes/`（八个实机探针与报告脚本，与原件逐字节相同）、`mod/tools/workshop/watch.py`、`dump.py`
+  （评论区查看；状态文件改读 `.local/comments-watch/`，搬后读回 74 条评论里的最新 30 条）、`workshop/vdf/` 两个只换文件的 vdf 模板
+  （去掉了标题、说明，免得把页面改回旧文字）。
+- **并进仓库、不进 git 的** `.local/`（`.gitignore` 加了一行，2.4 GB）：steamcmd、模拟器的 Python、回滚包、工坊图、`local_cn` 文本、评论查看的状态。
+  搬后核对：模拟器 140 个坏版本全抓到；steamcmd 不登录能起来；`git check-ignore` 认得 `.local/`。
+- **删掉的**：`D:/Projects/.worktrees/wh3-flyer-dive/` 整个目录。
+- **规矩**：`CLAUDE.md`「对外的事先问」与「分支与目录」两节、`.claude/cc-enforcer/edicts.toml`（`FOUT1` 不再拦推送，只拦工坊上传；新加 `WT02`）。
+  本机通用的同一条规矩，主人已在 NCCL 的会话里写进用户级说明。

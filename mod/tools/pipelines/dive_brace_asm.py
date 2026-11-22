@@ -307,7 +307,7 @@ def check(code, word_at, count_at):
     case("A flyer, B braced", braced_b_flyer_a(), 0, 1, 0.1, 1.0,
          want={"XMM1": scaled_b, "XMM12": max(f32(0.1), s_cave)})
     case("A flyer (pegasus, its own share 0.8), B braced", braced_b_flyer_a(PEG), 0, 1, 0.8, 1.0,
-         want={"XMM1": scaled_b, "XMM12": f32(0.8)})
+         want={"XMM1": scaled_b, "XMM12": max(f32(0.8), s_cave)})
     case("A flyer, share 1.0 above s*", braced_b_flyer_a(), 0, 1, 1.0, 1.0,
          want={"XMM1": scaled_b, "XMM12": f32(1.0)})
     # 2. mirrored: the flyer B against braced A (r12b): A's mass (xmm2) x k, B's share raised
@@ -336,7 +336,7 @@ def check(code, word_at, count_at):
             rig.entity(EB, *SPEAR)
         return world
     case("A rider on a landed diving mount", rider(0, 4), 0, 1, 0.8, 1.0,
-         want={"XMM1": scaled_b, "XMM12": f32(0.8)})
+         want={"XMM1": scaled_b, "XMM12": max(f32(0.8), s_cave)})
     case("A rider on a mount in the air", rider(2, 4), 0, 1, 0.8, 1.0)
     case("A rider on a ground mount", rider(0, 4, mount_fc=0), 0, 1, 0.8, 1.0)
     # the chain: 4 links reach a flyer, a 5th does not

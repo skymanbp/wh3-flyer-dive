@@ -104,13 +104,13 @@ return {
     -- [D31 / D51] dv_brace, dv_reflect and the MCT settings of the braced-line work (lib/brace_rule.lua,
     -- the MCT page)
     brace = {
-        default_on = true, k = 4.0, k_min = 1.0, k_max = 10.0, k_step = 0.1,
-        share = 0.5, share_min = 0.0, share_max = 1.0, share_step = 0.05, scale = 100,
+        default_on = true, k = 1.0, k_min = 1.0, k_max = 10.0, k_step = 0.1,
+        share = 1.0, share_min = 0.0, share_max = 1.0, share_step = 0.05, scale = 100,
         reflect = 2.0, reflect_min = 1.0, reflect_max = 4.0, reflect_step = 0.25,
-        default_word = 3277200, default_reflect_word = 200,
+        default_word = 6553700, default_reflect_word = 200,
         mct_mod = 'flyer_dive_takeoff', mct_on = 'braced_line_on', mct_k = 'braced_line_mass', mct_share = 'braced_line_share', mct_reflect = 'braced_line_reflect',
     },
-    format = 502276,
+    format = 623454,
     build = '6ae2a00b',
-    source_sha = '7aa02ebdaeb7ec4eab40697dc2cbdc0094b48755daa87dbab11dcbd599db8aad',
+    source_sha = '9835cd5235a61c5ba4f908e221a2e9397a9040e3227ce9f32e83420303f92edc',
 }

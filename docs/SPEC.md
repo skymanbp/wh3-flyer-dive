@@ -38,7 +38,7 @@ W1–W16、冲撞攻击、喷吐、起飞、K 方案是一批一批加上去的�
 | 落在哪 | 引擎按减速度算的停步点 | 引擎 |
 | 落地后怎么走、停在哪 | 目标：原版移动与碰撞（引擎路线）；过渡：489 号冲阵动作根骨 | 过渡期 `air_dive_rules.plough_speed` / `plough_profile`、`air_dive_clips` |
 | 撞上去打多重 | 引擎按质量与速度算的冲击（[D59] 不带冲撞攻击） | 引擎；`air_dive_rules.IMPACT_STAGE` A |
-| 被谁截停 | 原版拒马、反弹、碰撞分层；[D31] 架好的兵对落地俯冲的飞兽：质量再乘 k、飞兽的体型档折扣至少 s\*（碰撞求解 `0x14317768c` 里的代码洞 `dv_brace`，MCT 可调） | 引擎与 `_kv_rules`（原版值，不改）；k、s\* 在 `air_dive_rules`（`BRACE_MASS_K`、`BRACE_SHARE_MIN`） |
+| 被谁截停 | 原版拒马、反弹、碰撞分层；[D31 / D63] 架好的兵对落地俯冲的飞兽：不按体型档打折扣，只按质量（士兵用引擎自己的架势加重，k = 1、s\* = 1，MCT 可另调；碰撞求解 `0x14317768c` 里的代码洞 `dv_brace`，MCT 可调） | 引擎与 `_kv_rules`（原版值，不改）；k、s\* 在 `air_dive_rules`（`BRACE_MASS_K`、`BRACE_SHARE_MIN`） |
 | 接战中喷吐 | 技能禁用条件表 | `air_dive_rules.breath_abilities` |
 | 接战中起飞 | 挨打才按住的代码洞 | `air_dive_rules` 的 `TAKEOFF_*`（起飞车道） |
 | 原地转向 | 两行转向参数 | `air_dive_rules`（`flyer_dive_large_entity` / `flyer_dive_very_large_entity`） |

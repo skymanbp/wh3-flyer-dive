@@ -48,7 +48,8 @@ optional balance submod of 2026-11-17 was withdrawn before it was published):
   campaign the host's setting applies to every player (MCT shares it); multiplayer battles
   outside a campaign stay on, because MCT shares nothing between the players there.
 * **Mass.** Every flyer keeps the game's own mass (the mass cut of earlier versions
-  is undone, D61); braced infantry is held by the braced-line rule.
+  is undone, D61). Against braced infantry a landed flyer trades momentum by mass
+  alone, against the game's own braced mass (ranks, facing, charge defence; D63).
 
 Another mod that ships the same flyer rows or its own copy of the usage-flag
 table wins or loses against this pack by load order. Measured in game on
@@ -154,7 +155,7 @@ separate main-mod adapter pack.
   可选）里的设置，默认**开**。关掉时由战斗脚本 `mod/script/battle/mod/flyer_breath.lua` 每个战斗时刻把原版的两条限制
   按兵补回去（部队陷入近战时、以及原版在地面上也禁用的那些吹息在没飞起来时，禁用该吹息），并在
   `Warhammer3.exe` 旁写 `flyer_breath.txt`。没装 MCT 时保持开。多人战役里以主机的设置为准（MCT 会把它发给每个玩家）；战役之外的多人战斗始终为开，因为那里 MCT 不同步设置。
-* **质量**：所有飞兽保持游戏原版质量（早先版本的质量下调已撤，D61）；挡架枪步兵靠阵列齐整那条规则。
+* **质量**：所有飞兽保持游戏原版质量（早先版本的质量下调已撤，D61）；撞上阵列齐整的步兵时只按双方质量交换动量，士兵的加重用游戏自己的（排数、朝向、冲锋反制；D63）。
 
 别的模组若发同样的飞兽行、或自带一份技能可用条件表，与本包谁生效取决于加载顺序。2026-11-18 用本模组的两个包
 实机量过：模组列表里的先后不决定结果，三局都与「表片段名排前者赢」相符（反过来的顺序没测）。

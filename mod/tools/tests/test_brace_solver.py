@@ -333,7 +333,7 @@ class BraceRule(unittest.TestCase):
         for label, why in (("mp_outside", "multiplayer battle outside a campaign"), ("no_mct", "MCT not installed")):
             with self.subTest(label=label):
                 on, k, share, reflect, word, rword, w = self.rows[label]
-                self.assertEqual((on, k, share, reflect), ("true", "4", "0.5", "2"))  # D62 k 4 / D51 (Lua prints 4.0 as 4)
+                self.assertEqual((on, k, share, reflect), ("true", "1", "1", "2"))  # D63 k 1, s* 1 / D51 (Lua prints 1.0 as 1)
                 self.assertEqual(word, self.default_word)
                 self.assertEqual(rword, self.default_reflect)
                 self.assertEqual(rword, "200")
@@ -352,7 +352,7 @@ class BraceRule(unittest.TestCase):
 
     def test_bad_values_fall_back_one_by_one(self):
         on, k, share, reflect, word, rword, why = self.rows["bad"]
-        self.assertEqual((on, k, share, reflect, word, rword), ("true", "4", "0.5", "2", self.default_word,
+        self.assertEqual((on, k, share, reflect, word, rword), ("true", "1", "1", "2", self.default_word,
                                                                 self.default_reflect))
         for note in ("on default (MCT holds yes)", "k default (MCT holds 50)", "share default (reading MCT failed: boom)",
                      "reflect default (MCT holds 0.5)"):

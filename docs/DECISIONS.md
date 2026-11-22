@@ -1218,3 +1218,18 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   handed over while still moving (PLOUGH-1121).
 - `SKIP_SPEED` becomes 0.5. The braced-line multiplier k (D31 / D33, 2.0, tuned under 2.0) is measured again under 0.5 and set so a
   braced line holds the large flyers as it did; the multiplayer tag changes with the shipped caves' behaviour.
+
+### D63 · A braced line holds by mass, speed and the engine's own charge defence; no multiplier or size discount of ours (2026-11-22)
+
+> Owner, 2026-11-22: 「从原理和引擎角度出发，走最合理的方案，用第一性原理搭建框架，而不是遇到问题才去解决它，不要穷举。」
+> 「枪阵再强，挡住巨龙冲锋合理吗？……这游戏这么多高冲锋抗性的部队，难道一个个试吗？质量、速度、冲锋抗性，这些才是关键。」
+
+- The engine already gives every standing, formed soldier a brace multiplier on its mass in the pair solver (ranks behind and
+  the approach angle; x2 with `charge_defense` / `charge_defense_vs_large`; clamped at 10): Empire swordsmen 2.3, spearmen 5.4.
+  D31's k multiplied that by one fixed number for every soldier, swordsmen included; at k 4 (D62) swordsmen weighed 914 and held
+  the griffon knights and the manticore (median 0.5 m and 1 m past the centre, `docs/HISTORY.md` BRACE-MASS-1122).
+- The engine's size-tier share (a large body takes 0.2 / 0.1 of the correction against a small one) is by size class, not mass.
+- `BRACE_MASS_K` becomes 1.0 and `BRACE_SHARE_MIN` 1.0: against a braced body a landed flyer exchanges momentum by mass alone,
+  the braced mass being the engine's own. One battle, no tuning: swordsmen ploughed by every flyer tested; braced spearmen and
+  halberdiers hold the 1700 mass flyers and are ploughed by the star dragon. The MCT sliders stay (k 1-10, s* 0-1).
+- `SKIP_SPEED` 0.5 (D62) stays. The multiplayer tag stays FLYDIVE7: no build with D62 was released.

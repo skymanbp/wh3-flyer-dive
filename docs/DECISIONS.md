@@ -1314,3 +1314,7 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   entities (unit +0x184 > 0) and an order in its queue, that clear is replaced by the engine's own restart of the queue's
   head order 0x14304e030 (the call D44's `pin_repick` makes). Ground units, an empty queue and mode 0 are untouched.
 - The multiplayer tag changes: FLYPIN11 -> FLYPIN12.
+- Owner, 2026-11-22, on the two open points: 「两件都修好再一起给」 (no test pack until D66 and D67 both work in game); and on how far a
+  dragon at full speed should go through swordsmen: 「跟我想要什么没关系。还是那句话，第一性原理。按照游戏引擎，这个质量和速度冲到哪合理？」
+  The depth is whatever the engine's own physics gives for that mass and speed once the dive's momentum is spent; it is not a
+  tuning choice.

@@ -1233,3 +1233,31 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   the braced mass being the engine's own. One battle, no tuning: swordsmen ploughed by every flyer tested; braced spearmen and
   halberdiers hold the 1700 mass flyers and are ploughed by the star dragon. The MCT sliders stay (k 1-10, s* 0-1).
 - `SKIP_SPEED` 0.5 (D62) stays. The multiplayer tag stays FLYDIVE7: no build with D62 was released.
+
+### D64 · A braced soldier resists a dive once, with its braced mass; a landed flyer held below its own walk speed fights (2026-11-22)
+
+> Owner, 2026-11-22, after playing D63: 「现在冲锋抗性是不是有点太强了？……巨龙冲不穿长矛兵……冲进去之后很粘脚（慢慢往前动，也不冲也不平A）、
+> 高级飞行巨兽也冲不穿长矛兵。对剑士则正常。如果是那种高级的、冲锋抗性很高很高的部队，比如神选长戟，那我可以理解……
+> 设计理念还是和先前一样，从引擎、物理、原理出发，走第一性原理，而不是穷举/打补丁。」
+> Shown the reference battle and the two causes below, he chose 「两条都改」.
+
+- Reference battle `rel_ref` (released pack, 16 lanes, `docs/HISTORY.md` BRACE-ONCE-1122): vanilla ground monsters of the same
+  mass do not plough braced spearmen either. War mammoth 6000: −0.2 to 7.5 m past the centre; carnosaur 4000: 2.5-3 m; both
+  stop within about 1 s of contact and fight (state 55). Against swordsmen the same (7.6 m, 3.4 m). The star dragon against
+  braced spearmen instead crawls at about 1 m/s for 10 s (6-13 m), in state 30 / 33, attacking nothing; the dive caves held
+  off 6516 melee engages in that battle.
+- Cause 1: the pair solver runs every step for a pair in contact (`dive_brace_asm.py`: the pair is marked for this step), and
+  D63's braced mass with the flyer's full share is applied on every one of those steps. A braced soldier is set back in its
+  place by its formation, so it takes momentum from the flyer for as long as they touch: a brake that never runs out, not a
+  collision. The cost of a collision is one exchange per soldier hit.
+- Cause 2: the caves hand a landed flyer to the engine only below `SKIP_SPEED` 0.5 m/s (D62, vanilla cavalry's measured stop).
+  A heavy flyer's legs against that brake hold it near 1 m/s, so it is never handed over.
+- The rule: each braced soldier resists a given landed flyer once, at their first contact, with its braced mass (D63: mass,
+  the engine's own brace, no multiplier, no size discount); after that the pair is the engine's own contact (its size-tier
+  share). The dive's momentum is spent on the soldiers it meets.
+- The hand-off: a landed flyer slower than its own walk speed (`battle_entities.walk_speed` of the flight entity, the unit's
+  own number) is held, and goes to the engine's engage / stop as vanilla. This replaces the fixed 0.5 m/s.
+- Expected from the same formula (to be measured, not tuned): the star dragon (5900, 15 m/s) needs about 17 braced spearmen
+  (braced mass 543) to stop and meets about 12 crossing the block, so it ploughs them; Chosen halberds hold it within a few
+  ranks; swordsmen are ploughed; nothing crawls.
+- The multiplayer tag changes: FLYDIVE7 → FLYDIVE8 (FLYDIVE7 is released).

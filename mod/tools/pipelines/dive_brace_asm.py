@@ -31,6 +31,18 @@ B), counted (lock inc). k = (word & 0xffff) / 100, s* = ((word >> 16) & 0xff) / 
 counts as off. It ends with the replaced code's last flag-setter (test r13b, r13b), so every register, every
 other xmm register and the flags are what the replaced bytes leave; it returns through push / ret (no register).
 
+[D64 2026-11-22] Once per soldier. The solver runs every step while a pair touches, and a braced soldier is set back
+in its place by its formation, so a scaling applied on every step is a brake that never runs out (the landed star
+dragon crawled about 1 m/s into braced spearmen, HISTORY BRACE-ONCE-1122). A collision costs one exchange per
+soldier hit: the cave scales a braced body against a given landed flyer only the first time it meets it in this
+dive; on its later steps the pair is the engine's own (its mass, its brace, its size-tier share). The memory is
+per flyer and per dive: the flyer's slide entry (dive_cave_asm's table at SLIDE_AT, claimed at its first hold on
+the ground) names the dive by its first-hold point, and the hit slot of the same index (HIT_REL from the setting
+word, HIT_BYTES each) keeps that point as its tag, a count, and the last HIT_RING braced bodies met. A slot whose
+tag is not the entry's point belongs to an earlier dive: emptied first. Counted: first meetings at the word's
+counter (+4), later steps left to the engine at REPEAT_REL, a flyer with no slide entry yet (scaled, not
+remembered) at NOSLOT_REL.
+
 ``python dive_brace_asm.py`` (keystone + unicorn) assembles and runs the emulator check against the replaced bytes
 themselves and the mutants; dive_cost_asm.py runs the same from its run_checks.
 """
@@ -56,6 +68,14 @@ BODY_OFF = 0x68                      # body = entity + 0x68
 MASS, BRACE = 0x4C, 0x54             # in the body
 CHAIN = 4                            # links followed through +0x2e0 (dv_cost's depth)
 HUNDRED = 0x42C80000                 # 100.0f
+# [D64] the once-per-soldier memory, relative to the setting word (dive_cost_asm's BRACE block): +16 u32 later
+# steps left to the engine, +20 u32 flyers scaled with no slide entry yet; the hit slots from +64, one per slide
+# slot: +0 the dive's first-hold point (the slide entry's +8, 8 bytes), +8 u32 braced bodies met, +16 the last
+# HIT_RING of them (body pointers)
+REPEAT_REL, NOSLOT_REL, HIT_REL = 16, 20, 64
+HIT_RING = 16
+HIT_BYTES = 16 + 8 * HIT_RING
+assert HIT_RING & (HIT_RING - 1) == 0
 assert len(REPLACED) == RESUME_OFF and SITE.replace(" ", "").lower().startswith(REPLACED.hex())
 
 
@@ -78,6 +98,72 @@ def _flyer(tag):
     jne {tag}_no
     cmp dword ptr [rcx + {base.FLYMODE_OFF:#x}], 0
     je {tag}_no
+"""
+
+
+def _once(tag, braced):
+    """[D64] rcx = the flight entity (after _flyer), rdx = the buffer, ``braced`` = the braced body's register:
+    'jmp <tag>_no' when this body already met this flyer in this dive (counted at REPEAT); else falls through,
+    the body remembered in the flyer's hit slot (or counted at NOSLOT when the flyer has no slide entry). The
+    slide table is probed as dive_cave_asm's _window_test does (key >> 4, open addressing; key | 1 = released
+    is the same flyer; an empty slot ends the probe). Uses rax, rcx; r8 / r9 saved."""
+    return f"""
+    push r8
+    push r9
+    mov r8, rcx
+    mov rax, rcx
+    shr rax, 4
+    and eax, {base.SLIDE_SLOTS - 1}
+    mov r9d, {base.SLIDE_SLOTS}
+{tag}_sp:
+    mov rcx, rax
+    shl rcx, 4
+    mov rcx, qword ptr [rdx + rcx + {base.SLIDE_AT}]
+    test rcx, rcx
+    je {tag}_none
+    and rcx, -2
+    cmp rcx, r8
+    je {tag}_found
+    inc eax
+    and eax, {base.SLIDE_SLOTS - 1}
+    dec r9d
+    jne {tag}_sp
+{tag}_none:
+    lock inc dword ptr [rdx + NOSLOT]
+    jmp {tag}_go
+{tag}_found:
+    mov rcx, rax
+    shl rcx, 4
+    mov r9, qword ptr [rdx + rcx + {base.SLIDE_AT + 8}]
+    imul eax, eax, {HIT_BYTES}
+    lea r8, [rdx + rax + HIT]
+    cmp qword ptr [r8], r9
+    je {tag}_same
+    mov dword ptr [r8 + 8], 0
+    mov qword ptr [r8], r9
+{tag}_same:
+    mov ecx, dword ptr [r8 + 8]
+    cmp ecx, {HIT_RING}
+    jbe {tag}_scan
+    mov ecx, {HIT_RING}
+{tag}_scan:
+    test ecx, ecx
+    je {tag}_new
+    dec ecx
+    cmp qword ptr [r8 + rcx*8 + 16], {braced}
+    jne {tag}_scan
+    lock inc dword ptr [rdx + REPEAT]
+    pop r9
+    pop r8
+    jmp {tag}_no
+{tag}_new:
+    mov eax, 1
+    lock xadd dword ptr [r8 + 8], eax
+    and eax, {HIT_RING - 1}
+    mov qword ptr [r8 + rax*8 + 16], {braced}
+{tag}_go:
+    pop r9
+    pop r8
 """
 
 
@@ -118,7 +204,7 @@ br_o2:
     test r13b, r13b
     je br_a
     lea rcx, [r14 - {BODY_OFF:#x}]
-{_flyer("fa")}{_part(0, 0xFFFF)}    mulss xmm1, xmm0
+{_flyer("fa")}{_once("fa", "rbx")}{_part(0, 0xFFFF)}    mulss xmm1, xmm0
 {_part(16, 0xFF)}    maxss xmm12, xmm0
     lock inc dword ptr [rdx + COUNT]
 fa_no:
@@ -126,7 +212,7 @@ br_a:
     test r12b, r12b
     je br_out
     lea rcx, [rbx - {BODY_OFF:#x}]
-{_flyer("fb")}{_part(0, 0xFFFF)}    mulss xmm2, xmm0
+{_flyer("fb")}{_once("fb", "r14")}{_part(0, 0xFFFF)}    mulss xmm2, xmm0
 {_part(16, 0xFF)}    maxss xmm6, xmm0
     lock inc dword ptr [rdx + COUNT]
 fb_no:
@@ -142,7 +228,9 @@ br_out:
     xchg qword ptr [rsp], rax
     ret
 """
-    return s.replace("+ WORD]", f"+ {word_at:#x}]").replace("+ COUNT]", f"+ {count_at:#x}]")
+    return (s.replace("+ WORD]", f"+ {word_at:#x}]").replace("+ COUNT]", f"+ {count_at:#x}]")
+            .replace("+ REPEAT]", f"+ {word_at + REPEAT_REL:#x}]").replace("+ NOSLOT]", f"+ {word_at + NOSLOT_REL:#x}]")
+            .replace("+ HIT]", f"+ {word_at + HIT_REL:#x}]"))
 
 
 def assemble(word_at, count_at, src=None):
@@ -158,7 +246,7 @@ def assemble(word_at, count_at, src=None):
 # --- emulator: the cave against the replaced bytes themselves ----------------------------------------------
 CODE, REF, RESUME, BUF, STACK, OBJ = 0x100000, 0x110000, 0x120000, 0x200000, 0x400000, 0x500000
 EA, EB, EM, EM2, EM3, EM4, EM5 = (OBJ + 0x1000 * i for i in range(1, 8))
-BUF_SIZE = 0x4000
+BUF_SIZE = 0x10000                  # [D64] the hit slots reach past 0x4000
 GPRS = ("RAX", "RBX", "RCX", "RDX", "RSI", "RDI", "RBP", "RSP", "R8", "R9", "R10", "R11", "R12", "R13", "R14",
         "R15", "EFLAGS")
 STEPS = 2000
@@ -375,7 +463,149 @@ def check(code, word_at, count_at):
         case(f"entry flags {flags:#x}, scaled", braced_b_flyer_a(), 0, 1, 0.1, 1.0, flags=flags,
              want={"XMM1": scaled_b, "XMM12": s_cave})
         case(f"entry flags {flags:#x}, not counted", braced_b_flyer_a(), 0, 0, 0.1, 1.0, flags=flags)
+    # 9. [D64] once per soldier: the flyer's slide entry names the dive, its hit slot remembers the bodies met
+    once_n, once_fails = once_cases(code, word_at, count_at, word_def, scaled_b, s_cave)
+    n += once_n
+    fails += once_fails
     return fails, n
+
+
+def once_cases(code, word_at, count_at, word, scaled_b, s_cave):
+    """[D64] the cave run more than once on one world (a pair touching for several steps): the first meeting of a
+    braced body with a landed flyer is scaled, its later steps are the replaced bytes' result exactly."""
+    fails, n = [], 0
+    slot_of = lambda key: (key >> 4) & (base.SLIDE_SLOTS - 1)  # noqa: E731 -- because the cave hashes the same way
+    hit_base = BUF + word_at + HIT_REL
+
+    def u32(rig, at):
+        return struct.unpack("<I", bytes(rig.mu.mem_read(at, 4)))[0]
+
+    def u64(rig, at):
+        return struct.unpack("<Q", bytes(rig.mu.mem_read(at, 8)))[0]
+
+    def slide(rig, slot, key, x=12.5, z=-40.25):
+        rig.mu.mem_write(BUF + base.SLIDE_AT + slot * 16, struct.pack("<Qff", key, x, z))
+
+    def hit(rig, slot, tag, count, ring):
+        at = hit_base + slot * HIT_BYTES
+        rig.mu.mem_write(at, struct.pack("<QI", tag, count))
+        for i, ptr in enumerate(ring):
+            rig.mu.mem_write(at + 16 + 8 * i, struct.pack("<Q", ptr))
+
+    def tag_of(x=12.5, z=-40.25):
+        return struct.unpack("<Q", struct.pack("<ff", x, z))[0]
+
+    def scenario(label, world, steps, flyer_is_a=True, after=None):
+        """``steps``: per run, True = scaled, False = the reference exactly. ``after(rig)`` -> problems."""
+        nonlocal n
+        n += 1
+        rig = Rig(code, word_at, count_at)
+        rig.mode(1)
+        rig.word(word)
+        world(rig)
+        xmm2 = struct.unpack("<f", bytes(rig.mu.mem_read(EA + BODY_OFF + MASS, 4)))[0]
+        r12b, r13b, sa, sb = (0, 1, 0.1, 1.0) if flyer_is_a else (1, 0, 1.0, 0.1)
+        for i, scaled in enumerate(steps):
+            rig.regs(r12b, r13b, xmm2, sa, sb, 0x202)
+            ref = rig.run(REF)
+            rig.regs(r12b, r13b, xmm2, sa, sb, 0x202)
+            got = rig.run(CODE)
+            if isinstance(ref, str) or isinstance(got, str):
+                fails.append(f"{NAME} once {label} step {i}: {ref if isinstance(ref, str) else got}")
+                return
+            expect = dict(ref)
+            if scaled and flyer_is_a:
+                expect["XMM1"], expect["XMM12"] = lane(ref["XMM1"], scaled_b), lane(ref["XMM12"], max(f32(0.1), s_cave))
+            elif scaled:
+                expect["XMM2"] = lane(ref["XMM2"], f32(f32(f32(SPEAR[0]) * f32(SPEAR[1])) * f32(1.0)))
+                expect["XMM6"] = lane(ref["XMM6"], max(f32(0.1), s_cave))
+            bad = [r for r in expect if got[r] != expect[r]]
+            if bad:
+                fails.append(f"{NAME} once {label} step {i}: {'scaled' if scaled else 'vanilla'} expected, {bad} differ")
+        want = sum(steps)
+        if rig.count() != want:
+            fails.append(f"{NAME} once {label}: count {rig.count()} != {want}")
+        for problem in (after(rig) if after else ()):
+            fails.append(f"{NAME} once {label}: {problem}")
+
+    def dragon_a(rig):
+        rig.entity(EA, DRAGON, 1.0, fc=0x77, flymode=4)
+        rig.entity(EB, *SPEAR)
+
+    sa = slot_of(EA)
+    body_b, body_a = EB + BODY_OFF, EA + BODY_OFF
+
+    def remembered(rig):
+        at = hit_base + sa * HIT_BYTES
+        out = []
+        if u64(rig, at) != tag_of():
+            out.append(f"tag {u64(rig, at):#x} != the entry's point {tag_of():#x}")
+        if u32(rig, at + 8) != 1 or u64(rig, at + 16) != body_b:
+            out.append(f"count {u32(rig, at + 8)}, ring[0] {u64(rig, at + 16):#x} (want 1, {body_b:#x})")
+        if u32(rig, BUF + word_at + REPEAT_REL) != 0:
+            out.append("a repeat counted on a first meeting")
+        return out
+
+    def with_entry(key=EA):
+        def world(rig):
+            dragon_a(rig)
+            slide(rig, sa, key)
+        return world
+
+    scenario("first meeting scaled and remembered", with_entry(), [True], after=remembered)
+    scenario("later steps of the same pair are vanilla", with_entry(), [True, False, False],
+             after=lambda rig: [] if u32(rig, BUF + word_at + REPEAT_REL) == 2 else
+             [f"repeats {u32(rig, BUF + word_at + REPEAT_REL)} != 2"])
+    scenario("a released entry (key | 1) is the same flyer", with_entry(EA | 1), [True, False])
+
+    def old_dive(rig):
+        with_entry()(rig)
+        hit(rig, sa, tag_of(99.0, 99.0), 1, [body_b])
+    scenario("a new dive (another first-hold point) forgets the last one's bodies", old_dive, [True, False],
+             after=lambda rig: [] if u32(rig, hit_base + sa * HIT_BYTES + 8) == 1 else
+             [f"count after reset {u32(rig, hit_base + sa * HIT_BYTES + 8)} != 1"])
+
+    others = [0x7000_0000 + 0x100 * i for i in range(HIT_RING)]
+
+    def full_ring(rig):
+        with_entry()(rig)
+        hit(rig, sa, tag_of(), HIT_RING + 4, others)
+    scenario("a full ring without the body: scaled, written over the oldest", full_ring, [True, False],
+             after=lambda rig: [] if u64(rig, hit_base + sa * HIT_BYTES + 16 + 8 * 4) == body_b else
+             [f"ring[4] {u64(rig, hit_base + sa * HIT_BYTES + 16 + 8 * 4):#x} != {body_b:#x}"])
+
+    def full_ring_has(rig):
+        with_entry()(rig)
+        hit(rig, sa, tag_of(), HIT_RING + 4, others[:7] + [body_b] + others[8:])
+    scenario("a full ring holding the body: vanilla", full_ring_has, [False])
+
+    def probed(rig):
+        dragon_a(rig)
+        slide(rig, sa, 2)                                   # a tombstone at the home slot
+        slide(rig, (sa + 1) % base.SLIDE_SLOTS, 0x7123_4560)    # another flyer
+        slide(rig, (sa + 2) % base.SLIDE_SLOTS, EA)
+    scenario("the entry found past a tombstone and another flyer", probed, [True, False],
+             after=lambda rig: [] if u64(rig, hit_base + ((sa + 2) % base.SLIDE_SLOTS) * HIT_BYTES + 16) == body_b
+             else ["the body was not remembered in the entry's own hit slot"])
+    scenario("no slide entry yet: scaled every step, counted as unremembered", dragon_a, [True, True],
+             after=lambda rig: [] if u32(rig, BUF + word_at + NOSLOT_REL) == 2 else
+             [f"unremembered {u32(rig, BUF + word_at + NOSLOT_REL)} != 2"])
+
+    def other_body_first(rig):
+        with_entry()(rig)
+        hit(rig, sa, tag_of(), 1, [0x7AAA_0000])
+    scenario("another body met before: this one is still new", other_body_first, [True, False])
+
+    sb_ = slot_of(EB)
+
+    def dragon_b(rig):
+        rig.entity(EA, *SPEAR)
+        rig.entity(EB, DRAGON, 1.0, fc=0x77, flymode=4)
+        slide(rig, sb_, EB)
+    scenario("mirrored: the flyer is B, the braced body A", dragon_b, [True, False], flyer_is_a=False,
+             after=lambda rig: [] if u64(rig, hit_base + sb_ * HIT_BYTES + 16) == body_a else
+             ["A's body was not remembered"])
+    return n, fails
 
 
 MUTANTS = (
@@ -400,7 +630,19 @@ MUTANTS = (
     ("xmm0 not restored", "    movdqu xmm0, xmmword ptr [rsp]\n", "    nop\n"),
     ("rcx not restored", "    pop rdx\n    pop rcx\n    pop rax\n", "    pop rdx\n    pop rax\n    pop rax\n"),
     ("flags left by the cave", "    pop rax\n    test r13b, r13b\n", "    pop rax\n    nop\n"),
-    ("not counted", "    lock inc dword ptr [rdx + ", "    inc dword ptr [rdx + 4 + "),
+    ("not counted", "maxss xmm12, xmm0\n    lock inc dword ptr [rdx + ",
+     "maxss xmm12, xmm0\n    inc dword ptr [rdx + 4 + "),
+    # [D64] once per soldier
+    ("never remembers (every step scaled)", "    jne fa_scan\n", "    jmp fa_scan\n"),
+    ("an old dive's bodies kept", "    je fa_same\n", "    jmp fa_same\n"),
+    ("a released entry not matched", "    and rcx, -2\n", "    nop\n"),
+    ("ring index not wrapped", f"    and eax, {HIT_RING - 1}\n", f"    and eax, {2 * HIT_RING - 1}\n"),
+    ("body not written to the ring", "    mov qword ptr [r8 + rax*8 + 16], rbx\n", "    nop\n"),
+    ("unremembered not counted", "fa_none:\n    lock inc", "fa_none:\n    jmp fa_go\n    lock inc"),
+    ("repeat not counted", "    jne fa_scan\n    lock inc dword ptr [rdx + ", "    jne fa_scan\n    inc dword ptr [rdx + 0x100 + "),
+    ("mirrored path never remembers", "    jne fb_scan\n", "    jmp fb_scan\n"),
+    ("probe stops at a tombstone", "    test rcx, rcx\n    je fa_none\n    and rcx, -2\n",
+     "    cmp rcx, 2\n    je fa_none\n    test rcx, rcx\n    je fa_none\n    and rcx, -2\n"),
 )
 
 

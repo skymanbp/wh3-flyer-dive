@@ -1,7 +1,7 @@
 """The shipped physics-dive site table: the eleven dive caves of dive_cave_asm.py with the dive mark of
 dive_mark_asm.py, plus ``dv_brace`` (D31, pipelines/dive_brace_asm.py) and ``dv_reflect`` (D51,
 pipelines/dive_reflect_asm.py). This file writes ``script/campaign/flyer_dive/data/dive_site.lua`` (dive_cave_asm.py
-does not: its table would drop them). MAGIC FLYDIVE7.
+does not: its table would drop them). MAGIC FLYDIVE8.
 
 [D51] D15's dive cost (the cave ``dv_cost`` with its anchor ``dv_facing``, and lib/dive_cost.lua, which took a share
 of maximum health) is removed; Charge Reflection on flyers is now the engine's own reflection multiply, doubled for
@@ -13,6 +13,8 @@ Buffer: dive_mark_asm's (the shipped layout, then the mark), then
   RESERVED_AT  3136 bytes, unused since D51 (D15's cost header and ring)
   BRACE_AT +0 u32 dv_brace's setting word   +4 u32 its counter
            +8 u32 dv_reflect's factor word (hundredths, 0 off)   +12 u32 its counter
+           +16 u32 dv_brace's later steps left to the engine   +20 u32 its flyers with no slide entry (D64)
+           +64 dv_brace's hit slots, one per slide slot (dive_brace_asm.HIT_BYTES each, D64)
 
 ``python dive_cost_asm.py [--write-site] [--check-exe]`` (keystone + unicorn): every emulator case of the eleven
 caves with the mark, the mark's cases, dive_cave_asm's and dive_mark_asm's mutants on the marked caves,
@@ -37,13 +39,16 @@ import dive_mark_asm as mark  # noqa: E402 -- same reason (pipelines/)
 import dive_brace_asm as brace  # noqa: E402 -- same reason (pipelines/)
 import dive_reflect_asm as reflect  # noqa: E402 -- same reason (pipelines/)
 
-MAGIC = b"FLYDIVE7"     # 4: + the mark and dv_cost (D15); 5: + dv_brace (D31); 6: dv_cost -> dv_reflect (D51); 7: hand-off 0.5, k 4 (D62)
+MAGIC = b"FLYDIVE8"     # 4: + the mark and dv_cost (D15); 5: + dv_brace (D31); 6: dv_cost -> dv_reflect (D51); 7: hand-off 0.5, k 4 (D62); 8: once per soldier, hand-off at walk speed (D64)
 RESERVED_AT = mark.BYTES                # 7296, a multiple of 64
 BRACE_AT = RESERVED_AT + 64 + 64 * 48   # where D15's cost ring ended, so dv_brace's offsets are unchanged
 BRACE_WORD_AT, BRACE_COUNT_AT = BRACE_AT, BRACE_AT + 4
 # [D51] dv_reflect (dive_reflect_asm.py): the factor word Lua writes (hundredths, 0 off) and its counter
 REFLECT_WORD_AT, REFLECT_COUNT_AT = BRACE_AT + 8, BRACE_AT + 12
-BYTES = BRACE_AT + 64
+# [D64] dv_brace's once-per-soldier memory (dive_brace_asm.py): two counters and one hit slot per slide slot
+BRACE_REPEAT_AT, BRACE_NOSLOT_AT = BRACE_AT + brace.REPEAT_REL, BRACE_AT + brace.NOSLOT_REL
+BRACE_HIT_AT = BRACE_AT + brace.HIT_REL
+BYTES = BRACE_HIT_AT + base.SLIDE_SLOTS * brace.HIT_BYTES
 EXE_SITES = {"dv_brace": brace.EXE_SITE, "dv_reflect": reflect.EXE_SITE}
 
 
@@ -84,7 +89,8 @@ def layout():
     lay = dict(mark.layout())
     lay.update({"bytes": BYTES, "magic": MAGIC.decode(), "brace_word_at": BRACE_WORD_AT,
                 "brace_count_at": BRACE_COUNT_AT, "reflect_word_at": REFLECT_WORD_AT,
-                "reflect_count_at": REFLECT_COUNT_AT})
+                "reflect_count_at": REFLECT_COUNT_AT, "brace_repeat_at": BRACE_REPEAT_AT,
+                "brace_noslot_at": BRACE_NOSLOT_AT})
     return lay
 
 

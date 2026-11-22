@@ -1177,3 +1177,31 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   ships them; the SFO submod keeps SFO's weapons as SFO ships them (D56).
 - Measured before the ruling (`docs/HISTORY.md` SMALLFLYER-1121): the collision attack made bats, furies and harpies
   2.7-4x vanilla's damage; at the engine's smallest setting (1 target, recovery 1 per second) they stayed 2-3x.
+
+### D60 · Furies charge at vanilla speed; light bodies deal little impact; measure before strengthening (2026-11-21)
+
+> Owner, 2026-11-21: 「怒妖冲锋速度调回原版，现在的太强了。这些小型（低质量）单位的冲击伤害应该很低，巨兽应该较高（但是因为模组少所以冲击总伤并不过高），冲击伤害最高的理论上应该是马鹫、奸奇末日骑士、巨龙马这类飞行重骑兵。这是我猜的，不是标准，但小型单位不应该造成过高冲击伤害（质量低）。……现在削了这部分，是不是应该加强冲击伤害呢？比如回调质量之类的？应该需要实机测试测量来决定。」
+
+- The five furies bodies take vanilla's flying charge speed, 13 (was 17).
+- Principle (the owner's expectation, not a hard standard): low-mass bodies deal little impact; monsters more, in
+  total limited by their few models; flying heavy cavalry (royal hippogryph knights, Tzeentch doom knights, jade
+  longma riders) the most.
+- Whether to strengthen impact now that D59 removed the collision attack (for example by undoing the mass cut) is
+  decided from in-game measurement: heavy flyers with and without the mass cut, against the same swordsmen, with
+  vanilla ground cavalry as the reference.
+- Owner, same day: 「冲击伤害是及时计算的，所以应该算前1-3秒，5秒太久了。」 Impact is read as the target's hit points
+  lost in the first 1, 2 and 3 s after first contact (same ruler for flyers and ground cavalry).
+
+### D61 · Undo the mass cut; braced lines are held by the braced-line rule (2026-11-21)
+
+> Owner, 2026-11-21, asked after the brace test whether to undo the cut: chose 「取消下调」. Earlier the same day:
+> 「当时让大体型部队质量下调是为了不让它们过于容易冲穿高冲锋抗性的步兵吧？不要忘记考虑这一点。」
+
+- The cut (large x0.85, very large x0.75, AIR-DIVE-BRACE-W1 / D10) existed so large flyers would not plough through
+  braced high-charge-defence infantry. Measured per model (`docs/HISTORY.md` SMALLFLYER-1121): with D31's braced-line
+  rule every large flyer stops around the braced block's centre with or without the cut (star dragon, feral manticore,
+  griffon knights, royal hippogryph knights against braced spearmen and halberdiers); vanilla's own jump attack
+  carries the star dragon 12-14 m past the centre. Against swordsmen the cut kept the star dragon's impact below
+  vanilla (5.2% vs 9.2% in 3 s); without it 7.1%.
+- `MASS_FACTOR` becomes empty: no flyer's mass is changed. The braced-line rule (D31, `BRACE_MASS_K`) is what holds
+  a braced line.

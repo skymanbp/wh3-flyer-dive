@@ -20,6 +20,10 @@
 工作树 `D:/Projects/.worktrees/wh3-flyer-dive/smallflyer-1121/wt`，从 `main` `5203fd1` 开。经过与数字见 `docs/HISTORY.md` SMALLFLYER-1121。
 
 - 改动：`IMPACT_STAGE` 由 B 改 A，所有飞兽武器不再加冲撞攻击、不复制武器、不改指陆军单位；新测试 `test_no_flyer_collision_attack`。
+- D60：怒妖冲锋速度回原版 13。D61：质量下调撤掉（`MASS_FACTOR` 为空），挡架枪步兵靠阵列齐整规则；测试改为 `test_no_mass_change`。
+- 冲击伤害（游戏标为冲击的扣血，占目标总血量，打剑士，各一局）：马鹫骑士 10.6%、巨龙马 8.7%、星龙 8.0%、飞马 6.7%、
+  狮鹫骑士 3.4%、末日骑士 3.3%、蝎尾狮 1.5%、怒妖 0；原版地面骑兵 1.6–5.3%。逐只坐标：三个模组版本里大飞兽撞枪阵都停在方阵中心前后。
+- 测试驱动：超过 9 条道记为偏离标准而不是拒绝（`air_dive_autotest.nonstandard`）。
 - 实机：带记录器的正式包与已测的「去掉冲撞」包逐字节相同（sha256 `546a0e03…`），那三局即它的实机核对：怒妖 / 蝙蝠 / 鹰身女妖
   对剑士 5 秒掉血 11.6 / 5.6 / 5.6%（原版 6.7 / 2.9 / 8.1%，现行 24.0 / 11.7 / 18.4%）。
 - 正式包 `D:/Projects/.worktrees/wh3-flyer-dive/smallflyer-1121/packs/ruled/flyer_dive_takeoff.pack`。

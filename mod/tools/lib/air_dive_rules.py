@@ -144,7 +144,9 @@ LOCOMOTION_CELLS = {
 }
 EXCLUDED_TYPES = frozenset({"fauna"})
 # [AIR-DIVE-BRACE-W1, user ruling 2026-11-14] flyer mass by body size (module docstring)
-MASS_FACTOR = {"large": 0.85, "very_large": 0.75}
+# [D61 2026-11-21] owner: the mass cut is undone (it was large x0.85, very_large x0.75); the braced-line rule
+# (D31) holds braced infantry. Empty = no flyer mass changes; mass_factor() returns 1.0 for every row.
+MASS_FACTOR = {}
 # [AIR-DIVE-BRACE-W1, user ruling 2026-11-15] entity -> the MASS_FACTOR size it is cut as instead of its
 # own body size (module docstring). The boss lion is the same beast on the same body (CHARGE_SPEED rows).
 MASS_SIZE_OVERRIDE = {
@@ -219,11 +221,11 @@ FLYER_CHARGE_SPEEDS = {
     "wh3_main_arkhan_tmb_flying_fell_bat_blood": (17.0, "skirmisher", "Arkhan's fell bats: same frenzied bats"),
     "wh3_main_tze_flying_screamer": (17.0, "skirmisher", "Screamers: sky-sharks of Tzeentch that slash on the pass"),
     "wh3_dlc24_tze_mon_flying_screamer_ror": (17.0, "skirmisher", "Screamers regiment of renown: same daemons"),
-    "wh3_main_infantry_dae_furies_blood": (17.0, "skirmisher", "Chaos furies: winged daemons that drop on prey"),
-    "wh3_main_infantry_kho_furies_blood": (17.0, "skirmisher", "Khorne furies: same daemons"),
-    "wh3_main_infantry_nur_furies_blood": (17.0, "skirmisher", "Nurgle furies: same daemons"),
-    "wh3_main_infantry_sla_furies_blood": (17.0, "skirmisher", "Slaanesh furies: same daemons"),
-    "wh3_main_infantry_tze_furies_blood": (17.0, "skirmisher", "Tzeentch furies: same daemons"),
+    "wh3_main_infantry_dae_furies_blood": (13.0, "skirmisher", "Chaos furies: winged daemons that drop on prey; [D60] vanilla 13, the owner's ruling"),
+    "wh3_main_infantry_kho_furies_blood": (13.0, "skirmisher", "Khorne furies: same daemons; [D60] vanilla 13, the owner's ruling"),
+    "wh3_main_infantry_nur_furies_blood": (13.0, "skirmisher", "Nurgle furies: same daemons; [D60] vanilla 13, the owner's ruling"),
+    "wh3_main_infantry_sla_furies_blood": (13.0, "skirmisher", "Slaanesh furies: same daemons; [D60] vanilla 13, the owner's ruling"),
+    "wh3_main_infantry_tze_furies_blood": (13.0, "skirmisher", "Tzeentch furies: same daemons; [D60] vanilla 13, the owner's ruling"),
     "wh2_main_infantry_harpies_blood": (16.0, "skirmisher", "Harpies: light, savage swoopers, infantry-weight in the hit"),
     "wh2_main_infantry_harpies_blood_ror": (16.0, "skirmisher", "Harpies regiment of renown: same creatures"),
     "wh_dlc05_bst_inf_harpy": (16.0, "skirmisher", "Beastmen / Wood Elf harpies: same creatures"),

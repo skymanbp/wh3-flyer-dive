@@ -47,12 +47,8 @@ optional balance submod of 2026-11-17 was withdrawn before it was published):
   next to `Warhammer3.exe`. Without MCT the setting stays on. In a multiplayer
   campaign the host's setting applies to every player (MCT shares it); multiplayer battles
   outside a campaign stay on, because MCT shares nothing between the players there.
-* **Mass cut.** Large flyers weigh ×0.85, very large ones ×0.75. The celestial
-  lion and The Wise One (the boss lion) are cut as large; the game's nine flying
-  war machine and chariot bodies (thunderbarges, sky-junk, sky lantern,
-  skycutters, burning chariot, gyrocopter, gyrobomber) keep their mass
-  (`MASS_CUT_MACHINES` also names two Lore Disasters bodies this pack never ships).
-  Not a setting.
+* **Mass.** Every flyer keeps the game's own mass (the mass cut of earlier versions
+  is undone, D61); braced infantry is held by the braced-line rule.
 
 Another mod that ships the same flyer rows or its own copy of the usage-flag
 table wins or loses against this pack by load order. Measured in game on
@@ -158,8 +154,7 @@ separate main-mod adapter pack.
   可选）里的设置，默认**开**。关掉时由战斗脚本 `mod/script/battle/mod/flyer_breath.lua` 每个战斗时刻把原版的两条限制
   按兵补回去（部队陷入近战时、以及原版在地面上也禁用的那些吹息在没飞起来时，禁用该吹息），并在
   `Warhammer3.exe` 旁写 `flyer_breath.txt`。没装 MCT 时保持开。多人战役里以主机的设置为准（MCT 会把它发给每个玩家）；战役之外的多人战斗始终为开，因为那里 MCT 不同步设置。
-* **质量下调**：大型飞兽质量 ×0.85，超大型 ×0.75。昊天狮与「智者」按大型算；游戏里九种飞行战争机器
-  与战车的实体（雷霆空艇、天舟、天灯、斩天者、浴焰战车、矮人直升机、矮人轰炸机）质量不变。不是设置。
+* **质量**：所有飞兽保持游戏原版质量（早先版本的质量下调已撤，D61）；挡架枪步兵靠阵列齐整那条规则。
 
 别的模组若发同样的飞兽行、或自带一份技能可用条件表，与本包谁生效取决于加载顺序。2026-11-18 用本模组的两个包
 实机量过：模组列表里的先后不决定结果，三局都与「表片段名排前者赢」相符（反过来的顺序没测）。

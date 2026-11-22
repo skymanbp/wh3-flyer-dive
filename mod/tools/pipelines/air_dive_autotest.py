@@ -883,7 +883,8 @@ def nonstandard(args, lane_offsets):
         out.append(f"environment {ENVIRONMENT}")
     if not lane_offsets:
         out.append(f"lanes by --spacing {args.spacing} / --offset {args.offset}")
-    elif tuple(lane_offsets) != standard_offsets(len(lane_offsets)):
+    elif len(lane_offsets) > MAX_LANES or tuple(lane_offsets) != standard_offsets(len(lane_offsets)):
+        # [SMALLFLYER-1121] more lanes than the standard holds is a named deviation, not a refusal
         out.append("lane offsets " + ",".join(f"{o:g}" for o in lane_offsets))
     if args.stagger != STANDARD["stagger_s"]:
         out.append(f"stagger {args.stagger:g} s")

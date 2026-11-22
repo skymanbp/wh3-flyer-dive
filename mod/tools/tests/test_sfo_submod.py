@@ -60,10 +60,11 @@ class KeepColumns(unittest.TestCase):
             for col in air_dive_rules.SFO_KEEP_ENTITY_COLUMNS:
                 self.assertEqual(row[col], self.installed[k][col], (k, col))
 
-    def test_main_pack_still_cuts_and_sets(self):
+    def test_main_pack_keeps_mass_and_sets_speed(self):
+        # [D61] the main pack no longer cuts mass; it still sets the per-flyer charge speeds the submod keeps off
         cut = [k for k, r in self.main.items() if r["mass"] != self.installed[k]["mass"]]
         speed = [k for k, r in self.main.items() if r["flying_charge_speed"] != self.installed[k]["flying_charge_speed"]]
-        self.assertGreater(len(cut), 80)
+        self.assertEqual(cut, [])
         self.assertGreater(len(speed), 100)
 
     def test_other_cells_still_change(self):

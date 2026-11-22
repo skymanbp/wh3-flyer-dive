@@ -258,7 +258,10 @@ def check_pack(out, sfo_pack, main_pack):
     for table in air_dive_rules.SFO_TABLES:
         frag = fragments(out, table)
         if not frag:
-            problems.append(f"{table}: no fragment")
+            # [D59] a table the main pack does not ship either (no weapon rows since collision attacks went) has
+            # nothing to lay over SFO; only a table the main pack does ship must be in the submod
+            if fragments(main_pack, table):
+                problems.append(f"{table}: no fragment, the main pack ships one")
             continue
         other = [n for n, _ in fragments(sfo_pack, table) + fragments(main_pack, table)]
         for key in (str, str.lower):

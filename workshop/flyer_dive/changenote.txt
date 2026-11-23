@@ -1,13 +1,7 @@
-- Flying units no longer carry a collision attack. Their charge damage is the game's own impact, from mass and speed, so light flyers such as bats and Furies hit far less hard than before.
-- Furies are back to the base game's charge speed.
-- Flying units keep the base game's mass (the 15% / 25% cut is gone).
-- A landed flyer keeps pushing until the bodies in front of it stop it, as base-game cavalry does.
-- Braced units resist a dive by mass and their own charge resistance only. Heavy flyers now break through infantry with low charge resistance, such as swordsmen; braced spears and halberds hold mid-weight flyers; dragons can still break through.
-- MCT: the defaults of 'Braced mass against a dive' and 'Dive slowing against braced units' are now 1. If you changed them before, set them back to 1.
+- Braced spears and halberds hold landed flyers better.
+- Flying units no longer lose their orders after a melee is interrupted.
+- MCT: the default of 'Braced mass against a dive' is now 4, and the default of 'Dive slowing against braced units' is now 0. If you changed them before, set them to the new defaults.
 
-- 飞行部队不再带冲撞攻击，冲锋伤害只有游戏自己按质量和速度算的冲击。蝙蝠、怒妖这类轻型飞行部队的冲锋伤害大幅降低。
-- 怒妖的冲锋速度回到原版。
-- 飞行部队保持原版质量（不再降 15% / 25%）。
-- 飞行部队落地后会一直往前冲，直到被前面的身体挡停，与原版骑兵相同。
-- 阵列齐整的部队抵御俯冲只看质量和自身的冲锋抗性：重型飞行部队能冲穿剑士这类冲锋抗性低的步兵，阵列齐整的长矛与长戟挡得住中等重量的飞行部队，巨龙依然能冲穿。
-- MCT：「阵列齐整时抵御俯冲的质量倍数」与「俯冲撞上阵列齐整部队时的减速比例」的默认值改为 1。以前改过这两项的，请改回 1。
+- 阵列齐整的长矛、长戟更挡得住落地的飞行部队。
+- 飞行部队近战被打断后不再丢失指令。
+- MCT：「阵列齐整时抵御俯冲的质量倍数」默认改为 4，「俯冲撞上阵列齐整部队时的减速比例」默认改为 0。以前改过这两项的，请改成新默认值。

@@ -2993,3 +2993,17 @@ max(0.8, s\*)（文档写的就是这个）；`test_brace_solver` 的默认值�
   反向对照就是 `integ1`：同样六道，旧算法下五道全是 14.0 平线。
 - 试玩包（不带记录器）`D:/Projects/.worktrees/wh3-flyer-dive/crawl-1122/packs/owner2/flyer_dive_takeoff.pack`，14,088,611 字节，
   sha256 `208775eb82ec8b4488db617c4e9617e2ac1d6b36d971ff4cc1c44a7c4dac4af5`，联机标记 `FLYPIN12` / `FLYDIVE9`（都没发布过，不换）。
+
+## UPLOAD-1123（2026-11-23 傍晚）：D66–D71 发布，两个条目都换文件
+
+主人试玩 D71 包后说「差不多了。合并+提交+推送+steam更新」，页面说明不改；更新说明选了「阵列齐整的长矛、长戟更挡得住」「近战被打断后不再丢指令」「MCT 两项默认值改为 4 和 0」三条；又令「SFO子模组也记得更新」。
+
+- **合并**：`crawl-1122` 快进并入 `main`（`7deecd6`），`main` 上测试 299 项、2205 子项通过，推送。
+- **主包**：建在 `7deecd6`，14,088,611 字节，sha256 `208775eb…dac4af5`，与主人试玩的包逐字节相同。联机标记 `FLYPIN12` / `FLYDIVE9`。
+- **SFO 子模组**：本机 SFO 已更新（2,110,166,586 → 2,110,170,396 字节），用新主包重建，264,987 字节，sha256 `b3ddf94f…8ccd61f4`（线上原版 264,971 字节），需要重传。
+- **上传**：主模组 vdf 带更新说明（`workshop/flyer_dive/changenote.txt`），不写标题与说明；SFO 子模组只换文件。两次 steamcmd 都 `Committing update...Success`。
+  SFO 第一次因 vdf 里的路径被 shell 吃掉反斜杠报 `Build for workshop item has no content` 失败、线上未变，改用脚本写 vdf 后成功。
+- **核对**（公开接口）：主模组 `time_updated` 1795363056 → 1795474816，`file_size` 14,217,643 ＝ 包 ＋ 封面 129,032，`hcontent_file` → 299677178509729549；
+  SFO 子模组 `time_updated` 1795326472 → 1795474874，`file_size` 394,019 ＝ 包 ＋ 封面 129,032，`hcontent_file` → 4481148720838415611。两者都公开、标签 `mod`、`battle`，标题与说明与上传前相同。
+- **回滚包**：新的线上两个包存进 `.local/rollback/`（`*.live_1123.pack`）。
+- **没做的**：键值标签没读回（`ugc.py` 不在仓库里，CLEANUP-1122 后没找到）；本机 `data/` 没放新包（主人订阅着）。

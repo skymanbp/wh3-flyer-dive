@@ -101,6 +101,10 @@ cfg.fight_ms, cfg.cycle_away_ms, cfg.cycle_back_ms = 90000, -1, 6000
 -- [regroup-1119, D23] away_repeat_ms=<ms> (0 = off): the cycle's move-away order is given again to the same
 -- place every that many ms until the next attack order (a player who clicks the same destination again).
 cfg.away_repeat_ms = 0
+-- [D67, owner 2026-11-23 「得让长戟兵追着空军打，不然粘不住」] target_chase=<0|1>: with 1 the target is ordered to
+-- attack its flyer at every cycle attack and again at every move-away order, so it chases the leaving flyer (0: the
+-- target is ordered once, at the first attack, as before).
+cfg.target_chase = 0
 -- [regroup-1119, D23; owner 2026-11-19 22:12: "the side that is being attacked must not have guard mode switched
 -- on"] guard_on=<0|1>: every run sets guard mode OFF explicitly for every flyer and every target (the target is the
 -- interceptor in this harness) through change_behaviour_active("defend", false): "defend" is the name in CA's list of
@@ -472,9 +476,12 @@ local function run_cycle(lanes, ux, uz)
         for i, lane in ipairs(lanes) do
             local ok, line = pcall(function()
                 local u, t = lane.flyer.unit, lane.target.unit
-                return fmt("F %d %d %.5f %d %.5f %d %s %s", now, i, u:unary_hitpoints(),
+                -- [D67] + the flyer's rout state (is_routing / is_shattered, the calls CA's lib_battle_manager uses):
+                -- an order that ends because the unit routs is not a pull-back
+                return fmt("F %d %d %.5f %d %.5f %d %s %s %s %s", now, i, u:unary_hitpoints(),
                     u:number_of_men_alive(), t:unary_hitpoints(), t:number_of_men_alive(),
-                    tostring(u:is_currently_flying()), tostring(u:is_in_melee()))
+                    tostring(u:is_currently_flying()), tostring(u:is_in_melee()),
+                    tostring(u:is_routing()), tostring(u:is_shattered()))
             end)
             hp_line(ok and line or fmt("FFAIL %d %d %s", now, i, tostring(line)))
         end
@@ -486,7 +493,7 @@ local function run_cycle(lanes, ux, uz)
         for i, lane in ipairs(lanes) do
             local ok, err = pcall(function()
                 lane.flyer.uc:attack_unit(lane.target.unit, true, true)
-                if n == 1 then lane.target.uc:attack_unit(lane.flyer.unit, true, true) end
+                if n == 1 or cfg.target_chase == 1 then lane.target.uc:attack_unit(lane.flyer.unit, true, true) end
             end)
             status(fmt("cycle attack %d #%d ok=%s %s", i, n, tostring(ok), ok and "" or tostring(err)))
         end
@@ -499,6 +506,7 @@ local function run_cycle(lanes, ux, uz)
                     lane.away_to = { p:get_x() - ux * cfg.away_m, p:get_z() - uz * cfg.away_m }
                 end
                 lane.flyer.uc:goto_location(v(lane.away_to[1], lane.away_to[2]), true)   -- [regroup-1119] a repeat goes to the same place
+                if cfg.target_chase == 1 then lane.target.uc:attack_unit(lane.flyer.unit, true, true) end   -- [D67] it follows
             end)
             status(fmt("cycle away %d #%d ok=%s %s", i, n, tostring(ok), ok and "" or tostring(err)))
         end

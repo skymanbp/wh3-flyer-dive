@@ -1420,3 +1420,22 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   halberdiers 24.6 / 18.3 / 18.3, Chosen 21.0 / 15.9 / 16.2, ending at `SLIDE_RELEASE_M`); griffon knights against spearmen
   17-23 / 12-17 / 0-12, against Chosen 11-15 / 2-7 / 2-9; pegasus knights held at 0-5 against spearmen and halberdiers at
   every k. Owner, shown the three: 「4」. `BRACE_MASS_K` 4.0 (the MCT slider keeps 1-10).
+
+### D67 addendum 2 · The order losses left after `pin_resume` are routs; the landings left are the attack itself (2026-11-23)
+
+> Owner, 2026-11-23, on the test scenario: 「你不能开防御模式，得让长戟兵追着空军打，不然粘不住。」 Guard mode was already off in
+> every run (`guard_setup ... target_defend=off`); the targets were ordered once and then held. The cycle scenario now takes
+> `target_chase=1`: the target is ordered at its flyer at every attack and every move-away order.
+
+- Measured (battles `pull5`-`pull13`, recorder with the call tracer; `docs/HISTORY.md` CRAWL-1122b): every order lost after D67's
+  `pin_resume` is a rout. On that tick the unit's mode state machine (unit +0x3c78, state pointer +0x08 into the table at
+  0x143d2b4e0) goes from state 3 (its per-tick update 0x14304f868 runs the order queue) to state 1, entered when
+  0x14303bd08(unit +0x3b30) turns true; the move order restarts (its update count, order +0x24, back to 1), its start
+  0x143032280 stops every controller through 0x14301ef14 -> 0x14301ed64, and the move segment ends at once because no
+  controller is busy. Battle `pull13` read `is_routing()` (CA's lib_battle_manager.lua uses it) in the same sample as the
+  state change, both times (harpies at 37 % and 36 % hit points); after it the unit takes no order. That is the engine's rout.
+- The airborne models landed after an order was given (0-3 a battle with chasing targets) all come from 0x143050dc1, the
+  landing toward the attack target in 0x143050d74 (target on the ground -> land), within 1.5 s of an attack order, and the
+  attack order stays queued: the attack being carried out, not a pull-back into formation.
+- Nothing changes in the mod for this; `pin_resume` (FLYPIN12) stands. The recorder keeps the rout state (F lines) so a rout
+  is never counted as a pull-back again.

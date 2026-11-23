@@ -349,7 +349,8 @@ local function drain_calls(ms, uid_of)
                 if kind == 17 then                  -- [D46] rt_tdone: the move's +0x30, the model's +0x710
                     extra = extra .. fmt(" m30=%s m710=%s", hex_bytes(chunk, at + 104, 4), hex_bytes(chunk, at + 108, 4))
                 end
-            elseif kind == 10 then                  -- [D42] rt_pop: the clear-queue loop's caller (0 = not from it)
+            elseif kind == 10 or kind == 19 then    -- [D42] rt_pop: the clear-queue loop's caller (0 = not from it);
+                                                    -- [D67] rt_stop: the stop-all loop's caller and one above (0 = not from it)
                 extra = " c2=" .. hex_bytes(chunk, at + 64, 8) .. " c3=" .. hex_bytes(chunk, at + 72, 8)   -- [CRAWL-1122] one level up
             elseif kind == 14 then                  -- [D45] rt_pursue: state, target unit, own model count, answer
                 extra = fmt(" st=%s tgt=%s own=%d yes=%d", hex_bytes(chunk, at + 64, 8), hex_bytes(chunk, at + 72, 8),

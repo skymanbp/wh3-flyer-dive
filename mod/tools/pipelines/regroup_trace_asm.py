@@ -152,6 +152,23 @@ T_CHARGED = 0x80
 # task when the move reports finished (+0x10 == 1). Logged only for an uncharged task (+0x80 == 0) whose move has
 # finished: the task entry plus ext +104 the move's +0x30, +108 the model's +0x710.
 TDONE_KIND = 17
+# [D67, CRAWL-1122] rt_clear: 0x142f5c1cc(rcx = a movement object, edx = segments to keep) pops the object's segment
+# stack (16-byte entries at +0x200, count +0x240, dirty byte +0x250; static read) down to edx; the move order's
+# completion test 0x143050600 is "[order+0x18] +0x240 == 0". Entry: +0 the object, +16 the caller, +32 edx (0),
+# +40 the count before the trim; the bottom segment [obj+0x200] (0x14304fa28 updates it and pops when its +0x18 is 1):
+# +48 its vtable (low 32 bits), +52 its update count +0x1c, +56 its finished byte +0x18 (NONE32 with no segment).
+CLEAR_KIND = 18
+# [D67, CRAWL-1122] rt_stop: 0x1430dc0ec(rcx = a controller) ends the controller's task (0x142f4655c on its entry at
+# +0x8f0: +0xa08 active and +0xa09 started go 0); 0x142d6e9bc: busy = +0xa08 == 1 and +0x928 == 0. Logged only for a
+# busy controller: +0 the controller, +16 the caller, +40 its +0xa09.
+STOP_KIND = 19
+C_STARTED = 0xA09
+# from the stop-all loop 0x143025dac (returns 0x143025dcb into it; its frame 0x28 + its return address): ext +64 the
+# loop's return address [rsp + 0x30], ext +72 [rsp + 0xe0]: battle pull10 showed the loop called from 0x14301ed64 (stop
+# every controller, then set the unit's new path at +0x270; push rdi; sub rsp, 0xa0 -> its own return address 0xa8 above
+# its call frame at rsp + 0x38), the generic "move the unit" helper with 50 callers -- which one, at +72
+STOP_LOOP_RET, STOP_UP, STOP_UP2 = 0x143025DCB, 0x30, 0xE0
+SEG_COUNT, SEG_DIRTY, SEG_BOTTOM, SEG_UPDATES, SEG_DONE = 0x240, 0x250, 0x200, 0x1C, 0x18
 T_HOLDER, H_MOVE, M_DONE, M_KIND, E_MOVESTATE = 0x18, 8, 0x10, 0x30, 0x710
 B_TARGET, B_STATE, B_A0, C_MEN, R_N8, R_NC = 0x68, 0x38, 0xA0, 0x24, 8, 0xC
 PUSH_RAX = 40                          # pushfq, rax, rcx, rdx, r9, r10, r11 -> the saved rax at [rsp + 40]
@@ -197,11 +214,15 @@ SITES = {
                 "40 53 48 83 EC 60", 0x142F8FF54),
     "rt_tdone": ("48 89 43 58 48 8B 53 18 48 8B CB 48 83 C2 08 48 83 C4 60 5B E9", 4,
                  "48 8B 53 18 48 8B CB 48 83 C2 08", 0x142F8FFF6),
+    "rt_clear": ("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 80 B9 50 02 00 00 00 8B F2", 0,
+                 "48 89 5C 24 08 48 89 6C 24 10", 0x142F5C1CC),
+    "rt_stop": ("40 53 48 83 EC 20 48 8B D9 48 81 C1 F0 08 00 00 E8", 0, "40 53 48 83 EC 20", 0x1430DC0EC),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
         "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
         "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND, "rt_pursue": PURSUE_KIND,
-        "rt_tstart": TSTART_KIND, "rt_tupd": TUPD_KIND, "rt_tdone": TDONE_KIND}
+        "rt_tstart": TSTART_KIND, "rt_tupd": TUPD_KIND, "rt_tdone": TDONE_KIND, "rt_clear": CLEAR_KIND,
+        "rt_stop": STOP_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -408,17 +429,49 @@ pop_end:
 pop_noclear:"""
 
 
+def _stop_aux():
+    """[D67] rt_stop: the controller's +0xa09; from the stop-all loop, two return addresses further up"""
+    return f"""movzx eax, byte ptr [rcx + {C_STARTED:#x}]
+    mov qword ptr [r11 + 40], rax
+    mov rax, qword ptr [rsp + {PUSHES * 8}]
+    mov rdx, {STOP_LOOP_RET:#x}
+    cmp rax, rdx
+    jne stop_noloop
+    mov rax, qword ptr [rsp + {PUSHES * 8 + STOP_UP}]
+    mov qword ptr [r11 + {EXT}], rax
+    mov rax, qword ptr [rsp + {PUSHES * 8 + STOP_UP2}]
+    mov qword ptr [r11 + {EXT + 8}], rax
+stop_noloop:"""
+
+
+def _clear_aux():
+    """[D67] rt_clear: the count, then the bottom segment's vtable, update count and finished byte"""
+    return f"""mov eax, dword ptr [rcx + {SEG_COUNT:#x}]
+    mov qword ptr [r11 + 40], rax
+    mov rax, qword ptr [rcx + {SEG_BOTTOM:#x}]
+    test rax, rax
+    jz clear_noseg
+    mov rdx, qword ptr [rax]
+    mov dword ptr [r11 + 48], edx
+    mov edx, dword ptr [rax + {SEG_UPDATES:#x}]
+    mov dword ptr [r11 + 52], edx
+    movzx edx, byte ptr [rax + {SEG_DONE:#x}]
+    mov dword ptr [r11 + 56], edx
+clear_noseg:"""
+
+
 def source(name, mutate=None):
     kind = KIND[name]
     task = kind in TASK_KINDS or kind == TDONE_KIND
     ent = {1: "mov rax, qword ptr [rcx]", 2: "mov rax, qword ptr [rcx]",
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
            6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
-           PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax", PURSUE_KIND: "xor eax, eax"}.get(kind) or (
+           PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax", PURSUE_KIND: "xor eax, eax",
+           CLEAR_KIND: "xor eax, eax", STOP_KIND: "xor eax, eax"}.get(kind) or (
         f"mov rax, qword ptr [{'rcx' if kind in TASKE_KINDS else 'rbx'} + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
         f"    mov rax, qword ptr [rax + {SLOT_ENT}]")
     guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else
-             "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND) + TASKE_KINDS else (
+             "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND, CLEAR_KIND, STOP_KIND) + TASKE_KINDS else (
         "test rbx, rbx\n    jz noent" if task else "nop"))
     aux = {1: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
            2: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
@@ -430,7 +483,9 @@ def source(name, mutate=None):
            7: _task_aux(), 8: _task_aux(), 9: _mktask_aux(), POP_KIND: _pop_aux(),
            DONE_KIND: _done_aux(), PICK_KIND: _pick_aux(), FLYQ_KIND: _flyq_aux(),
            PURSUE_KIND: _pursue_aux(), TSTART_KIND: _task_aux().replace("[rbx", "[rcx"),
-           TUPD_KIND: _task_aux().replace("[rbx", "[rcx"), TDONE_KIND: _tdone_aux()}[kind]
+           TUPD_KIND: _task_aux().replace("[rbx", "[rcx"), TDONE_KIND: _tdone_aux(),
+           CLEAR_KIND: _clear_aux(),
+           STOP_KIND: _stop_aux()}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
@@ -448,12 +503,24 @@ def source(name, mutate=None):
     elif kind == TUPD_KIND:     # only while the task has not charged yet
         filt = f"""cmp byte ptr [rcx + {T_CHARGED:#x}], 0
     jne done"""
+    elif kind == CLEAR_KIND:    # [D67] only a trim that empties the stack (the function skips a clean object)
+        filt = f"""test edx, edx
+    jne done
+    cmp byte ptr [rcx + {SEG_DIRTY:#x}], 0
+    je done
+    cmp dword ptr [rcx + {SEG_COUNT:#x}], 0
+    je done"""
+    elif kind == STOP_KIND:     # [D67] only a busy controller (0x142d6e9bc)
+        filt = f"""cmp byte ptr [rcx + {C_A08:#x}], 1
+    jne done
+    cmp byte ptr [rcx + {C_928:#x}], 0
+    jne done"""
     elif kind == 3:     # only a change of target
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
     pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind == PURSUE_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
-        "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND) + TASKE_KINDS else ("test rbx, rbx\n    jz done" if task else "nop"))
+        "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND, CLEAR_KIND, STOP_KIND) + TASKE_KINDS else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
     me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
     ret = PUSHES * 8 + (HANDLER_RET if task else PURSUE_UP if kind == PURSUE_KIND else 0)                   # mid-function: the handler's return address
@@ -994,6 +1061,122 @@ def _check_ctrl(name, code):
     return fails
 
 
+def _check_clear(code):
+    """[D67] rt_clear on a synthetic movement object: logged (object, caller, edx 0, the count) only when edx is 0, the
+    dirty byte is set and the count is above 0; counted on every call (mode 1); nothing in mode 0; a null rcx counted,
+    not written. Every register and the flags back; the whole entry checked."""
+    fails = []
+    obj = OBJ + 0x30000
+    seg, seg_vt = OBJ + 0x31000, 0x143A12345
+    cases = [("empties 3", 1, dict(edx=0, dirty=1, n=3), True), ("empties 1", 1, dict(edx=0, dirty=1, n=1), True),
+             ("empties, no segment", 1, dict(edx=0, dirty=1, n=2, noseg=True), True),
+             ("keeps 1", 1, dict(edx=1, dirty=1, n=3), False), ("clean object", 1, dict(edx=0, dirty=0, n=3), False),
+             ("already empty", 1, dict(edx=0, dirty=1, n=0), False), ("off", 0, dict(edx=0, dirty=1, n=3), None)]
+    for label, mode, w, want in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            _put(mu, obj + SEG_DIRTY, "<B", w["dirty"])
+            _put(mu, obj + SEG_COUNT, "<I", w["n"])
+            if not w.get("noseg"):
+                _put(mu, obj + SEG_BOTTOM, "<Q", seg)
+                _put(mu, seg, "<Q", seg_vt)
+                _put(mu, seg + SEG_UPDATES, "<I", 5)
+                _put(mu, seg + SEG_DONE, "<B", 1)
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", RET))
+            try:
+                changed = _run(mu, code, {"rcx": obj, "rdx": w["edx"], "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"rt_clear {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            calls = _u32(mu, B + CALLS_AT + 4 * (CLEAR_KIND - 1))
+            if changed:
+                fails.append(f"rt_clear {label}: registers changed {changed}")
+            if want is None:
+                if written or calls or any(entry):
+                    fails.append(f"rt_clear {label}: logged in mode 0")
+                continue
+            if not want:
+                if written or calls != 1 or any(entry):
+                    fails.append(f"rt_clear {label}: written {written} calls {calls} (want 0, 1)")
+                continue
+            sv = (NONE32, NONE32, NONE32) if w.get("noseg") else (seg_vt & 0xFFFFFFFF, 5, 1)
+            exp = struct.pack("<QQQIIQQIIII", obj, 0, RET, 0, CLEAR_KIND, 0, w["n"], *sv, 8)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or calls != 1 or entry != exp:
+                fails.append(f"rt_clear {label}: written {written} calls {calls} entry {entry.hex()} want {exp.hex()}")
+    mu = _machine(code)                 # a null rcx: counted, nothing written, no crash
+    mu.mem_write(B + MODE_AT, struct.pack("<I", 1))
+    mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+    rsp = STACK + 0x4000
+    mu.mem_write(rsp, struct.pack("<Q", RET))
+    changed = _run(mu, code, {"rcx": 0, "rdx": 0, "rsp": rsp}, 0x202)
+    if changed or _u32(mu, B + COUNT_AT) != 7:
+        fails.append(f"rt_clear null rcx: changed {changed}")
+    return fails
+
+
+def _check_stop(code):
+    """[D67] rt_stop on a synthetic controller: logged (controller, caller, its +0xa09) only when +0xa08 is 1 and +0x928
+    is 0; counted on every call (mode 1); nothing in mode 0; a null rcx counted, not written. Registers and flags back."""
+    fails = []
+    ctl = OBJ + 0x32000
+    cases = [("busy", 1, dict(a08=1, a09=1, d=0), True), ("busy, not started", 1, dict(a08=1, a09=0, d=0), True),
+             ("idle", 1, dict(a08=0, a09=0, d=0), False), ("done", 1, dict(a08=1, a09=1, d=1), False),
+             ("a08 2", 1, dict(a08=2, a09=1, d=0), False), ("off", 0, dict(a08=1, a09=1, d=0), None)]
+    cases.append(("busy, from the loop", 1, dict(a08=1, a09=1, d=0, loop=True), True))
+    up1, up2 = 0x142F4303B, 0x142F5BA64
+    for label, mode, w, want in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            _put(mu, ctl + C_A08, "<B", w["a08"])
+            _put(mu, ctl + C_STARTED, "<B", w["a09"])
+            _put(mu, ctl + C_928, "<B", w["d"])
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", STOP_LOOP_RET if w.get("loop") else RET))
+            mu.mem_write(rsp + STOP_UP, struct.pack("<Q", up1))
+            mu.mem_write(rsp + STOP_UP2, struct.pack("<Q", up2))
+            try:
+                changed = _run(mu, code, {"rcx": ctl, "rdx": 0x55, "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"rt_stop {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            calls = _u32(mu, B + CALLS_AT + 4 * (STOP_KIND - 1))
+            if changed:
+                fails.append(f"rt_stop {label}: registers changed {changed}")
+            if want is None:
+                if written or calls or any(entry):
+                    fails.append(f"rt_stop {label}: logged in mode 0")
+                continue
+            if not want:
+                if written or calls != 1 or any(entry):
+                    fails.append(f"rt_stop {label}: written {written} calls {calls} (want 0, 1)")
+                continue
+            exp = struct.pack("<QQQIIQQIIII", ctl, 0, STOP_LOOP_RET if w.get("loop") else RET, 0, STOP_KIND, 0x55,
+                              w["a09"], NONE32, NONE32, NONE32, 8)
+            exp += struct.pack("<QQ", up1, up2) if w.get("loop") else bytes(16)
+            exp += bytes(ENTRY - len(exp))
+            if written != 1 or calls != 1 or entry != exp:
+                fails.append(f"rt_stop {label}: written {written} calls {calls} entry {entry.hex()} want {exp.hex()}")
+    mu = _machine(code)                 # a null rcx: counted, nothing written, no crash
+    mu.mem_write(B + MODE_AT, struct.pack("<I", 1))
+    mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+    rsp = STACK + 0x4000
+    mu.mem_write(rsp, struct.pack("<Q", RET))
+    changed = _run(mu, code, {"rcx": 0, "rdx": 0, "rsp": rsp}, 0x202)
+    if changed or _u32(mu, B + COUNT_AT) != 7:
+        fails.append(f"rt_stop null rcx: changed {changed}")
+    return fails
+
+
 def _check_pop(code, mutated=False):
     """[D42] rt_pop on a synthetic unit: ring at unit+0x288 (unit at [ring-0x10]), head, the popped order (vtable,
     flag), the override stack; plus head out of range, no override, override count out of range, a null unit,
@@ -1087,7 +1270,9 @@ def check(mutate=None, which=None):
                       _check_flyq(code) if name == "rt_flyq" else
                       _check_pursue(code) if name == "rt_pursue" else
                       _check_task_entry(name, code) if name in ("rt_tstart", "rt_tupd") else
-                      _check_tdone(code) if name == "rt_tdone" else _check_one(name, code))
+                      _check_tdone(code) if name == "rt_tdone" else
+                      _check_clear(code) if name == "rt_clear" else
+                      _check_stop(code) if name == "rt_stop" else _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -1133,6 +1318,23 @@ MUTANTS = (
     ("rt_tdone", "cmp byte ptr [rbx + 0x80], 0\n    jne done", "cmp byte ptr [rbx + 0x80], 0\n    nop"),
     ("rt_tdone", "mov eax, dword ptr [rax + 0x710]", "mov eax, dword ptr [rax + 0x714]"),
     ("rt_tdone", "mov eax, dword ptr [rax + 0x38]", "mov eax, dword ptr [rax + 0x3c]"),
+    # [D67] rt_clear
+    ("rt_clear", "test edx, edx\n    jne done", "test edx, edx\n    nop"),
+    ("rt_clear", "cmp byte ptr [rcx + 0x250], 0\n    je done", "cmp byte ptr [rcx + 0x250], 0\n    nop"),
+    ("rt_clear", "cmp dword ptr [rcx + 0x240], 0\n    je done", "cmp dword ptr [rcx + 0x240], 0\n    nop"),
+    ("rt_clear", "mov eax, dword ptr [rcx + 0x240]\n    mov qword ptr [r11 + 40]",
+     "mov eax, dword ptr [rcx + 0x244]\n    mov qword ptr [r11 + 40]"),
+    ("rt_clear", "mov rax, qword ptr [rcx + 0x200]", "mov rax, qword ptr [rcx + 0x210]"),
+    ("rt_clear", "    jz clear_noseg\n", "    nop\n"),
+    ("rt_clear", "mov edx, dword ptr [rax + 0x1c]", "mov edx, dword ptr [rax + 0x18]"),
+    ("rt_clear", "movzx edx, byte ptr [rax + 0x18]", "movzx edx, byte ptr [rax + 0x19]"),
+    # [D67] rt_stop
+    ("rt_stop", "cmp byte ptr [rcx + 0xa08], 1\n    jne done", "cmp byte ptr [rcx + 0xa08], 1\n    nop"),
+    ("rt_stop", "cmp byte ptr [rcx + 0x928], 0\n    jne done", "cmp byte ptr [rcx + 0x928], 0\n    nop"),
+    ("rt_stop", "movzx eax, byte ptr [rcx + 0xa09]", "movzx eax, byte ptr [rcx + 0xa08]"),
+    ("rt_stop", "    jne stop_noloop\n", "    nop\n"),
+    ("rt_stop", "    jne stop_noloop\n", "    jmp stop_noloop\n"),
+    ("rt_stop", "mov rax, qword ptr [rsp + 104]", "mov rax, qword ptr [rsp + 96]"),
     ("rt_pursue", "cmp dword ptr [r11 + 84], 0\n    je pu_nrec", "nop\n    nop"),
     ("rt_land", "mov dword ptr [r11 + 28], 1", "mov dword ptr [r11 + 28], 2"),
     ("rt_land", "mov rax, qword ptr [rcx]", "mov rax, qword ptr [rcx + 8]"),

@@ -162,6 +162,17 @@ CLEAR_KIND = 18
 # +0x8f0: +0xa08 active and +0xa09 started go 0); 0x142d6e9bc: busy = +0xa08 == 1 and +0x928 == 0. Logged only for a
 # busy controller: +0 the controller, +16 the caller, +40 its +0xa09.
 STOP_KIND = 19
+# [D71, CRAWL-1122] rt_speed at 0x143107950 (movss [rbx+0x1c8], xmm8; rbx = an entity): logged for an entity with a
+# flight controller (+0x128) on the ground (+0x104 == 0): +0 the entity, +40 xmm8 bits (the new speed), +44 the old
+# +0x1c8, +48 xmm10 bits, +52 +0x23c.
+SPEED_KIND = 20
+E_FC, E_SPEED, E_SPEED2 = 0x128, 0x1C8, 0x23C
+# [D71, CRAWL-1122] rt_integ_in at the velocity integrator 0x14314e560 (rcx = the entity), rt_integ_out after its call
+# at 0x143107704 returns (rbx = the entity); same filter as rt_speed, through the entity path; from +64 the fields
+# INTEG_FIELDS of the entity, one dword each.
+INTEG_IN_KIND, INTEG_OUT_KIND = 21, 22
+INTEG_FIELDS = (0xE0, 0xE4, 0xE8, 0xD4, 0xD8, 0x118, 0x11C, 0x120, 0x124, 0x13C, 0x140, 0x144, 0x1C8, 0xB4)
+INTEG_REG = {INTEG_IN_KIND: "rcx", INTEG_OUT_KIND: "rbx"}
 C_STARTED = 0xA09
 # from the stop-all loop 0x143025dac (returns 0x143025dcb into it; its frame 0x28 + its return address): ext +64 the
 # loop's return address [rsp + 0x30], ext +72 [rsp + 0xe0]: battle pull10 showed the loop called from 0x14301ed64 (stop
@@ -217,12 +228,19 @@ SITES = {
     "rt_clear": ("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 80 B9 50 02 00 00 00 8B F2", 0,
                  "48 89 5C 24 08 48 89 6C 24 10", 0x142F5C1CC),
     "rt_stop": ("40 53 48 83 EC 20 48 8B D9 48 81 C1 F0 08 00 00 E8", 0, "40 53 48 83 EC 20", 0x1430DC0EC),
+    "rt_speed": ("F3 44 0F 11 83 3C 02 00 00 F3 44 0F 11 83 C8 01 00 00 E9", 9, "F3 44 0F 11 83 C8 01 00 00",
+                 0x143107950),
+    "rt_integ_in": ("48 8B C4 48 89 58 18 48 89 70 20 55 57 41 55 41 56 41 57 48 8D 68 A1 48 81 EC 00 01 00 00 0F 29 70 C8 45 33 FF 0F 29 78 B8 48 8B D9", 0,
+                    "48 8B C4 48 89 58 18 48 89 70 20", 0x14314E560),
+    "rt_integ_out": ("48 8B 03 48 8D 94 24 98 00 00 00 0F 57 F6 48 8B CB 4C 8B 80", 0,
+                     "48 8B 03 48 8D 94 24 98 00 00 00", 0x143107709),
 }
 KIND = {"rt_land": 1, "rt_cancel": 2, "rt_target": 3, "rt_stay": 4, "rt_order": 5, "rt_stub": 6,
         "rt_task1": 7, "rt_task2": 8, "rt_mktask": 9, "rt_pop": POP_KIND,
         "rt_done": DONE_KIND, "rt_pick": PICK_KIND, "rt_flyq": FLYQ_KIND, "rt_pursue": PURSUE_KIND,
         "rt_tstart": TSTART_KIND, "rt_tupd": TUPD_KIND, "rt_tdone": TDONE_KIND, "rt_clear": CLEAR_KIND,
-        "rt_stop": STOP_KIND}
+        "rt_stop": STOP_KIND, "rt_speed": SPEED_KIND, "rt_integ_in": INTEG_IN_KIND,
+        "rt_integ_out": INTEG_OUT_KIND}
 # decode_check: per task site, (handler start, the "mov rbx, rcx", the return address of the charge-command call)
 TASK_SITES = {"rt_task1": (0x142F7F600, 0x142F7F60A, 0x142F7F71C),
               "rt_task2": (0x142F8FF54, 0x142F8FF61, 0x142F8FFDA)}
@@ -444,6 +462,12 @@ def _stop_aux():
 stop_noloop:"""
 
 
+def _integ_aux(reg):
+    """[D71] rt_integ_in / rt_integ_out: the entity's INTEG_FIELDS from +64, one dword each"""
+    return "\n    ".join(f"mov eax, dword ptr [{reg} + {off:#x}]\n    mov dword ptr [r11 + {64 + 4 * i}], eax"
+                         for i, off in enumerate(INTEG_FIELDS))
+
+
 def _clear_aux():
     """[D67] rt_clear: the count, then the bottom segment's vtable, update count and finished byte"""
     return f"""mov eax, dword ptr [rcx + {SEG_COUNT:#x}]
@@ -467,10 +491,13 @@ def source(name, mutate=None):
            3: f"mov rax, qword ptr [rcx + {CMD_MODEL:#x}]", 4: "mov rax, rdx", 5: "mov rax, rcx",
            6: "mov rax, rcx", 9: "mov rax, rcx", POP_KIND: "xor eax, eax", DONE_KIND: "xor eax, eax",
            PICK_KIND: "xor eax, eax", FLYQ_KIND: "xor eax, eax", PURSUE_KIND: "xor eax, eax",
-           CLEAR_KIND: "xor eax, eax", STOP_KIND: "xor eax, eax"}.get(kind) or (
+           CLEAR_KIND: "xor eax, eax", STOP_KIND: "xor eax, eax", SPEED_KIND: "xor eax, eax",
+           INTEG_IN_KIND: "mov rax, rcx", INTEG_OUT_KIND: "mov rax, rbx"}.get(kind) or (
         f"mov rax, qword ptr [{'rcx' if kind in TASKE_KINDS else 'rbx'} + {T_SLOT:#x}]\n    test rax, rax\n    jz noent\n"
         f"    mov rax, qword ptr [rax + {SLOT_ENT}]")
-    guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else
+    guard = ("test rbx, rbx\n    jz noent" if kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND, SPEED_KIND,
+                                                        INTEG_OUT_KIND) else
+             "test rcx, rcx\n    jz noent" if kind == INTEG_IN_KIND else
              "test rcx, rcx\n    jz noent" if kind in (1, 2, 3, 5, 6, 9, POP_KIND, PICK_KIND, CLEAR_KIND, STOP_KIND) + TASKE_KINDS else (
         "test rbx, rbx\n    jz noent" if task else "nop"))
     aux = {1: f"mov eax, dword ptr [rcx + {FC_STAGE:#x}]\n    mov qword ptr [r11 + 40], rax",
@@ -485,7 +512,16 @@ def source(name, mutate=None):
            PURSUE_KIND: _pursue_aux(), TSTART_KIND: _task_aux().replace("[rbx", "[rcx"),
            TUPD_KIND: _task_aux().replace("[rbx", "[rcx"), TDONE_KIND: _tdone_aux(),
            CLEAR_KIND: _clear_aux(),
-           STOP_KIND: _stop_aux()}[kind]
+           STOP_KIND: _stop_aux(),
+           SPEED_KIND: f"""movd eax, xmm8
+    mov dword ptr [r11 + 40], eax
+    mov eax, dword ptr [rbx + {E_SPEED:#x}]
+    mov dword ptr [r11 + 44], eax
+    movd eax, xmm10
+    mov dword ptr [r11 + 48], eax
+    mov eax, dword ptr [rbx + {E_SPEED2:#x}]
+    mov dword ptr [r11 + 52], eax""",
+           INTEG_IN_KIND: _integ_aux("rcx"), INTEG_OUT_KIND: _integ_aux("rbx")}[kind]
     filt = "nop"
     if kind == 2:       # only a real landing cancel (stage 4 or 5) goes to the ring
         filt = f"""mov eax, dword ptr [rcx + {FC_STAGE:#x}]
@@ -510,6 +546,17 @@ def source(name, mutate=None):
     je done
     cmp dword ptr [rcx + {SEG_COUNT:#x}], 0
     je done"""
+    elif kind == SPEED_KIND:    # [D71] only a flight-controlled entity on the ground
+        filt = f"""cmp qword ptr [rbx + {E_FC:#x}], 0
+    je done
+    cmp dword ptr [rbx + {E_AIR:#x}], 0
+    jne done"""
+    elif kind in INTEG_REG:     # [D71] only a flight-controlled entity on the ground
+        r = INTEG_REG[kind]
+        filt = f"""cmp qword ptr [{r} + {E_FC:#x}], 0
+    je done
+    cmp dword ptr [{r} + {E_AIR:#x}], 0
+    jne done"""
     elif kind == STOP_KIND:     # [D67] only a busy controller (0x142d6e9bc)
         filt = f"""cmp byte ptr [rcx + {C_A08:#x}], 1
     jne done
@@ -519,10 +566,11 @@ def source(name, mutate=None):
         filt = f"""mov rax, qword ptr [rcx + {CMD_TARGET:#x}]
     cmp rax, rdx
     je done"""
-    pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind == PURSUE_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
+    pre = _flyq_pre() if kind == FLYQ_KIND else "test rbx, rbx\n    jz done" if kind in (PURSUE_KIND, SPEED_KIND, INTEG_OUT_KIND) else (
+        "test rcx, rcx\n    jz done") if kind == INTEG_IN_KIND else "test rbx, rbx\n    jz done" if kind == DONE_KIND else (
         "test rcx, rcx\n    jz done" if kind in (2, 3, 5, 6, 9, POP_KIND, PICK_KIND, CLEAR_KIND, STOP_KIND) + TASKE_KINDS else ("test rbx, rbx\n    jz done" if task else "nop"))
     zero = "".join(f"    mov qword ptr [r11 + {o}], rax\n" for o in range(0, ENTRY, 8))
-    me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
+    me = "rbx" if task or kind in (DONE_KIND, FLYQ_KIND, PURSUE_KIND, SPEED_KIND, INTEG_OUT_KIND) else "rcx"      # rt_done: the behaviour in rbx                                     # +0: the task itself at the task sites
     ret = PUSHES * 8 + (HANDLER_RET if task else PURSUE_UP if kind == PURSUE_KIND else 0)                   # mid-function: the handler's return address
     s = f"""
     pushfq
@@ -1120,6 +1168,100 @@ def _check_clear(code):
     return fails
 
 
+def _check_speed(code):
+    """[D71] rt_speed on a synthetic entity: logged (entity, xmm8, old +0x1c8, xmm10, +0x23c) only with a flight
+    controller and +0x104 == 0; counted on every call (mode 1); nothing in mode 0; a null rbx counted, not written."""
+    fails = []
+    ent = OBJ + 0x34000
+    cases = [("landed flyer", 1, dict(fc=1, air=0), True), ("airborne", 1, dict(fc=1, air=2), False),
+             ("ground unit", 1, dict(fc=0, air=0), False), ("off", 0, dict(fc=1, air=0), None)]
+    new, old, x10, s2 = 0x41266666, 0x41600000, 0x40A00000, 0x41200000
+    for label, mode, w, want in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            _put(mu, ent + E_FC, "<Q", OBJ + 0x35000 if w["fc"] else 0)
+            _put(mu, ent + E_AIR, "<I", w["air"])
+            _put(mu, ent + E_SPEED, "<I", old)
+            _put(mu, ent + E_SPEED2, "<I", s2)
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", RET))
+            try:
+                changed = _run(mu, code, {"rbx": ent, "rcx": 0x66, "rdx": 0x55, "rsp": rsp,
+                                          "xmm8": new, "xmm10": x10}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"rt_speed {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            calls = _u32(mu, B + CALLS_AT + 4 * (SPEED_KIND - 1))
+            if changed:
+                fails.append(f"rt_speed {label}: registers changed {changed}")
+            if want is None:
+                if written or calls or any(entry):
+                    fails.append(f"rt_speed {label}: logged in mode 0")
+                continue
+            if not want:
+                if written or calls != 1 or any(entry):
+                    fails.append(f"rt_speed {label}: written {written} calls {calls} (want 0, 1)")
+                continue
+            got = struct.unpack_from("<QIIIIII", entry, 0)[0], struct.unpack_from("<IIII", entry, 40)
+            if written != 1 or calls != 1 or got[0] != ent or got[1] != (new, old, x10, s2) \
+                    or struct.unpack_from("<I", entry, 28)[0] != SPEED_KIND:
+                fails.append(f"rt_speed {label}: written {written} calls {calls} entry {entry[:64].hex()}")
+    return fails
+
+
+def _check_integ(name, code):
+    """[D71] rt_integ_in (rcx) / rt_integ_out (rbx) on the synthetic world: a landed flyer logged with the common
+    entity part and its INTEG_FIELDS from +64; airborne, a ground unit and mode 0 not written (counted in mode 1
+    only); registers and flags unchanged."""
+    fails = []
+    kind = KIND[name]
+    reg = INTEG_REG[kind]
+    vals = [0x3F800000 + 0x10000 * i for i in range(len(INTEG_FIELDS))]
+    cases = [("landed flyer", 1, dict(fc=1, air=0), True), ("airborne", 1, dict(fc=1, air=2), False),
+             ("ground unit", 1, dict(fc=0, air=0), False), ("off", 0, dict(fc=1, air=0), None)]
+    for label, mode, w, want in cases:
+        for flags in (0x202, 0x8D7):
+            mu = _machine(code)
+            o = _world(mu, air=w["air"])
+            ent = o["ent"]
+            _put(mu, ent + E_FC, "<Q", o["fc"] if w["fc"] else 0)
+            for off, v in zip(INTEG_FIELDS, vals):
+                _put(mu, ent + off, "<I", v)
+            mu.mem_write(B + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(B + COUNT_AT, struct.pack("<I", 7))
+            rsp = STACK + 0x4000
+            mu.mem_write(rsp, struct.pack("<Q", RET))
+            other = "rbx" if reg == "rcx" else "rcx"
+            try:
+                changed = _run(mu, code, {reg: ent, other: 0x66, "rdx": 0x55, "rsp": rsp}, flags)
+            except Exception as err:      # a fault is a failed case
+                fails.append(f"{name} {label}: faulted {err}")
+                continue
+            entry = bytes(mu.mem_read(B + RING_AT + 7 * ENTRY, ENTRY))
+            written = _u32(mu, B + COUNT_AT) - 7
+            calls = _u32(mu, B + CALLS_AT + 4 * (kind - 1))
+            if changed:
+                fails.append(f"{name} {label}: registers changed {changed}")
+            if want is None:
+                if written or calls or any(entry):
+                    fails.append(f"{name} {label}: logged in mode 0")
+                continue
+            if not want:
+                if written or calls != 1 or any(entry):
+                    fails.append(f"{name} {label}: written {written} calls {calls} (want 0, 1)")
+                continue
+            head = struct.unpack_from("<QQQIIQQIIII", entry, 0)
+            body = list(struct.unpack_from(f"<{len(INTEG_FIELDS)}I", entry, 64))
+            if written != 1 or calls != 1 or head != (ent, ent, RET, TICK, kind, 0x55, 0, 0, 5, 1, 8) \
+                    or body != vals:
+                fails.append(f"{name} {label}: written {written} calls {calls} head {head} body {body}")
+    return fails
+
+
 def _check_stop(code):
     """[D67] rt_stop on a synthetic controller: logged (controller, caller, its +0xa09) only when +0xa08 is 1 and +0x928
     is 0; counted on every call (mode 1); nothing in mode 0; a null rcx counted, not written. Registers and flags back."""
@@ -1272,7 +1414,10 @@ def check(mutate=None, which=None):
                       _check_task_entry(name, code) if name in ("rt_tstart", "rt_tupd") else
                       _check_tdone(code) if name == "rt_tdone" else
                       _check_clear(code) if name == "rt_clear" else
-                      _check_stop(code) if name == "rt_stop" else _check_one(name, code))
+                      _check_stop(code) if name == "rt_stop" else
+                      _check_speed(code) if name == "rt_speed" else
+                      _check_integ(name, code) if name in ("rt_integ_in", "rt_integ_out") else
+                      _check_one(name, code))
         except Exception as err:     # a broken cave that faults in the emulator is a caught cave
             fails.append(f"{name}: the emulator faulted: {err}")
     return fails
@@ -1333,6 +1478,19 @@ MUTANTS = (
     ("rt_stop", "cmp byte ptr [rcx + 0x928], 0\n    jne done", "cmp byte ptr [rcx + 0x928], 0\n    nop"),
     ("rt_stop", "movzx eax, byte ptr [rcx + 0xa09]", "movzx eax, byte ptr [rcx + 0xa08]"),
     ("rt_stop", "    jne stop_noloop\n", "    nop\n"),
+    # [D71] rt_speed
+    ("rt_speed", "cmp qword ptr [rbx + 0x128], 0\n    je done", "cmp qword ptr [rbx + 0x128], 0\n    nop"),
+    ("rt_speed", "cmp dword ptr [rbx + 0x104], 0\n    jne done", "cmp dword ptr [rbx + 0x104], 0\n    nop"),
+    ("rt_speed", "movd eax, xmm8", "movd eax, xmm9"),
+    ("rt_speed", "mov eax, dword ptr [rbx + 0x1c8]", "mov eax, dword ptr [rbx + 0x1cc]"),
+    # [D71] rt_integ_in / rt_integ_out
+    ("rt_integ_in", "cmp qword ptr [rcx + 0x128], 0\n    je done", "cmp qword ptr [rcx + 0x128], 0\n    nop"),
+    ("rt_integ_in", "cmp dword ptr [rcx + 0x104], 0\n    jne done", "cmp dword ptr [rcx + 0x104], 0\n    nop"),
+    ("rt_integ_in", "mov eax, dword ptr [rcx + 0xe0]", "mov eax, dword ptr [rcx + 0xe4]"),
+    ("rt_integ_in", "mov eax, dword ptr [rcx + 0xd8]", "mov eax, dword ptr [rcx + 0xd4]"),
+    ("rt_integ_out", "cmp qword ptr [rbx + 0x128], 0\n    je done", "cmp qword ptr [rbx + 0x128], 0\n    nop"),
+    ("rt_integ_out", "mov eax, dword ptr [rbx + 0xe8]", "mov eax, dword ptr [rbx + 0xe0]"),
+    ("rt_integ_out", "mov eax, dword ptr [rbx + 0x144]", "mov eax, dword ptr [rbx + 0x13c]"),
     ("rt_stop", "    jne stop_noloop\n", "    jmp stop_noloop\n"),
     ("rt_stop", "mov rax, qword ptr [rsp + 104]", "mov rax, qword ptr [rsp + 96]"),
     ("rt_pursue", "cmp dword ptr [r11 + 84], 0\n    je pu_nrec", "nop\n    nop"),

@@ -223,6 +223,7 @@ SLIDE_GAIN = 0.5
 # is dv_keep's site, WRAPPER_FROM_RESUME bytes past dv_spent's resume (checked by check_exe and at install)
 ENDED_AT = SPED_AT + 4
 CAPPED_AT = SPED_AT + 8          # [D66 addendum 2] ticks a held slide's speed was set back to its lowest
+GLIDED_AT = SPED_AT + 12         # [D71] ticks dv_glide set a held slide's velocity back after the integrator
 # [D66 addendum 2] the engine keeps a moving entity's scalar speed in four floats: +0x1c8 and +0x23c this tick's, +0x1a0
 # and +0x238 the tick before (battle spent3, 165 samples of five landed dragons: +0x1c8 / +0x23c equal to the speed,
 # +0x1a0 / +0x238 one tick behind). Capping +0x1c8 alone (battle spent2) was undone on the next tick: all four are
@@ -244,6 +245,9 @@ SKIP_SPEED = 0.5                      # m/s: below it a landed flyer attacks / s
 ENT_RECORD_OFF, REC_WALK_OFF = 0x2D8, 0x1C
 FC_OFF, PARENT_OFF, LAYER_OFF, FLAGS_OFF = 0x128, 0x2E0, 0x104, 0xC4
 STATE_OFF, VEL_OFF = 0x26C, 0xE0
+# [D71, battle integ1] what the velocity integrator 0x14314e560 leaves on the entity: +0x118 / +0x11c the drive's
+# planar momentum (mass x the speed it drives to), +0xb4 the mass
+DRIVE_OFF, MASS_OFF = 0x118, 0xB4
 FLYMODE_OFF = 0x710                   # [AIR-DIVE-RELEASE-W1] 0 = a ground mover
 MOVING_STATES = (30, 33)
 # [AIR-DIVE-BRACE-W1 2026-11-14] state 0 counts as moving only on the ground (+0x104 0): the storm
@@ -303,6 +307,10 @@ CAVES = {
     # 0x143050258, lands on the first byte), in the per-tick executor 0x143050114
     "dv_spent": ("48 8B CF E8 ?? ?? ?? ?? 8B 05 ?? ?? ?? ?? 0F 57 C9 48 8B 13",
                  0, "48 8B CF E8", SPENT_RESUME_LEN),
+    # [D71] 0x14310776a: movss xmm10,[rbx+0xe0] -- in the per-entity movement update 0x143107624 (rbx = the entity),
+    # the first read of the velocity after its integrator 0x14314e560 (0x143107704); no jump lands inside the range
+    "dv_glide": ("F3 0F 11 8B CC 01 00 00 F3 44 0F 10 93 E0 00 00 00 F3 44 0F 10 83 E8 00 00 00 48 85 C9",
+                 8, "F3 44 0F 10 93 E0 00 00 00", None),
 }
 # [AIR-DIVE-RELEASE-W1] call-site caves: where the original call's rel32 sits
 # (memreader Plus ``reads``), the callee it must name, the instructions the
@@ -742,12 +750,56 @@ back:
 """
 
 
-def _cap_speed_copies():
-    """[D66 addendum 2] each of SPEED_COPIES = min(itself, xmm3) (xmm2 overwritten)"""
-    return "".join(f"""    movss xmm2, dword ptr [rcx + {off:#x}]
-    minss xmm2, xmm3
-    movss dword ptr [rcx + {off:#x}], xmm2
+def _set_speed_copies():
+    """[D71] each of SPEED_COPIES = xmm3 (the slot's lowest): the ground charge target the flight update wrote is
+    replaced by the slide's own speed (D66 addendum 2 only lowered them)"""
+    return "".join(f"""    movss dword ptr [rcx + {off:#x}], xmm3
 """ for off in SPEED_COPIES)
+
+
+def _spent_pre():
+    """[D71] Before the flight update: for the FC's model ([rdi]) on the ground, in flight movement, with a flight
+    controller and a held slide entry, lower the slot's lowest to the model's planar speed now (only the pair solver
+    has changed the velocity since the last tick). Volatile registers only (rax, rdx, r8-r11, xmm0, xmm1); the
+    call's own argument rcx is set after. Labels and registers differ from the post-call block on purpose."""
+    return f"""    mov r10, {BUF_PLACEHOLDER:#x}
+    cmp dword ptr [r10 + {MODE_AT}], 1
+    jne pcall
+    mov rdx, qword ptr [rdi]
+    test rdx, rdx
+    je pcall
+    cmp qword ptr [rdx + {FC_OFF:#x}], 0
+    je pcall
+    cmp dword ptr [rdx + {LAYER_OFF:#x}], 0
+    jne pcall
+    cmp dword ptr [rdx + {FLYMODE_OFF:#x}], 0
+    je pcall
+    mov rax, rdx
+    shr rax, 4
+    and eax, {SLIDE_SLOTS - 1}
+    mov r8d, {SLIDE_SLOTS}
+pprobe:
+    mov r11, rax
+    shl r11, 4
+    mov r9, qword ptr [r10 + r11 + {SLIDE_AT}]
+    test r9, r9
+    je pcall
+    mov r11, r9
+    and r11, -2
+    cmp r11, rdx
+    je pfound
+    inc eax
+    and eax, {SLIDE_SLOTS - 1}
+    dec r8d
+    jne pprobe
+    jmp pcall
+pfound:
+    test r9b, 1
+    jne pcall
+{_planar_speed_of("rdx")}    minss xmm0, dword ptr [r10 + rax*4 + {SLIDE_V_AT}]
+    movss dword ptr [r10 + rax*4 + {SLIDE_V_AT}], xmm0
+pcall:
+"""
 
 
 def spent_source():
@@ -759,10 +811,13 @@ def spent_source():
     register (the executor needs rbx, rbp, rsi, rdi, r14, r15, xmm6); the stack is 16-byte aligned at the site."""
     c = CALL_SITES["dv_spent"]
     return f"""
+{_spent_pre()}    sub rsp, 0x30
+    mov qword ptr [rsp + 0x28], r10
 {c["pre"]}    mov rax, {ORIG_PLACEHOLDER:#x}
     call rax
+    mov r10, qword ptr [rsp + 0x28]
+    add rsp, 0x30
     mov r11, {RESUME_PLACEHOLDER:#x}
-    mov r10, {BUF_PLACEHOLDER:#x}
     cmp dword ptr [r10 + {MODE_AT}], 1
     jne back
     mov rcx, {c["entity"]}
@@ -797,7 +852,9 @@ sfound:
     test r9b, 1
     jne sask
 {_planar_speed_of("rcx")}    movss xmm1, dword ptr [r10 + rax*4 + {SLIDE_V_AT}]
-    comiss xmm0, xmm1
+    mov edx, {struct.unpack("<I", struct.pack("<f", 1e-3))[0]:#x}
+    movd xmm5, edx
+    comiss xmm0, xmm5
     jbe sask
     movaps xmm3, xmm1
     divss xmm1, xmm0
@@ -807,7 +864,7 @@ sfound:
     movss xmm2, dword ptr [rcx + {VEL_OFF + 8:#x}]
     mulss xmm2, xmm1
     movss dword ptr [rcx + {VEL_OFF + 8:#x}], xmm2
-{_cap_speed_copies()}    lock inc dword ptr [r10 + {CAPPED_AT}]
+{_set_speed_copies()}    lock inc dword ptr [r10 + {CAPPED_AT}]
 sask:
     push r10
     push r11
@@ -994,6 +1051,105 @@ pass:
 {_window_close("r11")}pure:
     pop r11
     pop r10
+    pop rax
+    popfq
+"""
+    if name == "dv_glide":
+        # [D71] a held slide's planar velocity, before the engine reads it (falls through to the stolen load): the
+        # integrator's result with the drive's pull taken away -- L the slot's lowest, s the planar speed now, t the
+        # drive's speed (|momentum| / mass): min(L, s + max(0, L - t)) becomes the lowest and the speed (battle
+        # integ1: the bodies' exchange is inside s, the drive pulls only on the touchdown tick); everything it
+        # touches comes back but the velocity and the slot
+        return f"""
+    pushfq
+    push rax
+    push rdx
+    push r8
+    push r9
+    push r10
+    push r11
+    sub rsp, 0x50
+    movdqu xmmword ptr [rsp], xmm0
+    movdqu xmmword ptr [rsp + 16], xmm1
+    movdqu xmmword ptr [rsp + 32], xmm2
+    movdqu xmmword ptr [rsp + 48], xmm3
+    movdqu xmmword ptr [rsp + 64], xmm4
+    mov r10, {BUF_PLACEHOLDER:#x}
+    cmp dword ptr [r10 + {MODE_AT}], 1
+    jne gdone
+    cmp qword ptr [rbx + {FC_OFF:#x}], 0
+    je gdone
+    cmp dword ptr [rbx + {LAYER_OFF:#x}], 0
+    jne gdone
+    cmp dword ptr [rbx + {FLYMODE_OFF:#x}], 0
+    je gdone
+    mov rax, rbx
+    shr rax, 4
+    and eax, {SLIDE_SLOTS - 1}
+    mov r8d, {SLIDE_SLOTS}
+gprobe:
+    mov rdx, rax
+    shl rdx, 4
+    mov r9, qword ptr [r10 + rdx + {SLIDE_AT}]
+    test r9, r9
+    je gdone
+    mov rdx, r9
+    and rdx, -2
+    cmp rdx, rbx
+    je gfound
+    inc eax
+    and eax, {SLIDE_SLOTS - 1}
+    dec r8d
+    jne gprobe
+    jmp gdone
+gfound:
+    test r9b, 1
+    jne gdone
+{_planar_speed_of("rbx")}    mov edx, {struct.unpack("<I", struct.pack("<f", 1e-3))[0]:#x}
+    movd xmm1, edx
+    comiss xmm0, xmm1
+    jbe gdone
+    movss xmm1, dword ptr [r10 + rax*4 + {SLIDE_V_AT}]
+    movss xmm3, dword ptr [rbx + {MASS_OFF:#x}]
+    xorps xmm2, xmm2
+    comiss xmm3, xmm2
+    jbe gkeep
+    movss xmm2, dword ptr [rbx + {DRIVE_OFF:#x}]
+    mulss xmm2, xmm2
+    movss xmm4, dword ptr [rbx + {DRIVE_OFF + 4:#x}]
+    mulss xmm4, xmm4
+    addss xmm2, xmm4
+    sqrtss xmm2, xmm2
+    divss xmm2, xmm3
+    movaps xmm3, xmm1
+    subss xmm3, xmm2
+    xorps xmm2, xmm2
+    maxss xmm3, xmm2
+    addss xmm3, xmm0
+    minss xmm3, xmm1
+    movaps xmm1, xmm3
+    movss dword ptr [r10 + rax*4 + {SLIDE_V_AT}], xmm1
+gkeep:
+    divss xmm1, xmm0
+    movss xmm2, dword ptr [rbx + {VEL_OFF:#x}]
+    mulss xmm2, xmm1
+    movss dword ptr [rbx + {VEL_OFF:#x}], xmm2
+    movss xmm2, dword ptr [rbx + {VEL_OFF + 8:#x}]
+    mulss xmm2, xmm1
+    movss dword ptr [rbx + {VEL_OFF + 8:#x}], xmm2
+    lock inc dword ptr [r10 + {GLIDED_AT}]
+gdone:
+    movdqu xmm0, xmmword ptr [rsp]
+    movdqu xmm1, xmmword ptr [rsp + 16]
+    movdqu xmm2, xmmword ptr [rsp + 32]
+    movdqu xmm3, xmmword ptr [rsp + 48]
+    movdqu xmm4, xmmword ptr [rsp + 64]
+    add rsp, 0x50
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdx
     pop rax
     popfq
 """
@@ -1820,6 +1976,10 @@ def check_commit(code):
     return fails, n
 
 
+PULL_AT = 0x100     # [D71] the fake flight update's factor on the planar velocity (REC + PULL_AT, outside the cleared 64)
+PULL = 0.75         # as the engine's ground charge pulled a landed zombie dragon, 14 -> 10.4 (battle land1)
+
+
 def _spent_rig(spent_code, keep_code):
     """[D66 addendum] dv_spent at the executor's call site, a fake flight update (ORIG), and dv_keep at the
     stop-flight wrapper's address WRAPPER_FROM_RESUME past the resume, followed by a fake stop-flight that
@@ -1837,6 +1997,16 @@ def _spent_rig(spent_code, keep_code):
     mov qword ptr [rax], rcx
     mov qword ptr [rax + 8], rsp
     inc dword ptr [rax + 16]
+    mov rdx, qword ptr [rcx]
+    test rdx, rdx
+    je opulled
+    movss xmm0, dword ptr [rdx + {VEL_OFF:#x}]
+    mulss xmm0, dword ptr [rax + {PULL_AT:#x}]
+    movss dword ptr [rdx + {VEL_OFF:#x}], xmm0
+    movss xmm0, dword ptr [rdx + {VEL_OFF + 8:#x}]
+    mulss xmm0, dword ptr [rax + {PULL_AT:#x}]
+    movss dword ptr [rdx + {VEL_OFF + 8:#x}], xmm0
+opulled:
     mov r10, 0xdead10
     mov r11, 0xdead11
     ret
@@ -1865,6 +2035,7 @@ def _spent_rig(spent_code, keep_code):
     mu.mem_write(RESUME, b"\x90")
     mu.mem_write(BUF + MODE_AT, struct.pack("<I", 1))
     mu.mem_write(BUF + SKIP_SPEED_AT, struct.pack("<f", SKIP_SPEED))
+    mu.mem_write(REC + PULL_AT, struct.pack("<f", PULL))
     seen = {}
 
     def on_code(uc, addr, _size, _data):
@@ -1903,9 +2074,10 @@ def check_spent(code):
     entry (held or ended, found past a tombstone or another key) gets the stop-flight wrapper (rcx = the model,
     aligned), which dv_keep holds while the slide lasts (fast and still slowing, inside the window) and lets stop
     otherwise -- below the walk speed, an ended entry, past the window, a non-moving state; a stopped model is
-    counted at ENDED_AT, a held one not. [D66 addendum 2] A held model faster than its slot's lowest speed is set back
-    to it first (planar velocity and scalar speed scaled together, direction kept, counted at CAPPED_AT); a slower
-    one, or an ended entry, is left as it is. No wrapper call in mode 0, in the air, for a ground mover, without
+    counted at ENDED_AT, a held one not. [D71] The fake update pulls the planar velocity to PULL of itself, as the
+    engine's ground charge does. Before it, a held entry's lowest becomes min(lowest, the planar speed); after it,
+    the held model's planar velocity is set to that lowest (raised or lowered, direction kept) and the four speed
+    copies to it, counted at CAPPED_AT; an ended entry, or no held entry, keeps the update's pulled velocity. No wrapper call in mode 0, in the air, for a ground mover, without
     an entry, for an empty FC, without a flight controller, or on a full table without the model."""
     fails, n = [], 0
     keep_code = assemble("dv_keep")
@@ -1925,6 +2097,11 @@ def check_spent(code):
         ("no flight controller", 1, 0, 4, 30, (0.0, -14.0), 7.0, "held", 0, False, 0, False, False),
         ("held, at its lowest", 1, 0, 4, 30, (0.0, -14.0), 14.0, "held", 0, True, 1, False, False),
         ("held, slower than its lowest", 1, 0, 4, 30, (0.0, -5.0), 7.0, "held", 0, True, 1, False, False),
+        # [D71] a speed below the lowest must lower it only for a held entry on the ground, in mode 1
+        ("mode 0, slower", 0, 0, 4, 30, (0.0, -5.0), 7.0, "held", 0, True, 0, False, False),
+        ("in the air, slower", 1, 2, 4, 30, (0.0, -5.0), 7.0, "held", 0, True, 0, False, False),
+        ("ended entry, slower than its lowest", 1, 0, 4, 30, (0.0, -5.0), 7.0, "ended", 0, True, 1, True, False),
+        ("held, past another key, slower", 1, 0, 4, 30, (0.0, -5.0), 7.0, "other", 0, True, 1, False, False),
         ("held, driven up a little", 1, 0, 4, 30, (0.0, -(7.0 + SLIDE_GAIN * 0.9)), 7.0, "held", 0, True, 1, False,
          True),
         ("held, driven up past the gain", 1, 0, 4, 30, (0.0, -9.0), 7.0, "held", 0, True, 1, False, True),
@@ -1938,7 +2115,7 @@ def check_spent(code):
         ("held, past another key", 1, 0, 4, 30, (0.0, -14.0), 14.0, "other", 0, True, 1, False, False),
         ("full table without it", 1, 0, 4, 30, (0.0, -14.0), 7.0, "full", 0, True, 0, False, False),
     )
-    for label, mode, layer, fm, state, vel, lowest, entry, at, has_fc, want_stops, want_ran, want_cap in cases:
+    for label, mode, layer, fm, state, vel, lowest, entry, at, has_fc, want_stops, want_ran, _was_cap in cases:
         n += 1
         mu, run, buf = _spent_rig(code, keep_code)
         mu.mem_write(buf + MODE_AT, struct.pack("<I", mode))
@@ -1984,13 +2161,20 @@ def check_spent(code):
             asked = _counter(mu, buf, KEPT_AT) + (1 if ran else 0)
             if asked != want_stops:
                 bad.append(f"wrapper asked {asked} times (kept {_counter(mu, buf, KEPT_AT)}), want {want_stops}")
-            k = lowest / speed if want_cap else 1.0
-            want_v = (vel[0] * k, vel[1] * k) + (speed * k,) * len(SPEED_COPIES)
+            held = mode == 1 and layer == 0 and fm != 0 and has_fc and entry in ("held", "tomb", "other")
+            low = min(lowest, speed) if held else lowest
+            if held:
+                want_v = (vel[0] * low / speed, vel[1] * low / speed) + (low,) * len(SPEED_COPIES)
+            else:
+                want_v = (vel[0] * PULL, vel[1] * PULL) + (speed,) * len(SPEED_COPIES)
             got_v = (vx, vz, *scalars)
-            if (any(abs(a - b) > 1e-4 for a, b in zip(got_v, want_v))
-                    or _counter(mu, buf, CAPPED_AT) != (1 if want_cap else 0)):
-                bad.append(f"velocity / speeds {[round(v, 4) for v in got_v]} capped {_counter(mu, buf, CAPPED_AT)} "
-                           f"(want {[round(v, 4) for v in want_v]}, {int(want_cap)})")
+            got_low = (struct.unpack("<f", bytes(mu.mem_read(buf + SLIDE_V_AT + (slot % SLIDE_SLOTS) * 4, 4)))[0]
+                       if entry not in (None, "full") else lowest)
+            if (any(abs(a - b) > 1e-4 for a, b in zip(got_v, want_v)) or abs(got_low - low) > 1e-4
+                    or _counter(mu, buf, CAPPED_AT) != (1 if held else 0)):
+                bad.append(f"velocity / speeds {[round(v, 4) for v in got_v]} lowest {got_low:.4f} held "
+                           f"{_counter(mu, buf, CAPPED_AT)} (want {[round(v, 4) for v in want_v]}, {low:.4f}, "
+                           f"{int(held)})")
         if bad:
             fails.append(f"spent {label}: " + "; ".join(bad))
     # an empty FC: the update runs, nothing else
@@ -2000,6 +2184,106 @@ def check_spent(code):
     got = run(fc)
     if "fault" in got or not got["resumed"] or got["orig"] != 1 or _counter(mu, buf, KEPT_AT):
         fails.append(f"spent an empty FC: {got}")
+    return fails, n
+
+
+def check_glide(code):
+    """[D71] dv_glide on a synthetic entity (rbx), the stolen load after it: a held slide entry (mode 1, flight
+    controller, on the ground, in flight movement; found past a tombstone or another key) has its planar velocity
+    and its slot's lowest set to min(L, s + max(0, L - t)) (L the lowest, s the planar speed, t the drive momentum
+    over the mass; L when the mass is not above 0), direction kept, the height component and every other register
+    and xmm0-xmm4 back, counted at GLIDED_AT; xmm10 then reads the new +0xe0. Nothing changes for an ended entry, no
+    entry, mode 0, the air, a ground mover, no flight controller or a near-zero velocity."""
+    from keystone import Ks, KS_ARCH_X86, KS_MODE_64
+    from unicorn import UcError
+    from unicorn import x86_const as X
+    CODE, BUF, STACK, OBJ = 0x100000, 0x200000, 0x400000, 0x500000
+    stolen = bytes(Ks(KS_ARCH_X86, KS_MODE_64).asm("movss xmm10, dword ptr [rbx + 0xe0]", 0)[0])
+    fails, n = [], 0
+    ent, other = OBJ + 0x1000, OBJ + 0x3000
+    home = (ent >> 4) & (SLIDE_SLOTS - 1)
+    cases = (  # label, mode, layer, flymode, has_fc, entry, velocity, lowest, want held[, drive speed, mass]
+        ("held, pulled up", 1, 0, 4, True, "held", (0.0, -10.4), 14.0, True),
+        ("touchdown: pull and bodies", 1, 0, 4, True, "held", (0.24, -9.92), 14.0, True, 10.4, 5000.0),
+        ("held, bodies took some", 1, 0, 4, True, "held", (0.31, -12.74), 14.0, True, 14.0, 5000.0),
+        ("held, drive above the lowest", 1, 0, 4, True, "held", (0.0, -13.0), 14.0, True, 16.0, 5000.0),
+        ("held, no mass", 1, 0, 4, True, "held", (0.0, -10.4), 14.0, True, 14.0, 0.0),
+        ("held, pulled down", 1, 0, 4, True, "held", (6.0, -8.0), 7.0, True),
+        ("held, diagonal at its lowest", 1, 0, 4, True, "held", (3.0, -4.0), 5.0, True),
+        ("held past a tombstone", 1, 0, 4, True, "tomb", (0.0, -10.4), 14.0, True),
+        ("held past another key", 1, 0, 4, True, "other", (0.0, -10.4), 14.0, True),
+        ("ended", 1, 0, 4, True, "ended", (0.0, -10.4), 14.0, False),
+        ("no entry", 1, 0, 4, True, None, (0.0, -10.4), 14.0, False),
+        ("mode 0", 0, 0, 4, True, "held", (0.0, -10.4), 14.0, False),
+        ("in the air", 1, 2, 4, True, "held", (0.0, -10.4), 14.0, False),
+        ("a ground mover", 1, 0, 0, True, "held", (0.0, -10.4), 14.0, False),
+        ("no flight controller", 1, 0, 4, False, "held", (0.0, -10.4), 14.0, False),
+        ("standing still", 1, 0, 4, True, "held", (0.0, 0.0), 14.0, False),
+    )
+    regs = {X.UC_X86_REG_RAX: 0x11, X.UC_X86_REG_RCX: 0x22, X.UC_X86_REG_RDX: 0x33, X.UC_X86_REG_R8: 0x44,
+            X.UC_X86_REG_R9: 0x55, X.UC_X86_REG_R10: 0x66, X.UC_X86_REG_R11: 0x77, X.UC_X86_REG_XMM0: 0x1234,
+            X.UC_X86_REG_XMM1: 0x5678, X.UC_X86_REG_XMM2: 0x9abc, X.UC_X86_REG_XMM3: 0xdef0,
+            X.UC_X86_REG_XMM4: 0x2468}
+    for case in cases:
+        label, mode, layer, fm, has_fc, entry, vel, lowest, want = case[:9]
+        drive, mass = case[9:] if len(case) > 9 else (10.4, 5000.0)
+        for flags in (0x202, 0x8D7):
+            n += 1
+            mu = _uc()
+            for b_, size in ((CODE, 0x2000), (BUF, RIG_BUF), (STACK, 0x10000), (OBJ, 0x10000)):
+                mu.mem_map(b_, size)
+            body = _fill(code, BUF) + stolen
+            mu.mem_write(CODE, body)
+            mu.mem_write(BUF + MODE_AT, struct.pack("<I", mode))
+            mu.mem_write(ent + FC_OFF, struct.pack("<Q", OBJ + 0x8000 if has_fc else 0))
+            mu.mem_write(ent + LAYER_OFF, struct.pack("<i", layer))
+            mu.mem_write(ent + FLYMODE_OFF, struct.pack("<i", fm))
+            mu.mem_write(ent + VEL_OFF, struct.pack("<fff", vel[0], -1.5, vel[1]))
+            mu.mem_write(ent + MASS_OFF, struct.pack("<f", mass))
+            mu.mem_write(ent + DRIVE_OFF, struct.pack("<ff", 0.6 * drive * mass, -0.8 * drive * mass))
+            slot = home
+            if entry is not None:
+                if entry == "tomb":
+                    mu.mem_write(BUF + SLIDE_AT + home * 16, struct.pack("<Q", 2))
+                    slot = home + 1
+                elif entry == "other":
+                    mu.mem_write(BUF + SLIDE_AT + home * 16, struct.pack("<Q", other))
+                    slot = home + 1
+                key = ent | 1 if entry == "ended" else ent
+                mu.mem_write(BUF + SLIDE_AT + (slot % SLIDE_SLOTS) * 16, struct.pack("<Qff", key, 0.0, 0.0))
+                mu.mem_write(BUF + SLIDE_V_AT + (slot % SLIDE_SLOTS) * 4, struct.pack("<f", lowest))
+            for r, v in regs.items():
+                mu.reg_write(r, v)
+            mu.reg_write(X.UC_X86_REG_RBX, ent)
+            mu.reg_write(X.UC_X86_REG_RSP, STACK + 0x8000)
+            mu.reg_write(X.UC_X86_REG_EFLAGS, flags)
+            try:
+                mu.emu_start(CODE, CODE + len(body), count=5000 * STEP_FACTOR)
+            except UcError as exc:      # a fault is a failing case
+                fails.append(f"glide {label}: faulted {exc}")
+                continue
+            bad = []
+            changed = [r for r, v in regs.items() if mu.reg_read(r) != v]
+            if changed or mu.reg_read(X.UC_X86_REG_RSP) != STACK + 0x8000 or mu.reg_read(X.UC_X86_REG_RBX) != ent \
+                    or (mu.reg_read(X.UC_X86_REG_EFLAGS) & 0x8D5) != (flags & 0x8D5):
+                bad.append(f"registers changed {changed}")
+            vx, vy, vz = struct.unpack("<fff", bytes(mu.mem_read(ent + VEL_OFF, 12)))
+            speed = math.hypot(*vel)
+            new = min(lowest, speed + max(0.0, lowest - drive)) if mass > 0 else lowest
+            k = new / speed if want else 1.0
+            if entry is not None:
+                got_low = struct.unpack("<f", bytes(mu.mem_read(BUF + SLIDE_V_AT + (slot % SLIDE_SLOTS) * 4, 4)))[0]
+                if abs(got_low - (new if want else lowest)) > 1e-4:
+                    bad.append(f"lowest {got_low:.4f} (want {new if want else lowest:.4f})")
+            if abs(vx - vel[0] * k) > 1e-4 or abs(vz - vel[1] * k) > 1e-4 or vy != -1.5:
+                bad.append(f"velocity {vx:.4f},{vy:.4f},{vz:.4f} (want {vel[0] * k:.4f},-1.5,{vel[1] * k:.4f})")
+            x10 = struct.unpack("<f", struct.pack("<I", mu.reg_read(X.UC_X86_REG_XMM10) & 0xFFFFFFFF))[0]
+            if abs(x10 - vx) > 1e-6:
+                bad.append(f"xmm10 {x10} is not the stored +0xe0 {vx}")
+            if _counter(mu, BUF, GLIDED_AT) != (1 if want else 0):
+                bad.append(f"glided {_counter(mu, BUF, GLIDED_AT)} (want {int(want)})")
+            if bad:
+                fails.append(f"glide {label} flags {flags:#x}: " + "; ".join(bad))
     return fails, n
 
 
@@ -2036,7 +2320,7 @@ CHECKS = {"dv_through": _through_and_window, "dv_skip": check_skip, "dv_keep": _
           "dv_contact": _contact_and_window,
           "dv_settle": lambda code: check_call_skip("dv_settle", code),
           "dv_commit": check_commit,
-          "dv_spent": check_spent}                                    # [D66 addendum]
+          "dv_spent": check_spent, "dv_glide": check_glide}                                    # [D66 addendum]
 
 # negative controls: each mutant must fail at least one case
 MUTANTS = (
@@ -2172,25 +2456,54 @@ MUTANTS = (
     ("spent asks without an entry", "dv_spent", "    je sfound\n", "    jmp sfound\n"),
     ("spent ignores an ended entry", "dv_spent", "    and rdx, -2\n", "    nop\n"),
     ("spent caps an ended entry", "dv_spent", "    test r9b, 1\n    jne sask\n", "    nop\n"),
-    ("spent never caps", "dv_spent", "    comiss xmm0, xmm1\n    jbe sask\n", "    jmp sask\n"),
-    ("spent caps a slower model up", "dv_spent", "    comiss xmm0, xmm1\n    jbe sask\n", "    nop\n"),
+    # [D71] the hold: raised as well as lowered, lowered before the update by the bodies only
+    ("spent never holds", "dv_spent", "    comiss xmm0, xmm5\n    jbe sask\n", "    jmp sask\n"),
+    # [D71] dv_glide
+    ("glide never sets", "dv_glide", "    comiss xmm0, xmm1\n    jbe gdone\n", "    jmp gdone\n"),
+    ("glide ignores the switch", "dv_glide", "    cmp dword ptr [r10 + 0], 1\n    jne gdone\n", "    nop\n"),
+    ("glide sets an ended entry", "dv_glide", "    test r9b, 1\n    jne gdone\n", "    nop\n"),
+    ("glide sets in the air", "dv_glide", "    cmp dword ptr [rbx + 0x104], 0\n    jne gdone\n", "    nop\n"),
+    ("glide sets a ground mover", "dv_glide", "    cmp dword ptr [rbx + 0x710], 0\n    je gdone\n", "    nop\n"),
+    ("glide sets without a flight controller", "dv_glide", "    cmp qword ptr [rbx + 0x128], 0\n    je gdone\n",
+     "    nop\n"),
+    ("glide sets x only", "dv_glide", "    mulss xmm2, xmm1\n    movss dword ptr [rbx + 0xe8], xmm2\n",
+     "    movss dword ptr [rbx + 0xe8], xmm2\n"),
+    ("glide probes one slot", "dv_glide", "    dec r8d\n    jne gprobe\n", "    nop\n    nop\n"),
+    ("glide uncounted", "dv_glide", "    lock inc dword ptr [r10 + 5196]\n", "    nop\n"),
+    ("glide loses xmm1", "dv_glide", "    movdqu xmm1, xmmword ptr [rsp + 16]\n", "    nop\n"),
+    ("glide divides the wrong way", "dv_glide", "    divss xmm1, xmm0\n", "    divss xmm0, xmm1\n    movaps xmm1, xmm0\n"),
+    ("glide gives back the bodies' loss", "dv_glide", "    minss xmm3, xmm1\n    movaps xmm1, xmm3\n", "    nop\n"),
+    ("glide counts the pull as bodies", "dv_glide", "    maxss xmm3, xmm2\n    addss xmm3, xmm0\n",
+     "    xorps xmm3, xmm3\n    addss xmm3, xmm0\n"),
+    ("glide forgets the new lowest", "dv_glide", "    movss dword ptr [r10 + rax*4 + 4160], xmm1\n", "    nop\n"),
+    ("glide loses xmm4", "dv_glide", "    movdqu xmm4, xmmword ptr [rsp + 64]\n", "    nop\n"),
+    ("spent only caps (the D66 rule)", "dv_spent", "    movaps xmm3, xmm1\n",
+     "    comiss xmm0, xmm1\n    jbe sask\n    movaps xmm3, xmm1\n"),
+    ("spent lowest not lowered before the update", "dv_spent",
+     "    movss dword ptr [r10 + rax*4 + 4160], xmm0\npcall:", "    nop\npcall:"),
+    ("spent lowest raised before the update", "dv_spent", "    minss xmm0, dword ptr [r10 + rax*4 + 4160]\n",
+     "    nop\n"),
+    ("spent lowers an ended entry before the update", "dv_spent", "    test r9b, 1\n    jne pcall\n", "    nop\n"),
+    ("spent lowers in the air before the update", "dv_spent", "    cmp dword ptr [rdx + 0x104], 0\n    jne pcall\n",
+     "    nop\n"),
+    ("spent pre-check ignores the switch", "dv_spent", "    cmp dword ptr [r10 + 0], 1\n    jne pcall\n", "    nop\n"),
+    ("spent pre-check probes one slot", "dv_spent", "    dec r8d\n    jne pprobe\n", "    nop\n    nop\n"),
     ("spent caps x only", "dv_spent", "    mulss xmm2, xmm1\n    movss dword ptr [rcx + 0xe8], xmm2\n",
      "    movss dword ptr [rcx + 0xe8], xmm2\n"),
-    ("spent leaves +0x1c8", "dv_spent", "    minss xmm2, xmm3\n    movss dword ptr [rcx + 0x1c8], xmm2\n",
-     "    movss dword ptr [rcx + 0x1c8], xmm2\n"),
-    ("spent leaves +0x23c", "dv_spent", "    minss xmm2, xmm3\n    movss dword ptr [rcx + 0x23c], xmm2\n",
-     "    movss dword ptr [rcx + 0x23c], xmm2\n"),
-    ("spent leaves +0x1a0", "dv_spent", "    minss xmm2, xmm3\n    movss dword ptr [rcx + 0x1a0], xmm2\n",
-     "    movss dword ptr [rcx + 0x1a0], xmm2\n"),
-    ("spent leaves +0x238", "dv_spent", "    minss xmm2, xmm3\n    movss dword ptr [rcx + 0x238], xmm2\n",
-     "    movss dword ptr [rcx + 0x238], xmm2\n"),
-    ("spent caps at the factor, not the lowest", "dv_spent", "    movaps xmm3, xmm1\n", "    nop\n"),
+    ("spent leaves +0x1c8", "dv_spent", "    movss dword ptr [rcx + 0x1c8], xmm3\n", "    nop\n"),
+    ("spent leaves +0x23c", "dv_spent", "    movss dword ptr [rcx + 0x23c], xmm3\n", "    nop\n"),
+    ("spent leaves +0x1a0", "dv_spent", "    movss dword ptr [rcx + 0x1a0], xmm3\n", "    nop\n"),
+    ("spent leaves +0x238", "dv_spent", "    movss dword ptr [rcx + 0x238], xmm3\n", "    nop\n"),
+    ("spent holds at the factor, not the lowest", "dv_spent", "    movaps xmm3, xmm1\n    divss", "    nop\n    divss"),
     ("spent caps uncounted", "dv_spent", "    lock inc dword ptr [r10 + 5192]\n", "    nop\n"),
     ("spent asks without a flight controller", "dv_spent", "    cmp qword ptr [rcx + 0x128], 0\n    je back\n",
      "    nop\n"),
     ("spent asks the FC, not its model", "dv_spent", "    mov rcx, qword ptr [rdi]\n    test rcx, rcx\n",
      "    mov rcx, rdi\n    test rcx, rcx\n"),
-    ("spent skips the update", "dv_spent", "    call rax\n    mov r11,", "    nop\n    mov r11,"),
+    ("spent skips the update", "dv_spent", "    call rax\n    mov r10, qword ptr [rsp + 0x28]",
+     "    nop\n    mov r10, qword ptr [rsp + 0x28]"),
+    ("spent loses the buffer across the update", "dv_spent", "    mov r10, qword ptr [rsp + 0x28]\n",
+     "    mov r10, qword ptr [rsp + 0x20]\n"),
     ("spent wrong wrapper", "dv_spent", f"    lea rax, [r11 + {WRAPPER_FROM_RESUME:#x}]\n",
      f"    lea rax, [r11 + {WRAPPER_FROM_RESUME + 1:#x}]\n"),
     ("spent misaligned", "dv_spent", "    sub rsp, 0x20\n    lea rax", "    sub rsp, 0x18\n    lea rax"),
@@ -2230,7 +2543,8 @@ def layout():
             "reordered_at": REORDERED_AT, "contact_at": CONTACT_AT, "settled_at": SETTLED_AT,
             "released_at": RELEASED_AT, "slide_at": SLIDE_AT, "slide_slots": SLIDE_SLOTS,
             "committed_at": COMMITTED_AT, "closed_at": CLOSED_AT, "engaged_body_at": ENGAGED_BODY_AT,
-            "slide_v_at": SLIDE_V_AT, "sped_at": SPED_AT, "ended_at": ENDED_AT, "capped_at": CAPPED_AT}
+            "slide_v_at": SLIDE_V_AT, "sped_at": SPED_AT, "ended_at": ENDED_AT, "capped_at": CAPPED_AT,
+            "glided_at": GLIDED_AT}
 
 
 def source_sha():

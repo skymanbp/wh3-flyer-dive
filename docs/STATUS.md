@@ -25,8 +25,10 @@
   实机 `k4`：僵尸龙冲穿长矛兵、长戟兵、神选长戟（过目标中心 15.9–18.7 米）；神选长戟挡住狮鹫骑士，长矛兵挡住飞马骑士（`c5d8a5e`）。
 - D67：退出近战打断时不再清空飞行部队的命令（`pin_resume`，`FLYPIN12`）。其后实机里剩下的丢指令全是溃逃，剩下的落地是执行进攻
   （D67 addendum 2，`docs/HISTORY.md` CRAWL-1122b）；测试改为目标追着飞兽打（`target_chase=1`）。
-- 全部离线测试 299 项通过。试玩包（不带记录器）`D:/Projects/.worktrees/wh3-flyer-dive/crawl-1122/packs/owner/flyer_dive_takeoff.pack`，
-  sha256 `247acc46…5ff6c1`。等主人试玩；没上传。
+- D71（主人选「落地保留俯冲速度」）：落地后滑行按俯冲时的速度走，只有撞到的兵让它变慢（`dv_spent` + `dv_glide`，
+  `docs/HISTORY.md` LAND-1123）。实机 `land7`：冲指挥官稳在 13.5 米/秒，剑士 12.6，长矛兵 9.9，长戟兵 9.0，神选长戟 4.4。
+- 全部离线测试 299 项通过。试玩包（不带记录器）`D:/Projects/.worktrees/wh3-flyer-dive/crawl-1122/packs/owner2/flyer_dive_takeoff.pack`，
+  14,088,611 字节，sha256 `208775eb…dac4af5`，联机标记 `FLYPIN12` / `FLYDIVE9`。等主人试玩；没上传。
 
 ## 已发布：分支 `brace-once-1122`（D64；2026-11-22 上午并进 `main`、主模组上传、推送，UPLOAD-1122b）
 

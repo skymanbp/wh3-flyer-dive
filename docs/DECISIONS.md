@@ -1439,3 +1439,53 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   attack order stays queued: the attack being carried out, not a pull-back into formation.
 - Nothing changes in the mod for this; `pin_resume` (FLYPIN12) stands. The recorder keeps the rout state (F lines) so a rout
   is never counted as a pull-back again.
+
+### D71 · A diving flyer lands with the speed it dived at; only bodies slow it after (2026-11-23)
+
+> Owner, 2026-11-23, after playing the k 4 pack by hand: 「飞龙冲长矛、长戟还是有点粘脚，要不要把之前那个系数k改成默认3？」 and on what
+> it looks like: 「落地冲锋的过程中速度慢，感觉像拖着往前走。比之前好一些，但还是有点。」 Shown the measurement below, he chose
+> 「落地保留俯冲速度」.
+
+- Measured (battle `k4`, recorder P lines, planar speed +0x1c8 every 0.1 s): zombie dragons dive at 14.0 m/s (`FLYER_CHARGE_SPEEDS`
+  14.0); on the first tick on the ground they read 8.8-9.4 m/s, before the slide's first hold; then 9 -> 7.0 through spearmen and
+  halberdiers and 9.4 -> 3.7 through Chosen halberds. The installed zombie dragon has `charge_speed` 9.0 (ground) and the
+  entity holds 9.0 at +0x394 (14.0 at +0x180 / +0x1b8 / +0x1c0 / +0x3fc). Correction, same day: the first-tick speed depends
+  on k (battles `k1` / `k3` / `k4` / `k6`: 10.0 / 9.3 / 9.1 / 8.7 m/s), so part of the cut is the front rank's momentum
+  exchange; at k 1 it still loses 4 m/s, more than the solver's share gives for the bodies within reach (`knock2`: nearest
+  soldier 3.6-4.7 m at touchdown). Battle `land1` (dives onto a lone general, nothing else within reach; ground track from
+  the positions every 0.1 s): zombie dragon 13.0-14.0 m/s in the air -> 10.0 on the first tick down and 10-11 after; star
+  dragon 14.0 -> 11.0. The landing itself takes about 0.71 of the speed (9.9 / 14.0, 10.7 / 15.0 on the speed field), with
+  no body to hit; the front rank's exchange comes on top (zombie dragon into spearmen 14.0 -> 9.1 -> 6.9, into swordsmen
+  -> 10.1).
+- Rule: the landed dive keeps the planar speed it had in the air when it touches down; from there only the engine's
+  momentum exchange with bodies slows it (D66: no drive during the slide; D70: engine mass and shares, braced mass x k). k
+  stays 4. Where the engine cuts the speed at touchdown is found by probe before anything is changed.
+- Where (battles `land2`-`land4`, each one variable against `land1`): not the two 0.75 loads at 0x1430514a4 / 0x143051663
+  (patched to 1.0: no change), not the speed write 0x143107950 (it projects the velocity on the facing and matches the
+  ground track: the velocity itself is cut), not `DECELERATION` 30 (vanilla 10 in the pack: no change). The landed dive
+  is a ground charger whose flight update pulls its planar velocity to the ground charge target: entity +0x394
+  (`charge_speed`, 9.0 / 9.5) x +0x274 (1.15 zombie dragon, 1.20 star dragon) = 10.4 / 11.2, read on free ground.
+- How (`dv_spent`, the cave already around the per-model flight update): before the update, a held slide's lowest
+  becomes min(lowest, the planar speed) -- since the last tick only the pair solver has touched the velocity; after it,
+  the held model's planar velocity is set to that lowest, raised as well as lowered (direction kept), and the four speed
+  copies to it. So nothing but bodies lowers a slide, and the ground charge target cannot. The slide still ends at
+  `SLIDE_RELEASE_M` or below the walk speed (D64) and the engine takes over. On open ground a dragon now slides at its
+  dive speed up to `SLIDE_RELEASE_M`. FLYDIVE9 is not released, so the tag stays.
+- Battle `land5` (dv_spent alone): no change -- the speed copies dv_spent set (9.92) were read back 10.2, 10.4 on the next
+  samples. The pull is not in the flight update but in the per-entity movement update 0x143107624, whose velocity
+  integrator 0x14314e560 runs after dv_spent. Added `dv_glide` at 0x14310776a (the first read of the velocity after that
+  integrator, `movss xmm10, [rbx+0xe0]`): for a held slide the planar velocity is set to the slot's lowest there, before
+  the engine works the speed fields out of it (counted at `GLIDED_AT`). dv_spent's pre-update step still lowers the
+  lowest only by what happened since the last tick.
+- Battle `land6` (dv_spent + dv_glide): the dive speed is kept (zombie dragons 13-14 m/s through the slide), but braced
+  lines no longer slow it: depth past the target centre into spearmen 23.4 m (17.4 in `land1`), about the same as onto
+  a lone general (28.8). Battle `integ1` (trace sites at the integrator's entry 0x14314e560 and after its call
+  0x143107709, every tick of each landed dragon): the bodies' exchange arrives inside the integrator (+0x120 / +0x124
+  is the momentum taken off since the last tick; into swordsmen 7833 -> the velocity out 12.74 m/s from 14.0), and
+  dv_glide then set it back to the lowest, so the lowest never fell. The drive pulls only on the touchdown tick: there
+  the integrator's drive momentum (+0x118 / +0x11c) is mass x 10.4 (zombie dragon, 0.71 of the dive speed); on every
+  later held tick it is mass x the held speed (the speed copies dv_spent sets), so the integrator adds no pull.
+  Correction: dv_glide takes away only the drive's pull, and keeps what the bodies took: with L the slot's lowest,
+  s the planar speed out of the integrator and t = |drive momentum| / mass (+0xb4), the new lowest is
+  min(L, s + max(0, L - t)), stored in the slot, and the velocity is scaled to it (a mass that is not above 0: L, as
+  before).

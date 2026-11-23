@@ -355,6 +355,8 @@ local function drain_calls(ms, uid_of)
             elseif kind == 14 then                  -- [D45] rt_pursue: state, target unit, own model count, answer
                 extra = fmt(" st=%s tgt=%s own=%d yes=%d", hex_bytes(chunk, at + 64, 8), hex_bytes(chunk, at + 72, 8),
                     u32le(chunk, at + 80), u32le(chunk, at + 84))
+            elseif kind == 21 or kind == 22 then    -- [D71] rt_integ_in / rt_integ_out: fourteen entity dwords
+                extra = " f=" .. hex_bytes(chunk, at + 64, 56)
             elseif kind == 9 then                   -- the new task's parameters
                 local p = {}
                 for i = 0, 6 do p[#p + 1] = fmt("p%02x=%s", 8 * i, hex_bytes(chunk, at + 64 + 8 * i, 8)) end

@@ -58,8 +58,10 @@ class DiveSiteTable(unittest.TestCase):
                          + [("dv_brace", dive_cave_asm.FEATURE, "cave"), ("dv_reflect", dive_cave_asm.FEATURE, "cave")])
         self.assertIn(f"    owner = '{dive_cave_asm.OWNER}',", self.text.splitlines())
         self.assertIn("    resume_at = { dv_through = 29, dv_engage = 11, dv_reorder = 8, dv_reorder_move = 10, "
-                      "dv_attack_move = 17, dv_tick_move = 11, dv_settle = 14, dv_commit = 12, dv_brace = 26, dv_reflect = 5 },",
-                      self.text.splitlines())
+                      "dv_attack_move = 17, dv_tick_move = 11, dv_settle = 14, dv_commit = 12, dv_spent = 8, dv_brace = 26, "
+                      "dv_reflect = 5 },", self.text.splitlines())
+        # [D66 addendum] dv_spent calls dv_keep's site: the installer checks the distance (0x14308b420 - 0x143050269)
+        self.assertIn("    distances = { { from = 'dv_spent', to = 'dv_keep', bytes = 242103 } },", self.text.splitlines())
         self.assertNotIn("facing", self.text)
         self.assertIn("            at = 14, expect = 'F3 44 0F 59 C7',", self.text.splitlines())
         # [AIR-DIVE-RELEASE-W1] each call-site cave names the call it replaces

@@ -124,6 +124,15 @@ function M.install(log_fn)
                 given[name].resume = mr.add(at, off)
             end
         end
+        -- [D66 addendum] dv_spent calls dv_keep's site (the stop-flight wrapper): the two found addresses must be
+        -- the table's distance apart, or the game was patched and nothing is installed
+        for _, d in ipairs(site.distances or {}) do
+            local a, b = api.address(d.from), api.address(d.to)
+            if not a or not b then return nil, "no address for " .. tostring(d.from) .. " / " .. tostring(d.to) end
+            if mr.tostring(mr.add(a, d.bytes)) ~= mr.tostring(b) then
+                return nil, d.to .. " is not " .. tostring(d.bytes) .. " bytes after " .. d.from .. " (game patched?)"
+            end
+        end
         local done, problem = api.install_feature(site.feature, given)
         if not done then return nil, tostring(problem) end
         local now, placed = installed()
@@ -157,6 +166,10 @@ function M.arm(buf)
     end
     -- [D66] slides ended because the flyer sped up again (the lowest speeds need no clearing: written on each claim)
     if l.sped_at then put_u32(buf, l.sped_at, 0) end
+    -- [D66 addendum] flights the per-tick ask ended
+    if l.ended_at then put_u32(buf, l.ended_at, 0) end
+    -- [D66 addendum 2] ticks a held slide's speed was set back to its lowest
+    if l.capped_at then put_u32(buf, l.capped_at, 0) end
     -- [AIR-DIVE-BRACE-W1 round 3] the slide table holds entity pointers of the last battle: cleared
     local zeros = string.rep("\0", l.slide_slots * 16)
     mr_().write(buf, l.slide_at, zeros)
@@ -206,6 +219,10 @@ function M.counters(buf)
         closed = u32(buf, l.closed_at), engaged_body = u32(buf, l.engaged_body_at),
         -- [D66] slides ended because the landed flyer sped up again (the engine's drive, the dive's momentum spent)
         sped = l.sped_at and u32(buf, l.sped_at) or 0,
+        -- [D66 addendum] landed flyers whose flight the per-tick ask ended (dv_spent)
+        ended = l.ended_at and u32(buf, l.ended_at) or 0,
+        -- [D66 addendum 2] ticks a held slide's speed was set back to its lowest (the engine's drive held off)
+        capped = l.capped_at and u32(buf, l.capped_at) or 0,
         -- [D31 / D64] braced masses dv_brace scaled against a landed diving flyer (one per braced body met in a dive)
         braced = l.brace_count_at and u32(buf, l.brace_count_at) or 0,
         -- [D64] braced steps left to the engine (the pair met before in this dive); scaled with no slide entry yet

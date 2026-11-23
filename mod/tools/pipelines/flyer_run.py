@@ -14,7 +14,9 @@ One battle (``one``):
   7. runs the matching report on every record (REPORTS) into ``<record>_report.txt``;
   8. writes run.json (what was run, exit codes, verdict, whether the setup was the standard one, the checks) and
      one line in <out root>/LOG.md.
-  From step 4 to the cleanup of step 6 it holds the heavy-job lock (game_process.HEAVY_LOCK, so another lane's
+  ``--share-machine`` (the owner's order 2026-11-22: "直接跑，不用管机器"): step 1 does not refuse for another
+  heavy job or a held heavy-job lock (the game checks stay), and the lock is neither taken nor released.
+  Otherwise, from step 4 to the cleanup of step 6 it holds the heavy-job lock (game_process.HEAVY_LOCK, so another lane's
   heavy job waits) and keeps <out root>/inflight.json (used_mods.txt as it was, what it deploys): a run that was
   killed is undone at the start of the next one (used_mods.txt restored, its packs, the helper pack and
   pin_probe.cfg removed, its lock released) -- never while a Warhammer3 runs.
@@ -145,7 +147,7 @@ def release_lock(lock, token):
 
 def run_one(label, deploys, driver_args, out_root=OUT_ROOT, pin_cfg=None, busy=game_process.busy_refusal,
             game_root=GAME_ROOT, driver=DRIVER, timeout=DRIVER_TIMEOUT_S, lock=None,
-            game_running=game_process.running_game_refusal):
+            game_running=game_process.running_game_refusal, share_machine=False):
     """One battle; returns (exit code, run.json dict). 6 = refused, nothing touched; a finished label (run.json
     present) is not run again."""
     if inside_repo(out_root):
@@ -159,7 +161,7 @@ def run_one(label, deploys, driver_args, out_root=OUT_ROOT, pin_cfg=None, busy=g
     recovered = recover(out_root, game_root, game_running, lock)
     if recovered:
         print(f"[flyer_run] {recovered}")
-    why = busy(own_pids=(os.getpid(),))
+    why = busy(own_pids=(os.getpid(),), games_only=True) if share_machine else busy(own_pids=(os.getpid(),))
     refusal = None
     if why:
         refusal = f"busy: {why}"
@@ -168,7 +170,7 @@ def run_one(label, deploys, driver_args, out_root=OUT_ROOT, pin_cfg=None, busy=g
     elif (game_root / PIN_CFG).exists():
         refusal = f"a {PIN_CFG} is already in the game folder"
     token = f"flyer_run {label} pid {os.getpid()} {time.strftime('%F %T')}"
-    if not refusal and not take_lock(lock, token):
+    if not refusal and not share_machine and not take_lock(lock, token):
         refusal = f"heavy-job lock {lock} was taken just now"
     if refusal:
         _log(out_root, f"- {time.strftime('%F %T')} **{label}** NOT RUN: {refusal}")
@@ -213,7 +215,8 @@ def run_one(label, deploys, driver_args, out_root=OUT_ROOT, pin_cfg=None, busy=g
             (data / d["name"]).unlink(missing_ok=True)
         if wrote_cfg:
             (game_root / PIN_CFG).unlink(missing_ok=True)
-        release_lock(lock, token)
+        if not share_machine:
+            release_lock(lock, token)
         inflight.unlink(missing_ok=True)
     collected = {}
     for f, before in sizes.items():
@@ -249,7 +252,7 @@ def run_one(label, deploys, driver_args, out_root=OUT_ROOT, pin_cfg=None, busy=g
               "used_mods_unchanged": um_before == um_after,
               "data_folder_unchanged": listing_before == listing_after,
               "data_folder_diff": sorted(set(listing_after) ^ set(listing_before)),
-              "warhammer3_after": games_after}
+              "warhammer3_after": games_after, "shared_machine": share_machine}
     (out / "run.json").write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
     flag = "standard" if result["standard"] else f"NONSTANDARD {result['nonstandard']}"
     _log(out_root, f"- {started} -> {result['ended']} **{label}** rc={rc} verdict={result['verdict']} {flag} "
@@ -307,13 +310,15 @@ def main(argv=None):
     one.add_argument("--deploy", action="append", default=[], metavar="SRC=NAME")
     one.add_argument("--pin-cfg")
     one.add_argument("--out-root", default=str(OUT_ROOT))
+    one.add_argument("--share-machine", action="store_true",
+                     help="run while another heavy job runs (the owner's say-so); the game checks stay")
     lst = sub.add_parser("list")
     lst.add_argument("jobs")
     lst.add_argument("--out-root", default=str(OUT_ROOT))
     args = ap.parse_args(argv)
     if args.mode == "one":
         code, _res = run_one(args.label, parse_deploys(args.deploy), driver_args, out_root=Path(args.out_root),
-                             pin_cfg=args.pin_cfg)
+                             pin_cfg=args.pin_cfg, share_machine=args.share_machine)
         return code
     return run_list(args.jobs, out_root=Path(args.out_root))
 

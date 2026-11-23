@@ -369,6 +369,8 @@ def check(code, word_at, count_at):
             return
         expect = dict(ref)
         for reg, low in (want or {}).items():
+            if reg in ("XMM12", "XMM6"):      # [D70] the cave raises the share to s*, never lowers it (maxss)
+                low = max(low, struct.unpack("<f", struct.pack("<I", ref[reg] & 0xFFFFFFFF))[0])
             expect[reg] = lane(ref[reg], low)
         bad = {r: (hex(got[r]) if isinstance(got[r], int) else got[r], hex(expect[r]) if isinstance(expect[r], int)
                    else expect[r]) for r in expect if got[r] != expect[r]}
@@ -517,7 +519,7 @@ def once_cases(code, word_at, count_at, word, scaled_b, s_cave):
             if scaled and flyer_is_a:
                 expect["XMM1"], expect["XMM12"] = lane(ref["XMM1"], scaled_b), lane(ref["XMM12"], max(f32(0.1), s_cave))
             elif scaled:
-                expect["XMM2"] = lane(ref["XMM2"], f32(f32(f32(SPEAR[0]) * f32(SPEAR[1])) * f32(1.0)))
+                expect["XMM2"] = lane(ref["XMM2"], scaled_b)       # the braced A: its braced mass x k, as B above
                 expect["XMM6"] = lane(ref["XMM6"], max(f32(0.1), s_cave))
             bad = [r for r in expect if got[r] != expect[r]]
             if bad:

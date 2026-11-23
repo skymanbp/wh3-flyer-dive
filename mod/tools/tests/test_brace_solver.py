@@ -170,6 +170,8 @@ class SiteTable(unittest.TestCase):
         # [D66] the lowest slide speeds right after the slide table, one F32 per slot, then their counter
         self.assertEqual((lay["slide_v_at"], lay["sped_at"]),
                          (lay["slide_at"] + lay["slide_slots"] * 16, lay["slide_at"] + lay["slide_slots"] * 20))
+        self.assertEqual(lay["ended_at"], lay["sped_at"] + 4)      # [D66 addendum] flights the per-tick ask ended
+        self.assertEqual(lay["capped_at"], lay["sped_at"] + 8)     # [D66 addendum 2] slide speeds held at their lowest
         self.assertEqual(lay["brace_count_at"], lay["brace_word_at"] + 4)
         self.assertEqual((lay["reflect_word_at"], lay["reflect_count_at"]),
                          (lay["brace_word_at"] + 8, lay["brace_word_at"] + 12))
@@ -347,7 +349,7 @@ class BraceRule(unittest.TestCase):
         for label, why in (("mp_outside", "multiplayer battle outside a campaign"), ("no_mct", "MCT not installed")):
             with self.subTest(label=label):
                 on, k, share, reflect, word, rword, w = self.rows[label]
-                self.assertEqual((on, k, share, reflect), ("true", "1", "1", "2"))  # D63 k 1, s* 1 / D51 (Lua prints 1.0 as 1)
+                self.assertEqual((on, k, share, reflect), ("true", f"{air_dive_rules.BRACE_MASS_K:g}", f"{air_dive_rules.BRACE_SHARE_MIN:g}", "2"))  # D63 k 1; D70 s* 0 / D51
                 self.assertEqual(word, self.default_word)
                 self.assertEqual(rword, self.default_reflect)
                 self.assertEqual(rword, "200")
@@ -366,7 +368,8 @@ class BraceRule(unittest.TestCase):
 
     def test_bad_values_fall_back_one_by_one(self):
         on, k, share, reflect, word, rword, why = self.rows["bad"]
-        self.assertEqual((on, k, share, reflect, word, rword), ("true", "1", "1", "2", self.default_word,
+        self.assertEqual((on, k, share, reflect, word, rword), ("true", f"{air_dive_rules.BRACE_MASS_K:g}", f"{air_dive_rules.BRACE_SHARE_MIN:g}", "2",
+                                                                self.default_word,
                                                                 self.default_reflect))
         for note in ("on default (MCT holds yes)", "k default (MCT holds 50)", "share default (reading MCT failed: boom)",
                      "reflect default (MCT holds 0.5)"):
@@ -415,7 +418,7 @@ package.preload["script/campaign/flyer_dive/lib/dive"] = function()
         arm = function() ev("ARM") end,
         set_brace = function(_, w, r) ev("WORD " .. tostring(w) .. " " .. tostring(r)) end,
         counters = function() return { throughs = 0, skipped = 0, kept = 0, engaged = 0, reordered = 0, contact = 0,
-            settled = 0, released = 0, committed = 0, closed = 0, sped = 2, engaged_body = 0, braced = 7, brace_repeat = 5, brace_noslot = 1, reflected = 3 } end,
+            settled = 0, released = 0, committed = 0, closed = 0, sped = 2, ended = 4, capped = 6, engaged_body = 0, braced = 7, brace_repeat = 5, brace_noslot = 1, reflected = 3 } end,
     }
 end
 _G.memreader_plus = {}

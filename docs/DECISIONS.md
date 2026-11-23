@@ -1295,6 +1295,26 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   hold is kept per slide entry; once the speed is more than `SLIDE_GAIN` above it, the slide ends for good (as past
   `SLIDE_RELEASE_M`) and the engine's own engage / stop take over. D64's walk-speed floor and the 20 m window stay.
 - The multiplayer tag changes: FLYDIVE8 -> FLYDIVE9 (FLYDIVE8 is released).
+- Addendum (battles `crawl4`, `crawl5`, same day): the rule above fixed the crawl against upright bodies (melee engages held off
+  615 -> 38; the dragon engages 1-2 s after touchdown, 1-6 m deep), but against swordsmen the dragon knocks over the engine
+  asks nothing: no engage, no stop, no hold call for 2.5 s, so the slowing test never ran. The flyer stayed in flight movement
+  (+0x710 = 4, because `dv_keep` held the one stop-flight call of its touchdown) and the drive took it from 8 to 13 m/s and
+  about 30 m on. The per-model flight update runs on every tick for every flyer (battle `crawl5`: 494 of 494 ticks, no gap).
+  So the test runs every tick: right after the engine's per-tick executor 0x143050114 has updated a model (its call to
+  0x143053bd4 at 0x14305026c), a model on the ground, still in flight movement, with an entry in the slide table (held or
+  ended) is given the engine's own stop-flight call (the wrapper 0x14308b420, `dv_keep`'s site). `dv_keep` answers it as it
+  answers the engine: held while the dive's momentum lasts (fast, still slowing, inside 20 m), otherwise the engine ends the
+  flight and the flyer is an ordinary ground unit. Nothing is decided anew; the call the touchdown made once is now asked
+  again each tick until the slide is over. Counted (flights ended). FLYDIVE9 is not released, so the tag stays.
+- Addendum 2 (battle `spent1`, same day, owner: 「你直接跑，不用管机器」): with the per-tick ask the run-off was gone (dragons
+  against swordsmen 29-33 m past the target centre before, 1-5 m now), but the dragons stopped short: the slide ended
+  0.6-1.2 s after touchdown at 7-8 m/s because the speed had risen 0.5 m/s above its lowest (zombie dragon lane 2:
+  lowest 7.3, then 7.9). A rise only says the engine's drive outweighed the braking for a tick; the dive still had
+  most of its momentum. The rule is corrected: while the slide holds, the engine's drive may not add speed. After each
+  per-model update (`dv_spent`) a held flyer faster than its lowest speed since the first hold is set back to that
+  speed (planar velocity +0xe0 / +0xe8 and scalar speed +0x1c8 scaled together, direction kept; counted), so only the
+  bodies it hits slow it. The slide ends, as before, below the flyer's walk speed (D64) or past `SLIDE_RELEASE_M`; the
+  speed-rise end stays only as a backstop. The depth is then the engine's collision exchange alone.
 
 ### D67 · A flying unit's order survives the end of its melee interrupt (2026-11-22)
 
@@ -1318,3 +1338,85 @@ instruction from the owner. Built offline on branch `brace-solver-1120`; nothing
   dragon at full speed should go through swordsmen: 「跟我想要什么没关系。还是那句话，第一性原理。按照游戏引擎，这个质量和速度冲到哪合理？」
   The depth is whatever the engine's own physics gives for that mass and speed once the dive's momentum is spent; it is not a
   tuning choice.
+
+### D68 · A braced soldier struck hard enough by a heavy flyer is knocked down, as an unbraced one is (2026-11-22)
+
+> Owner, 2026-11-22, after battle `spent4` (dragons through swordsmen; into halberdiers 9.5-11.6 m, the dive spent near walk
+> speed): 「龙就应该能够冲穿长戟这种低质量步兵啊？」「有没有办法让大型和极大型的飞行单位的冲阵能力加强呢？」 Shown two physical
+> routes (the flyer's legs at its ground run speed; a braced soldier knocked down by a heavy impact), he chose 「撞倒架矛兵」.
+
+- Why swordsmen are ploughed and halberdiers are not: a swordsman struck by a dragon falls and stops being an obstacle; a braced
+  soldier gives its one exchange (D64) and stays upright in the way. A man bracing a spear withstands a bounded force; a body
+  far heavier and fast enough exceeds it.
+- The rule: the engine's own knock-down decision is applied to a braced soldier struck by a landed diving flyer as it is to an
+  unbraced one: the brace still adds its mass to the exchange (D63 / D64), but it no longer exempts the soldier from being
+  knocked down. Light flyers that do not knock an unbraced soldier down do not knock a braced one down either. No multiplier,
+  no size or unit-type list.
+- Measured, before any code (battles `knock1`, `knock2`; per-soldier tracks of the soldiers within 6 m of each dragon): there is
+  no such exemption. Swordsmen and halberdiers both carry the brace bit (46-50 of ~50 each), and are knocked away (state 137)
+  and staggered (state 42) at the same rates (137: 8 / 11 swordsmen, 9 / 16 halberdiers; 42: 27-37 each). The difference is
+  how far they are thrown: swordsmen 2.3-3.8 m, halberdiers 1.0-1.3 m, the braced mass at work (the engine's brace multiplier,
+  D63). The route above is withdrawn; the depth is set by the masses.
+- Owner, shown that and the estimates (soldiers a dive gets through before it is down to walk speed, per-soldier momentum
+  exchange with braced mass 540: very large 5000 -> 15, x1.5 -> 22, x2 -> 29; large 1700 -> 6, x1.25 -> 7, x1.5 -> 8; speed
+  14 -> 20 m/s only 15 -> 18), asked 「要不要按体型加强质量？」, then chose 「按体型加质量」 at 「大x1.25，极大x1.5」.
+  This revises D61 (vanilla mass) and D63's 'no multiplier of ours' for the flyer's own mass, on the owner's ruling.
+- The rule: a flyer's body mass is its installed mass x `MASS_FACTOR` by its body size (large 1.25, very large 1.5), through
+  the existing machinery (`air_dive_rules.mass_factor`, the flight entity rows). The collision attack stays sized on the
+  installed mass (`uncut_mass`), so impact damage is unchanged; the heavier body changes the momentum exchange. The celestial
+  lion's size override (ruled 2026-11-15 for the cut, because x0.75 slowed it too much) is dropped: it follows its own body
+  size. Flying war machines and chariots keep their mass (`MASS_CUT_MACHINES`, the existing ruling), pending the owner.
+
+### D69 · A landed flyer's slide lasts while it is hitting bodies; 0.5 s in the clear hands it to the engine's brake (2026-11-22)
+
+> Owner, 2026-11-22, after battle `mass1` (D68's masses: both dragons through braced halberdiers 4/4, 17-20 m; then coasting at
+> 5.2-5.8 m/s to `SLIDE_RELEASE_M`): asked for 「更优雅的方案」 than stopping at a distance; shown "slide while it is hitting
+> bodies, hand over after a spell with no contact", he set the spell: 「0.5秒吧？」.
+
+- A dive ploughs by hitting bodies. While the landed flyer is in contact with enemy bodies (the engine's own pair solver, the
+  step where `dv_brace` sits), the slide holds as before (D66: no drive, only the bodies slow it; D64: below walk speed it
+  fights). After `CLEAR_S` 0.5 s with no contact the slide ends for good and the engine's own stop / engage take over (its
+  deceleration stops it within 0.5-1.5 m from about 5.5 m/s). `SLIDE_RELEASE_M` stays only as a safety bound.
+- Why 0.5 s: it must be longer than the gaps inside a formation (between ranks, past a knocked-down soldier), or the slide
+  ends half-way through; every 0.1 s more is about 0.55 m more slide at 5.5 m/s. The longest gap inside a block is measured
+  in the first battle with the rule, against this value.
+- Measured (battle `clear1`): the pair solver's step runs for every body near the flyer, not only for bodies it hits. The
+  contact mark stayed set on every tick, 12 m past the block's back rank too (zombie dragon lane 1: miss count 1 from touchdown
+  to the 20 m bound, speed flat at 5.4-6.0 m/s from 6.4 m on), so "in the solver" is not "hitting". The slide ended at
+  `SLIDE_RELEASE_M` in every lane, as before (`slides ended in the clear 0`).
+- So a hit is what it does to the flyer: since D66's cap the engine's drive cannot raise a landed flyer's speed, and only the
+  bodies it hits can lower it. A tick counts as a hit when the flyer's planar speed after the per-model update is below its
+  slide's lowest so far; the 0.5 s (`CLEAR_TICKS` ticks, counted from the first hit) run without one ends the slide. The same
+  rule ends a slide held at a standstill inside a braced block (the drive matching the bodies, nothing slowing it any more:
+  the crawl of D66). The contact mark in `dv_brace` is removed.
+- Battle `clear2` (the speed rule): the rule fired (10 slides), but inside braced halberdiers too: after the front rank the
+  dragons crossed the block at 4.5-5 m/s with nothing lowering their speed (each braced soldier resists once, D64), so the
+  0.5 s ran out 2.8-7.8 m past the centre. Neither "a body nearby" nor "slowed this tick" is "in the clear".
+- Owner, 2026-11-22: 「算了，太复杂了。我建议还是按引擎来，由动量决定，能撞多远撞多远。如果撞穿了就参考原版的战车，掉头回来打就行了。」
+  D69 is withdrawn (its code removed): the slide is D66's (no drive, only the bodies slow it, below walk speed it fights) with
+  D68's masses, bounded by `SLIDE_RELEASE_M`; past that bound the engine's own engage takes over and the flyer turns back to
+  fight, as a ground chariot that has charged through (battle `mass1`: through 4/4, stopped at 16-17 m, melee 3.5-4.3 s).
+- Owner, 2026-11-22, on how D68's raise relates to D63 (his questions: 「为什么以前质量下调了，部队还是能冲穿，现在部队质量必须增加才行」):
+  shown that the old dives went through because the engine drove the landed flyer at its flying charge speed and the
+  engine's size-tier share let a dragon take 10% of a collision against a soldier (1.3% speed per braced soldier), and that
+  D63 set the flyer's share against braced bodies to 100% (12.7% per soldier), he ruled for D70 below.
+
+### D70 · Flyers by the engine's own physics; charge resistance is what strengthens a braced line (2026-11-22)
+
+> Owner, 2026-11-22: 「那不加质量，把100%下调呢？我的想法是，飞行巨兽冲步兵，全部以第一性原理出发，按照游戏引擎的动量计算能冲多远，
+> 以及冲击伤害打多高。步兵这边，我们增加冲锋抗性的效果，让高冲锋抗性的部队能够更有效的挡住飞行部队的冲锋。但是如果是巨龙这种高质量冲矛兵
+> 这种“能挡住普通飞行部队冲锋”的低级抵冲部队，那应该是能够冲穿的，而且这个冲穿是游戏引擎计算出的。」
+
+- The flyer side is the engine's: installed mass (D68's raise withdrawn, `MASS_FACTOR` empty again, as D61), and the
+  engine's own size-tier share in the pair solver (`BRACE_SHARE_MIN` 0: the cave keeps max(the engine's share, 0)). Depth and
+  impact damage follow from mass and speed through the engine's momentum exchange. D66's cap (no drive during the slide) and
+  D64 (each braced soldier resists once; below walk speed it fights) stay.
+- The infantry side is where the mod acts: `BRACE_MASS_K` multiplies the engine's own braced mass, which already grows with
+  the soldier's charge defence (x2 with `charge_defense` / `charge_defense_vs_large`, clamped at 10, D63), so higher charge
+  defence holds more. The test: low-tier anti-charge infantry (spearmen) hold ordinary flyers (pegasus, griffon) and are
+  ploughed by dragons; k is chosen from measured battles at a few values and shown to the owner before it ships.
+- Measured (battles `k1`, `k3`, `k6`; zombie dragon, griffon knights, pegasus knights against spearmen, halberdiers and Chosen
+  halberds; depth past the target's centre, m): zombie dragon through every block at every k (spearmen 21.0 / 18.9 / 19.5,
+  halberdiers 24.6 / 18.3 / 18.3, Chosen 21.0 / 15.9 / 16.2, ending at `SLIDE_RELEASE_M`); griffon knights against spearmen
+  17-23 / 12-17 / 0-12, against Chosen 11-15 / 2-7 / 2-9; pegasus knights held at 0-5 against spearmen and halberdiers at
+  every k. Owner, shown the three: 「4」. `BRACE_MASS_K` 4.0 (the MCT slider keeps 1-10).

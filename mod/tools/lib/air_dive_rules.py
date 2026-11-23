@@ -1036,10 +1036,10 @@ DIVE_COST_FRONT_ARC = True
 # hundredths in bits 16-23; 0 = off), so a game Lua number (float32) never carries float bits; every value of
 # the word stays below 2^24, exact in a float32.
 BRACE_LINE_DEFAULT_ON = True
-BRACE_MASS_K = 1.0                      # [D63 2026-11-22] no multiplier of our own: the engine's brace (charge defence) only
+BRACE_MASS_K = 4.0                      # [D70 2026-11-22] owner 「4」, after battles k1 / k3 / k6 (D63 had 1.0)
 BRACE_MASS_K_RANGE = (1.0, 10.0)        # MCT slider; 1.0 = the engine's own braced mass
 BRACE_MASS_K_STEP = 0.1
-BRACE_SHARE_MIN = 1.0                   # [D63] no size-tier discount against a braced body: mass against braced mass
+BRACE_SHARE_MIN = 0.0                   # [D70 2026-11-22] the engine's own size-tier share (D63 had 1.0: mass against braced mass)
 BRACE_SHARE_MIN_RANGE = (0.0, 1.0)      # MCT slider; 0 = the engine's own share
 BRACE_SHARE_MIN_STEP = 0.05
 BRACE_WORD_SCALE = 100                  # hundredths

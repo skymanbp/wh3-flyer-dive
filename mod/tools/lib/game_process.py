@@ -347,11 +347,12 @@ def python_command_lines():
     return lines
 
 
-def busy_refusal(own_pids=()):
+def busy_refusal(own_pids=(), games_only=False):
     """None when a heavy in-game run may start now, else every reason it may not: a running Warhammer3 (the
     owner's), another game (OVERWATCH, any program from a Steam game folder but the excepted one), the heavy-job
     lock file, a python heavy job (pytest / auto_test.py / build_pack) other than ``own_pids``. Fail-closed: a
-    probe that cannot answer is a reason."""
+    probe that cannot answer is a reason. ``games_only`` (flyer_run --share-machine, the owner's order
+    2026-11-22): the heavy-job lock and other python heavy jobs are not reasons; every game check stays."""
     why = []
     game = running_game_refusal()
     if game:
@@ -368,6 +369,8 @@ def busy_refusal(own_pids=()):
             path = (image_path(pid) or "").lower()
             if STEAM_GAMES_MARK in path and not any(e in path for e in STEAM_GAMES_EXCEPT):
                 why.append(f"steam game {name}#{pid} is running")
+    if games_only:
+        return "; ".join(why) or None
     if os.path.exists(HEAVY_LOCK):
         why.append(f"heavy-job lock {HEAVY_LOCK} is held")
     try:

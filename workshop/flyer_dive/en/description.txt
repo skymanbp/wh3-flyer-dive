@@ -3,14 +3,14 @@ Flyers now charge like flyers. Dragons, griffons, pegasi, manticores and every o
 
 [h2]What changes[/h2]
 [list]
-[*][b]Dive and plough.[/b] The charge comes in at a shallow angle instead of dropping straight down. On landing the flyer keeps moving through the enemy rank; only collisions slow it, and those collisions deal the engine's own impact damage.
-[*][b]No dead stop on braced spears.[/b] Infantries no longer freeze a landing flyer on first contact. Although, units with high charge resistance are much less likely to be ploughed through. This can be adjusted with MCT.
-[*][b]More Charge Reflection damage.[/b] Charge Reflection hits flying units twice as hard as in the base game, inside the game's own damage calculation. Can be adjusted with MCT.
+[*][b]Dive and plough.[/b] The charge comes in at a shallow angle instead of dropping straight down. Flyers now actually dive into the enemy and deal impact damage.
 [*][b]Whole units land together.[/b] Every model of a multi-entity flyer lands with its unit; no single model drops alone at its starting spot and splits the unit in two.
 [*][b]No bounce after landing.[/b] Multi-entity flyers no longer get pulled back up into the air when the leader touches down.
-[*][b]Fairer take-off.[/b] Take-off is judged by body size, per model, and by the time since the last melee hit. Models that have taken off fly on with their unit's orders and are no longer pulled back down by models still held on the ground.
+[*][b]Fairer take-off.[/b] Take-off is now judged per model, and by the time since the last melee hit.
+[*][b]More obedient.[/b] Models that have taken off fly on with their unit's orders and are no longer pulled back down by models still held on the ground.
+[*][b]Moving attack animation.[/b] Every flyer gets a moving attack.
 [*][b]Breath in melee.[/b] Dragon breath and similar breath abilities can be used while engaged or grounded. Can be adjusted with MCT.
-[*][b]Tuned flyers.[/b] Per-flyer charge speeds set by role and lore; every flyer gets a moving attack.
+[*][b]MCT settings.[/b] With the Mod Configuration Tool you can switch breath in melee on or off, set how strongly braced units resist a dive, and set how much Charge Reflection damage flying units take.
 [/list]
 Applies to both sides, AI included.
 
